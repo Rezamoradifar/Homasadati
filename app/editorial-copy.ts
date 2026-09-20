@@ -1,5 +1,7 @@
 export const editorialCopy = {
   "fa": {
+    "cmsError": "محتوای تازه دریافت نشد.", "cmsRetry": "تلاش دوباره", "cmsRead": "بیشتر بخوانید", "cmsTitle": "تازه‌های مجموعه",
+    "account": "حساب کاربری",
     "collection": "مجموعهٔ همای سعادت",
     "utility": "از ایران، با نگاهی جهانی",
     "partnership": "همکاری با ما",
@@ -68,6 +70,8 @@ export const editorialCopy = {
     "discover": "کشف کنید"
   },
   "en": {
+    "cmsError": "Updates could not be loaded.", "cmsRetry": "Try again", "cmsRead": "Read more", "cmsTitle": "Latest from Homay Saadat",
+    "account": "My account",
     "collection": "The Homay Saadat collection",
     "utility": "Rooted in Iran. Open to the world.",
     "partnership": "Partner with us",
@@ -136,6 +140,8 @@ export const editorialCopy = {
     "discover": "Discover"
   },
   "ar": {
+    "cmsError": "تعذر تحميل المستجدات.", "cmsRetry": "حاول مجدداً", "cmsRead": "اقرأ المزيد", "cmsTitle": "آخر المستجدات",
+    "account": "حسابي",
     "collection": "مجموعة هماي سعادت",
     "utility": "من إيران، برؤية عالمية",
     "partnership": "تعاون معنا",

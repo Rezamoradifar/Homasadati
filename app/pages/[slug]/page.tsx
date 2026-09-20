@@ -1,0 +1,35 @@
+import { notFound } from "next/navigation";
+import { one } from "../../../src/platform/schema";
+export const dynamic = "force-dynamic";
+export default function ContentPage({ params }: { params: { slug: string } }) {
+  const p = one(
+    "SELECT * FROM p_content WHERE slug=? AND published=1",
+    params.slug,
+  );
+  if (!p) notFound();
+  return (
+    <main
+      dir="rtl"
+      style={{
+        fontFamily: "Vazirmatn",
+        maxWidth: 900,
+        margin: "50px auto",
+        padding: 25,
+        lineHeight: 2,
+        color: "#183f33",
+      }}
+    >
+      <a href="/">همای سعادت</a>
+      <h1 style={{ fontSize: 36, marginBlock: 30 }}>{p.title}</h1>
+      {p.image && (
+        <img
+          src={p.image}
+          alt=""
+          style={{ width: "100%", maxHeight: 440, objectFit: "cover" }}
+        />
+      )}
+      <div style={{ whiteSpace: "pre-wrap", marginBlock: 30 }}>{p.body}</div>
+      <a href="/account">ورود به حساب کاربری</a>
+    </main>
+  );
+}

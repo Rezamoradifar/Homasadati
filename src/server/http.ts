@@ -13,11 +13,11 @@ export function sameOrigin(request:Request){
  else if(parsed.host!==request.headers.get('host'))throw new ApiError(403,'origin_denied');
  if(request.headers.get('sec-fetch-site')==='cross-site')throw new ApiError(403,'origin_denied');
 }
-export async function body(request:Request):Promise<Record<string,unknown>>{
+export async function body(request:Request,maxBytes=16384):Promise<Record<string,unknown>>{
  if(!request.headers.get('content-type')?.includes('application/json'))throw new ApiError(415,'json_required');
  const reader=request.body?.getReader();if(!reader)throw new ApiError(400,'invalid_input');
  let bytes=0;const chunks:Uint8Array[]=[];
- try{for(;;){const {value,done}=await reader.read();if(done)break;bytes+=value.length;if(bytes>16384){await reader.cancel();throw new ApiError(413,'too_large');}chunks.push(value);}}finally{reader.releaseLock();}
+ try{for(;;){const {value,done}=await reader.read();if(done)break;bytes+=value.length;if(bytes>maxBytes){await reader.cancel();throw new ApiError(413,'too_large');}chunks.push(value);}}finally{reader.releaseLock();}
  try {const parsed=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw new Error();return parsed;}catch{throw new ApiError(400,'invalid_input');}
 }
 export function string(value:unknown,min:number,max:number){if(typeof value!=='string'||value.trim().length<min||value.trim().length>max)throw new ApiError(400,'invalid_input');return value.trim();}

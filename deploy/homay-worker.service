@@ -1,0 +1,19 @@
+[Unit]
+Description=Homay Saadat financial maturity and notification worker
+After=network.target homay.service
+
+[Service]
+Type=simple
+User=homay
+Group=homay
+WorkingDirectory=/opt/homay/app
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node --import tsx /opt/homay/app/scripts/platform-worker.ts
+Restart=on-failure
+RestartSec=10
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

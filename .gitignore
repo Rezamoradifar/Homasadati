@@ -8,3 +8,8 @@ data/
 .env.local
 .env.production
 *.sqlite*
+
+.platform-bootstrap.txt
+.platform-qa*
+
+backups/

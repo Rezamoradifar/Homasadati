@@ -1,3 +1,7 @@
+# User and admin platform
+
+Database-backed user/admin panels are available at `/account` and `/admin`. See [PLATFORM.md](./PLATFORM.md) for required setup, HTTPS, provider configuration, financial rules, test results and explicit integration limits. The old enquiry dashboard is now `/admin/legacy`.
+
 # Landing update
 
 The app includes a multilingual landing, persistent SQLite forms, private request tracking and an authenticated admin dashboard. Start with `LANDING-README.md` for setup and `API.md` for endpoints. The reusable footer documentation follows.
