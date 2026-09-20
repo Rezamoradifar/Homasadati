@@ -1,3 +1,4 @@
+import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { z } from "zod";
 import {
   id,
@@ -19,6 +20,9 @@ const reason = z.object({ reason: text });
 export function validateClient(path: string, method: string, data: unknown) {
   const p = path.split("?")[0].split("/");
   let schema: z.ZodTypeAny | undefined;
+  if (p.join("/") === "cart/quote")
+    schema = z.object({ items: cartItemsSchema });
+  if (p[0] === "checkouts" && !p[1]) schema = checkoutSchema;
   if (p[0] === "auth") {
     if (p[1] === "otp")
       schema = z.object({

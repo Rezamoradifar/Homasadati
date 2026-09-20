@@ -51,6 +51,7 @@ const adminTabs: [string, string, string[]][] = [
   ["operations-beauty", "داشبورد زیبایی", ["superadmin", "finance"]],
   ["operations-craft", "داشبورد صنایع‌دستی", ["superadmin", "finance"]],
   ["operations-ai", "داشبورد هوش مصنوعی", ["superadmin", "finance"]],
+  ["operations-leather", "داشبورد چرم ایران", ["superadmin", "finance"]],
   ["dashboard", "سلامت مالی", ["superadmin", "finance"]],
   ["products", "محصولات و تورها", ["superadmin", "content"]],
   ["taxonomy", "دسته‌ها و برچسب‌ها", ["superadmin", "content"]],

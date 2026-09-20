@@ -13,3 +13,5 @@ data/
 .platform-qa*
 
 backups/
+
+.next-dev/

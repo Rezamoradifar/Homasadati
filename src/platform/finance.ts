@@ -535,6 +535,8 @@ export function refundOrder(
         (o.paid_at && now() > o.cancel_until))
     )
       throw new ApiError(409, "cancellation_expired");
+    const checkout=one("SELECT c.status,c.expires_at FROM p_checkouts c JOIN p_checkout_items i ON i.checkout_id=c.id WHERE i.order_id=?",orderId);
+    if(!o.paid_at && checkout?.status==='pending' && checkout.expires_at>now())throw new ApiError(409,"payment_reconciliation_required");
     // A payment with an issued authority must be reconciled before inventory can be released.
     if (
       !o.paid_at &&

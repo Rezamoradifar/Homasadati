@@ -1,3 +1,11 @@
+import {
+  cartItemsSchema,
+  checkoutSchema,
+  quoteCart,
+  createCheckout,
+  payCheckout,
+  settleCheckout,
+} from "./checkout";
 import { media } from "./media";
 import { operations } from "./operations";
 import { publicCatalogDetails } from "./catalog-model";
@@ -96,7 +104,9 @@ const calendarDate = z
 const querySchema = z.object({
   page: z.coerce.number().int().min(1).max(100000).default(1),
   q: z.string().max(200).default(""),
-  vertical: z.enum(["tourism", "beauty", "craft", "ai", ""]).default(""),
+  vertical: z
+    .enum(["tourism", "beauty", "craft", "ai", "leather", ""])
+    .default(""),
   status: z.string().max(30).default(""),
   from: calendarDate.optional(),
   to: calendarDate.optional(),
@@ -851,7 +861,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           id: id.optional(),
           name: text,
           kind: z.enum(["category", "tag"]),
-          vertical: z.enum(["tourism", "beauty", "craft", "ai"]),
+          vertical: z.enum(["tourism", "beauty", "craft", "ai", "leather"]),
         })
         .parse(data);
       sql =
@@ -910,6 +920,20 @@ export async function handle(req: Request, path: string[]) {
         .min(10)
         .max(100)
         .parse(url.searchParams.get("Authority"));
+      const checkout = one(
+        "SELECT * FROM p_checkouts WHERE authority=?",
+        authority,
+      );
+      if (checkout) {
+        if (checkout.status !== "paid") {
+          const ref = await verifyPayment(authority, checkout.amount);
+          settleCheckout(checkout.id, ref);
+        }
+        return Response.redirect(
+          new URL("/account?tab=orders", process.env.APP_ORIGIN!),
+          303,
+        );
+      }
       const order = one("SELECT * FROM p_orders WHERE authority=?", authority);
       if (!order) throw new ApiError(404, "not_found");
       if (!order.paid_at) {
@@ -920,6 +944,10 @@ export async function handle(req: Request, path: string[]) {
         new URL("/account?tab=orders", process.env.APP_ORIGIN!),
         303,
       );
+    }
+    if (path.join("/") === "cart/quote" && method === "POST") {
+      limit("cart-quote:" + ipOf(req), 100, 300);
+      return json(quoteCart(cartItemsSchema.parse(data.items)));
     }
     if (path[0] === "catalog" && get) {
       const q = query(url);
@@ -1068,6 +1096,25 @@ export async function handle(req: Request, path: string[]) {
       run("DELETE FROM p_sessions WHERE user_id=?", u.id);
       return json({ ok: true, reauthenticate: true });
     }
+    if (path[0] === "checkouts") {
+      if (get) {
+        const c = one(
+          "SELECT id,amount,status,method,expires_at FROM p_checkouts WHERE id=? AND user_id=?",
+          id.parse(path[1]),
+          u.id,
+        );
+        if (!c) throw new ApiError(404, "not_found");
+        return json(c);
+      }
+      if (path[2] === "payment")
+        return json(await payCheckout(id.parse(path[1]), u.id));
+      if (path.length !== 1) throw new ApiError(404, "not_found");
+      const c = createCheckout(u.id, checkoutSchema.parse(data));
+      return json(
+        { id: c.id, status: c.status, amount: c.amount, method: c.method },
+        201,
+      );
+    }
     if (path[0] === "orders") {
       if (get && path[2] === "invoice") {
         const o = one(
@@ -1116,6 +1163,11 @@ export async function handle(req: Request, path: string[]) {
         );
       }
       if (path[2] === "payment") {
+        const group = one(
+          "SELECT checkout_id FROM p_checkout_items WHERE order_id=?",
+          id.parse(path[1]),
+        );
+        if (group) return json(await payCheckout(group.checkout_id, u.id));
         const order = one(
           "SELECT * FROM p_orders WHERE id=? AND user_id=?",
           id.parse(path[1]),

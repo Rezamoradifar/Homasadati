@@ -14,7 +14,7 @@ export const contact = z
     "ایمیل یا موبایل با پیش‌شماره کشور معتبر نیست",
   )
   .transform((v) => (v.includes("@") ? v : "+" + v.replace(/^\+/, "")));
-export const vertical = z.enum(["tourism", "beauty", "craft", "ai"]);
+export const vertical = z.enum(["tourism", "beauty", "craft", "ai", "leather"]);
 export const httpsImage = z
   .string()
   .max(1000)

@@ -2,6 +2,9 @@ import { validateClient } from "./client-validation";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
   too_large: "حجم اطلاعات ارسالی بیش از حد مجاز است.",
+  product_unavailable: "یکی از محصولات سبد دیگر قابل فروش نیست؛ آن را حذف کنید.",
+  price_changed: "قیمت تغییر کرده است؛ سبد را تازه‌سازی و مبلغ جدید را تأیید کنید.",
+  address_required: "برای کالاهای فیزیکی یک آدرس معتبر از حساب خود انتخاب کنید.",
   invalid_image: "تصویر معتبر نیست؛ فایل JPEG، PNG یا WebP سالم انتخاب کنید.",
   unauthorized: "برای ادامه وارد حساب شوید.",
   forbidden: "نقش شما اجازهٔ این عملیات را ندارد.",
@@ -89,6 +92,7 @@ export const labels: Record<string, string> = {
   tourism: "گردشگری",
   beauty: "زیبایی",
   craft: "صنایع‌دستی",
+  leather: "چرم ایران",
   ai: "اشتراک هوش مصنوعی",
   pending: "در انتظار",
   processing: "در حال پردازش",

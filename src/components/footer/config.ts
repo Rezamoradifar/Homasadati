@@ -3,7 +3,7 @@ const group = (id: string, routes: string[]): FooterColumnConfig => ({
   id, titleKey: `columns.${id}`, links: routes.map(route => ({href: `/${route}`, labelKey: `links.${route}`}))
 });
 export const defaultColumns: readonly FooterColumnConfig[] = [
-  group('verticals', ['tourism', 'beauty', 'handicrafts', 'content', 'club', 'ai']),
+  group('verticals', ['tourism', 'beauty', 'handicrafts', 'leather', 'content', 'club', 'ai']),
   group('services', ['booking', 'concierge', 'global-shipping', 'dalarit', 'api', 'partners']),
   group('company', ['about', 'careers', 'press', 'sustainability', 'contact']),
   group('support', ['help', 'faq', 'terms', 'privacy', 'refund'])

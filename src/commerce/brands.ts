@@ -1,0 +1,45 @@
+export const brands = {
+  tourism: {
+    name: "همای سعادت",
+    latin: "Homay Saadat",
+    label: "گردشگری ایران",
+    image: "/assets/tourism-wide.jpg",
+    tone: "#155b5b",
+    tagline: "ایران را زندگی کن؛ آرام، عمیق، به‌یادماندنی.",
+  },
+  craft: {
+    name: "هما تمدن",
+    latin: "Homa Tamaddon",
+    label: "صنایع‌دستی ایران",
+    image: "/assets/craft-wide.jpg",
+    tone: "#814f31",
+    tagline: "هنری که از دست‌ها می‌گذرد و در خانه می‌ماند.",
+  },
+  beauty: {
+    name: "هما زیبا",
+    latin: "Homa Ziba",
+    label: "زیبایی و مراقبت",
+    image: "/assets/beauty.jpg",
+    tone: "#895766",
+    tagline: "مراقبت آگاهانه؛ زیبایی در اندازه زندگی.",
+  },
+  ai: {
+    name: "هما هوشمند",
+    latin: "Homa Intelligence",
+    label: "هوش مصنوعی و رشد",
+    image: "/assets/ai.jpg",
+    tone: "#343f68",
+    tagline: "فناوری در خدمت انسان، خلاقیت و کسب‌وکار.",
+  },
+  leather: {
+    name: "هما چرم",
+    latin: "Homa Leather",
+    label: "چرم و طراحی ایرانی",
+    image: "",
+    tone: "#663f2a",
+    tagline: "خوش‌ساخت، ماندگار، همراه روزهای تو.",
+  },
+} as const;
+export type Sector = keyof typeof brands;
+export const sectorKeys = Object.keys(brands) as Sector[];
+export const isSector = (s: string): s is Sector => Object.prototype.hasOwnProperty.call(brands, s);

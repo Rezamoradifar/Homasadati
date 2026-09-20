@@ -18,7 +18,7 @@ import {
 } from "./Widgets";
 import { commissionColumns, orderColumns, Network } from "./UserPanel";
 import { policySchema, productSchema } from "./validation";
-const verticals: [string, string][] = ["tourism", "beauty", "craft", "ai"].map(
+const verticals: [string, string][] = ["tourism", "beauty", "craft", "ai", "leather"].map(
   (k) => [k, labels[k]],
 );
 const catalogFields: Field[] = [

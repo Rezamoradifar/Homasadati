@@ -21,6 +21,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import Portal from "./Portal";
+import Storefront from "../commerce/Storefront";
+import Cart from "../commerce/Cart";
 import { handle } from "./api";
 import { platformDb, run, one, now } from "./schema";
 import { passwordHash, session, SESSION_COOKIE } from "./security";
@@ -202,5 +204,62 @@ describe("Panels use actual APIs and SQLite", () => {
       "ارتباط شبکه قطع است. اتصال اینترنت را بررسی کنید.",
     );
     expect(screen.queryByText("هنوز موردی ثبت نشده است.")).toBeNull();
+  });
+  it("adds a real catalog item to the basket and completes wallet checkout through the UI", async () => {
+    authCookie = member;
+    localStorage.clear();
+    sessionStorage.clear();
+    const buyer = one("SELECT id FROM p_users WHERE role='user'")!.id;
+    run("UPDATE p_wallets SET available=1000000 WHERE user_id=?", buyer);
+    run(
+      "INSERT INTO p_addresses VALUES(?,?,?,?,?,?,?)",
+      randomUUID(),
+      buyer,
+      "خانه",
+      "ایران",
+      "تهران",
+      "1234567890",
+      "آدرس آزمون خرید",
+    );
+    saveSetting(
+      "commission_policy",
+      JSON.stringify({
+        directBps: 0,
+        levels: [],
+        binaryBps: 0,
+        maxPayoutBps: 0,
+        warningBps: 5000,
+        criticalBps: 8000,
+        withdrawMin: 1,
+        withdrawMax: 1000000,
+        paused: false,
+      }),
+    );
+    const user = userEvent.setup(),
+      view = render(<Storefront />);
+    await user.click(
+      await screen.findByRole("button", { name: "افزودن به سبد خرید" }),
+    );
+    await screen.findByText("به سبد خرید اضافه شد.");
+    view.unmount();
+    render(<Cart />);
+    await screen.findByRole("option", { name: /خانه — تهران/ });
+    await user.selectOptions(screen.getByLabelText("روش پرداخت"), "wallet");
+    const addressSelect = screen.getByRole("combobox", { name: /آدرس ارسال/ });
+    await user.selectOptions(
+      addressSelect,
+      one("SELECT id FROM p_addresses WHERE user_id=?", buyer)!.id,
+    );
+    await user.click(
+      screen.getByRole("button", { name: "ثبت سفارش و پرداخت" }),
+    );
+    await screen.findByText(/پرداخت ثبت شد/);
+    expect(
+      one("SELECT available FROM p_wallets WHERE user_id=?", buyer)!.available,
+    ).toBe(750000);
+    expect(
+      one("SELECT status FROM p_checkouts WHERE user_id=?", buyer)!.status,
+    ).toBe("paid");
+    expect(JSON.parse(localStorage.getItem("homa-basket-v1")!)).toEqual([]);
   });
 });

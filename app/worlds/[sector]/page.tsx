@@ -1,0 +1,162 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { brands, isSector, sectorKeys } from "../../../src/commerce/brands";
+import { stories } from "../../../src/commerce/content";
+import { CommerceShell } from "../../../src/commerce/Shell";
+import Economics from "../../../src/commerce/Economics";
+export function generateMetadata({
+  params,
+}: {
+  params: { sector: string };
+}): Metadata {
+  if (!isSector(params.sector)) return {};
+  const b = brands[params.sector];
+  return {
+    title: `${b.name} | ${b.label} — همای سعادت`,
+    description: stories[params.sector].intro,
+  };
+}
+export default function BrandPage({ params }: { params: { sector: string } }) {
+  if (!isSector(params.sector)) notFound();
+  const k = params.sector,
+    b = brands[k],
+    s = stories[k];
+  return (
+    <CommerceShell>
+      <main id="commerce-main">
+        <section
+          className={`brand-hero ${k}`}
+          style={{ backgroundColor: b.tone }}
+        >
+          {b.image && (
+            <img
+              src={b.image}
+              alt="تصویر مفهومی حوزه فعالیت؛ تصویر محصول قابل خرید نیست"
+            />
+          )}
+          <div>
+            <span className="commerce-eyebrow">
+              {b.latin} / {b.label}
+            </span>
+            <h1>{b.name}</h1>
+            <p>{b.tagline}</p>
+            <a className="commerce-button gold" href={`/shop?vertical=${k}`}>
+              مشاهده محصولات و خدمات
+            </a>
+            <a className="commerce-button outline" href="#story">
+              شناخت حوزه و فرصت‌ها
+            </a>
+          </div>
+          {!b.image && (
+            <span className="leather-monogram" aria-hidden="true">
+              H
+            </span>
+          )}
+        </section>
+        <section id="story" className="brand-intro">
+          <span className="commerce-eyebrow">هویت، کیفیت و ارزش اقتصادی</span>
+          <h2>{b.label}؛ فراتر از یک انتخاب</h2>
+          <p>{s.intro}</p>
+        </section>
+        <div className="story-layout">
+          <aside>
+            <nav aria-label="فهرست محتوای این صفحه">
+              {s.chapters.map((c, i) => (
+                <a key={c.id} href={`#${c.id}`}>
+                  <span>{String(i + 1).padStart(2, "0")}</span>
+                  {c.title}
+                </a>
+              ))}
+              <a href="#economy-model">مدل درآمد و هزینه</a>
+              <a href="#questions">پرسش‌های رایج</a>
+            </nav>
+          </aside>
+          <div>
+            {s.chapters.map((c, i) => (
+              <section className="story-chapter" id={c.id} key={c.id}>
+                <span className="chapter-number">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h2>{c.title}</h2>
+                {c.paragraphs.map((p, j) => (
+                  <p key={j}>{p}</p>
+                ))}
+                {c.points && (
+                  <ul>
+                    {c.points.map((p) => (
+                      <li key={p}>{p}</li>
+                    ))}
+                  </ul>
+                )}
+                {c.source && (
+                  <a
+                    className="story-source"
+                    href={c.source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    منبع: {c.source.label} ↗
+                  </a>
+                )}
+              </section>
+            ))}
+          </div>
+        </div>
+        <section className="economic-model" id="economy-model">
+          <span className="commerce-eyebrow">چارچوب پیشنهادی کسب‌وکار</span>
+          <h2>درآمد، هزینه و معیار موفقیت</h2>
+          <div>
+            {[
+              ["مسیرهای درآمد", s.economics.income],
+              ["هزینه‌هایی که باید دید", s.economics.costs],
+              ["شاخص‌های قابل سنجش", s.economics.metrics],
+            ].map(([title, items]) => (
+              <article key={String(title)}>
+                <h3>{title}</h3>
+                <ul>
+                  {(items as string[]).map((x) => (
+                    <li key={x}>{x}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </section>
+        <Economics />
+        <section id="questions" className="brand-faq">
+          <h2>پرسش‌های رایج</h2>
+          {s.faq.map(([q, a]) => (
+            <details key={q}>
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
+          ))}
+          <p className="source-date">
+            آخرین بررسی محتوای مستند: ۲۰ سپتامبر ۲۰۲۶. تحلیل اقتصادی این صفحه
+            چارچوب پیشنهادی هماست؛ آمار عملکرد واقعی شرکت یا تضمین سود نیست.
+          </p>
+        </section>
+        <section className="brand-final">
+          <h2>حالا با آگاهی انتخاب کنید.</h2>
+          <p>قیمت، موجودی، توضیحات و شرایط هر پیشنهاد را در فروشگاه ببینید.</p>
+          <a className="commerce-button gold" href={`/shop?vertical=${k}`}>
+            ورود به فروشگاه {b.name}
+          </a>
+        </section>
+        <section className="brand-related">
+          <h2>دیگر جهان‌های هما</h2>
+          <div>
+            {sectorKeys
+              .filter((x) => x !== k)
+              .map((x) => (
+                <a href={`/worlds/${x}`} key={x}>
+                  <strong>{brands[x].name}</strong>
+                  <span>{brands[x].label} ←</span>
+                </a>
+              ))}
+          </div>
+        </section>
+      </main>
+    </CommerceShell>
+  );
+}

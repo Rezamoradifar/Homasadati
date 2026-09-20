@@ -351,7 +351,7 @@ export function Filter({
           حوزه
           <select name="vertical">
             <option value="">همهٔ حوزه‌ها</option>
-            {["tourism", "beauty", "craft", "ai"].map((v) => (
+            {["tourism", "beauty", "craft", "ai", "leather"].map((v) => (
               <option key={v} value={v}>
                 {labels[v]}
               </option>
