@@ -1,3 +1,4 @@
+import { catalogDetailsSchema } from "./catalog-model";
 import { z } from "zod";
 export const money = z.number().int().min(1).max(1_000_000_000_000);
 export const id = z.string().uuid();
@@ -17,10 +18,19 @@ export const vertical = z.enum(["tourism", "beauty", "craft", "ai"]);
 export const httpsImage = z
   .string()
   .max(1000)
-  .refine((v) => v === "" || v.startsWith("/assets/") || /^https:\/\//.test(v));
+  .refine(
+    (v) =>
+      v === "" ||
+      v.startsWith("/assets/") ||
+      /^\/api\/platform\/media\/[a-f0-9-]{36}\.webp$/.test(v) ||
+      /^https:\/\//.test(v),
+  );
 export const productSchema = z
   .object({
     id: id.optional(),
+    details: catalogDetailsSchema.optional(),
+    expected_stock: z.number().int().min(0).optional(),
+    expected_updated_at: z.string().optional(),
     title: text,
     description: z.string().trim().min(1).max(8000),
     vertical,

@@ -148,6 +148,15 @@ describe("Panels use actual APIs and SQLite", () => {
       within(dialog).getByLabelText("توضیحات"),
       "شرح محصول در دیتابیس موقت آزمون",
     );
+    await user.type(
+      within(dialog).getByLabelText("کد انبار SKU"),
+      "CRAFT-TEST",
+    );
+    await user.type(
+      within(dialog).getByLabelText("نام هنرمند / کارگاه"),
+      "کارگاه آزمون",
+    );
+    expect(within(dialog).queryByLabelText("ترکیبات")).toBeNull();
     await user.click(within(dialog).getByLabelText("منتشر شود"));
     await user.click(within(dialog).getByRole("button", { name: "ذخیره" }));
     await screen.findByRole("cell", { name: "سفال آزمون" });
@@ -156,6 +165,28 @@ describe("Panels use actual APIs and SQLite", () => {
         "SELECT price,stock,published FROM p_products WHERE title='سفال آزمون'",
       ),
     ).toEqual({ price: 250000, stock: 3, published: 1 });
+    expect(
+      JSON.parse(
+        one("SELECT details FROM p_product_details WHERE sku='CRAFT-TEST'")!
+          .details,
+      ).artisan,
+    ).toBe("کارگاه آزمون");
+    await user.click(screen.getByRole("button", { name: "ویرایش" }));
+    const editorDialog = screen.getByRole("dialog");
+    const sku = await within(editorDialog).findByLabelText("کد انبار SKU");
+    expect((sku as HTMLInputElement).value).toBe("CRAFT-TEST");
+    const stock = within(editorDialog).getByLabelText(
+      "موجودی / ظرفیت قابل فروش",
+    );
+    await user.clear(stock);
+    await user.type(stock, "8");
+    await user.click(
+      within(editorDialog).getByRole("button", { name: "ذخیره" }),
+    );
+    await screen.findByRole("cell", { name: "۸" });
+    expect(
+      one("SELECT stock FROM p_products WHERE title='سفال آزمون'")!.stock,
+    ).toBe(8);
   });
   it("denies user access to admin and shows network errors instead of an empty table", async () => {
     authCookie = member;

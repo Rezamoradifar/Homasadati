@@ -1,4 +1,5 @@
 "use client";
+import { extendedCatalogFields } from "./catalog-fields";
 import { useRef, useState } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
 import {
@@ -120,6 +121,10 @@ export function Catalog({
                   <Product
                     key={p.id}
                     product={p}
+                    onFamily={(family: string) => {
+                      setQ("family=" + encodeURIComponent(family));
+                      setPage(1);
+                    }}
                     onDone={() => {
                       setSuccess(
                         "سفارش ثبت شد. جزئیات در بخش سفارش‌ها قابل مشاهده است.",
@@ -146,7 +151,9 @@ function Product({
   product: p,
   onDone,
   onError,
+  onFamily,
 }: {
+  onFamily: (family: string) => void;
   product: RecordData;
   onDone: () => void;
   onError: (s: string) => void;
@@ -162,6 +169,42 @@ function Product({
         <h2>{p.title}</h2>
         <p>{p.description}</p>
         <strong>{amount(p.price)} تومان</strong>
+        {p.details?.comparePrice > p.price && (
+          <del>{amount(p.details.comparePrice)} تومان</del>
+        )}
+        {p.details?.family && (
+          <button
+            className="portal-button"
+            onClick={() => onFamily(p.details.family)}
+          >
+            تنوع‌های این محصول
+          </button>
+        )}
+        {p.details && Object.values(p.details).some(Boolean) && (
+          <details className="portal-product-specs">
+            <summary>مشخصات کامل محصول</summary>
+            <dl>
+              {extendedCatalogFields
+                .filter(
+                  (f) =>
+                    f.type !== "section" &&
+                    (!f.sectors || f.sectors.includes(p.vertical)),
+                )
+                .map((f) => {
+                  const value = p.details[f.name.replace("detail_", "")];
+                  return value ? (
+                    <div key={f.name}>
+                      <dt>{f.label}</dt>
+                      <dd>{String(value)}</dd>
+                    </div>
+                  ) : null;
+                })}
+            </dl>
+            {images.slice(1).map((src: string) => (
+              <img key={src} src={src} alt={p.title} loading="lazy" />
+            ))}
+          </details>
+        )}
         <p>
           موجودی: {amount(p.stock)} · مهلت لغو: {amount(p.cancel_hours)} ساعت
         </p>
@@ -276,6 +319,11 @@ export function Orders({
             {[
               ["شناسه", selected.id],
               ["عنوان", selected.title],
+              [
+                "SKU ثبت‌شده هنگام خرید",
+                JSON.parse(selected.policy || "{}").orderTerms?.catalogDetails
+                  ?.sku || "—",
+              ],
               ["مبلغ", amount(selected.amount) + " تومان"],
               ["وضعیت", labels[selected.status]],
               ["روش پرداخت", labels[selected.payment_method]],

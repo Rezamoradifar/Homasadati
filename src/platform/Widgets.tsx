@@ -1,9 +1,11 @@
 "use client";
+import { MediaInput } from "./MediaInput";
 import { useEffect, useRef, useState, ReactNode } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
 export interface Field {
   name: string;
   label: string;
+  sectors?: string[];
   type?: string;
   required?: boolean;
   min?: number;
@@ -26,6 +28,7 @@ export function Form({
   submit?: string;
   resetOnSuccess?: boolean;
 }) {
+  const [sector, setSector] = useState(String(initial.vertical || ""));
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   return (
@@ -35,16 +38,27 @@ export function Form({
         e.preventDefault();
         if (busy) return;
         const form = e.currentTarget;
+        if (form.querySelector('[data-uploading="true"]')) {
+          setError("تا پایان بارگذاری تصویر صبر کنید.");
+          return;
+        }
         const f = new FormData(form);
         const d: RecordData = {};
         for (const field of fields) {
+          if (
+            field.type === "section" ||
+            (field.sectors && !field.sectors.includes(sector))
+          )
+            continue;
           const raw = f.get(field.name);
           d[field.name] =
-            field.type === "checkbox"
-              ? raw === "on"
-              : field.type === "number"
-                ? Number(raw)
-                : String(raw ?? "").trim();
+            field.type === "multiselect"
+              ? f.getAll(field.name).map(String)
+              : field.type === "checkbox"
+                ? raw === "on"
+                : field.type === "number"
+                  ? Number(raw)
+                  : String(raw ?? "").trim();
         }
         setBusy(true);
         setError("");
@@ -59,61 +73,87 @@ export function Form({
       }}
     >
       <fieldset disabled={busy} style={{ display: "contents" }}>
-        {fields.map((f) => (
-          <label
-            key={f.name}
-            className={
-              (f.full ? "full " : "") + (f.type === "checkbox" ? "check" : "")
-            }
-          >
-            {f.label}
-            {f.type === "textarea" ? (
-              <textarea
-                name={f.name}
-                required={f.required !== false}
-                defaultValue={initial[f.name] ?? ""}
-                maxLength={f.max ?? 8000}
-              />
-            ) : f.type === "select" ? (
-              <select
-                name={f.name}
-                defaultValue={String(initial[f.name] ?? "")}
-                required={f.required !== false}
-              >
-                <option value="">انتخاب کنید</option>
-                {f.options?.map(([v, l]) => (
-                  <option key={v} value={v}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-            ) : f.type === "checkbox" ? (
-              <input
-                type="checkbox"
-                name={f.name}
-                defaultChecked={!!initial[f.name]}
-              />
+        {fields
+          .filter((f) => !f.sectors || f.sectors.includes(sector))
+          .map((f) =>
+            f.type === "section" ? (
+              <h3 className="portal-form-section" key={f.name}>
+                {f.label}
+              </h3>
             ) : (
-              <input
-                name={f.name}
-                type={f.type || "text"}
-                defaultValue={initial[f.name] ?? ""}
-                required={f.required !== false}
-                min={f.min}
-                max={f.max}
-                step={f.step}
-                minLength={f.type === "password" ? 12 : undefined}
-                maxLength={f.type === "number" ? undefined : (f.max ?? 254)}
-                dir={
-                  ["email", "number", "password", "url"].includes(f.type || "")
-                    ? "ltr"
-                    : undefined
+              <label
+                key={f.name}
+                className={
+                  (f.full ? "full " : "") +
+                  (f.type === "checkbox" ? "check" : "")
                 }
-              />
-            )}{" "}
-            {f.hint && <small>{f.hint}</small>}
-          </label>
-        ))}
+              >
+                {f.label}
+                {f.type === "media" ? (
+                  <MediaInput name={f.name} initial={initial[f.name] || ""} />
+                ) : f.type === "textarea" ? (
+                  <textarea
+                    name={f.name}
+                    required={f.required !== false}
+                    defaultValue={initial[f.name] ?? ""}
+                    maxLength={f.max ?? 8000}
+                  />
+                ) : ["select", "multiselect"].includes(f.type || "") ? (
+                  <select
+                    name={f.name}
+                    onChange={
+                      f.name === "vertical"
+                        ? (e) => setSector(e.target.value)
+                        : undefined
+                    }
+                    multiple={f.type === "multiselect"}
+                    size={f.type === "multiselect" ? 6 : undefined}
+                    defaultValue={
+                      f.type === "multiselect"
+                        ? initial[f.name] || []
+                        : String(initial[f.name] ?? "")
+                    }
+                    required={f.required !== false}
+                  >
+                    {f.type !== "multiselect" && (
+                      <option value="">انتخاب کنید</option>
+                    )}
+                    {f.options?.map(([v, l]) => (
+                      <option key={v} value={v}>
+                        {l}
+                      </option>
+                    ))}
+                  </select>
+                ) : f.type === "checkbox" ? (
+                  <input
+                    type="checkbox"
+                    name={f.name}
+                    defaultChecked={!!initial[f.name]}
+                  />
+                ) : (
+                  <input
+                    name={f.name}
+                    type={f.type || "text"}
+                    defaultValue={initial[f.name] ?? ""}
+                    required={f.required !== false}
+                    min={f.min}
+                    max={f.max}
+                    step={f.step}
+                    minLength={f.type === "password" ? 12 : undefined}
+                    maxLength={f.type === "number" ? undefined : (f.max ?? 254)}
+                    dir={
+                      ["email", "number", "password", "url"].includes(
+                        f.type || "",
+                      )
+                        ? "ltr"
+                        : undefined
+                    }
+                  />
+                )}{" "}
+                {f.hint && <small>{f.hint}</small>}
+              </label>
+            ),
+          )}
         {error && (
           <div role="alert" className="portal-error full">
             {error}

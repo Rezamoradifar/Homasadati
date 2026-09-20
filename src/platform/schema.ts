@@ -49,7 +49,10 @@ export function platformDb() {
   CREATE INDEX IF NOT EXISTS p_ledger_user ON p_ledger(user_id,created_at);
   CREATE INDEX IF NOT EXISTS p_withdrawal_user ON p_withdrawals(user_id,status);
   CREATE TABLE IF NOT EXISTS p_outbox(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),channel TEXT NOT NULL,target TEXT NOT NULL,subject TEXT NOT NULL,body TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',attempts INTEGER NOT NULL DEFAULT 0,next_attempt INTEGER NOT NULL DEFAULT 0,last_error TEXT,created_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_product_details(product_id TEXT PRIMARY KEY REFERENCES p_products(id) ON DELETE CASCADE, sku TEXT UNIQUE, family TEXT NOT NULL DEFAULT '', details TEXT NOT NULL, updated_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_product_family ON p_product_details(family);
   INSERT OR IGNORE INTO p_migrations VALUES(1,datetime('now'));
+  INSERT OR IGNORE INTO p_migrations VALUES(2,datetime('now'));
   `);
   ready = d;
   return d;

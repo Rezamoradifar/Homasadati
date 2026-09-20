@@ -1,3 +1,4 @@
+import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
@@ -476,6 +477,12 @@ export function createOrder(
       JSON.stringify({
         ...p,
         orderTerms: {
+          catalogDetails: publicCatalogDetails(
+            one(
+              "SELECT details FROM p_product_details WHERE product_id=?",
+              productId,
+            )?.details,
+          ),
           cancelHours: product.cancel_hours,
           durationDays: product.duration_days,
         },

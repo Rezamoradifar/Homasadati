@@ -624,3 +624,94 @@
     scroll-behavior: auto !important;
   }
 }
+
+.portal-form-section {
+  grid-column: 1/-1;
+  border-top: 1px solid #d8d9ce;
+  padding-top: 24px;
+  margin: 12px 0 0;
+  color: #123e35;
+  font-size: 1.1rem;
+}
+.portal-dialog {
+  max-width: min(1000px, 96vw);
+}
+
+.portal-command-banner {
+  padding: 32px;
+  border-radius: 20px;
+  background: linear-gradient(115deg, #123e35, #245b4b);
+  color: #fff;
+  margin-bottom: 24px;
+}
+.portal-command-banner small {
+  letter-spacing: 0.12em;
+  color: #e2c99e;
+  font-size: 11px;
+}
+.portal-command-banner h2 {
+  font-size: clamp(24px, 3vw, 38px);
+  margin: 12px 0;
+}
+.portal-command-banner p {
+  color: #d9e4df;
+}
+.portal-business-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+}
+.portal-business-grid .portal-stats {
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 1000px) {
+  .portal-business-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.portal-product-specs {
+  margin: 18px 0;
+}
+.portal-product-specs summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.portal-product-specs dl > div {
+  border-bottom: 1px solid #e6e4da;
+  padding: 10px 0;
+}
+.portal-product-specs dt {
+  font-weight: 700;
+}
+.portal-product-specs dd {
+  margin: 6px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.portal-product-specs img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+.portal-media-input {
+  display: grid;
+  gap: 12px;
+}
+.portal-media-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.portal-media-thumbs img {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #d8d9ce;
+}
+.portal-upload-action {
+  font-weight: 400;
+  font-size: 12px;
+}

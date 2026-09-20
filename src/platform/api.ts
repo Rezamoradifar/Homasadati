@@ -1,3 +1,6 @@
+import { media } from "./media";
+import { operations } from "./operations";
+import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import {
@@ -63,6 +66,8 @@ import { invoice, exportReport } from "./exports";
 const superRole = ["superadmin"];
 const permissions: Record<string, string[]> = {
   dashboard: ["superadmin", "finance"],
+  operations: ["superadmin", "finance"],
+  "catalog-options": ["superadmin", "content"],
   products: ["superadmin", "content"],
   taxonomy: ["superadmin", "content"],
   content: ["superadmin", "content"],
@@ -97,6 +102,7 @@ const querySchema = z.object({
   to: calendarDate.optional(),
   user: z.string().uuid().optional(),
   kind: z.string().max(30).default(""),
+  family: z.string().max(200).default(""),
 });
 function query(url: URL) {
   const q = querySchema.parse(Object.fromEntries(url.searchParams));
@@ -417,6 +423,12 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     get = req.method === "GET";
   const entity = path[2];
   if (entity) id.parse(entity);
+  if (resource === "catalog-options")
+    return json({
+      rows: all("SELECT * FROM p_categories ORDER BY vertical,kind,name"),
+    });
+  if (resource === "operations")
+    return json(operations(q.vertical, q.from, q.to));
   if (resource === "dashboard")
     return json({
       health: health(q.from, q.to),
@@ -506,8 +518,14 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     if (get)
       return json(
         paged(
-          "SELECT * FROM p_products WHERE title LIKE ? AND (?='' OR vertical=?) ORDER BY created_at DESC",
-          ["%" + q.q + "%", q.vertical, q.vertical],
+          "SELECT p.*,d.details,d.sku,d.family FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE (p.title LIKE ? OR d.sku LIKE ? OR d.family LIKE ?) AND (?='' OR p.vertical=?) ORDER BY p.created_at DESC",
+          [
+            "%" + q.q + "%",
+            "%" + q.q + "%",
+            "%" + q.q + "%",
+            q.vertical,
+            q.vertical,
+          ],
           q.page,
         ),
       );
@@ -528,6 +546,20 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     const key = d.id || randomUUID();
     atomic(() => {
       const before = one("SELECT * FROM p_products WHERE id=?", key);
+      if (
+        before &&
+        ((d.expected_stock !== undefined &&
+          before.stock !== d.expected_stock) ||
+          (d.expected_updated_at &&
+            before.updated_at !== d.expected_updated_at))
+      )
+        throw new ApiError(409, "product_changed");
+      if (d.details?.comparePrice && d.details.comparePrice < d.price)
+        throw new ApiError(400, "invalid_input");
+      const previousDetails = one(
+        "SELECT details FROM p_product_details WHERE product_id=?",
+        key,
+      );
       for (const category of d.taxonomy)
         if (!one("SELECT id FROM p_categories WHERE id=?", category))
           throw new ApiError(400, "invalid_taxonomy");
@@ -548,7 +580,25 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         before?.created_at || now(),
         now(),
       );
-      audit(u.id, "product.save", key, before, d);
+      if (d.details)
+        run(
+          "INSERT INTO p_product_details VALUES(?,?,?,?,?) ON CONFLICT(product_id) DO UPDATE SET sku=excluded.sku,family=excluded.family,details=excluded.details,updated_at=excluded.updated_at",
+          key,
+          d.details.sku || null,
+          d.details.family,
+          JSON.stringify(d.details),
+          now(),
+        );
+      audit(
+        u.id,
+        "product.save",
+        key,
+        {
+          ...before,
+          details: previousDetails ? JSON.parse(previousDetails.details) : null,
+        },
+        d,
+      );
     });
     return json({ id: key });
   }
@@ -846,6 +896,7 @@ export async function handle(req: Request, path: string[]) {
     const url = new URL(req.url),
       method = req.method,
       get = method === "GET";
+    if (path[0] === "media") return await media(req, path);
     let data: Row = {};
     if (!get) {
       sameOrigin(req);
@@ -872,13 +923,25 @@ export async function handle(req: Request, path: string[]) {
     }
     if (path[0] === "catalog" && get) {
       const q = query(url);
-      return json(
-        paged(
-          "SELECT * FROM p_products WHERE published=1 AND title LIKE ? AND (?='' OR vertical=?) ORDER BY created_at DESC",
-          ["%" + q.q + "%", q.vertical, q.vertical],
-          q.page,
-        ),
+      const result = paged(
+        "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR p.vertical=?) AND (?='' OR d.family=?) ORDER BY p.created_at DESC",
+        [
+          "%" + q.q + "%",
+          "%" + q.q + "%",
+          q.vertical,
+          q.vertical,
+          q.family,
+          q.family,
+        ],
+        q.page,
       );
+      return json({
+        ...result,
+        rows: result.rows.map((p) => ({
+          ...p,
+          details: publicCatalogDetails(p.details),
+        })),
+      });
     }
     if (path[0] === "content" && get) {
       const slug = url.searchParams.get("slug");

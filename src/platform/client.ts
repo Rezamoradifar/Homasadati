@@ -1,8 +1,12 @@
 import { validateClient } from "./client-validation";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
+  too_large: "حجم اطلاعات ارسالی بیش از حد مجاز است.",
+  invalid_image: "تصویر معتبر نیست؛ فایل JPEG، PNG یا WebP سالم انتخاب کنید.",
   unauthorized: "برای ادامه وارد حساب شوید.",
   forbidden: "نقش شما اجازهٔ این عملیات را ندارد.",
+  product_changed:
+    "موجودی یا مشخصات این محصول تغییر کرده است. فرم را ببندید، فهرست را تازه‌سازی کنید و دوباره ویرایش کنید.",
   invalid_input: "اطلاعات واردشده معتبر نیست. فیلدها را بررسی کنید.",
   invalid_credentials: "اطلاعات ورود درست نیست.",
   invalid_otp: "کد تأیید نادرست، مصرف‌شده یا منقضی است.",

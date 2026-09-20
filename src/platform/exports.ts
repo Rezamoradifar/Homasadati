@@ -17,6 +17,8 @@ export async function invoice(order: Row, user: Row) {
   doc.moveDown();
   for (const [key, value] of Object.entries({
     Invoice: order.id,
+    SKU:
+      JSON.parse(order.policy || "{}").orderTerms?.catalogDetails?.sku || "-",
     Date: order.created_at,
     Status: order.status,
     Quantity: order.quantity,

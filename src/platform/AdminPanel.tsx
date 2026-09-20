@@ -1,4 +1,6 @@
 "use client";
+import { extendedCatalogFields } from "./catalog-fields";
+import { emptyCatalogDetails } from "./catalog-model";
 import { useState } from "react";
 import { api, amount, labels, RecordData } from "./client";
 import {
@@ -53,8 +55,8 @@ const catalogFields: Field[] = [
   { name: "description", label: "توضیحات", type: "textarea", full: true },
   {
     name: "images",
-    label: "نشانی تصاویر؛ هر خط یک تصویر HTTPS",
-    type: "textarea",
+    label: "گالری تصاویر محصول",
+    type: "media",
     required: false,
     full: true,
   },
@@ -72,9 +74,11 @@ const definitions: Record<
 > = {
   products: {
     title: "محصول / تور / پلن",
-    fields: catalogFields,
+    fields: [...catalogFields, ...extendedCatalogFields],
     columns: [
       ["title", "عنوان"],
+      ["sku", "SKU"],
+      ["family", "خانواده"],
       ["vertical", "حوزه"],
       ["price", "قیمت", "money"],
       ["stock", "موجودی", "money"],
@@ -216,8 +220,13 @@ export function AdminCrud({
         ...edit,
         ...(resource === "products"
           ? {
+              ...Object.fromEntries(
+                Object.entries(JSON.parse(edit.details || "{}")).map(
+                  ([k, v]) => ["detail_" + k, v],
+                ),
+              ),
               images: JSON.parse(edit.images || "[]").join("\n"),
-              taxonomy: JSON.parse(edit.taxonomy || "[]").join("\n"),
+              taxonomy: JSON.parse(edit.taxonomy || "[]"),
             }
           : {}),
         ...(resource === "ranks"
@@ -247,6 +256,27 @@ export function AdminCrud({
             <button className="portal-button" onClick={() => setEdit(r)}>
               ویرایش
             </button>
+            {resource === "products" && (
+              <button
+                className="portal-button"
+                onClick={() => {
+                  const details = JSON.parse(r.details || "{}");
+                  setEdit({
+                    ...r,
+                    id: undefined,
+                    stock: 0,
+                    published: 0,
+                    details: JSON.stringify({
+                      ...details,
+                      sku: "",
+                      family: details.family || "",
+                    }),
+                  });
+                }}
+              >
+                ساخت تنوع جدید
+              </button>
+            )}
             <button
               className="portal-button danger"
               onClick={() => setRemove(r)}
@@ -271,20 +301,40 @@ export function AdminCrud({
           title={(edit.id ? "ویرایش " : "افزودن ") + def.title}
           onClose={() => setEdit(null)}
         >
-          <Form
+          {resource === "products" && (
+            <p className="portal-notice">
+              هر رنگ، سایز یا ظرفیت با قیمت و موجودی مستقل، یک SKU جداست. برای
+              اتصال تنوع‌ها، کد خانواده یکسان وارد کنید. اطلاعات اختصاصی با
+              انتخاب حوزه نمایش داده می‌شوند.
+            </p>
+          )}
+          <CatalogForm
+            resource={resource}
             initial={initial}
             fields={def.fields}
             onSubmit={async (d) => {
               if (edit.id) d.id = edit.id;
               if (resource === "products") {
+                const details = {
+                  ...emptyCatalogDetails(),
+                  ...JSON.parse(edit.details || "{}"),
+                };
+                for (const key of Object.keys(d))
+                  if (key.startsWith("detail_")) {
+                    details[key.slice(7)] = d[key];
+                    delete d[key];
+                  }
+                d.details = details;
+                if (edit.id) {
+                  d.expected_stock = edit.stock;
+                  d.expected_updated_at = edit.updated_at;
+                }
+
                 d.images = d.images
                   .split("\n")
                   .map((v: string) => v.trim())
                   .filter(Boolean);
-                d.taxonomy = d.taxonomy
-                  .split("\n")
-                  .map((v: string) => v.trim())
-                  .filter(Boolean);
+                d.taxonomy = d.taxonomy || [];
                 const valid = productSchema.safeParse(d);
                 if (!valid.success)
                   throw new Error(
@@ -1092,5 +1142,48 @@ export function Flags({
         </Modal>
       )}
     </>
+  );
+}
+
+function CatalogForm(props: {
+  resource: string;
+  initial: RecordData;
+  fields: Field[];
+  onSubmit: (d: RecordData) => Promise<void>;
+}) {
+  return props.resource === "products" ? (
+    <ProductFieldsForm {...props} />
+  ) : (
+    <Form {...props} />
+  );
+}
+function ProductFieldsForm(props: {
+  initial: RecordData;
+  fields: Field[];
+  onSubmit: (d: RecordData) => Promise<void>;
+}) {
+  const state = useData("admin/catalog-options");
+  return (
+    <DataState state={state}>
+      {(d) => (
+        <Form
+          {...props}
+          fields={props.fields.map((f) =>
+            f.name === "taxonomy"
+              ? {
+                  ...f,
+                  label: "دسته‌ها و برچسب‌ها",
+                  type: "multiselect",
+                  hint: "چند گزینه را می‌توانید انتخاب کنید؛ دسته‌ها در بخش دسته‌بندی مدیریت می‌شوند.",
+                  options: d.rows.map((r: RecordData) => [
+                    r.id,
+                    `${labels[r.vertical]} · ${r.kind === "tag" ? "برچسب" : "دسته"}: ${r.name}`,
+                  ]),
+                }
+              : f,
+          )}
+        />
+      )}
+    </DataState>
   );
 }

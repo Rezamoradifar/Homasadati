@@ -1,6 +1,13 @@
 import { loadEnvConfig } from "@next/env";
-import { mkdirSync, chmodSync, copyFileSync, existsSync } from "node:fs";
+import {
+  mkdirSync,
+  chmodSync,
+  copyFileSync,
+  existsSync,
+  cpSync,
+} from "node:fs";
 import { resolve, join } from "node:path";
+import { mediaDirectory } from "../src/platform/media";
 import { platformDb } from "../src/platform/schema";
 loadEnvConfig(process.cwd());
 async function main() {
@@ -17,6 +24,8 @@ async function main() {
     copyFileSync(".env.local", env);
     chmodSync(env, 0o600);
   }
+  if (existsSync(mediaDirectory()))
+    cpSync(mediaDirectory(), join(directory, "media"), { recursive: true });
   console.log("Backup completed:", directory);
 }
 main().catch((e) => {

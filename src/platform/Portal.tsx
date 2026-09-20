@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import "./panel.css";
 import { useSiteSettings } from "./SiteSettings";
+import { OperationsDashboard } from "./OperationsDashboard";
 import AuthPanel from "./AuthPanel";
 import { api, labels, RecordData } from "./client";
 import { Notice, Listing } from "./Widgets";
@@ -45,6 +46,11 @@ const userTabs = [
   ["security", "امنیت حساب"],
 ];
 const adminTabs: [string, string, string[]][] = [
+  ["operations", "داشبورد کسب‌وکار", ["superadmin", "finance"]],
+  ["operations-tourism", "داشبورد گردشگری", ["superadmin", "finance"]],
+  ["operations-beauty", "داشبورد زیبایی", ["superadmin", "finance"]],
+  ["operations-craft", "داشبورد صنایع‌دستی", ["superadmin", "finance"]],
+  ["operations-ai", "داشبورد هوش مصنوعی", ["superadmin", "finance"]],
   ["dashboard", "سلامت مالی", ["superadmin", "finance"]],
   ["products", "محصولات و تورها", ["superadmin", "content"]],
   ["taxonomy", "دسته‌ها و برچسب‌ها", ["superadmin", "content"]],
@@ -81,6 +87,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
           if (t) setTab(t);
           else if (admin && r.user.role === "content") setTab("products");
           else if (admin && r.user.role === "support") setTab("orders");
+          else if (admin) setTab("operations");
         }
       })
       .catch((e) => {
@@ -204,6 +211,13 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
               <Security onReauth={() => setUser(null)} />
             ) : admin ? (
               <>
+                {tab.startsWith("operations") && (
+                  <OperationsDashboard
+                    key={tab}
+                    refresh={refresh}
+                    vertical={tab.split("-")[1] || ""}
+                  />
+                )}
                 {tab === "dashboard" && (
                   <FinancialDashboard refresh={refresh} />
                 )}{" "}
