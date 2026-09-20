@@ -1,4 +1,5 @@
 "use client";
+import {MemberDetails} from "./MemberDetails";
 import { extendedCatalogFields } from "./catalog-fields";
 import { useRef, useState } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
@@ -662,7 +663,7 @@ export function Profile({
     [sending, setSending] = useState(false);
   return (
     <>
-      <Notice success={message} error={error} />
+      <MemberDetails onChange={onChange}/><Notice success={message} error={error} />
       <div className="portal-card">
         <h2>اطلاعات و ترجیحات شما</h2>
         <p>

@@ -23,6 +23,7 @@ import { randomUUID } from "node:crypto";
 import Portal from "./Portal";
 import Storefront from "../commerce/Storefront";
 import Cart from "../commerce/Cart";
+import Registration from "./Registration";
 import { handle } from "./api";
 import { platformDb, run, one, now } from "./schema";
 import { passwordHash, session, SESSION_COOKIE } from "./security";
@@ -33,6 +34,7 @@ let authCookie = "",
 const dir = mkdtempSync(join(tmpdir(), "homay-ui-"));
 const password = "test-password-for-ui-only";
 let forceOffline = false;
+let registrationOtp="";
 beforeAll(() => {
   process.env.DATABASE_PATH = join(dir, "ui.sqlite");
   process.env.PLATFORM_MASTER_KEY = "b".repeat(64);
@@ -61,6 +63,7 @@ beforeAll(() => {
     "fetch",
     vi.fn(async (input: string, init: RequestInit = {}) => {
       if (forceOffline) throw new TypeError("offline");
+      if(String(input).includes('api.resend.com')){registrationOtp=JSON.parse(String(init.body)).text.match(/\d{6}/)[0];return Response.json({id:randomUUID()});}
       const url = new URL(input, "http://localhost");
       const method = init.method || "GET";
       const response = await handle(
@@ -262,4 +265,15 @@ describe("Panels use actual APIs and SQLite", () => {
     ).toBe("paid");
     expect(JSON.parse(localStorage.getItem("homa-basket-v1")!)).toEqual([]);
   });
+});
+
+it("registers from the real form with OTP, consent and persisted personal details",async()=>{
+ authCookie='';saveSetting('resend_key','test-provider',true);saveSetting('email_from','test@homay.test');
+ const done=vi.fn(),user=userEvent.setup();render(<Registration onLogin={done} onBack={()=>{}}/>);
+ for(const [label,value] of [['نام','لیلا'],['نام خانوادگی','آزمون'],['کشور محل سکونت','ایران'],['شهر محل سکونت','تهران'],['ایمیل یا موبایل با پیش‌شماره کشور','registration-ui@example.test'],['رمز عبور؛ حداقل ۱۲ نویسه','ui-registration-pass'],['تکرار رمز عبور','ui-registration-pass']])await user.type(screen.getByLabelText(label,{exact:true}),value);
+ await user.click(screen.getByRole('button',{name:'دریافت کد تأیید'}));await screen.findByText('پذیرش قوانین، حریم خصوصی و تأیید سن لازم است.');
+ await user.click(screen.getByLabelText(/قوانین عضویت، خرید و طرح درآمد/));await user.click(screen.getByLabelText(/سیاست حریم خصوصی/));await user.click(screen.getByLabelText(/تأیید می‌کنم حداقل/));
+ await user.click(screen.getByRole('button',{name:'دریافت کد تأیید'}));await screen.findByText('کد تأیید ارسال شد؛ پنج دقیقه اعتبار دارد.');
+ await user.type(screen.getByLabelText('کد تأیید شش‌رقمی'),registrationOtp);await user.click(screen.getByRole('button',{name:'تأیید و ایجاد حساب'}));
+ await waitFor(()=>expect(done).toHaveBeenCalledOnce());const u=one("SELECT id FROM p_users WHERE email='registration-ui@example.test'")!;expect(JSON.parse(one('SELECT details FROM p_member_details WHERE user_id=?',u.id)!.details).city).toBe('تهران');expect(one('SELECT marketing FROM p_consents WHERE user_id=?',u.id)!.marketing).toBe(0);
 });

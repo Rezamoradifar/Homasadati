@@ -1,4 +1,5 @@
 "use client";
+import Registration from "./Registration";
 import { useState } from "react";
 import { api, RecordData } from "./client";
 import { Form, Field, Notice } from "./Widgets";
@@ -51,6 +52,7 @@ export default function AuthPanel({
         ]
       : []),
   ];
+  if(mode==="register")return <Registration onLogin={onLogin} onBack={()=>setMode("login")}/>;
   return (
     <div className="portal-card portal-auth">
       <p style={{ color: "#8d764e" }}>

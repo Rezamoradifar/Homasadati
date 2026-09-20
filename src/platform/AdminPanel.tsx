@@ -2,7 +2,7 @@
 import { extendedCatalogFields } from "./catalog-fields";
 import { emptyCatalogDetails } from "./catalog-model";
 import { useState } from "react";
-import { api, amount, labels, RecordData } from "./client";
+import { api, amount, date, labels, RecordData } from "./client";
 import {
   DataState,
   DownloadButton,
@@ -907,6 +907,8 @@ export function AdminUsers({
                   <Stat label="پورسانت در انتظار" value={d.wallet.pending} />
                 </div>
                 <p>شناسه کاربر: {d.user.id}</p>
+                {d.memberDetails&&<div><h3>مشخصات تکمیلی</h3><p>{JSON.parse(d.memberDetails.details).firstName} {JSON.parse(d.memberDetails.details).lastName} · {JSON.parse(d.memberDetails.details).country} / {JSON.parse(d.memberDetails.details).city}</p><p>{JSON.parse(d.memberDetails.details).occupation}</p><p>{d.memberDetails.contact_verified_at?'تأیید راه تماس ثبت شده':'بدون سابقه تأیید در فرم جدید'} · احراز رسمی مدارک انجام نشده</p></div>}
+                {d.consent&&<p>پذیرش قوانین: {d.consent.version} · {date(d.consent.accepted_at)}</p>}
                 <p>رتبه: {d.rank.current?.name || "بدون رتبه"}</p>
                 <h3>سفارش‌ها</h3>
                 <Table rows={d.orders} columns={orderColumns} />

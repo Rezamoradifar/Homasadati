@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { brands, sectorKeys } from "./brands";
 import "./commerce.css";
+import "../../app/heritage.css";
 export function CommerceShell({ children }: { children: ReactNode }) {
   return (
     <div className="commerce" dir="rtl" lang="fa">
@@ -22,6 +23,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div>
+          <a href="/income-plan">طرح درآمد</a>
           <a href="/shop">فروشگاه</a>
           <a href="/cart">سبد خرید</a>
           <a href="/account">حساب من</a>
@@ -47,7 +49,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           <a href="/cart">سبد خرید و پرداخت</a>
           <a href="/account?tab=orders">پیگیری سفارش‌ها</a>
           <a href="/account?tab=addresses">آدرس‌های ارسال</a>
-          <a href="/">بازگشت به صفحه اصلی</a>
+          <a href="/heritage">روایت ایران و نمادها</a><a href="/income-plan">طرح درآمد</a><a href="/legal/terms">قوانین و مقررات</a><a href="/legal/privacy">حریم خصوصی</a><a href="/">بازگشت به صفحه اصلی</a>
         </nav>
         <p>© {new Date().getFullYear()} همای سعادت</p>
       </footer>

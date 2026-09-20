@@ -46,7 +46,7 @@ async function register(target: string, referral?: string) {
   const response = await request("auth/register", "POST", {
     target,
     password: pw,
-    name: "عضو آزمون",
+    details:{firstName:"عضو",lastName:"آزمون",country:"ایران",city:"تهران"},termsAccepted:true,privacyAccepted:true,adultConfirmed:true,termsVersion:"2026-09-20-v1",
     challenge: d.challenge,
     code,
     referral,

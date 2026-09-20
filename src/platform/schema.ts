@@ -58,6 +58,11 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_checkouts(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),method TEXT NOT NULL CHECK(method IN ('wallet','zarinpal')),status TEXT NOT NULL CHECK(status IN ('pending','paid')),authority TEXT UNIQUE,claim TEXT,payment_ref TEXT UNIQUE,payload TEXT NOT NULL,created_at TEXT NOT NULL,expires_at TEXT NOT NULL,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
   CREATE TABLE IF NOT EXISTS p_checkout_items(checkout_id TEXT NOT NULL REFERENCES p_checkouts(id),order_id TEXT NOT NULL UNIQUE REFERENCES p_orders(id),PRIMARY KEY(checkout_id,order_id));
   INSERT OR IGNORE INTO p_migrations VALUES(3,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_member_details(user_id TEXT PRIMARY KEY REFERENCES p_users(id),details TEXT NOT NULL,contact_verified_at TEXT NOT NULL,updated_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_consents(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),version TEXT NOT NULL,terms INTEGER NOT NULL CHECK(terms=1),privacy INTEGER NOT NULL CHECK(privacy=1),adult INTEGER NOT NULL CHECK(adult=1),marketing INTEGER NOT NULL CHECK(marketing IN(0,1)),accepted_at TEXT NOT NULL);
+  CREATE TRIGGER IF NOT EXISTS p_consents_no_update BEFORE UPDATE ON p_consents BEGIN SELECT RAISE(ABORT,'immutable consent'); END;
+  CREATE TRIGGER IF NOT EXISTS p_consents_no_delete BEFORE DELETE ON p_consents BEGIN SELECT RAISE(ABORT,'immutable consent'); END;
+  INSERT OR IGNORE INTO p_migrations VALUES(4,datetime('now'));
   `);
   ready = d;
   return d;

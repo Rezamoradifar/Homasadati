@@ -1,3 +1,4 @@
+import {registrationSchema,referralCode,memberDetailsSchema} from "./registration-model";
 import {
   cartItemsSchema,
   checkoutSchema,
@@ -173,7 +174,7 @@ function signup(data: Row, ip: string) {
       user,
       data.target.includes("@") ? data.target : null,
       data.target.includes("@") ? null : data.target,
-      data.name,
+      data.details.firstName + " " + data.details.lastName,
       passwordHash(data.password),
       randomUUID().replaceAll("-", "").slice(0, 12),
       sponsor?.id || null,
@@ -184,6 +185,9 @@ function signup(data: Row, ip: string) {
       ip,
     );
     run("INSERT INTO p_wallets(user_id) VALUES(?)", user);
+    run("INSERT INTO p_member_details VALUES(?,?,?,?)",user,JSON.stringify(data.details),now(),now());
+    run("INSERT INTO p_consents VALUES(?,?,?,?,?,?,?,?)",randomUUID(),user,data.termsVersion,1,1,1,Number(data.marketingConsent),now());
+    run("UPDATE p_users SET preferences=? WHERE id=?",JSON.stringify({email:data.marketingConsent,sms:false,inApp:true}),user);
     if (
       process.env.TRUST_PROXY === "1" &&
       one(
@@ -246,16 +250,10 @@ async function auth(req: Request, path: string[], data: Row) {
     return json(await sendOtp(d.target, d.purpose));
   }
   if (action === "register") {
-    const d = z
-      .object({
-        target: contact,
-        name: text,
-        password,
-        challenge: id,
-        code: z.string().regex(/^\d{6}$/),
-        referral: z.string().max(40).optional(),
-      })
-      .parse(data);
+    const d = registrationSchema.parse(data);
+    // Keep OTP failure counters outside a transaction. An invalid sponsor must not consume a valid code.
+    if(d.referral && !one("SELECT id FROM p_users WHERE referral_code=? AND blocked=0",d.referral)) throw new ApiError(400,"invalid_referral");
+    if(activeUser(d.target)) throw new ApiError(409,"account_exists");
     consumeOtp(d.challenge, d.target, "register", d.code);
     return respondSession(signup(d, ipOf(req)), req);
   }
@@ -691,6 +689,8 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       if (!member) throw new ApiError(404, "not_found");
       return json({
         user: publicUser(member),
+        memberDetails:one("SELECT details,contact_verified_at FROM p_member_details WHERE user_id=?",entity)||null,
+        consent:one("SELECT version,accepted_at FROM p_consents WHERE user_id=? ORDER BY accepted_at DESC LIMIT 1",entity)||null,
         wallet: wallet(entity),
         rank: rankProgress(entity),
         orders: all(
@@ -912,6 +912,17 @@ export async function handle(req: Request, path: string[]) {
       sameOrigin(req);
       data = await body(req, 65536);
     }
+    if(path.join('/')==='referrals/check' && method==='POST') {
+      limit('referral-check:'+ipOf(req),15,300);
+      const code=referralCode.parse(data.code);
+      return json({valid:!!one("SELECT id FROM p_users WHERE referral_code=? AND blocked=0",code)});
+    }
+    if(path.join('/')==='income-plan' && get) {
+      const raw=setting('commission_policy');
+      if(!raw) return json({configured:false});
+      const p=policy();
+      return json({configured:true,directBps:p.directBps,levels:p.levels,binaryBps:p.binaryBps,maxPayoutBps:p.maxPayoutBps,withdrawMin:p.withdrawMin,withdrawMax:p.withdrawMax,paused:p.paused,ranks:all('SELECT name,personal_threshold,group_threshold,bonus_bps FROM p_ranks ORDER BY personal_threshold,group_threshold')});
+    }
     if (path[0] === "auth" && method === "POST")
       return await auth(req, path, data);
     if (path.join("/") === "payment/callback" && get) {
@@ -985,6 +996,12 @@ export async function handle(req: Request, path: string[]) {
     const u = userOf(req),
       q = query(url);
     if (!get) limit("member-write:" + u.id, 80, 300);
+    if(path[0]==='member-details') {
+      if(get)return json({profile:one('SELECT details,contact_verified_at,updated_at FROM p_member_details WHERE user_id=?',u.id)||null,consent:one('SELECT version,accepted_at FROM p_consents WHERE user_id=? ORDER BY accepted_at DESC LIMIT 1',u.id)||null});
+      const d=memberDetailsSchema.parse(data);
+      atomic(()=>{const before=one('SELECT details FROM p_member_details WHERE user_id=?',u.id);run("INSERT INTO p_member_details VALUES(?,?,'',?) ON CONFLICT(user_id) DO UPDATE SET details=excluded.details,updated_at=excluded.updated_at",u.id,JSON.stringify(d),now());run('UPDATE p_users SET name=? WHERE id=?',d.firstName+' '+d.lastName,u.id);audit(u.id,'member.details',u.id,before?.details||null,d);});
+      return json({ok:true});
+    }
     if (path[0] === "me" && get) return json({ user: publicUser(u) });
     if (path[0] === "dashboard" && get) {
       const start = persianMonthStart();

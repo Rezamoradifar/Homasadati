@@ -1,3 +1,4 @@
+import {registrationSchema,referralCode,memberDetailsSchema} from "./registration-model";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { z } from "zod";
 import {
@@ -30,14 +31,7 @@ export function validateClient(path: string, method: string, data: unknown) {
         purpose: z.enum(["register", "login", "reset", "contact"]),
       });
     if (p[1] === "register")
-      schema = z.object({
-        target: contact,
-        name: text,
-        password,
-        challenge: id,
-        code: otp,
-        referral: z.string().max(40).optional(),
-      });
+      schema = registrationSchema;
     if (p[1] === "login")
       schema = z
         .object({
@@ -78,6 +72,8 @@ export function validateClient(path: string, method: string, data: unknown) {
       idempotencyKey: id,
       totp: otp.optional(),
     });
+  if(p[0]=== "referrals")schema=z.object({code:referralCode});
+  if(p[0]=== "member-details")schema=memberDetailsSchema;
   if (p[0] === "profile")
     schema = z.object({
       name: text,
