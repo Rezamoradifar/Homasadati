@@ -1,0 +1,4 @@
+.root { color-scheme: dark; }
+.divider { height: 2px; background: linear-gradient(90deg, #826b3f, #f5dfaa, #b7995b, #f5dfaa, #826b3f); background-size: 200% 100%; animation: gold-flow 6s ease-in-out infinite alternate; }
+@keyframes gold-flow { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+@media (prefers-reduced-motion: reduce) { .divider { animation: none; } }

@@ -1,0 +1,100 @@
+{
+  "Footer": {
+    "brand": {
+      "name": "Homay Saadat",
+      "tagline": "Rooted in Iran. Connected to the world. Discover a more thoughtful way to travel, shop, and belong."
+    },
+    "aria": {
+      "footer": "Homay Saadat footer",
+      "home": "Homay Saadat home",
+      "socials": "Follow Homay Saadat"
+    },
+    "columns": {
+      "verticals": "Explore",
+      "services": "Services",
+      "company": "Company",
+      "support": "Support"
+    },
+    "links": {
+      "tourism": "Tourism",
+      "beauty": "Beauty",
+      "handicrafts": "Handicrafts",
+      "content": "Content",
+      "club": "Club",
+      "ai": "AI",
+      "booking": "Booking",
+      "concierge": "Concierge",
+      "global-shipping": "Global Shipping",
+      "dalarit": "Dalarit",
+      "api": "API",
+      "partners": "Partners",
+      "about": "About",
+      "careers": "Careers",
+      "press": "Press",
+      "sustainability": "Sustainability",
+      "contact": "Contact",
+      "help": "Help",
+      "faq": "FAQ",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "refund": "Refund"
+    },
+    "newsletter": {
+      "eyebrow": "A world of possibility",
+      "title": "Good things, delivered thoughtfully.",
+      "description": "Stories, new discoveries, and a little inspiration from Homay Saadat.",
+      "email": "Email address",
+      "placeholder": "you@example.com",
+      "submit": "Join our newsletter",
+      "notice": "By subscribing, you agree to receive our newsletter. Unsubscribe anytime.",
+      "unavailable": "Newsletter subscriptions are currently unavailable.",
+      "pending": "Subscribing…",
+      "success": "Thank you. Your subscription request has been received.",
+      "error": "We couldn’t subscribe you. Please try again.",
+      "invalid": "Enter a valid email address."
+    },
+    "payments": {
+      "title": "Payment methods",
+      "visa": "Visa",
+      "mastercard": "Mastercard",
+      "paypal": "PayPal",
+      "card": "Bank card"
+    },
+    "certifications": {
+      "title": "Certifications",
+      "sample": "Sample badge — demonstration only"
+    },
+    "languages": {
+      "en": "English",
+      "fa": "فارسی",
+      "ar": "العربية"
+    },
+    "currencies": {
+      "USD": "USD · US dollar",
+      "EUR": "EUR · Euro",
+      "AED": "AED · UAE dirham",
+      "IRR": "IRR · Iranian rial"
+    },
+    "switchers": {
+      "language": "Language",
+      "currency": "Currency",
+      "pending": "Updating your preference…",
+      "error": "Couldn’t update your preference. Please try again."
+    },
+    "socials": {
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "youtube": "YouTube"
+    },
+    "global": "One home. A world of possibilities.",
+    "copyright": "© {year} Homay Saadat. All rights reserved.",
+    "madeWithLove": "Made with love in Iran for the world",
+    "backToTop": "Back to top",
+    "demo": {
+      "eyebrow": "THE HOMAY SAADAT COLLECTION",
+      "title": "A little closer to the world.",
+      "description": "Explore the footer below. Switch languages, browse the mobile sections, and try the newsletter demo.",
+      "note": "Interactive component demo. No subscription is sent. Routes, social destinations, payment methods, and badges are examples."
+    }
+  }
+}

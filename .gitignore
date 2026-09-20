@@ -1,0 +1,10 @@
+node_modules/
+.next/
+storybook-static/
+*.tsbuildinfo
+
+.next-production/
+data/
+.env.local
+.env.production
+*.sqlite*
