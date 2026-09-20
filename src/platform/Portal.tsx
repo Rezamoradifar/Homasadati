@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import "./panel.css";
 import { useSiteSettings } from "./SiteSettings";
 import { OperationsDashboard } from "./OperationsDashboard";
+import {TravelCards,AdminTravel} from "./TravelCards";
+import ThemeToggle from "../commerce/ThemeToggle";
 import AuthPanel from "./AuthPanel";
 import { api, labels, RecordData } from "./client";
 import { Notice, Listing } from "./Widgets";
@@ -39,6 +41,7 @@ const userTabs = [
   ["commissions", "پورسانت‌ها"],
   ["missions", "مأموریت‌ها"],
   ["wallet", "کیف پول و برداشت"],
+  ["travel-cards", "کارت سفر من"],
   ["subscriptions", "اشتراک‌های من"],
   ["notifications", "اعلان‌ها"],
   ["profile", "پروفایل"],
@@ -46,6 +49,7 @@ const userTabs = [
   ["security", "امنیت حساب"],
 ];
 const adminTabs: [string, string, string[]][] = [
+  ["travel", "کارت سفر و کارگزار", ["superadmin","finance","support"]],
   ["operations", "داشبورد کسب‌وکار", ["superadmin", "finance"]],
   ["operations-tourism", "داشبورد گردشگری", ["superadmin", "finance"]],
   ["operations-beauty", "داشبورد زیبایی", ["superadmin", "finance"]],
@@ -135,7 +139,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
           <strong>{site.site_name || "همای سعادت"}</strong>
           <small>HOMAY SAADAT / {admin ? "MANAGEMENT" : "MEMBERS"}</small>
         </a>
-        <div className="portal-toplinks">
+        <div className="portal-toplinks"><ThemeToggle/>
           <a href="/">وب‌سایت</a>
           <a href={admin ? "/account" : "/admin"}>
             {admin ? "حساب من" : "مدیریت"}
@@ -219,6 +223,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     vertical={tab.split("-")[1] || ""}
                   />
                 )}
+                {tab === "travel" && <AdminTravel refresh={refresh} onChange={update} role={user.role}/>}
                 {tab === "dashboard" && (
                   <FinancialDashboard refresh={refresh} />
                 )}{" "}
@@ -298,6 +303,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
               </>
             ) : (
               <>
+                {tab === "travel-cards" && <TravelCards refresh={refresh} onChange={update}/>}
                 {tab === "dashboard" && <Dashboard refresh={refresh} />}{" "}
                 {tab === "catalog" && (
                   <Catalog refresh={refresh} onChange={update} />

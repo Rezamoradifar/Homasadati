@@ -1,3 +1,4 @@
+import ThemeToggle from './ThemeToggle';
 import type { ReactNode } from "react";
 import { brands, sectorKeys } from "./brands";
 import "./commerce.css";
@@ -22,7 +23,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
             </a>
           ))}
         </nav>
-        <div>
+        <div><ThemeToggle/>
           <a href="/income-plan">طرح درآمد</a>
           <a href="/shop">فروشگاه</a>
           <a href="/cart">سبد خرید</a>

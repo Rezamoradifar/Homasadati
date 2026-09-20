@@ -39,3 +39,17 @@ Use case: illustration-story. A majestic Persian SIMURGH in flight, one mythical
 Source: https://commons.wikimedia.org/wiki/File:Persepolis,_Hauptstadt_Persiens_(CC_BY-SA_4.0).webm
 
 ZDF/Terra X/interscience film/Faber Courtial, Gero von Boehm/Hassan Rashedi, Andreas Tiletzek, Jörg Courtial. CC BY-SA 4.0. Original 1280 × 720. Remote, muted looping presentation, cropped responsively. Attribution and license links are visible next to the video and on /heritage#media-credit. No endorsement implied. The video remains under its stated license; these credits do not assert that the unrelated site code or generated illustrations are ZDF material.
+
+## September 2026 collection update
+18 new generated visual assets are in `public/assets/heritage` (11) and
+`public/assets/collections` (7). Actual native dimensions: **1672 × 941**.
+They are artistic/concept campaign images, not documentary photographs,
+product inventory evidence or native 4K assets. No artificial upscaling is claimed.
+The homepage has 15 selectable heritage images and no video. Video is now on
+`/worlds/tourism`, controls enabled, no autoplay and no added Homa overlay.
+The source film still contains its original ZDF/Terra X marks; it has not been
+represented as an unbranded original. Source attribution and CC BY-SA link remain.
+Supply a licensed unbranded HD/4K film using `NEXT_PUBLIC_HERO_VIDEO_URL` to replace it.
+For tourism audio, supply an authorized recording using
+`NEXT_PUBLIC_TOURISM_NARRATION_URL`, then rebuild. No voice imitation or recording
+has been generated. Without a recording the page displays the narration text.

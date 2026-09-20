@@ -1,0 +1,169 @@
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #ac9263;
+  background: transparent;
+  color: inherit;
+  border-radius: 24px;
+  padding: 8px 12px;
+  font:
+    500 12px "Vazirmatn",
+    sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.theme-toggle:focus-visible {
+  outline: 3px solid #d4b06b;
+  outline-offset: 3px;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #eee7d7;
+  --paper: #101c1d;
+  --line: #344443;
+  --muted: #b6c6bf;
+}
+html[data-theme="dark"] body,
+html[data-theme="dark"] .commerce,
+html[data-theme="dark"] .portal {
+  background: #101c1d;
+  color: #eee7d7;
+}
+html[data-theme="dark"]
+  :is(
+    .site-header,
+    .commerce-header,
+    .portal-header,
+    .utility-bar,
+    .brand-home-links,
+    .portal-card,
+    .portal-sidebar,
+    .portal-form,
+    .heritage-grid article,
+    .experience-dialog
+  ) {
+  background: #172728;
+  color: #eee7d7;
+  border-color: #40514b;
+}
+html[data-theme="dark"]
+  :is(
+    .heritage-section,
+    .worlds,
+    .brand-intro,
+    .story-chapter,
+    .brand-chapter,
+    .beauty-editorial,
+    .craft-beauty,
+    .journal,
+    .landing-faq,
+    .editorial-section,
+    .shop-main,
+    .cart-main
+  ) {
+  background: #101c1d;
+  color: #eee7d7;
+}
+html[data-theme="dark"]
+  :is(
+    .brand strong,
+    .brand small,
+    .desktop-nav button,
+    .income-menu-link,
+    .commerce-logo,
+    .portal h1,
+    .portal h2,
+    .portal h3
+  ) {
+  color: #eee7d7;
+}
+html[data-theme="dark"]
+  :is(
+    .heritage-card-copy p,
+    .heritage-section header > p:last-child,
+    .commerce .brand-chapter p,
+    .registration p,
+    .portal-notice
+  ) {
+  color: #c0cec7;
+}
+html[data-theme="dark"]
+  :is(
+    input,
+    select,
+    textarea,
+    .registration input:not([type="checkbox"]),
+    .registration select
+  ) {
+  background: #112022;
+  color: #f3ead9;
+  border-color: #5f746b;
+}
+html[data-theme="dark"]
+  :is(
+    .income-rates > div,
+    .portal-stats > *,
+    .economics,
+    .economics-results,
+    .shop-card,
+    .cart-item
+  ) {
+  background: #1b3031;
+  color: #eee7d7;
+}
+html[data-theme="dark"] .registration a,
+html[data-theme="dark"] .commerce .brand-chapter a:not(.commerce-button) {
+  color: #e6c687;
+}
+html[data-theme="dark"] .commerce-footer {
+  background: #071617;
+}
+html[data-theme="dark"] .portal-table th,
+html[data-theme="dark"] .portal-table td {
+  border-color: #3b5147;
+}
+html[data-theme="dark"] .portal-card fieldset {
+  border-color: #4b6156;
+}
+html[data-theme="dark"] .registration legend {
+  color: #dabe82;
+}
+html[data-theme="dark"]
+  :is(
+    .brand-home-links a,
+    .brand-home-links strong,
+    .brand-home-links span,
+    .section-title,
+    .editorial-section h2,
+    .worlds h2,
+    .editorial-section p,
+    .worlds > p
+  ) {
+  color: #e5e5d9;
+}
+html[data-theme="dark"]
+  :is(
+    .economic-model,
+    .economic-model article,
+    .economics,
+    .brand-faq,
+    .brand-related,
+    .brand-related a,
+    .story-layout aside,
+    .product-panel,
+    .cart-summary,
+    .commerce-form,
+    .commerce-empty
+  ) {
+  background: #182b2b;
+  color: #eee7d7;
+}
+html[data-theme="dark"]
+  .commerce
+  :is(.story-chapter p, .brand-faq p, .brand-intro p) {
+  color: #cad4cd;
+}
+html[data-theme="dark"] .commerce .story-source {
+  color: #dec18b !important;
+}

@@ -1,5 +1,7 @@
 'use client';
-import {HeritageHero,HeritageSections,IncomeMenuLink} from './HeritageSections';
+import {CivilizationHero,BrandCollection} from './VisualCollections';
+import ThemeToggle from '../src/commerce/ThemeToggle';
+import {HeritageSections,IncomeMenuLink} from './HeritageSections';
 import './heritage.css';
 import {brands,sectorKeys} from '../src/commerce/brands';
 import '../src/commerce/commerce.css';
@@ -21,8 +23,8 @@ import {completionCopy} from './completion-copy';
 import {functionalCopy} from './function-copy';
 import {sectionContent} from './section-content';
 const translations={en,fa,ar};
-const images=['tourism.jpg','beauty.jpg','craft.jpg','ai.jpg'];
-const galleryImages=['heritage/persepolis.webp','heritage/cyrus.webp','heritage/griffin.webp','heritage/simurgh.webp','ai.jpg','craft-wide.jpg','international.jpg'];
+const images=['tourism.jpg','collections/beauty-portrait.webp','craft.jpg','collections/ai-human.webp'];
+const galleryImages=['heritage/persepolis.webp','heritage/cyrus.webp','heritage/griffin.webp','heritage/simurgh.webp','collections/ai-human.webp','craft-wide.jpg','international.jpg'];
 const sections=['tourism','beauty','handicrafts','ai'];
 function requestKey(){const bytes=crypto.getRandomValues(new Uint8Array(16));bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;const hex=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;}
 const ValueIcons=[GlobeHemisphereWest,FlowerLotus,Diamond,Cpu];
@@ -61,12 +63,12 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
  <header className="site-header">
   <a href="#home" className="brand" aria-label="Homay Saadat"><img src={siteSettings.site_logo||'/assets/brand-mark.png'} alt=""/><span><strong>{siteSettings.site_name||'Homay Saadat'}</strong><small lang="fa">همای سعادت</small></span></a>
   <nav aria-label={c.nav[0]} className="desktop-nav">{c.nav.map((label,i)=><button key={i} onClick={()=>goTo(i)} className={i===0?'active':''}><span>{label}</span></button>)}<IncomeMenuLink/></nav>
-  <div className="header-actions"><label className="sr-only" htmlFor="site-language">{u('language')}</label><select id="site-language" value={locale} onChange={e=>setLocale(e.target.value as Locale)}><option value="en">EN</option><option value="fa">FA</option><option value="ar">AR</option></select><button className="gold-button join-header" onClick={()=>open('club')}>{c.join}<Arrow size={17}/></button><button className="mobile-menu icon-button" onClick={()=>setMenu(!menu)} aria-label={menu?c.close:c.menu} aria-expanded={menu} aria-controls="mobile-navigation">{menu?<X/>:<List/>}</button></div>
+  <div className="header-actions"><ThemeToggle/><label className="sr-only" htmlFor="site-language">{u('language')}</label><select id="site-language" value={locale} onChange={e=>setLocale(e.target.value as Locale)}><option value="en">EN</option><option value="fa">FA</option><option value="ar">AR</option></select><button className="gold-button join-header" onClick={()=>open('club')}>{c.join}<Arrow size={17}/></button><button className="mobile-menu icon-button" onClick={()=>setMenu(!menu)} aria-label={menu?c.close:c.menu} aria-expanded={menu} aria-controls="mobile-navigation">{menu?<X/>:<List/>}</button></div>
  </header>
  {menu&&<nav id="mobile-navigation" className="mobile-nav" onKeyDown={event=>{if(event.key==='Escape'){setMenu(false);document.querySelector<HTMLButtonElement>('.mobile-menu')?.focus();}}} aria-label={c.menu}>{c.nav.map((label,i)=><button key={i} onClick={()=>goTo(i)}>{label}<Arrow size={18}/></button>)}<IncomeMenuLink/><button onClick={()=>open('club')}>{c.join}<Gift size={18}/></button></nav>}
  <main id="main" tabIndex={-1}>
  <section className="hero" id="home" aria-labelledby="hero-title">
-  <HeritageHero/>
+  <CivilizationHero/>
   <div className="hero-shade"/>
   <div className="hero-content"><p className="eyebrow">{c.eyebrow}</p><h1 id="hero-title">{c.hero}</h1><p className="hero-sub">{c.sub}</p><p className="hero-fa" lang={locale==='en'?'fa':locale} dir={locale==='en'?'rtl':undefined}>{locale==='en'?copy.fa.line:c.line}</p><div className="hero-buttons"><a href="#worlds" className="gold-button">{c.explore}<Arrow size={24}/></a><button className="outline-button" onClick={()=>open('story')}>{c.story}<Arrow size={21}/></button></div></div>
   <p className="hero-quote">{locale==='en'&&<span lang="fa" dir="rtl">{copy.fa.quote}</span>}{c.quote}</p>
@@ -77,7 +79,7 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
   <div className="section-heading"><div><p className="eyebrow">{e('collection')}</p><h2 id="worlds-title">{c.worlds}</h2></div><p>{c.worldsSub}</p></div>
   <div className="world-grid">{c.titles.map((title,i)=><button id={sections[i]} className="world-card" key={title} onClick={()=>open(i)}><img src={`/assets/${images[i]}`} alt={title} loading="lazy"/><div className="card-shade"/><div className="world-copy"><span className="world-number">0{i+1}</span><h3>{title}</h3><p>{c.descriptions[i]}</p><span className="round-arrow"><Arrow size={21}/></span></div></button>)}</div>
  </section>
- <HeritageSections/><TravelCollection onEnquire={enquire}/>
+ <HeritageSections/><BrandCollection sector="leather"/><TravelCollection onEnquire={enquire}/>
  <CraftBeauty onEnquire={enquire} onCategory={open}/>
  <CreativeStudio onEnquire={enquire}/>
  <section className="gallery-section" aria-labelledby="gallery-title"><div className="gallery-heading"><h2 id="gallery-title">{c.gallery}</h2><p>{c.gallerySub}</p><button onClick={()=>{setGalleryIndex(0);open('gallery');}}>{c.viewGallery}<Arrow size={18}/></button></div><div className="gallery-strip">{galleryImages.map((src,i)=><button key={src} aria-label={`${c.picture} ${i+1}`} onClick={()=>{setGalleryIndex(i);open('gallery');}}><img src={`/assets/${src}`} alt={`${c.gallery} — ${i+1}`} loading="lazy"/></button>)}</div></section>
@@ -93,7 +95,7 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
   <button className="dialog-close icon-button" disabled={busy} onClick={()=>setModal(null)} aria-label={c.close}><X size={24}/></button>
   {modal==='gallery'?<><h2 id="dialog-title">{c.gallery}</h2><img className="gallery-large" src={`/assets/${galleryImages[galleryIndex]}`} alt={`${c.picture} ${galleryIndex+1}`}/><div className="gallery-controls"><button className="icon-button" aria-label={c.previous} onClick={()=>setGalleryIndex((galleryIndex+6)%7)}><CaretLeft/></button><span>{galleryIndex+1} / 7</span><button className="icon-button" aria-label={c.next} onClick={()=>setGalleryIndex((galleryIndex+1)%7)}><CaretRight/></button></div></>:
   typeof modal==='number'?<><img className="dialog-cover" src={`/assets/${images[modal]}`} alt=""/><p className="eyebrow">{translatedName}</p><h2 id="dialog-title">{c.titles[modal]}</h2><p>{c.detailSub}</p><div className="experience-options">{allChoices[modal].map(choice=><button key={choice} onClick={()=>{setInterest(choice);open('contact');}}>{choice}<Arrow size={20}/></button>)}</div></>:
-  modal==='journal'?<><img className="dialog-cover" src={`/assets/${['tourism.jpg','craft.jpg','ai.jpg'][article-1]}`} alt=""/><p className="eyebrow">{e(`journal${article}Tag`)}</p><h2 id="dialog-title">{e(`journal${article}Title`)}</h2><p className="story-body">{e(`journal${article}Body`)}</p><button className="editorial-link" onClick={()=>enquire(e(`journal${article}Title`))}>{e('footerContact')}<Arrow size={20}/></button></>:
+  modal==='journal'?<><img className="dialog-cover" src={`/assets/${['tourism.jpg','craft.jpg','collections/ai-human.webp'][article-1]}`} alt=""/><p className="eyebrow">{e(`journal${article}Tag`)}</p><h2 id="dialog-title">{e(`journal${article}Title`)}</h2><p className="story-body">{e(`journal${article}Body`)}</p><button className="editorial-link" onClick={()=>enquire(e(`journal${article}Title`))}>{e('footerContact')}<Arrow size={20}/></button></>:
   modal==='tracking'?<><h2 id="dialog-title">{u('tracking')}</h2><form className="request-form" onSubmit={track}><p>{u('lookupHint')}</p><label>{u('trackingCode')}<input disabled={busy} value={code} onChange={e=>setCode(e.target.value)} dir="ltr" required minLength={73} maxLength={73}/></label><button disabled={busy} className="gold-button">{busy?u('sending'):u('track')}</button>{status&&<p role="status">{u(status)}</p>}{error&&<p role="alert">{error}</p>}</form></>:
   modal==='info'?<><h2 id="dialog-title">{infoTitle}</h2><p className="story-body">{st(infoKey)}</p><button className="gold-button" onClick={()=>{setInterest(infoTitle);open('contact');}}>{u('infoCTA')}<Arrow size={20}/></button><button className="text-button" onClick={()=>open('tracking')}>{u('tracking')}</button></>:modal==='story'?<><img className="dialog-cover" src="/assets/heritage/simurgh.webp" alt=""/><p className="eyebrow">{c.about}</p><h2 id="dialog-title">{c.storyTitle}</h2><p className="story-body">{c.storyBody}</p><button className="gold-button" onClick={()=>{setModal(null);document.getElementById('worlds')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}}>{c.explore}<Arrow size={20}/></button></>:
   modal==='international'?<><img className="dialog-cover" src="/assets/international.jpg" alt=""/><p className="eyebrow">DALARIT</p><h2 id="dialog-title">{c.international}</h2><p className="story-body">{c.internationalSub}</p><button className="gold-button" onClick={()=>{setInterest('Dalarit');open('contact');}}>{c.contact}<Arrow size={20}/></button></>:

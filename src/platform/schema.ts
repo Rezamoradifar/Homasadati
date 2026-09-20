@@ -63,6 +63,11 @@ export function platformDb() {
   CREATE TRIGGER IF NOT EXISTS p_consents_no_update BEFORE UPDATE ON p_consents BEGIN SELECT RAISE(ABORT,'immutable consent'); END;
   CREATE TRIGGER IF NOT EXISTS p_consents_no_delete BEFORE DELETE ON p_consents BEGIN SELECT RAISE(ABORT,'immutable consent'); END;
   INSERT OR IGNORE INTO p_migrations VALUES(4,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_travel_rules(rank_id TEXT PRIMARY KEY REFERENCES p_ranks(id),amount INTEGER NOT NULL CHECK(amount>0),valid_days INTEGER NOT NULL CHECK(valid_days>=8),active INTEGER NOT NULL CHECK(active IN(0,1)),updated_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_travel_cards(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),rank_id TEXT NOT NULL REFERENCES p_ranks(id),holder_name TEXT NOT NULL,rank_name TEXT NOT NULL,issued INTEGER NOT NULL,available INTEGER NOT NULL CHECK(available>=0),reserved INTEGER NOT NULL CHECK(reserved>=0),spent INTEGER NOT NULL CHECK(spent>=0),personal_threshold INTEGER NOT NULL,group_threshold INTEGER NOT NULL,qualifying_order TEXT NOT NULL REFERENCES p_orders(id),issued_at TEXT NOT NULL,expires_on TEXT NOT NULL,UNIQUE(user_id,rank_id),CHECK(issued=available+reserved+spent));
+  CREATE TABLE IF NOT EXISTS p_travel_requests(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),card_id TEXT NOT NULL REFERENCES p_travel_cards(id),product_id TEXT NOT NULL REFERENCES p_products(id),title TEXT NOT NULL,travel_date TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),quoted_total INTEGER NOT NULL CHECK(quoted_total>=amount),status TEXT NOT NULL CHECK(status IN('requested','approved','rejected','redeemed','cancelled')),note TEXT NOT NULL,reference TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,idem_key TEXT NOT NULL,payload TEXT NOT NULL,calendar TEXT NOT NULL,decision_reason TEXT NOT NULL DEFAULT '',UNIQUE(user_id,idem_key));
+  CREATE INDEX IF NOT EXISTS p_travel_request_user ON p_travel_requests(user_id,created_at);
+  INSERT OR IGNORE INTO p_migrations VALUES(5,datetime('now'));
   `);
   ready = d;
   return d;

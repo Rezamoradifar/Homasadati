@@ -1,6 +1,8 @@
 import { validateClient } from "./client-validation";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
+  travel_notice:"درخواست باید حداقل هفت روز کاری کامل پیش از سفر و در محدوده اعتبار کارت باشد.",
+  travel_ineligible:"شرایط خرید، رتبه یا اعتبار کارت برای این عملیات برقرار نیست.",
   too_large: "حجم اطلاعات ارسالی بیش از حد مجاز است.",
   product_unavailable: "یکی از محصولات سبد دیگر قابل فروش نیست؛ آن را حذف کنید.",
   price_changed: "قیمت تغییر کرده است؛ سبد را تازه‌سازی و مبلغ جدید را تأیید کنید.",

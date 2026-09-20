@@ -208,3 +208,35 @@ journalctl -u homay -u homay-worker -n 100 --no-pager
 - ثبت‌نام جدید به payload کامل نسخه جدید نیاز دارد؛ کلاینت‌های قدیمی باید تازه‌سازی شوند. تأیید تماس با OTP، احراز رسمی مدارک یا مالکیت بانکی نیست. تصویر مدرک و شماره ملی جمع‌آوری نشده است. پرداخت/پیامک واقعی این نوبت ارسال نشد؛ مرز ارائه‌دهنده در تست شبیه‌سازی شد.
 
 پخش ویدئو و فرم بدون ارسال اطلاعات در مرورگر، فرم و گالری در عرض 390px، و مسیر کامل ثبت‌نام فرم تا SQLite بررسی شدند. ۵۸ تست و build production موفق‌اند. این تغییرات به معنی ارتقای خودکار سرور مالک نیستند.
+
+## Named travel credit cards (migration 5)
+Admin → گردشگری/کارت سفر (`travel`) configures rank-specific amounts, validity and
+agency business calendar. No credit amounts or products are seeded. Active members
+with a paid, unrefunded craft order beyond its cancellation window and qualifying
+personal/group sales receive one lifetime card per configured rank. Worker issuance
+is batched; the member can also request an eligibility refresh. Changed rules affect
+future cards only, not existing snapshots. Default weekend is Friday; configure
+holidays explicitly before offering a service-level promise.
+
+Credit is non-cash and separate from wallet/commissions. Request reserves credit;
+approval reserves one product stock unit; redemption consumes the reserved credit.
+Rejection/cancellation restores credit, and cancellation of an approved booking
+restores capacity. Seven complete business days between request and departure are
+required, excluding both endpoints. Each write uses SQLite's immediate transaction,
+request retries have an idempotency key, and sensitive actions are audited. Admin
+shows free/reserved/spent travel totals separately from cash liability. Product price
+changes block approval until the old request is cancelled and resubmitted.
+
+Agency coordination is manual: stock is a total tour allocation, not a dated seat
+inventory integration. The agent must verify actual departure availability, collect
+any remainder separately and enter the booking/payment reference. No airline ticket
+or external bank transfer is automatically produced. Refunds or reduced sales freeze
+new use of unqualified cards. Already redeemed benefits and approved bookings needing
+refund resolution must be reviewed by finance; no automatic clawback is claimed.
+Support can coordinate/cancel but cannot redeem or change credit rules. Finance and
+superadmin can redeem. Pending expired requests are released by the worker. Existing
+card expiry does not cause automatic renewal at the same rank.
+
+Theme preference persists locally and respects OS preference on first visit.
+Narration requires an authorized recording; set `NEXT_PUBLIC_TOURISM_NARRATION_URL`
+and rebuild to enable the audio player. Current images are 1672×941, not native 4K.

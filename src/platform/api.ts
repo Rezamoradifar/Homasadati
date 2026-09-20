@@ -1,3 +1,4 @@
+import {cardsFor,issueTravelCards,travelCalendar,saveTravelRule,saveTravelCalendar,requestTravel,reviewTravel} from "./travel";
 import {registrationSchema,referralCode,memberDetailsSchema} from "./registration-model";
 import {
   cartItemsSchema,
@@ -992,6 +993,16 @@ export async function handle(req: Request, path: string[]) {
             ),
       });
     }
+    if(path[0]==='admin'&&path[1]==='travel'){
+      const actor=userOf(req,['superadmin','finance','support']);
+      if(get)return json({liability:one('SELECT COALESCE(SUM(available),0) AS available,COALESCE(SUM(reserved),0) AS reserved,COALESCE(SUM(spent),0) AS spent FROM p_travel_cards'),rules:all('SELECT t.*,r.name FROM p_travel_rules t JOIN p_ranks r ON r.id=t.rank_id'),ranks:all('SELECT id,name FROM p_ranks ORDER BY name'),calendar:travelCalendar(),rows:all('SELECT t.*,u.name FROM p_travel_requests t JOIN p_users u ON u.id=t.user_id ORDER BY t.created_at DESC LIMIT 100')});
+      limit('travel-admin:'+actor.id,60,300);
+      if(path[2]==='review'){if(data.status==='redeemed'&&actor.role==='support')throw new ApiError(403,'forbidden');return json(reviewTravel(actor.id,data));}
+      if(!['superadmin','finance'].includes(actor.role))throw new ApiError(403,'forbidden');
+      if(path[2]==='rules'){saveTravelRule(actor.id,data);return json({ok:true});}
+      if(path[2]==='calendar'){saveTravelCalendar(actor.id,data);return json({ok:true});}
+      throw new ApiError(404,'not_found');
+    }
     if (path[0] === "admin") return await admin(req, path, data, url);
     const u = userOf(req),
       q = query(url);
@@ -1001,6 +1012,13 @@ export async function handle(req: Request, path: string[]) {
       const d=memberDetailsSchema.parse(data);
       atomic(()=>{const before=one('SELECT details FROM p_member_details WHERE user_id=?',u.id);run("INSERT INTO p_member_details VALUES(?,?,'',?) ON CONFLICT(user_id) DO UPDATE SET details=excluded.details,updated_at=excluded.updated_at",u.id,JSON.stringify(d),now());run('UPDATE p_users SET name=? WHERE id=?',d.firstName+' '+d.lastName,u.id);audit(u.id,'member.details',u.id,before?.details||null,d);});
       return json({ok:true});
+    }
+    if(path[0]==='travel-cards'){
+      if(get)return json({cards:cardsFor(u.id),rows:all('SELECT * FROM p_travel_requests WHERE user_id=? ORDER BY created_at DESC LIMIT 100',u.id),calendar:travelCalendar()});
+      if(path[1]==='sync')return json({cards:issueTravelCards(u.id)});
+      if(path[1]==='requests')return json(requestTravel(u.id,data));
+      if(path[1]==='cancel')return json(reviewTravel(u.id,{...data,status:'cancelled'},true));
+      throw new ApiError(404,'not_found');
     }
     if (path[0] === "me" && get) return json({ user: publicUser(u) });
     if (path[0] === "dashboard" && get) {

@@ -1,3 +1,4 @@
+import {travelRuleSchema,travelCalendarSchema,travelRequestSchema,travelReviewSchema} from "./travel-model";
 import {registrationSchema,referralCode,memberDetailsSchema} from "./registration-model";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { z } from "zod";
@@ -24,6 +25,11 @@ export function validateClient(path: string, method: string, data: unknown) {
   if (p.join("/") === "cart/quote")
     schema = z.object({ items: cartItemsSchema });
   if (p[0] === "checkouts" && !p[1]) schema = checkoutSchema;
+  if(path==='admin/travel/rules')schema=travelRuleSchema;
+  if(path==='admin/travel/calendar')schema=travelCalendarSchema;
+  if(path==='admin/travel/review')schema=travelReviewSchema;
+  if(path==='travel-cards/requests')schema=travelRequestSchema;
+  if(path==='travel-cards/cancel')schema=z.object({id,reason:text});
   if (p[0] === "auth") {
     if (p[1] === "otp")
       schema = z.object({

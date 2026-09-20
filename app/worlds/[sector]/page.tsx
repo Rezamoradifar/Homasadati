@@ -1,3 +1,5 @@
+import {BrandCollection} from '../../VisualCollections';
+import TourismMedia from '../../TourismMedia';
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { brands, isSector, sectorKeys } from "../../../src/commerce/brands";
@@ -58,7 +60,7 @@ export default function BrandPage({ params }: { params: { sector: string } }) {
           <h2>{b.label}؛ فراتر از یک انتخاب</h2>
           <p>{s.intro}</p>
         </section>
-        <div className="story-layout">
+        {k==='tourism'&&<TourismMedia/>}{k==='craft'&&<section className="tourism-media"><h2>هنر ایرانی، اعتبار سفر شما</h2><p>با عضویت در باشگاه و خرید واجد شرایط از هما تمدن، پس از پایان مهلت لغو و احراز رتبه، کارت سفر به نام شما صادر می‌شود. اعتبار هر رتبه را مدیریت تعیین می‌کند؛ این اعتبار غیرنقدی است و درخواست استفاده باید حداقل هفت روز کاری کامل پیش از سفر به کارگزار برسد.</p><a className="commerce-button gold" href="/account?tab=travel-cards">مشاهده کارت‌های سفر من</a></section>}<BrandCollection sector={k}/><div className="story-layout">
           <aside>
             <nav aria-label="فهرست محتوای این صفحه">
               {s.chapters.map((c, i) => (

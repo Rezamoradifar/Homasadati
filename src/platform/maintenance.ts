@@ -1,6 +1,8 @@
+import {issueTravelCards,reviewTravel} from "./travel";
+import {tehranDay} from "./travel-model";
 import { atomic, all, one, run, now } from "./schema";
 import { mature, refundOrder } from "./finance";
-import { providerFetch, setting } from "./providers";
+import { providerFetch, setting,saveSetting } from "./providers";
 import { ApiError } from "../server/http";
 export async function maintenance() {
   atomic(() => {
@@ -17,6 +19,11 @@ export async function maintenance() {
     ))
       refundOrder(order.id, order.user_id, false, "انقضای سفارش پرداخت‌نشده");
   });
+  const cursor=setting('travel_cards_cursor')||'';
+  const members=all("SELECT DISTINCT u.id FROM p_users u JOIN p_orders o ON o.user_id=u.id WHERE u.blocked=0 AND u.id>? AND o.vertical='craft' AND o.paid_at IS NOT NULL AND o.refunded_at IS NULL ORDER BY u.id LIMIT 100",cursor);
+  for(const member of members)issueTravelCards(member.id);
+  saveSetting('travel_cards_cursor',members.length?members[members.length-1].id:'');
+  for(const request of all("SELECT t.id,t.user_id FROM p_travel_requests t JOIN p_travel_cards c ON c.id=t.card_id WHERE t.status='requested' AND (t.travel_date<=? OR c.expires_on<?) LIMIT 100",tehranDay(),tehranDay()))reviewTravel(request.user_id,{id:request.id,status:'cancelled',reason:'انقضای درخواست تأییدنشده'},true);
   // Leased delivery: an interrupted worker can retry without losing the queue item.
   const jobs = all(
     "SELECT id FROM p_outbox WHERE status IN ('pending','retry','sending') AND next_attempt<=? AND attempts<8 ORDER BY created_at LIMIT 20",

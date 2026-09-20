@@ -1,0 +1,226 @@
+.civilization-controls {
+  position: absolute;
+  bottom: 28px;
+  left: 6%;
+  right: 6%;
+  z-index: 5;
+  color: white;
+}
+.civilization-caption {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.civilization-caption span {
+  font-size: 14px;
+}
+.civilization-caption small {
+  display: block;
+  opacity: 0.7;
+  font-size: 11px;
+}
+.civilization-controls button,
+.collection-nav button {
+  border: 1px solid #c7a46a88;
+  background: #182e2aaa;
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 14px;
+}
+.civilization-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px;
+}
+.civilization-thumbs button {
+  flex: 0 0 74px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0.6;
+  scroll-snap-align: center;
+}
+.civilization-thumbs button[aria-pressed="true"] {
+  opacity: 1;
+  outline: 2px solid #d7b879;
+}
+.civilization-thumbs img {
+  width: 74px;
+  height: 46px;
+  object-fit: cover;
+}
+.collection-section,
+.tourism-media {
+  padding: 80px max(6vw, 20px);
+  max-width: 1500px;
+  margin: auto;
+}
+.collection-section h2,
+.tourism-media h2 {
+  font-size: clamp(25px, 4vw, 48px);
+  margin: 12px 0 24px;
+}
+.collection-section p,
+.tourism-media p {
+  max-width: 850px;
+  line-height: 2.2;
+}
+.collection-rail {
+  display: flex;
+  overflow-x: auto;
+  gap: 24px;
+  scroll-snap-type: x mandatory;
+  margin: 24px 0;
+}
+.collection-rail figure {
+  flex: 0 0 75%;
+  margin: 0;
+  scroll-snap-align: start;
+}
+.collection-rail img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 14px;
+}
+.collection-rail figcaption {
+  padding: 16px 0;
+  font-size: 20px;
+}
+.collection-nav {
+  display: flex;
+  gap: 10px;
+}
+.collection-section small {
+  display: block;
+  opacity: 0.65;
+  margin-bottom: 24px;
+}
+.tourism-media video {
+  width: 100%;
+  border-radius: 16px;
+  background: #102c2a;
+  max-height: 75vh;
+}
+.tourism-media article {
+  padding: 30px 0;
+  border-top: 1px solid #ad946844;
+  margin-top: 30px;
+}
+.tourism-media audio {
+  width: 100%;
+}
+.media-credit {
+  font-size: 12px;
+  opacity: 0.7;
+}
+.travel-benefit-intro {
+  background: #b69a5b12;
+  padding: 30px !important;
+  border-radius: 16px;
+}
+.travel-card {
+  background: linear-gradient(125deg, #123c37, #071e1c);
+  color: #f4e5c1;
+  border: 1px solid #bba16c;
+  border-radius: 20px;
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+}
+.travel-card:after {
+  content: "HOMA";
+  position: absolute;
+  font-family: serif;
+  font-size: 70px;
+  opacity: 0.07;
+  bottom: 0;
+  left: 16px;
+  pointer-events: none;
+}
+.travel-card h3 {
+  color: #edcb8e;
+}
+.travel-card p {
+  color: inherit;
+}
+.travel-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #c69b4f;
+  outline-offset: 4px;
+}
+@media (max-width: 700px) {
+  .civilization-controls {
+    bottom: 18px;
+  }
+  .civilization-thumbs button {
+    flex-basis: 58px;
+  }
+  .civilization-thumbs img {
+    width: 58px;
+    height: 38px;
+  }
+  .collection-rail figure {
+    flex-basis: 90%;
+  }
+  .collection-section,
+  .tourism-media {
+    padding: 44px 20px;
+  }
+  .hero-content {
+    padding-bottom: 140px !important;
+  }
+}
+.travel-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 22px;
+  margin: 24px 0;
+}
+.travel-credit-card {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid #bda472;
+  border-radius: 20px;
+  background: #0b2b28;
+  color: #f3e8cc;
+  overflow: hidden;
+  min-height: 320px;
+}
+.travel-credit-card > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.18;
+  z-index: -1;
+}
+.travel-credit-card > div {
+  padding: 26px;
+}
+.travel-credit-card h2 {
+  color: #efd098 !important;
+}
+.travel-credit-card code {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.travel-credit-card strong {
+  font-size: 24px;
+}
+.hero-quote {
+  display: none !important;
+}
+.hero-content {
+  padding-bottom: 155px !important;
+}
+@media(max-width:600px){.site-header{padding-inline:14px!important;gap:8px!important;justify-content:space-between}.site-header .brand{gap:5px;min-width:0}.site-header .brand img{width:34px!important;height:38px!important}.site-header .brand strong{font-size:21px!important}.site-header .brand small{font-size:11px!important}.header-actions{gap:6px!important}.header-actions .theme-toggle{padding:6px 8px}.header-actions .theme-toggle>span:last-child{display:none}.site-header .mobile-menu{width:32px;min-width:32px;padding:4px}.header-actions select{font-size:12px!important}.collection-rail{max-width:100%}}
