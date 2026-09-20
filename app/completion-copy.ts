@@ -1,0 +1,53 @@
+export const completionCopy = {
+  "en": {
+    "faqTitle": "Before your next discovery",
+    "faqIntro": "A few helpful answers before we begin.",
+    "q1": "How do I request an experience?",
+    "a1": "Choose a world, select your interest and send the enquiry form. Save your private tracking code to follow its status.",
+    "q2": "Does sending a request confirm a booking?",
+    "a2": "No. Your enquiry is saved for review. Availability, price and any payment arrangements must be confirmed separately.",
+    "q3": "Can I enquire from outside Iran?",
+    "a3": "Yes. Tell us your destination and the service or item you are interested in. Shipping and service availability are assessed for each request.",
+    "q4": "How can I follow my request?",
+    "a4": "Use Track a request and enter the complete code from your receipt. You can check whether it has been received, is being reviewed or is closed.",
+    "ctaTitle": "Your next story starts here.",
+    "ctaBody": "A journey, a handmade treasure, or a creative idea. Tell us what you have in mind.",
+    "ctaAction": "Start a conversation",
+    "copyFailed": "Select the code above and copy it manually.",
+    "newsletterSave": "Keep this private cancellation link; it is shown only when your address is first registered."
+  },
+  "fa": {
+    "faqTitle": "پیش از شروع، بیشتر بدانید",
+    "faqIntro": "پاسخ چند پرسش برای قدم بعدی شما.",
+    "q1": "چطور درخواست خود را ثبت کنم؟",
+    "a1": "حوزه و موضوع مورد علاقه‌تان را انتخاب کنید و فرم درخواست را بفرستید. کد خصوصی پیگیری را نگه دارید تا وضعیت درخواست را ببینید.",
+    "q2": "ارسال درخواست به معنی رزرو قطعی است؟",
+    "a2": "خیر. درخواست برای بررسی ثبت می‌شود. موجودبودن خدمت، قیمت و شیوهٔ پرداخت باید جداگانه تأیید شوند.",
+    "q3": "از خارج ایران هم می‌توانم درخواست بدهم؟",
+    "a3": "بله. کشور مقصد و خدمت یا محصول مورد نظرتان را در پیام بنویسید. امکان ارائهٔ خدمت و ارسال برای هر درخواست بررسی می‌شود.",
+    "q4": "چطور وضعیت درخواست را پیگیری کنم؟",
+    "a4": "در بخش «پیگیری درخواست»، کد کامل رسید را وارد کنید. وضعیت دریافت، در حال بررسی یا بسته‌شدن درخواست نمایش داده می‌شود.",
+    "ctaTitle": "داستان بعدی شما از اینجا آغاز می‌شود.",
+    "ctaBody": "یک سفر، یادگاری دست‌ساز یا ایده‌ای خلاقانه؛ از چیزی بگویید که در ذهن دارید.",
+    "ctaAction": "آغاز گفت‌وگو",
+    "copyFailed": "کد بالا را انتخاب و به‌صورت دستی کپی کنید.",
+    "newsletterSave": "این پیوند خصوصی لغو را نگه دارید؛ فقط هنگام ثبت اولیهٔ نشانی ایمیل نمایش داده می‌شود."
+  },
+  "ar": {
+    "faqTitle": "قبل اكتشافك القادم",
+    "faqIntro": "إجابات تساعدك على اتخاذ الخطوة التالية.",
+    "q1": "كيف أرسل طلباً؟",
+    "a1": "اختر المجال الذي يهمك وأرسل نموذج الاستفسار. احتفظ برمز التتبع الخاص لمتابعة حالة طلبك.",
+    "q2": "هل إرسال الطلب يؤكد الحجز؟",
+    "a2": "لا. يُحفظ طلبك للمراجعة. يجب تأكيد التوافر والسعر وترتيبات الدفع بشكل منفصل.",
+    "q3": "هل يمكنني الاستفسار من خارج إيران؟",
+    "a3": "نعم. اذكر بلد الوجهة والخدمة أو المنتج الذي تريده. تُدرس إمكانية تقديم الخدمة والشحن لكل طلب.",
+    "q4": "كيف أتابع حالة طلبي؟",
+    "a4": "اختر تتبع طلب وأدخل الرمز الكامل من الإيصال لمعرفة ما إذا تم استلام الطلب أو كان قيد المراجعة أو مغلقاً.",
+    "ctaTitle": "قصتك القادمة تبدأ هنا.",
+    "ctaBody": "رحلة، قطعة مصنوعة يدوياً، أو فكرة إبداعية. أخبرنا بما يدور في ذهنك.",
+    "ctaAction": "ابدأ حواراً",
+    "copyFailed": "حدد الرمز أعلاه وانسخه يدوياً.",
+    "newsletterSave": "احتفظ برابط الإلغاء الخاص؛ يظهر فقط عند تسجيل بريدك للمرة الأولى."
+  }
+};

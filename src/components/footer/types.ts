@@ -62,6 +62,8 @@ export interface FooterProps {
   onCurrencyChange?: (currency: string) => void | Promise<void>;
   /** Resolve only after the backend accepts the subscription; reject on failure. */
   onSubscribe?: (email: string, context: {locale: string}) => Promise<void>;
+  /** Optional follow-up content, displayed only after successful subscription. */
+  newsletterSuccessContent?: ReactNode;
   /** Pass a server-generated year to keep the initial render deterministic. */
   year?: number;
   /** Optional focus destination (usually main or a heading with tabIndex={-1}). */

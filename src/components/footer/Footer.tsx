@@ -25,7 +25,7 @@ function BadgeRow({items, titleKey}: {items: readonly FooterBadge[]; titleKey: s
 export function Footer({id, className = '', direction, logo, homeHref, resolveHref = localizedHref,
   columns = defaultColumns, socials = [], paymentMethods = [], certifications = [],
   languages = defaultLanguages, currencies = defaultCurrencies, currency = 'USD',
-  onLocaleChange, onCurrencyChange, onSubscribe, year = new Date().getUTCFullYear(), backToTopTargetId}: FooterProps) {
+  onLocaleChange, onCurrencyChange, onSubscribe, newsletterSuccessContent, year = new Date().getUTCFullYear(), backToTopTargetId}: FooterProps) {
   const t = useTranslations('Footer');
   const locale = useLocale();
   const reducedMotion = useReducedMotion();
@@ -96,6 +96,7 @@ export function Footer({id, className = '', direction, logo, homeHref, resolveHr
           <p id={`${uid}-status`} role="status" aria-live="polite" aria-atomic="true" className="mt-2 min-h-5 text-sm text-[#F5EAD4]">
             {status !== 'idle' && t(`newsletter.${status}`)}
           </p>
+          {status === 'success' && newsletterSuccessContent}
         </form>
       </section>
 

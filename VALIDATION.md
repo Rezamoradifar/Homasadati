@@ -11,3 +11,7 @@
 - Storybook build was verified in the preceding footer implementation. It was not rebuilt for the server addition; public Footer props remain compatible.
 
 No live payment, booking supplier or email delivery service is configured or claimed tested. Admin authentication and state changes were exercised through API integration tests, not browser credential entry. Production HTTPS deployment, reverse proxy policy and backups must be configured on the target host. Screen-reader testing has not been performed.
+
+## Landing completion pass
+
+Added translated on-page FAQ, final contact CTA, receipt copy feedback, inline newsletter cancellation follow-up and mobile Escape focus handling. Corrected shortened Persian brand labels. TypeScript and all 12 existing component/server tests pass. Visual screenshots from the preceding pass predate these sections; a fresh browser layout review is still needed.
