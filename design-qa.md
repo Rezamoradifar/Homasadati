@@ -1,53 +1,83 @@
-> Historical visual verification. Forms now persist to SQLite; see VALIDATION.md and LANDING-README.md for current functionality.
+# Expanded landing design QA — 2026-09-20
 
-# Homay Saadat landing — visual QA
+## Target and evidence
+
+Source visual truth: `/workspace/scratch/1a72a0e0c449/redesign-before.jpg`
+(1348 × 4181 pixels), the existing Persian landing. The brief authorizes an
+expanded redesign, not a pixel-identical reproduction. The retained identity is
+Persian imagery, the bird logo, deep green, warm paper and muted gold.
+
+Implementation: browser preview at terminal.local:4173, captured in
+`/home/oai/share/1a72a0e0c449/homay-expanded-landing.jpg` (browser shared file).
+CSS viewport 1363 × 936, content width 1348 with native scrollbar, density 1.
+Final document height 9187 CSS pixels. Both full views were visually inspected;
+the before/after images were emitted together in the comparison input. Their
+unequal heights reflect the requested new content, not a density mismatch.
+
+State: Persian, desktop, closed dialogs, first travel interest selected. English
+and Arabic were also switched in-browser. Mobile used a 390 × 844 iframe, with
+native scrollbar, at the same route. Mobile hero and expanded Services footer
+were inspected separately. Focused desktop newsletter, columns and journal states
+were inspected at full viewport scale for readable text and controls.
+
+## Findings and iterations
+
+- [P2, fixed] Low-resolution gallery thumbnails were enlarged in journal and
+  travel panels. The first rendered journal view visibly blurred. Replaced these
+  sources with existing high-resolution source photography; journal and travel
+  captions now describe interests rather than incorrectly identifying locations.
+- [P2, fixed] The portrait travel source expanded its grid row excessively in the
+  second capture (`redesign-after.jpg`, 1348 × 9635). Constrained the image to its
+  450px desktop panel using absolute positioning; mobile reserves 280px. Final
+  browser inspection confirms a 450px feature and balanced photograph/text panel.
+- [P2, fixed] Mobile footer breakpoint was 760px while accordion behavior changes
+  at 768px. Aligned the design layer to 767px.
+- [P3, fixed] Corrected duplicated Persian brand wording in newsletter copy.
+
+## Required surfaces
+
+- Fonts: locally served Vazirmatn 400/500/600/700 for RTL; Manrope for Latin UI;
+  Cormorant Garamond for Latin display. Smaller consistent footer headings replace
+  the original oversized headings. No heading clipping seen at tested widths.
+- Spacing: expanded sections have consistent margins and intentional variation in
+  column structure; mobile collapses sections and uses an accordion footer.
+  Desktop DOM width check shows no horizontal overflow.
+- Colors: retained green/gold identity with warm cream, sage travel/business
+  sections, a soft neutral beauty section and a dark green footer. Controls retain
+  visible gold focus outlines. Decorative wordmark is intentionally low contrast.
+- Images: retained original brand assets, replaced enlarged tiny thumbnails, fixed
+  travel crop. Final DOM has no completed broken images. Lazy-loaded images were
+  brought into view before the final full-page screenshot.
+- Copy: all new user-facing narrative translated in next-intl for fa/en/ar.
+  No invented client counts, testimonials or certifications. Enquiries explicitly
+  do not confirm bookings. Journal notes are original editorial text, not reports.
+
+## Interaction checks
+
+- Travel selection updates panel and prefills the contact form with the interest.
+- Craft enquiry, beauty detail, gallery and international detail open.
+- Journal opens a readable article and closes with Escape.
+- Mobile Services accordion reveals its links with expanded state.
+- Language switches English/Persian/Arabic and currency selection persists.
+- Back-to-top returns scrollY to 0 after the smooth animation.
+- Console checked: browser-extension metadata errors only in sampled log; no
+  application exceptions observed. This is not a complete accessibility audit.
+- Existing 12 tests pass (footer and SQLite API); TypeScript passes; production
+  build passes after the final source changes.
+
+## Implementation checklist
+
+- [x] Expanded sections and typed enquiry callbacks
+- [x] Three-language copy and RTL/LTR rendering
+- [x] Reusable footer variant and mobile accordion
+- [x] Review desktop/mobile, fix image quality and sizing
+- [x] Verify existing tests, types and production build
+
+## Follow-up polish
+
+P3: More commissioned photography unique to each business line would reduce
+repeated imagery. Current original assets are reused intentionally. Tablet and
+physical-device testing, full accessibility audit and external email/payment
+integrations are outside this redesign verification.
 
 final result: passed
-
-Scope: responsive, interactive landing similar to the supplied images, extending the existing Next.js 14 footer project. This is a frontend prototype, not a live booking/membership service or a pixel-for-pixel reproduction of all seven supplied pages.
-
-## Visual truth and evidence
-
-- Primary source: `../upload/02-1000212759.png` (941 × 1672).
-- Hero source: `../upload/01-1000212763.png` (1672 × 941).
-- Supporting sources: supplied Tourism, Handicrafts, AI Studio, International screens.
-- Desktop: `../homay-landing-en.jpg` and `../homay-landing-fa.jpg`; actual cloud-browser viewport 1363 × 936 CSS pixels, captured full-page at 1×. Full-page height differs because the existing five-column footer and the supplied International concept are included.
-- Mobile: `../homay-landing-mobile-review.jpg`, with a 390 × 844 iframe containing the actual page (375 px content viewport after scrollbar). Cropped image: `../homay-landing-mobile-fa.jpg`. This tests CSS responsiveness, not a physical phone.
-- Full combined comparison: `../landing-comparison.jpg` — source and implementation displayed together at a normalized width of 941 pixels.
-- Focused comparison: `../landing-comparison-hero.jpg` — top 550 pixels of the same normalized views. Used for header, hero typography, spacing, image crop, and values-strip review.
-
-## Required fidelity surfaces
-
-- Typography: Cormorant Garamond provides the reference's editorial serif; Vazirmatn supplies readable, correctly joined Persian/Arabic. Brand English remains serif in RTL. All main copy is real selectable text.
-- Layout: large landscape hero, four portrait service cards, horizontal image gallery, dark club band, International feature, three editorial statements, and the existing responsive footer. Mobile uses two-card rows, a menu, horizontally scrolling gallery, and footer accordions. No unintended page overflow observed.
-- Color: deep petroleum/navy, warm gold buttons and line icons, warm white section backgrounds closely follow the references. Solid translucent card treatments deliberately maintain legibility.
-- Assets: custom generated hero and four vertical photographs follow the source art direction. Supplied logo and gallery/international imagery are source extracts. All image requests completed; no broken images in browser. The gallery originals are lower resolution than the regenerated main images.
-- Content: corrected Persian brand to «همای سعادت». Three locales supported. Reference testimonial identities/ratings were not represented as real customers; editorial brand values retain the three-card region instead. No unverifiable certifications, partner logos, or payment acceptance claims are introduced.
-
-## Comparison history and fixes
-
-1. Initial browser pass: tourism source extract looked soft when enlarged (P2). Replaced with a matching high-resolution generated photograph; re-captured and compared.
-2. Initial footer pass: newsletter icon overlapped input text and heading hierarchy was too small (P2). Added scoped padding and heading size; verified in English and Persian captures.
-3. Integration: repeated resolved footer anchors generated duplicate React keys (P2). Changed item identity to translation key plus href; final log inspection found no new application errors. Existing browser-extension metadata errors are outside the application.
-4. Capture-only issue: an early full-page capture occurred before lazy images were painted. Checked actual image completion, then re-captured all populated regions. A focused skip-link state was also cleared through ordinary navigation before final screenshots.
-5. Final comparison: no remaining actionable P0/P1/P2 issues for the requested similar-to-reference landing scope. Main hero and category image subjects, relative composition, color, and content hierarchy are preserved. Additional International section and larger footer intentionally reflect the supplied reference set and earlier explicit footer requirements.
-
-## Primary interactions tested in the cloud browser
-
-- Tourism navigation opens its experience dialog.
-- Selecting Isfahan carries the selected experience into the request form.
-- Name/email entry and submit produce a local review explicitly stating that nothing was sent.
-- Gallery opens and next control advances the counter.
-- Locale switch changes Persian/Arabic text and RTL direction.
-- Mobile navigation opens and closes.
-- Mobile footer accordion opens with `aria-expanded=true`.
-- Mobile back-to-top returns to page start.
-- Desktop and mobile page width checked for overflow.
-- Application error logs checked after fixes: none newly emitted.
-
-## Follow-up polish / limits
-
-- P3: Replace small supplied gallery crops with original full-resolution photography when available.
-- P3: Card imagery, line icons, and serif glyph details are close interpretations rather than identical source artwork.
-- Operational: enquiries remain a clearly labeled local prototype; newsletter is disabled until a real handler is provided. Legal/support pages without supplied content show an unpublished notice. No payment, booking, membership account, or email is created.
-- No deployment performed; local cloud-browser preview remains available.

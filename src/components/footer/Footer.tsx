@@ -22,7 +22,7 @@ function BadgeRow({items, titleKey}: {items: readonly FooterBadge[]; titleKey: s
   </section>;
 }
 
-export function Footer({id, className = '', direction, logo, homeHref, resolveHref = localizedHref,
+export function Footer({variant = 'default', introduction, signature, id, className = '', direction, logo, homeHref, resolveHref = localizedHref,
   columns = defaultColumns, socials = [], paymentMethods = [], certifications = [],
   languages = defaultLanguages, currencies = defaultCurrencies, currency = 'USD',
   onLocaleChange, onCurrencyChange, onSubscribe, newsletterSuccessContent, year = new Date().getUTCFullYear(), backToTopTargetId}: FooterProps) {
@@ -68,13 +68,14 @@ export function Footer({id, className = '', direction, logo, homeHref, resolveHr
     window.scrollTo({top: 0, behavior: reducedMotion ? 'auto' : 'smooth'});
   }
 
-  return <footer id={id} dir={direction ?? localeDirection(locale)} lang={locale} aria-label={t('aria.footer')}
+  return <footer data-variant={variant} id={id} dir={direction ?? localeDirection(locale)} lang={locale} aria-label={t('aria.footer')}
     className={`${styles.root} relative overflow-hidden bg-[#18263D] text-[#E7EAF0] ${className}`}>
     <div aria-hidden="true" className={styles.divider} />
     <motion.div initial={false} whileInView={reducedMotion ? undefined : {y: [12, 0], opacity: [0.8, 1]}}
       viewport={{once: true, amount: 0.08}} transition={{duration: 0.5, ease: 'easeOut'}}
-      className="mx-auto max-w-7xl px-5 pb-6 pt-10 sm:px-8 lg:px-12 lg:pt-14">
-      <section aria-labelledby={`${uid}-newsletter`} className="grid gap-6 border-b border-white/15 pb-9 lg:grid-cols-2 lg:items-center lg:gap-16">
+      className="footer-inner mx-auto max-w-7xl px-5 pb-6 pt-10 sm:px-8 lg:px-12 lg:pt-14">
+      {introduction}
+      <section data-footer-newsletter aria-labelledby={`${uid}-newsletter`} className="grid gap-6 border-b border-white/15 pb-9 lg:grid-cols-2 lg:items-center lg:gap-16">
         <div><p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#DCC38A]"><Sparkles size={15} aria-hidden="true" />{t('newsletter.eyebrow')}</p>
           <h2 id={`${uid}-newsletter`} className="text-2xl font-medium leading-snug text-[#F5EAD4] sm:text-3xl">{t('newsletter.title')}</h2>
           <p className="mt-3 max-w-md text-sm leading-7 text-[#B9C6D5]">{t('newsletter.description')}</p>
@@ -100,7 +101,7 @@ export function Footer({id, className = '', direction, logo, homeHref, resolveHr
         </form>
       </section>
 
-      <div className="grid gap-x-6 py-8 md:grid-cols-5 md:gap-x-5 md:py-12 lg:gap-x-10">
+      <div data-footer-columns className="grid gap-x-6 py-8 md:grid-cols-5 md:gap-x-5 md:py-12 lg:gap-x-10">
         <FooterColumn titleKey="brand.name" defaultOpen>
           <a href={homeHref ?? resolveHref('/', locale)} aria-label={t('aria.home')} className={`inline-flex rounded-sm text-[#DCC38A] ${focusRing}`}>
             <span aria-hidden="true">{logo ?? <svg width="52" height="42" viewBox="0 0 52 42" fill="none"><path d="M26 32C17 18 8 26 3 7c11 10 16 3 23 15C33 10 38 17 49 7c-5 19-14 11-23 25Z" stroke="currentColor" strokeWidth="1.6"/><path d="m19 32 7 7 7-7M26 22V8m-4 4 4-8 4 8" stroke="currentColor" strokeWidth="1.6"/></svg>}</span>
@@ -116,7 +117,7 @@ export function Footer({id, className = '', direction, logo, homeHref, resolveHr
       {(paymentMethods.length > 0 || certifications.length > 0) && <div className="grid gap-7 border-t border-white/15 py-7 sm:grid-cols-2">
         <BadgeRow items={paymentMethods} titleKey="payments.title" /><BadgeRow items={certifications} titleKey="certifications.title" />
       </div>}
-      <div className="flex flex-col gap-5 border-t border-white/15 py-6 md:flex-row md:items-end md:justify-between">
+      <div data-footer-preferences className="flex flex-col gap-5 border-t border-white/15 py-6 md:flex-row md:items-end md:justify-between">
         <p className="flex items-center gap-2 text-sm text-[#B9C6D5]"><Globe2 size={18} aria-hidden="true" />{t('global')}</p>
         <div>
           <div className="flex flex-wrap gap-4" aria-busy={switchStatus === 'pending'}>
@@ -134,7 +135,8 @@ export function Footer({id, className = '', direction, logo, homeHref, resolveHr
           <p role="status" aria-live="polite" className="mt-2 text-xs">{switchStatus !== 'idle' && t(`switchers.${switchStatus}`)}</p>
         </div>
       </div>
-      <div className="flex flex-col gap-4 border-t border-white/15 pt-6 text-xs leading-6 text-[#B9C6D5] lg:flex-row lg:items-center lg:justify-between">
+      {signature}
+      <div data-footer-legal className="flex flex-col gap-4 border-t border-white/15 pt-6 text-xs leading-6 text-[#B9C6D5] lg:flex-row lg:items-center lg:justify-between">
         <p>{t('copyright', {year: String(year)})}</p><p>{t('madeWithLove')}</p>
         <button type="button" onClick={backToTop} className={`inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-sm px-1 text-[#F5EAD4] hover:text-[#DCC38A] ${focusRing}`}>{t('backToTop')}<ArrowUp size={16} aria-hidden="true" /></button>
       </div>

@@ -40,6 +40,12 @@ export interface FooterBadge {
   href?: string;
 }
 export interface FooterProps {
+  /** Editorial presentation for brand-led landing pages; default preserves existing layouts. */
+  variant?: 'default' | 'editorial';
+  /** Optional lead-in section; caller supplies translated content. */
+  introduction?: ReactNode;
+  /** Optional brand signature above the legal bar. */
+  signature?: ReactNode;
   id?: string;
   className?: string;
   /** Override direction for languages/scripts beyond the built-in RTL mapping. */

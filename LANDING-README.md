@@ -64,3 +64,39 @@ npm run typecheck
 npm test
 npm run storybook
 ```
+
+## Expanded editorial landing (September 2026)
+
+The landing now includes a brand introduction, three selectable travel interests,
+craft and beauty editorials, creative studio services, journal articles, business
+partnership enquiries and a three-step request guide. All new copy is in the
+`Editorial` next-intl namespace in `app/editorial-copy.ts` (Persian, English, Arabic).
+`app/BusinessSections.tsx` exposes typed callbacks so content and enquiry handling
+remain separate. Manrope, Vazirmatn and Cormorant Garamond are served locally.
+
+The reusable Footer adds optional `variant`, `introduction` and `signature` props.
+Its default rendering and existing callbacks remain compatible. The landing opts
+into `variant="editorial"`; the scoped appearance is in `app/editorial.css`.
+Payment, certification and social rows remain configurable: populate only with
+real merchant integrations, approved badges and official profile URLs.
+
+### Update the existing Ubuntu server
+
+Run as root. This briefly stops the website while building. Keep `.env.local`
+and the `data` directory; do not run setup again or clone over the existing app.
+If Git reports local changes, inspect them before continuing; do not force reset.
+
+```bash
+bash <<'UPDATE'
+set -e
+sudo -u homay -H bash -c 'cd /opt/homay/app && git pull --ff-only && npm ci'
+systemctl stop homay
+sudo -u homay -H bash -c 'cd /opt/homay/app && npm run build'
+systemctl start homay
+curl --retry 5 --retry-connrefused --retry-delay 2 --max-time 10 -I http://127.0.0.1:3000
+UPDATE
+```
+
+If the build fails, this script stops before restarting the service. Fix the
+reported build issue and rerun the build/start steps. This update has not been
+executed on the production server by the development session.
