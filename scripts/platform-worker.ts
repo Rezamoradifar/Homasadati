@@ -1,4 +1,5 @@
 import { loadEnvConfig } from "@next/env";
+import {recordServiceFailure} from "../src/platform/readiness";
 import { maintenance } from "../src/platform/maintenance";
 loadEnvConfig(process.cwd());
 let stopping = false;
@@ -11,6 +12,7 @@ async function main() {
     try {
       await maintenance();
     } catch (e) {
+      recordServiceFailure("worker","maintenance_failed");
       console.error(
         "Maintenance failed:",
         e instanceof Error ? e.name : "UnknownError",

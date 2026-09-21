@@ -102,4 +102,8 @@ export async function maintenance() {
       );
     }
   }
+  saveSetting('worker_last_success',now());
+  run('DELETE FROM p_google_challenges WHERE expires<?',Date.now());
+  run('DELETE FROM p_google_logins WHERE expires<?',Date.now());
+  run('DELETE FROM p_enrollments WHERE expires<?',Date.now());
 }

@@ -1,4 +1,4 @@
-import {tomanToRial} from '../../../src/commerce/club-tiers';
+import {tomanToRial,tierPriceRial} from '../../../src/commerce/club-tiers';
 
 import Localized from "../../../src/i18n/Localized";
 import PrivilegeCard from "../../PrivilegeCard";
@@ -24,6 +24,7 @@ export default function RanksPage() {
             قابل صدور است.
           </p>
         </header>
+        <section className="rank-comparison" aria-labelledby="compare-title"><h2 id="compare-title">مقایسه هفت کارت</h2><p>قیمت پیشنهادی عضویت با اعتبار غیرنقدی سفر تفاوت دارد. مبلغ قابل استفاده و صدور فعال را جداگانه بررسی کنید.</p><div className="comparison-scroll" role="region" aria-label="جدول مقایسه کارت‌ها" tabIndex={0}><table><thead><tr><th scope="col">کارت</th><th scope="col">قیمت پیشنهادی (ریال)</th><th scope="col">اعتبار سفر (ریال)</th><th scope="col">حداقل فروش شخصی (ریال)</th><th scope="col">اعتبار (روز)</th><th scope="col">وضعیت صدور</th></tr></thead><tbody>{ranks.map(r=><Localized key={r.level}><tr><th scope="row"><a href={"#rank-"+r.level}>{r.display_name}</a></th><td>{number(tierPriceRial(r.level)||0)}</td><td>{number(tomanToRial(r.amount))}</td><td>{number(tomanToRial(r.threshold))}</td><td>{number(r.duration)}</td><td>{r.active?"صدور فعال":"پیشنهاد؛ صدور غیرفعال"}</td></tr></Localized>)}</tbody></table></div><p>خرید کارت به‌تنهایی رتبه ایجاد نمی‌کند؛ شرایط فروش شخصی و گروهی و خرید واجد شرایط هر رتبه ملاک است.</p></section>
         <div className="rank-grid">
           {ranks.map((r) => (
             <Localized key={r.level}><article

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Homay Saadat backup
+
+[Timer]
+OnCalendar=*-*-* 03:15:00
+RandomizedDelaySec=15m
+Persistent=true
+Unit=homay-backup.service
+
+[Install]
+WantedBy=timers.target

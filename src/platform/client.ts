@@ -1,6 +1,11 @@
 import { validateClient } from "./client-validation";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
+  google_not_configured:"ورود گوگل هنوز تنظیم نشده است.",
+  google_verification_failed:"تأیید گوگل نامعتبر یا منقضی است؛ دوباره تلاش کنید.",
+  google_already_linked:"این حساب قبلاً به گوگل متصل شده است.",
+  google_link_required:"ابتدا وارد حساب قبلی شوید و گوگل را از بخش امنیت متصل کنید؛ برای حساب جدید ثبت‌نام را انتخاب کنید.",
+  google_email_check_required:"برای این نشانی، ثبت‌نام با کد تأیید ایمیل را انجام دهید.",
   captcha_not_configured:
     "ورود امن هنوز آماده نیست؛ لطفاً با پشتیبانی تماس بگیرید.",
   captcha_required: "ابتدا بررسی امنیتی کپچا را کامل کنید.",

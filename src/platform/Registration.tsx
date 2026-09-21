@@ -1,6 +1,7 @@
 "use client";
 
 import {LanguagePicker} from '../i18n/SiteLocale';
+import GoogleAccess from "./GoogleAccess";
 import ThemeToggle from '../commerce/ThemeToggle';
 import Localized from "../i18n/Localized";
 import { useEffect, useRef, useState, FormEvent } from "react";
@@ -19,6 +20,7 @@ import {
   registrationSchema,
   memberDetailsSchema,
   registrationEmail,
+  registrationContact,
   referralCode,
 } from "./registration-model";
 import { password } from "./validation";
@@ -58,6 +60,8 @@ export default function Registration({
     adultConfirmed: false,
     marketingConsent: false,
   });
+  const [method,setMethod]=useState<"email"|"sms">("email"),[smsReady,setSmsReady]=useState(false);
+  useEffect(()=>{api("auth/config").then(c=>setSmsReady(!!c.smsRegistration)).catch(()=>{});},[]);
   const [step, setStep] = useState(0),
     [invitationMode, setInvitationMode] = useState<
       "with-code" | "without-code"
@@ -144,7 +148,7 @@ export default function Registration({
     setError("");
     setNotice("");
     try {
-      const target = registrationEmail.parse(form.target);
+      const target = (method === "email" ? registrationEmail : registrationContact).parse(form.target);
       const r = await api("auth/otp", "POST", {
         target,
         purpose: "register",
@@ -155,7 +159,7 @@ export default function Registration({
       set("code", "");
       setCooldown(r.retryAfter || 60);
       setNotice(
-        "کد شش‌رقمی به ایمیل شما ارسال شد؛ ۵ دقیقه اعتبار دارد. پوشه هرزنامه را هم بررسی کنید.",
+        method === "email" ? "کد شش‌رقمی به ایمیل شما ارسال شد؛ ۵ دقیقه اعتبار دارد. پوشه هرزنامه را هم بررسی کنید." : "کد شش‌رقمی پیامک شد؛ ۵ دقیقه اعتبار دارد.",
       );
     } catch (e) {
       fail(e);
@@ -170,7 +174,7 @@ export default function Registration({
     setBusy(true);
     setError("");
     try {
-      const r = await api("auth/verify-email", "POST", {
+      const r = await api(method === "email" ? "auth/verify-email" : "auth/verify-contact", "POST", {
         target: form.target,
         challenge,
         code: form.code,
@@ -179,7 +183,7 @@ export default function Registration({
       setEnrollment(r);
       setStep(1);
       setNotice(
-        "مالکیت ایمیل تأیید شد. برای تکمیل ثبت‌نام ۱۵ دقیقه فرصت دارید.",
+        "راه تماس تأیید شد. برای تکمیل ثبت‌نام ۱۵ دقیقه فرصت دارید.",
       );
     } catch (e) {
       fail(e);
@@ -276,7 +280,7 @@ export default function Registration({
           <ShieldCheck size={28} />
           <div>
             <strong>دسترسی با تأیید دومرحله‌ای</strong>
-            <p>ایمیل تأییدشده، رمز شخصی و رمزساز</p>
+            <p>راه تماس تأییدشده، رمز شخصی و رمزساز</p>
           </div>
         </div>
       </aside>
@@ -296,7 +300,7 @@ export default function Registration({
           <>
             <ol className="registration-steps" aria-label="مراحل ثبت‌نام">
               {[
-                ["تأیید ایمیل", Mail],
+                [method === "sms" ? "تأیید موبایل" : "تأیید ایمیل", Mail],
                 ["مشخصات عضویت", UserRound],
                 ["امنیت حساب", ShieldCheck],
               ].map(([label, Icon], i) => {
@@ -317,7 +321,7 @@ export default function Registration({
             <h1 ref={heading} tabIndex={-1}>
               {
                 [
-                  "عضویت با ایمیل",
+                  method === "sms" ? "عضویت با پیامک" : "عضویت با ایمیل",
                   "عضویت به انتخاب شما",
                   "حساب شما، با حفاظت بیشتر",
                 ][step]
@@ -326,7 +330,7 @@ export default function Registration({
             <p>
               {
                 [
-                  "ایمیل خود را تأیید کنید و عضویت را در سه مرحله تکمیل کنید.",
+                  "راه تماس خود را تأیید کنید و عضویت را در سه مرحله تکمیل کنید.",
                   "با کد دعوت یا بدون آن، به جمع همراهان هما بپیوندید.",
                   "رمزساز را متصل کنید تا فقط با رمز عبور نتوان وارد حسابتان شد.",
                 ][step]
@@ -335,6 +339,8 @@ export default function Registration({
             <Notice error={error} success={notice} />
             {step === 0 && (
               <>
+                <GoogleAccess intent="register" onComplete={r=>{setMethod("email");set("target",r.target);setEnrollment(r);setStep(1);setNotice("راه تماس تأیید شد. برای تکمیل ثبت‌نام ۱۵ دقیقه فرصت دارید.");}}/>
+                <div className="registration-methods" role="group" aria-label="روش تأیید عضویت"><button type="button" aria-pressed={method==="email"} disabled={busy||!!challenge} onClick={()=>{setMethod("email");set("target","");}}>ایمیل</button><button type="button" aria-pressed={method==="sms"} disabled={busy||!!challenge||!smsReady} onClick={()=>{setMethod("sms");set("target","");}}>پیامک</button></div>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -342,13 +348,13 @@ export default function Registration({
                   }}
                 >
                   <label>
-                    ایمیل
+                    {method === "sms" ? "شماره موبایل با پیش‌شماره کشور" : "ایمیل"}
                     <input
-                      name="email"
-                      type="email"
+                      name={method === "sms" ? "phone" : "email"}
+                      type={method === "sms" ? "tel" : "email"}
                       dir="ltr"
-                      autoComplete="email"
-                      placeholder="name@example.com"
+                      autoComplete={method === "sms" ? "tel" : "email"}
+                      placeholder={method === "sms" ? "+989121234567" : "name@example.com"}
                       required
                       maxLength={254}
                       value={form.target}
@@ -365,13 +371,13 @@ export default function Registration({
                       ? `ارسال مجدد تا ${cooldown.toLocaleString("fa-IR")} ثانیه`
                       : challenge
                         ? "ارسال دوباره کد"
-                        : "دریافت کد تأیید ایمیل"}
+                        : method === "sms" ? "دریافت کد پیامک" : "دریافت کد تأیید ایمیل"}
                   </button>
                 </form>
                 {challenge && (
                   <form onSubmit={verifyEmail} className="email-code-form">
                     <label>
-                      کد تأیید ایمیل
+                      {method === "sms" ? "کد تأیید پیامک" : "کد تأیید ایمیل"}
                       <input
                         className="otp-input"
                         name="emailCode"
@@ -395,7 +401,7 @@ export default function Registration({
                           busy || !verifyCaptcha.ready || form.code.length !== 6
                         }
                       >
-                        تأیید ایمیل و ادامه
+                        {method === "sms" ? "تأیید موبایل و ادامه" : "تأیید ایمیل و ادامه"}
                       </button>
                       <button
                         type="button"
@@ -403,14 +409,13 @@ export default function Registration({
                         className="portal-button secondary"
                         disabled={busy}
                       >
-                        ویرایش ایمیل
+                        {method === "sms" ? "ویرایش موبایل" : "ویرایش ایمیل"}
                       </button>
                     </div>
                   </form>
                 )}
                 <p className="auth-fineprint">
-                  مالکیت ایمیل با کد تأیید بررسی می‌شود. این مرحله جایگزین احراز
-                  هویت رسمی نیست.
+                  تأیید ایمیل، موبایل یا گوگل فقط دسترسی به آن حساب را بررسی می‌کند و جایگزین احراز هویت رسمی نیست.
                 </p>
               </>
             )}
@@ -603,7 +608,7 @@ export default function Registration({
                     disabled={busy}
                     onClick={restart}
                   >
-                    تغییر ایمیل
+                    تغییر روش تأیید
                   </button>
                 </div>
               </form>
@@ -700,7 +705,7 @@ export default function Registration({
                   disabled={busy}
                   onClick={restart}
                 >
-                  مهلت تمام شده؟ تأیید دوباره ایمیل
+                  مهلت تمام شده؟ شروع دوباره تأیید
                 </button>
               </form>
             )}
@@ -708,7 +713,7 @@ export default function Registration({
         )}
         <div className="auth-footer">
           <ShieldCheck size={15} />
-          <span>تأیید ایمیل · رمزساز · حفاظت از اطلاعات</span>
+          <span>تأیید راه تماس · رمزساز · حفاظت از اطلاعات</span>
         </div>
       </div>
     </div></Localized>

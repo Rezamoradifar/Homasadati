@@ -26,6 +26,8 @@ const ResponsiveImage = forwardRef<HTMLImageElement, Props>(
   ) {
     const {locale,dictionary}=useSiteLocale();
     alt=translateText(alt,locale,dictionary);
+    const uploaded=!!src&&/^\/api\/platform\/media\/[a-f0-9-]{36}\.webp$/.test(src);
+    if(uploaded)return <img {...rest} ref={ref} src={src} srcSet={[320,640,960,1440].map(w=>`${src}?w=${w} ${w}w`).join(', ')} sizes={sizes} alt={alt} width={width} height={height} loading={loading} decoding="async"/>;
     const dimensions = src ? imageDimensions[src] : undefined;
     if (!src || !dimensions || Math.max(...dimensions) <= 256)
       return (

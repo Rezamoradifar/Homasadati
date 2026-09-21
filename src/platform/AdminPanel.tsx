@@ -1,5 +1,6 @@
 "use client";
 
+import ServiceHealth from "./ServiceHealth";
 import Localized from "../i18n/Localized";
 import { extendedCatalogFields } from "./catalog-fields";
 import { emptyCatalogDetails } from "./catalog-model";
@@ -1062,6 +1063,7 @@ export function Settings({
   const s = useData("admin/settings", refresh);
   return (
     <Localized><>
+      <ServiceHealth refresh={refresh}/>
       <div className="portal-card">
         <h2>تنظیمات سرویس‌ها و برند</h2>
         <p className="portal-notice">
@@ -1076,6 +1078,7 @@ export function Settings({
               label: "تنظیم",
               type: "select",
               options: [
+                ["google_client_id", "شناسه عمومی برنامه گوگل"],
                 ["resend_key", "کلید API ایمیل Resend"],
                 ["email_from", "ایمیل فرستندهٔ تأییدشده"],
                 ["turnstile_site_key", "کلید عمومی کپچا Turnstile"],

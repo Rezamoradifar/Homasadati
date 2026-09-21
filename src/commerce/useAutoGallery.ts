@@ -12,7 +12,8 @@ export function useAutoGallery(
   callback.current = advance;
   useEffect(() => {
     const media = matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setAllowed(!media.matches && !document.hidden);
+    const connection=(navigator as Navigator & {connection?:{saveData?:boolean;effectiveType?:string}}).connection;
+    const sync = () => setAllowed(!media.matches && !document.hidden && !connection?.saveData && !["slow-2g","2g"].includes(connection?.effectiveType||""));
     sync();
     media.addEventListener("change", sync);
     document.addEventListener("visibilitychange", sync);

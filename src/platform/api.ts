@@ -1,3 +1,5 @@
+import { serviceReadiness, recordServiceFailure } from "./readiness";
+import { googleClientId, googleChallenge, googleIdentity } from "./google-auth";
 import { installTravelPresets } from "./travel-presets";
 import {
   cardsFor,
@@ -13,6 +15,7 @@ import {
   referralCode,
   memberDetailsSchema,
   registrationEmail,
+  registrationContact,
   verifyEmailSchema,
 } from "./registration-model";
 import { captchaConfig, verifyCaptcha } from "./captcha";
@@ -112,6 +115,7 @@ const permissions: Record<string, string[]> = {
   missions: ["superadmin", "content"],
   reports: ["superadmin", "finance"],
   settings: superRole,
+  readiness: superRole,
   audit: superRole,
   flags: ["superadmin", "support"],
 };
@@ -158,6 +162,11 @@ function respondSession(user: Row, req: Request, extra: Row = {}) {
     sessionCookie(session(user.id, req.headers.get("user-agent") || "")),
   );
   return response;
+}
+function revokeSessions(userId: string) {
+  run("DELETE FROM p_sessions WHERE user_id=?", userId);
+  run("DELETE FROM p_google_logins WHERE user_id=?", userId);
+  run("DELETE FROM p_google_challenges WHERE user_id=?", userId);
 }
 function activeUser(target: string) {
   return one("SELECT * FROM p_users WHERE email=? OR phone=?", target, target);
@@ -265,6 +274,37 @@ function signup(data: Row, ip: string) {
     return one("SELECT * FROM p_users WHERE id=?", user)!;
   });
 }
+function beginEnrollment(target: string, googleSub?: string) {
+  const secret = newTotpSecret(),
+    token = randomBytes(32).toString("hex");
+  atomic(() => {
+    run(
+      "DELETE FROM p_enrollments WHERE target=? OR expires<?",
+      target,
+      Date.now(),
+    );
+    run(
+      "INSERT INTO p_enrollments VALUES(?,?,?,?,0,0)",
+      hash(token),
+      target,
+      encrypt(secret),
+      Date.now() + 900000,
+    );
+    if (googleSub)
+      run(
+        "INSERT INTO p_google_enrollments VALUES(?,?)",
+        hash(token),
+        googleSub,
+      );
+  });
+  return {
+    target,
+    verificationToken: token,
+    secret,
+    expiresIn: 900,
+    uri: `otpauth://totp/Homa:${encodeURIComponent(target)}?secret=${secret}&issuer=Homa&algorithm=SHA1&digits=6&period=30`,
+  };
+}
 const loginSchema = z.object({
   target: contact,
   password: z.string().max(128).optional(),
@@ -282,6 +322,131 @@ const loginSchema = z.object({
 async function auth(req: Request, path: string[], data: Row) {
   const action = path[1];
   limit("auth-ip:" + ipOf(req), 30, 300);
+  if (action === "google-challenge") {
+    const d = z
+      .object({ intent: z.enum(["login", "register", "link"]) })
+      .parse(data);
+    await verifyCaptcha(data.captchaToken, "login");
+    return json(
+      googleChallenge(d.intent, d.intent === "link" ? userOf(req).id : null),
+    );
+  }
+  if (action === "google") {
+    const d = z
+      .object({
+        challenge: z.string().regex(/^[a-f0-9]{64}$/),
+        credential: z.string().min(20).max(10000),
+        intent: z.enum(["login", "register", "link"]),
+        password: z.string().max(128).optional(),
+        totp: z.string().max(6).optional(),
+        recoveryCode: z.string().max(30).optional(),
+      })
+      .parse(data);
+    const boundUser = d.intent === "link" ? userOf(req) : null;
+    const identity = await googleIdentity(
+      d.challenge,
+      d.credential,
+      boundUser?.id || null,
+    );
+    if (identity.intent !== d.intent)
+      throw new ApiError(401, "invalid_credentials");
+    const linked = one(
+      "SELECT u.* FROM p_google_identities g JOIN p_users u ON u.id=g.user_id WHERE g.subject=?",
+      identity.sub,
+    );
+    if (d.intent === "link") {
+      const current = userOf(req);
+      if (!current) throw new ApiError(401, "invalid_credentials");
+      limit("security:" + current.id, 8, 300);
+      if (!checkPassword(d.password || "", current.password))
+        throw new ApiError(401, "invalid_credentials");
+      verifySecondFactor(current, d.totp || "", d.recoveryCode);
+      atomic(() => {
+        if (
+          linked ||
+          one(
+            "SELECT user_id FROM p_google_identities WHERE user_id=?",
+            current.id,
+          )
+        )
+          throw new ApiError(409, "google_already_linked");
+        run(
+          "INSERT INTO p_google_identities VALUES(?,?,?)",
+          identity.sub,
+          current.id,
+          now(),
+        );
+        audit(current.id, "security.google-link", current.id, null, {
+          linked: true,
+        });
+        revokeSessions(current.id);
+      });
+      return json({ linked: true, reauthenticate: true });
+    }
+    if (d.intent === "register") {
+      if (linked || activeUser(identity.email))
+        throw new ApiError(409, "google_link_required");
+      if (!identity.authoritative)
+        throw new ApiError(400, "google_email_check_required");
+      return json(
+        beginEnrollment(registrationEmail.parse(identity.email), identity.sub),
+      );
+    }
+    if (!linked || linked.blocked)
+      throw new ApiError(401, "google_link_required");
+    const token = randomBytes(32).toString("hex");
+    atomic(() => {
+      run("DELETE FROM p_google_logins WHERE expires<?", Date.now());
+      run(
+        "INSERT INTO p_google_logins VALUES(?,?,?,0)",
+        hash(token),
+        linked.id,
+        Date.now() + 300000,
+      );
+    });
+    return json({ googleTicket: token, twoFactor: !!linked.otp_secret });
+  }
+  if (action === "google-login") {
+    const d = z
+      .object({
+        ticket: z.string().regex(/^[a-f0-9]{64}$/),
+        totp: z.string().max(6).optional(),
+        recoveryCode: z.string().max(30).optional(),
+      })
+      .parse(data);
+    await verifyCaptcha(data.captchaToken, "login");
+    const ticket = atomic(() => {
+      const t = one(
+        "SELECT * FROM p_google_logins WHERE token_hash=?",
+        hash(d.ticket),
+      );
+      if (!t || t.expires <= Date.now() || t.attempts >= 5)
+        throw new ApiError(401, "invalid_credentials");
+      run(
+        "UPDATE p_google_logins SET attempts=attempts+1 WHERE token_hash=?",
+        t.token_hash,
+      );
+      return t;
+    });
+    const u = one("SELECT * FROM p_users WHERE id=?", ticket.user_id);
+    if (
+      !u ||
+      u.blocked ||
+      !one("SELECT subject FROM p_google_identities WHERE user_id=?", u.id)
+    )
+      throw new ApiError(401, "invalid_credentials");
+    verifySecondFactor(u, d.totp || "", d.recoveryCode);
+    return atomic(() => {
+      const used = run(
+        "DELETE FROM p_google_logins WHERE token_hash=? AND expires>?",
+        ticket.token_hash,
+        Date.now(),
+      );
+      if (!used.changes) throw new ApiError(401, "invalid_credentials");
+      run("UPDATE p_users SET last_seen=? WHERE id=?", now(), u.id);
+      return respondSession(u, req);
+    });
+  }
   if (action === "otp") {
     const d = z
       .object({
@@ -291,38 +456,16 @@ async function auth(req: Request, path: string[], data: Row) {
       .parse(data);
     if (d.purpose === "contact") userOf(req);
     else await verifyCaptcha(data.captchaToken, "otp");
-    if (d.purpose === "register") registrationEmail.parse(d.target);
+    if (d.purpose === "register") registrationContact.parse(d.target);
     return json(await sendOtp(d.target, d.purpose));
   }
-  if (action === "verify-email") {
+  if (action === "verify-email" || action === "verify-contact") {
     const d = verifyEmailSchema.parse(data);
+    if (action === "verify-email") registrationEmail.parse(d.target);
     await verifyCaptcha(d.captchaToken, "verify_email");
-    const secret = newTotpSecret(),
-      encrypted = encrypt(secret),
-      token = randomBytes(32).toString("hex");
     consumeOtp(d.challenge, d.target, "register", d.code);
-    // Account existence is disclosed only to a person who verified this mailbox.
     if (activeUser(d.target)) throw new ApiError(409, "account_exists");
-    atomic(() => {
-      run(
-        "DELETE FROM p_enrollments WHERE target=? OR expires<?",
-        d.target,
-        Date.now(),
-      );
-      run(
-        "INSERT INTO p_enrollments VALUES(?,?,?,?,0,0)",
-        hash(token),
-        d.target,
-        encrypted,
-        Date.now() + 900000,
-      );
-    });
-    return json({
-      verificationToken: token,
-      secret,
-      expiresIn: 900,
-      uri: `otpauth://totp/Homa:${encodeURIComponent(d.target)}?secret=${secret}&issuer=Homa&algorithm=SHA1&digits=6&period=30`,
-    });
+    return json(beginEnrollment(d.target));
   }
   if (action === "register") {
     const d = registrationSchema.parse(data);
@@ -366,6 +509,17 @@ async function auth(req: Request, path: string[], data: Row) {
       );
       if (!claimed.changes) throw new ApiError(401, "enrollment_expired");
       const u = signup(d, ipOf(req));
+      const google = one(
+        "SELECT subject FROM p_google_enrollments WHERE token_hash=?",
+        enrollment.token_hash,
+      );
+      if (google)
+        run(
+          "INSERT INTO p_google_identities VALUES(?,?,?)",
+          google.subject,
+          u.id,
+          now(),
+        );
       run(
         "UPDATE p_users SET otp_secret=?,otp_last=? WHERE id=?",
         enrollment.secret,
@@ -374,7 +528,8 @@ async function auth(req: Request, path: string[], data: Row) {
       );
       u.otp_secret = enrollment.secret;
       audit(u.id, "security.enrolled", u.id, null, {
-        emailVerified: true,
+        emailVerified: d.target.includes("@"),
+        phoneVerified: !d.target.includes("@"),
         twoFactor: true,
         invitationMode: d.invitationMode,
       });
@@ -428,7 +583,7 @@ async function auth(req: Request, path: string[], data: Row) {
         passwordHash(d.password),
         u.id,
       );
-      run("DELETE FROM p_sessions WHERE user_id=?", u.id);
+      revokeSessions(u.id);
     });
     return json({ ok: true });
   }
@@ -586,6 +741,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       return exportReport(r, url.searchParams.get("format")!);
     return json(r);
   }
+  if (resource === "readiness" && get) return json(serviceReadiness());
   if (resource === "settings") {
     if (get)
       return json({
@@ -602,6 +758,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     const d = z
       .object({
         key: z.enum([
+          "google_client_id",
           "resend_key",
           "email_from",
           "turnstile_site_key",
@@ -618,6 +775,10 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         reason: text,
       })
       .parse(data);
+    if (d.key === "google_client_id")
+      z.string()
+        .regex(/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/)
+        .parse(d.value);
     if (d.key === "email_from") z.string().email().parse(d.value);
     if (d.key === "site_logo") httpsImage.parse(d.value);
     const secret = [
@@ -878,7 +1039,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         d.role || before.role,
         d.id,
       );
-      run("DELETE FROM p_sessions WHERE user_id=?", d.id);
+      revokeSessions(d.id);
       audit(
         u.id,
         "user.update",
@@ -1054,7 +1215,14 @@ export async function handle(req: Request, path: string[]) {
       get = method === "GET";
     if (path[0] === "media") return await media(req, path);
     let data: Row = {};
-    if (path.join("/") === "auth/config" && get) return json(captchaConfig());
+    if (path.join("/") === "auth/config" && get)
+      return json({
+        ...captchaConfig(),
+        smsRegistration: !!(
+          setting("kavenegar_key") && setting("sms_template")
+        ),
+        googleEnabled: !!googleClientId(),
+      });
     if (!get) {
       sameOrigin(req);
       data = await body(req, 65536);
@@ -1312,6 +1480,7 @@ export async function handle(req: Request, path: string[]) {
         u.id,
         hash(tokenOf(req)),
       );
+      run("DELETE FROM p_google_logins WHERE user_id=?", u.id);
       audit(u.id, "security.contact", u.id, null, {
         kind: d.target.includes("@") ? "email" : "phone",
       });
@@ -1319,6 +1488,10 @@ export async function handle(req: Request, path: string[]) {
     }
     if (path[0] === "security" && get)
       return json({
+        googleLinked: !!one(
+          "SELECT subject FROM p_google_identities WHERE user_id=?",
+          u.id,
+        ),
         twoFactor: !!u.otp_secret,
         recoveryRemaining: one(
           "SELECT COUNT(*) n FROM p_recovery_codes WHERE user_id=?",
@@ -1335,6 +1508,7 @@ export async function handle(req: Request, path: string[]) {
             "totp-setup",
             "totp-enable",
             "totp-disable",
+            "google-unlink",
             "recovery-regenerate",
           ]),
           currentPassword: z.string().max(128),
@@ -1380,7 +1554,7 @@ export async function handle(req: Request, path: string[]) {
           );
           run("DELETE FROM p_totp_setups WHERE user_id=?", u.id);
           const codes = recoveryCodes(u.id);
-          run("DELETE FROM p_sessions WHERE user_id=?", u.id);
+          revokeSessions(u.id);
           audit(u.id, "security.totp-enable", u.id, null, { enabled: true });
           return codes;
         });
@@ -1393,9 +1567,11 @@ export async function handle(req: Request, path: string[]) {
           audit(u.id, "security.recovery-regenerate", u.id, null, {
             count: codes.length,
           });
-          run("DELETE FROM p_sessions WHERE user_id=?", u.id);
+          revokeSessions(u.id);
           return json({ ok: true, reauthenticate: true, recoveryCodes: codes });
         }
+        if (d.action === "google-unlink")
+          run("DELETE FROM p_google_identities WHERE user_id=?", u.id);
         if (d.action === "totp-disable") {
           run(
             "UPDATE p_users SET otp_secret=NULL,otp_pending=NULL,otp_last=0 WHERE id=?",
@@ -1413,7 +1589,7 @@ export async function handle(req: Request, path: string[]) {
           );
         }
       }
-      run("DELETE FROM p_sessions WHERE user_id=?", u.id);
+      revokeSessions(u.id);
       audit(u.id, "security." + d.action, u.id, null, {
         sessionsRevoked: true,
       });
@@ -1701,6 +1877,17 @@ export async function handle(req: Request, path: string[]) {
     }
     throw new ApiError(404, "not_found");
   } catch (e) {
+    if (e instanceof ApiError && e.status >= 500)
+      recordServiceFailure(
+        path[0] === "auth"
+          ? "authentication"
+          : path[0] === "payment" || path[0] === "checkouts"
+            ? "payment"
+            : "service",
+        e.code,
+      );
+    else if (!(e instanceof ApiError) && !(e instanceof z.ZodError))
+      recordServiceFailure("server", "server_error");
     if (e instanceof z.ZodError)
       return json(
         {

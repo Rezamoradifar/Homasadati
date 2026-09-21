@@ -70,7 +70,7 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
  navItems.splice(4,0,{label:leatherTitle,key:'leather',action:()=>window.location.assign('/worlds/leather')});
  return <Localized><>
  <a href="#worlds" className="skip-link">{c.explore}</a>
- <div className="utility-bar"><span>{e('utility')}</span><div><a className="account-entry" href="/cart">{locale==='fa'?'سبد خرید':locale==='ar'?'السلة':'Cart'}</a><a className="account-entry" href="/account">{e('account')}</a><a href="#partnership">{e('partnership')}</a><button onClick={()=>open('tracking')}>{u('tracking')}</button></div></div>
+ <div className="utility-bar"><a href="/help">راهنمای خرید</a><span>{e('utility')}</span><div><a className="account-entry" href="/cart">{locale==='fa'?'سبد خرید':locale==='ar'?'السلة':'Cart'}</a><a className="account-entry" href="/account">{e('account')}</a><a href="#partnership">{e('partnership')}</a><button onClick={()=>open('tracking')}>{u('tracking')}</button></div></div>
  <header className="site-header">
   <a href="#home" className="brand" aria-label="Homay Saadat"><ResponsiveImage src={siteSettings.site_logo||'/assets/brand-mark.png'} alt=""/><span><strong>{siteSettings.site_name||(locale==='en'?'Homay Saadat':translatedName)}</strong><small>{locale==='fa'?'باشگاه مشتریان':locale==='ar'?'نادي العملاء':'CUSTOMERS CLUB'}</small></span></a>
   <nav aria-label={c.nav[0]} className="desktop-nav">{navItems.map(item=><Localized key={item.key}><button onClick={item.action} className={item.key==='0'?'active':''}><span>{item.label}</span></button></Localized>)}<IncomeMenuLink/></nav>

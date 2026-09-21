@@ -18,9 +18,11 @@ export default function TourismHeroVideo() {
     const element = video.current;
     if (!element) return;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const connection=(navigator as Navigator & {connection?:{saveData?:boolean;effectiveType?:string}}).connection;
+    const saveData=connection?.saveData||["slow-2g","2g"].includes(connection?.effectiveType||"");
     let visible = false;
     const sync = () => {
-      if (visible && !document.hidden && !reduced.matches && !userPaused.current) {
+      if (visible && !document.hidden && !reduced.matches && !saveData && !userPaused.current) {
         element.muted = true;
         void element.play().catch(() => setPlaying(false));
       } else element.pause();

@@ -1,7 +1,7 @@
 import sharp from "sharp";
 import { randomUUID } from "node:crypto";
 import { dirname, resolve, join } from "node:path";
-import { mkdir, readFile, writeFile, unlink } from "node:fs/promises";
+import { mkdir, readFile, writeFile, unlink, rename } from "node:fs/promises";
 import { ApiError, json, sameOrigin, limit } from "../server/http";
 import { userOf, audit } from "./security";
 const maxBytes = 8 * 1024 * 1024;
@@ -19,6 +19,31 @@ export async function media(req: Request, path: string[]) {
       bytes = await readFile(join(mediaDirectory(), path[1]));
     } catch {
       throw new ApiError(404, "not_found");
+    }
+    const widthParam = new URL(req.url).searchParams.get("w");
+    if (widthParam) {
+      const width = Number(widthParam);
+      if (![320, 640, 960, 1440].includes(width))
+        throw new ApiError(400, "invalid_input");
+      const directory = join(mediaDirectory(), "variants"),
+        file = join(directory, path[1] + "-" + width + ".webp");
+      try {
+        bytes = await readFile(file);
+      } catch (e) {
+        if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+        bytes = await sharp(bytes)
+          .resize({ width, withoutEnlargement: true })
+          .webp({ quality: 82 })
+          .toBuffer();
+        await mkdir(directory, { recursive: true, mode: 0o700 });
+        const temporary = file + "." + randomUUID() + ".tmp";
+        try {
+          await writeFile(temporary, bytes, { mode: 0o600 });
+          await rename(temporary, file);
+        } finally {
+          await unlink(temporary).catch(() => {});
+        }
+      }
     }
     return new Response(new Uint8Array(bytes), {
       headers: {

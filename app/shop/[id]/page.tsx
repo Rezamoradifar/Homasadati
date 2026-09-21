@@ -1,3 +1,4 @@
+import ProductGallery from "../../../src/commerce/ProductGallery";
 import {siteLocale} from "../../../src/i18n/server";
 import {catalogCopy,isPublicSpecification} from "../../../src/i18n/catalog";
 
@@ -50,20 +51,7 @@ export default async function ProductPage({
           <a href="/shop">فروشگاه</a> / {brand?.name} / {copy.title}
         </p>
         <div className="shop-product">
-          <div className="shop-product-images">
-            {images.length ? (
-              images.map((src: string, i: number) => (
-                <Localized key={src}><ResponsiveImage
-                  src={src}
-                  sizes="(max-width: 700px) 90vw, (max-width: 1400px) 44vw, 650px"
-                  alt={`${copy.title} — تصویر ${i + 1}`}
-                  loading={i ? "lazy" : "eager"}
-                /></Localized>
-              ))
-            ) : (
-              <p className="shop-empty">تصویر محصول هنوز ثبت نشده است.</p>
-            )}
-          </div>
+          <ProductGallery images={images} title={copy.title}/>
           <div>
             <span className="commerce-eyebrow">
               {brand?.latin} / {d.sku || p.subtype}
@@ -78,7 +66,12 @@ export default async function ProductPage({
               موجودی / ظرفیت: {p.stock.toLocaleString("fa-IR")} · مهلت لغو پس از
               پرداخت: {p.cancel_hours.toLocaleString("fa-IR")} ساعت
             </p>
-            <AddToCart id={p.id} stock={p.stock} />
+            <div className="product-purchase-panel" id="purchase">
+              <p className={p.stock>0?"stock-status available":"stock-status"}>{p.stock>0?"موجود و قابل سفارش":"فعلاً ناموجود"}</p>
+              <AddToCart id={p.id} stock={p.stock} />
+              <dl className="purchase-facts"><dt>ارسال و تحویل</dt><dd>{d.shippingNote||d.delivery||"زمان و روش تحویل را پیش از پرداخت با پشتیبانی هماهنگ کنید."}</dd><dt>ضمانت و مرجوعی</dt><dd>{d.warranty||"شرایط لغو این محصول و قوانین خرید را پیش از پرداخت بخوانید."}</dd></dl>
+              <a href="/help">راهنمای خرید و پشتیبانی</a>
+            </div>
             <p className="shop-notice">
               مبلغ نهایی هنگام ثبت سفارش از دیتابیس کنترل می‌شود. هزینه جداگانه
               حمل در این نسخه دریافت نمی‌شود؛ شرایط تحویل درج‌شده محصول را

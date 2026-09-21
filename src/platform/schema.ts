@@ -83,6 +83,12 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_recovery_codes(user_id TEXT NOT NULL REFERENCES p_users(id),code_hash TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(user_id,code_hash));
   CREATE TABLE IF NOT EXISTS p_totp_setups(user_id TEXT PRIMARY KEY REFERENCES p_users(id),expires INTEGER NOT NULL);
   INSERT OR IGNORE INTO p_migrations VALUES(7,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_google_identities(subject TEXT PRIMARY KEY,user_id TEXT NOT NULL UNIQUE REFERENCES p_users(id),created_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_google_challenges(token_hash TEXT PRIMARY KEY,nonce TEXT NOT NULL,intent TEXT NOT NULL,user_id TEXT,expires INTEGER NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_google_enrollments(token_hash TEXT PRIMARY KEY REFERENCES p_enrollments(token_hash) ON DELETE CASCADE,subject TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_google_logins(token_hash TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),expires INTEGER NOT NULL,attempts INTEGER NOT NULL DEFAULT 0);
+  CREATE TABLE IF NOT EXISTS p_service_events(id INTEGER PRIMARY KEY AUTOINCREMENT,area TEXT NOT NULL,code TEXT NOT NULL,created_at TEXT NOT NULL);
+  INSERT OR IGNORE INTO p_migrations VALUES(8,datetime('now'));
   `);
   ready = d;
   return d;

@@ -1,15 +1,15 @@
-# Email registration and account security
+# Email, SMS and Google registration and account security
 
 This updates the existing Homasadati application and SQLite database. It is not a separate demo site. A GitHub commit does not deploy the Node server.
 
 ## Member flow
 
-1. Verify an email address with a six-digit, five-minute, single-use code. New registration accepts email; existing phone accounts retain phone login.
+1. Verify an email address or international-format mobile number with a six-digit, five-minute, single-use code, or verify an eligible Google account. SMS is offered when Kavenegar credentials and a verification template are configured.
 2. Choose **with invitation code** or **without invitation code**. Complete required name, surname, country, city, password and confirmations. An invited registration validates an active sponsor on the server; direct registration has no sponsor or binary placement.
-3. Connect a time-based authenticator and prove possession with a current code. New accounts are created only after verified email, required details/consents and the authenticator confirmation. The enrollment ticket is random, stored hashed, bound to the email, expires after 15 minutes and permits five code attempts.
+3. Connect a time-based authenticator and prove possession with a current code. New accounts are created only after verified contact, required details/consents and the authenticator confirmation. The enrollment ticket is random, stored hashed, bound to the verified contact, expires after 15 minutes and permits five code attempts.
 4. Save ten recovery codes, shown once. Each substitutes for the authenticator once and still requires the first factor. Only hashed codes are stored. Regeneration invalidates previous codes and all sessions.
 
-Email verification establishes control of the mailbox. Names, age and residence are self-declared; this does **not** implement government identity or bank-account verification. No identity documents are collected by this change.
+Email, SMS and Google verification establish access to the corresponding account. Names, age and residence are self-declared; this does **not** implement government identity or bank-account verification. No identity documents are collected by this change.
 
 ## Production activation — before replacing the running release
 
@@ -31,7 +31,7 @@ Production **fails closed** when CAPTCHA keys or the origin are absent, when pro
 - TOTP secrets use authenticated AES-256-GCM encryption with the existing master key. Previously accepted TOTP time steps cannot be replayed. Setup on existing accounts expires after ten minutes. Recovery codes have 80 bits of random entropy, are hashed and consumed atomically.
 - Password, contact and MFA changes require reauthentication and limits; contact changes on protected accounts require TOTP and revoke other sessions. Password reset does not bypass MFA. Changes are audited without passwords, codes, recovery tokens or secrets.
 - Session tokens are random and stored hashed; cookies are HttpOnly, SameSite=Lax and Secure in production. Account mutations enforce same-origin JSON requests. API responses disable caching. Frame embedding is blocked; object loading and cross-origin form submission are restricted by headers.
-- Additive schema migration 7 creates enrollment, recovery and authenticator-setup tables; it does not delete accounts, orders, financial records or existing authenticators.
+- Additive schema migrations 7 and 8 create enrollment, recovery, authenticator-setup, Google identity/challenge and service event tables; it does not delete accounts, orders, financial records or existing authenticators.
 
 ## Runtime maintenance
 
@@ -45,12 +45,16 @@ Next.js was updated to the patched 15.5 line; dynamic route parameters now use t
 
 ## SMS and Google activation information
 
-Current status: new accounts use the verified-email enrollment flow above. Existing mobile accounts can request a login/reset OTP through Kavenegar. Enabling provider credentials alone does **not** add phone-first enrollment. Google sign-in and its callback are not implemented in this release.
+SMS enrollment and Google Identity Services sign-in are implemented in this release. Provider activation still requires the owner's accounts and a real-domain test; successful automated tests do not prove SMS delivery or Google production configuration.
 
-For SMS, provide the final HTTPS domain, provider name, supported countries, and approved verification-template name. The existing integration uses Kavenegar `verify/lookup` with `receptor`, `token`, and `template`. Configure `kavenegar_key` and `sms_template` in superadmin service settings; the API key is encrypted and never returned. Confirm template approval, account balance and actual delivery using the provider account. `sms_sender` is for notification messages, not this lookup OTP flow. An international audience may require a different provider and routing.
+For SMS, provide the final HTTPS domain, provider name, supported countries, and approved verification-template name. The implemented provider is Kavenegar `verify/lookup` with `receptor`, `token`, and `template`. Configure `kavenegar_key` and `sms_template` in superadmin service settings; the API key is encrypted and never returned. Confirm template approval, balance and actual delivery. `sms_sender` is for notification messages, not lookup OTP. Other providers need a separate adapter.
 
-For Google, create a Web application OAuth client in Google Cloud under an account controlled by the site owner. Supply the public Client ID, final domain, support email and consent-screen brand information. The implementation must register an exact callback URI, validate issuer/audience/signature/expiry and state/nonce, and integrate verified identity with invitation selection, required profile/consents and existing two-factor requirements. Account linking must not silently merge accounts based only on an unverified email. No callback URL is active yet. Store the Client Secret only in server configuration when the integration is implemented; do not commit or send it in chat. The site's `/legal/privacy` and `/legal/terms` URLs are available for the consent screen.
+For Google, create a **Web application** OAuth client in the owner's Google Cloud account, complete the consent-screen brand/support information and add the exact production HTTPS origin under **Authorized JavaScript origins**. Configure the public Client ID in superadmin settings (`google_client_id`) or `GOOGLE_CLIENT_ID`. This implementation uses the Google Identity Services JavaScript callback with an ID token, not an authorization-code redirect: **it does not require a Client Secret or redirect URI**. Use `/legal/privacy` and `/legal/terms` for the consent screen, review Google's audience/publishing settings, and test on the authorized domain.
 
-Turnstile domain restriction, public Site Key and private Secret Key are also required in production as described above. Share only public configuration in messages. Do not share Google account passwords, SMS API secrets, authenticator seeds or recovery codes.
+The server uses Google's `google-auth-library` to verify signature, issuer, audience and expiry, and separately requires a matching single-use nonce, verified email and bounded claims. Google subject (`sub`), not email, identifies an existing linked account. Challenge and login tickets expire after five minutes and are stored hashed; enrollment expires after 15 minutes. Same-origin JSON is required. CAPTCHA precedes challenge creation and final login. The Google script is loaded only after the visitor chooses it.
 
-Reference: [Google OpenID Connect configuration](https://developers.google.com/identity/openid-connect/openid-connect).
+New Gmail and Google Workspace identities continue through the same invitation, profile, consent, password and mandatory authenticator setup. Third-party email identities must verify that email through the email-code flow. Existing accounts are never merged by email: sign in first, then explicitly link Google under Security with the account password and existing second factor. Linking and unlinking revoke sessions and pending Google login tickets. Google login still requires the account's authenticator or a single-use recovery code. Password login remains available.
+
+Turnstile hostname restriction and site/secret keys remain required in production. Share only public configuration in messages; place API secrets in protected server settings. Do not share Google passwords, authenticator seeds or recovery codes.
+
+References: [Google ID-token verification](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token), [Google JavaScript API](https://developers.google.com/identity/gsi/web/reference/js-reference).

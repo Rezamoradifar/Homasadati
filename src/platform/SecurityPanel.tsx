@@ -1,5 +1,6 @@
 "use client";
 
+import GoogleAccess from "./GoogleAccess";
 import Localized from "../i18n/Localized";
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
@@ -27,6 +28,7 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
       <DataState state={status}>
         {(d) => (
           <Localized><>
+            {!d.googleLinked?<GoogleAccess intent="link" onComplete={onReauth}/>:<p>حساب گوگل متصل است.</p>}
             <p className={"security-status " + (d.twoFactor ? "enabled" : "")}>
               {d.twoFactor
                 ? "ورود دومرحله‌ای فعال است"
@@ -46,6 +48,7 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
             </p>
             <div className="auth-actions">
               {[
+                ...(d.googleLinked?[["google-unlink","قطع اتصال گوگل"]]:[]),
                 ["password", "تغییر رمز عبور"],
                 ["revoke", "خروج از همه دستگاه‌ها"],
                 [

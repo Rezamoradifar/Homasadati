@@ -33,6 +33,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           <a href="/shop">فروشگاه</a>
           <a href="/cart">سبد خرید</a>
           <a href="/account">حساب من</a>
+          <a href="/help">راهنمای خرید</a>
         </div>
       </header>
       {children}
@@ -71,6 +72,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
             <a href="/heritage">روایت ایران و نمادها</a>
             <a href="/club/ranks">هفت رتبه باشگاه</a>
             <a href="/income-plan">طرح درآمد</a>
+            <a href="/help">راهنمای خرید و پشتیبانی</a>
             <a href="/legal/terms">قوانین و مقررات</a>
             <a href="/legal/privacy">حریم خصوصی</a>
             <a href="/">بازگشت به صفحه اصلی</a>

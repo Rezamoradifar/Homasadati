@@ -1,15 +1,19 @@
 import { z } from "zod";
-import { id, password, text } from "./validation";
+import { id, password, text, contact } from "./validation";
 export const registrationEmail = z
   .string()
   .trim()
   .toLowerCase()
   .email()
   .max(254);
+export const registrationContact = z.union([
+  registrationEmail,
+  contact.refine((v) => !v.includes("@")),
+]);
 export const captchaToken = z.string().max(2048).optional();
 export const verifyEmailSchema = z
   .object({
-    target: registrationEmail,
+    target: registrationContact,
     challenge: id,
     code: z.string().regex(/^\d{6}$/),
     captchaToken,
@@ -37,7 +41,7 @@ export const memberDetailsSchema = z
   .strict();
 export const registrationSchema = z
   .object({
-    target: registrationEmail,
+    target: registrationContact,
     password,
     verificationToken: z.string().regex(/^[a-f0-9]{64}$/),
     totp: z.string().regex(/^\d{6}$/),

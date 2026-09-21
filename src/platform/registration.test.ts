@@ -113,7 +113,7 @@ afterAll(() => {
   platformDb().close();
   rmSync(dir, { recursive: true, force: true });
 });
-it("requires verified email; phone enrollment, fabricated tickets and wrong mailbox cannot create a session", async () => {
+it("requires verified contact; unconfigured SMS, fabricated tickets and wrong mailbox cannot create a session", async () => {
   expect(
     (
       await request("auth/otp", "POST", {
@@ -121,7 +121,7 @@ it("requires verified email; phone enrollment, fabricated tickets and wrong mail
         purpose: "register",
       })
     ).status,
-  ).toBe(400);
+  ).toBe(503);
   const d = await payload();
   const before = one("SELECT COUNT(*) n FROM p_users")!.n;
   for (const bad of [
@@ -477,4 +477,13 @@ it("expires authenticator setup and enables a replacement only after proving the
     ),
   ).toBe(second.secret);
   expect((await request("me", "GET", undefined, a.cookie)).status).toBe(401);
+});
+
+it("registers a verified phone using the same invitation, consent and mandatory authenticator flow", async()=>{
+ const d=await payload();const target="+989131112233";
+ const r=await request("auth/verify-contact","POST",emailOtp(target));expect(r.status).toBe(200);const e=await r.json();
+ const input={...d,target,verificationToken:e.verificationToken,totp:totp(e.secret)};
+ const result=await request("auth/register","POST",input);expect(result.status).toBe(200);
+ const member=one("SELECT email,phone,otp_secret FROM p_users WHERE phone=?",target)!;expect(member.email).toBeNull();expect(member.phone).toBe(target);expect(member.otp_secret).toBeTruthy();
+ expect((await request("auth/register","POST",input)).status).toBe(401);
 });

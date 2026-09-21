@@ -1,6 +1,7 @@
 "use client";
 
 import Localized from "../i18n/Localized";
+import GoogleAccess from "./GoogleAccess";
 import Registration from "./Registration";
 import { useState, FormEvent, useEffect } from "react";
 import { ShieldCheck } from "lucide-react";
@@ -126,6 +127,7 @@ export default function AuthPanel({
           </button></Localized>
         ))}
       </div>
+      {mode === "login" && <GoogleAccess intent="login" onComplete={r=>onLogin(r.user)}/>}
       <Notice error={error} success={notice} />
       <form onSubmit={submit}>
         <fieldset disabled={busy}>

@@ -13,6 +13,9 @@ export function MediaInput({
   const [value, setValue] = useState(initial),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const urls=value.split("\n").map(v=>v.trim()).filter(Boolean);
+  const move=(src:string)=>{const index=urls.indexOf(src);if(index<0)return;setValue([src,...urls.filter((_,i)=>i!==index)].join("\n"));};
+  const remove=(src:string)=>setValue(urls.filter(v=>v!==src).join("\n"));
   return (
     <Localized><span className="portal-media-input" data-uploading={busy}>
       <textarea
@@ -88,12 +91,11 @@ export function MediaInput({
           )
           .slice(0, 12)
           .map((src, i) => (
-            <Localized key={i}><img src={src} alt={`تصویر ${i + 1}`} loading="lazy" /></Localized>
+            <Localized key={src+i}><span className="media-edit-thumb"><img src={src} alt={`تصویر ${i + 1}`} loading="lazy" /><span><button type="button" disabled={busy||i===0} onClick={()=>move(src)}>{i===0?"تصویر اصلی":"اصلی شود"}</button><button type="button" disabled={busy} onClick={()=>remove(src)}>حذف تصویر</button></span></span></Localized>
           ))}
       </span>
       <small>
-        اولین تصویر، تصویر اصلی است. برای حذف یا تغییر ترتیب، خطوط نشانی‌ها را
-        ویرایش کنید.
+        تصویر اصلی را با دکمه انتخاب کنید؛ حذف تصویر از این فرم، فایل ذخیره‌شده را پاک نمی‌کند.
       </small>
     </span></Localized>
   );
