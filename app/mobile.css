@@ -389,3 +389,8 @@ html .brand-hero.craft>img {position:static;width:100%;height:auto;max-height:64
 html .brand-hero.craft>div {max-width:100%;}
 html .brand-hero.craft h1 {font-size:clamp(34px,5vw,72px);}
 @media(max-width:700px){html .license-grid,html .management-principles,html .craft-editorial,html .brand-hero.craft {grid-template-columns:minmax(0,1fr);}html .company-page {padding-block:28px 48px;}html .license-copy {padding:18px;}html .craft-editorial {gap:24px;}html .craft-story {padding-top:0;}html .craft-visual>img,html .brand-hero.craft>img {max-height:62svh;}html .craft-story>img {margin-top:24px;}html .brand-hero.craft {padding-block:24px 36px;gap:24px;}html .brand-hero.craft .commerce-button {max-width:100%;white-space:normal;}html .company-contact.compact nav {display:grid;gap:4px;}}
+
+html .license-preview {display:block;padding:10px;background:#f1eee6;}
+html .license-preview img {display:block;width:100%;height:auto;object-fit:contain;}
+html .license-open {display:inline-flex;align-items:center;min-height:44px;text-underline-offset:5px;}
+html .license-preview:focus-visible,html .license-open:focus-visible {outline:3px solid #ad873d;outline-offset:3px;}

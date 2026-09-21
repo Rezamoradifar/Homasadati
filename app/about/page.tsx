@@ -1,4 +1,7 @@
+import {siteLocale} from "../../src/i18n/server";
+import {loadDictionary,translateText} from "../../src/i18n/core";
 import { CommerceShell } from "../../src/commerce/Shell";
+import ResponsiveImage from "../../src/components/media/ResponsiveImage";
 import Localized from "../../src/i18n/Localized";
 import { all } from "../../src/platform/schema";
 const documents = [
@@ -17,7 +20,9 @@ const documents = [
     activity: "تأسیس و بهره‌برداری خانه صنایع‌دستی",
   },
 ];
-export default function About() {
+export default async function About() {
+  const locale=await siteLocale(),dictionary=await loadDictionary(locale);
+  const t=(text:string)=>translateText(text,locale,dictionary);
   const ceo = all(
     "SELECT value FROM p_settings WHERE key='site_ceo_name' AND secret=0",
   )[0]?.value;
@@ -80,28 +85,31 @@ export default function About() {
             </div>
           </section>
           <section id="licenses" className="company-licenses">
-            <h2>مجوزها و اسناد ارائه‌شده</h2>
+            <h2>{t("مجوزها و اسناد ارائه‌شده")}</h2>
             <p>
-              مشخصات غیرشخصی اسناد ارسالی مجموعه؛ عنوان دارنده، مرجع صادرکننده و
-              موضوع فعالیت مطابق هر سند درج شده است.
+              {t("تصاویر اسناد ارسالی مجموعه؛ عنوان دارنده، مرجع صادرکننده و موضوع فعالیت مطابق اصل هر سند درج شده است.")}
             </p>
             <div className="license-grid">
               {documents.map((d, i) => (
                 <Localized key={d.file}>
                   <article className="license-card">
+                    <a className="license-preview" href={`/assets/licenses/${d.file}.jpg`} target="_blank" rel="noopener noreferrer" aria-label={t(`مشاهده تصویر کامل ${t(d.title)}`)}>
+                      <ResponsiveImage src={`/assets/licenses/${d.file}.jpg`} alt={t(d.title)} sizes="(max-width: 700px) 90vw, 44vw" quality={95}/>
+                    </a>
                     <div className="license-copy">
                       <span className="license-number" aria-hidden="true">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <h3>{d.title}</h3>
+                      <h3>{t(d.title)}</h3>
                       <dl>
-                        <dt>عنوان دارنده در سند</dt>
-                        <dd>{d.holder}</dd>
-                        <dt>مرجع صادرکننده</dt>
-                        <dd>{d.issuer}</dd>
-                        <dt>موضوع فعالیت</dt>
-                        <dd>{d.activity}</dd>
+                        <dt>{t("عنوان دارنده در سند")}</dt>
+                        <dd>{t(d.holder)}</dd>
+                        <dt>{t("مرجع صادرکننده")}</dt>
+                        <dd>{t(d.issuer)}</dd>
+                        <dt>{t("موضوع فعالیت")}</dt>
+                        <dd>{t(d.activity)}</dd>
                       </dl>
+                      <a className="license-open" href={`/assets/licenses/${d.file}.jpg`} target="_blank" rel="noopener noreferrer">{t("مشاهده سند در اندازه کامل")}</a>
                     </div>
                   </article>
                 </Localized>
