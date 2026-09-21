@@ -1,6 +1,10 @@
 import { validateClient } from "./client-validation";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
+  merchant_unavailable:"پذیرنده یا قرارداد این محصول فعال نیست.",
+  merchant_terms_invalid:"سهم پذیرنده و سقف پورسانت شبکه نیاز به اصلاح مدیر مالی دارند.",
+  insufficient_points: "امتیاز کافی برای این عملیات ندارید.",
+  method_not_allowed: "این عملیات در این مسیر مجاز نیست.",
   google_not_configured:"ورود گوگل هنوز تنظیم نشده است.",
   google_verification_failed:"تأیید گوگل نامعتبر یا منقضی است؛ دوباره تلاش کنید.",
   google_already_linked:"این حساب قبلاً به گوگل متصل شده است.",
@@ -111,6 +115,8 @@ export const date = (v: unknown) =>
     ? new Date(String(v)).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" })
     : "—";
 export const labels: Record<string, string> = {
+  fulfilled: "تحویل‌شده",
+  requested: "در انتظار بررسی",
   tourism: "گردشگری",
   beauty: "زیبایی",
   craft: "صنایع‌دستی",

@@ -1,3 +1,24 @@
+import {
+  merchantTerms,
+  recordMerchantSale,
+  reverseMerchantSale,
+} from "./merchant-operations";
+import {
+  loyaltyPolicy,
+  accrueOrderPoints,
+  reverseOrderPoints,
+} from "./loyalty-engine";
+import {
+  binaryRules,
+  binaryEligible,
+  dailyBinaryEarned,
+  binaryDay,
+  saveLotTerms,
+  nextBinaryLots,
+  lotAllocations,
+  restoreMatch,
+} from "./network-rules";
+import { binaryQuote, legacyBinaryRules } from "./network-rules-model";
 import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
@@ -247,14 +268,16 @@ export function calculateCommissions(order: Row) {
     award(rank.user, order, "rank", bonus, `rank:${order.id}:${rank.user}`);
     budget -= bonus;
   }
+  const rules = JSON.parse(order.policy).binaryRules || legacyBinaryRules;
   let child = buyer;
   const parents = new Set<string>();
   while (child.parent_id && !parents.has(child.parent_id)) {
     parents.add(child.parent_id);
     const parent = one("SELECT * FROM p_users WHERE id=?", child.parent_id)!;
+    const lotId = randomUUID();
     run(
       "INSERT INTO p_binary_lots VALUES(?,?,?,?,?,?,0,?)",
-      randomUUID(),
+      lotId,
       order.id,
       parent.id,
       child.leg,
@@ -262,31 +285,47 @@ export function calculateCommissions(order: Row) {
       order.amount,
       now(),
     );
-    if (p.binaryBps && !parent.blocked) {
+    saveLotTerms(lotId, rules);
+    if (p.binaryBps && binaryEligible(parent.id, rules)) {
       while (budget > 0) {
-        const l = one(
-            "SELECT * FROM p_binary_lots WHERE user_id=? AND leg='left' AND remaining>0 AND void=0 ORDER BY created_at,id LIMIT 1",
+        const minimumUnits = Math.ceil(10000 / p.binaryBps);
+        const leftLots = nextBinaryLots(
             parent.id,
+            "left",
+            rules.leftRatio * minimumUnits,
           ),
-          r = one(
-            "SELECT * FROM p_binary_lots WHERE user_id=? AND leg='right' AND remaining>0 AND void=0 ORDER BY created_at,id LIMIT 1",
+          rightLots = nextBinaryLots(
             parent.id,
+            "right",
+            rules.rightRatio * minimumUnits,
           );
-        if (!l || !r) break;
-        const volume = Math.min(
-          l.remaining,
-          r.remaining,
-          Number((BigInt(budget) * 10000n) / BigInt(p.binaryBps)),
-        );
-        const amount = percent(volume, p.binaryBps);
+        if (!leftLots.length || !rightLots.length) break;
+        const result = binaryQuote({
+          left: leftLots.reduce((n, l) => n + l.remaining, 0),
+          right: rightLots.reduce((n, l) => n + l.remaining, 0),
+          budget,
+          alreadyEarned: dailyBinaryEarned(parent.id),
+          rateBps: p.binaryBps,
+          eligible: true,
+          rules,
+        });
+        const { volume, amount } = result;
         if (!amount) break;
-        const match = randomUUID();
-        const maturity = all(
-          "SELECT cancel_until FROM p_orders WHERE id IN (?,?)",
-          l.order_id,
-          r.order_id,
-        )
-          .map((o) => o.cancel_until)
+        const allocations = [
+          ...lotAllocations(leftLots, result.leftConsumed),
+          ...lotAllocations(rightLots, result.rightConsumed),
+        ];
+        const l = leftLots[0],
+          r = rightLots[0],
+          match = randomUUID();
+        const maturity = allocations
+          .map(
+            (a) =>
+              one(
+                "SELECT cancel_until FROM p_orders WHERE id=?",
+                a.lot.order_id,
+              )!.cancel_until,
+          )
           .sort()
           .at(-1);
         const commission = award(
@@ -298,18 +337,33 @@ export function calculateCommissions(order: Row) {
           maturity,
         );
         run(
-          "UPDATE p_binary_lots SET remaining=remaining-? WHERE id IN (?,?)",
-          volume,
-          l.id,
-          r.id,
-        );
-        run(
           "INSERT INTO p_binary_matches VALUES(?,?,?,?,?,0)",
           match,
           l.id,
           r.id,
           volume,
           commission,
+        );
+        for (const a of allocations) {
+          run(
+            "UPDATE p_binary_lots SET remaining=remaining-? WHERE id=?",
+            a.volume,
+            a.lot.id,
+          );
+          run(
+            "INSERT INTO p_binary_match_allocations VALUES(?,?,?)",
+            match,
+            a.lot.id,
+            a.volume,
+          );
+        }
+        run(
+          "INSERT INTO p_binary_match_terms VALUES(?,?,?,?,?)",
+          match,
+          result.leftConsumed,
+          result.rightConsumed,
+          JSON.stringify(rules),
+          binaryDay(),
         );
         budget -= amount;
       }
@@ -378,6 +432,8 @@ export function settleOrder(orderId: string, reference: string) {
     );
     const saved = one("SELECT * FROM p_orders WHERE id=?", o.id)!;
     calculateCommissions(saved);
+    accrueOrderPoints(saved);
+    recordMerchantSale(saved);
     if (o.vertical === "ai") {
       const last = one(
         "SELECT MAX(expires_at) expires FROM p_subscriptions WHERE user_id=? AND product_id=? AND cancelled=0",
@@ -447,6 +503,9 @@ export function createOrder(
     );
     if (!product) throw new ApiError(404, "not_found");
     if (product.stock < quantity) throw new ApiError(409, "out_of_stock");
+    const merchant = merchantTerms(productId);
+    if (merchant && merchant.shareBps + p.maxPayoutBps > 10000)
+      throw new ApiError(409, "merchant_terms_invalid");
     const amount = product.price * quantity;
     if (!Number.isSafeInteger(amount) || amount > 1e12)
       throw new ApiError(400, "invalid_input");
@@ -476,6 +535,9 @@ export function createOrder(
       method,
       JSON.stringify({
         ...p,
+        binaryRules: binaryRules(),
+        loyaltyPolicy: loyaltyPolicy(),
+        merchantTerms: merchant,
         orderTerms: {
           catalogDetails: publicCatalogDetails(
             one(
@@ -535,8 +597,16 @@ export function refundOrder(
         (o.paid_at && now() > o.cancel_until))
     )
       throw new ApiError(409, "cancellation_expired");
-    const checkout=one("SELECT c.status,c.expires_at FROM p_checkouts c JOIN p_checkout_items i ON i.checkout_id=c.id WHERE i.order_id=?",orderId);
-    if(!o.paid_at && checkout?.status==='pending' && checkout.expires_at>now())throw new ApiError(409,"payment_reconciliation_required");
+    const checkout = one(
+      "SELECT c.status,c.expires_at FROM p_checkouts c JOIN p_checkout_items i ON i.checkout_id=c.id WHERE i.order_id=?",
+      orderId,
+    );
+    if (
+      !o.paid_at &&
+      checkout?.status === "pending" &&
+      checkout.expires_at > now()
+    )
+      throw new ApiError(409, "payment_reconciliation_required");
     // A payment with an issued authority must be reconciled before inventory can be released.
     if (
       !o.paid_at &&
@@ -549,7 +619,8 @@ export function refundOrder(
     ))
       reverseCommission(c);
     const matches = all(
-      `SELECT DISTINCT m.* FROM p_binary_matches m JOIN p_binary_lots l ON l.id=m.left_lot JOIN p_binary_lots r ON r.id=m.right_lot WHERE m.void=0 AND (l.order_id=? OR r.order_id=?)`,
+      `SELECT DISTINCT m.* FROM p_binary_matches m JOIN p_binary_lots l ON l.id=m.left_lot JOIN p_binary_lots r ON r.id=m.right_lot WHERE m.void=0 AND (l.order_id=? OR r.order_id=? OR EXISTS(SELECT 1 FROM p_binary_match_allocations a JOIN p_binary_lots x ON x.id=a.lot_id WHERE a.match_id=m.id AND x.order_id=?))`,
+      orderId,
       orderId,
       orderId,
     );
@@ -558,13 +629,7 @@ export function refundOrder(
         one("SELECT * FROM p_commissions WHERE id=?", m.commission_id)!,
       );
       run("UPDATE p_binary_matches SET void=1 WHERE id=?", m.id);
-      run(
-        "UPDATE p_binary_lots SET remaining=remaining+? WHERE id IN (?,?) AND order_id!=? AND void=0",
-        m.volume,
-        m.left_lot,
-        m.right_lot,
-        orderId,
-      );
+      restoreMatch(m, orderId);
     }
     // The trigger order can fund matches between older carry volumes; reverse those too.
     for (const m of all(
@@ -575,17 +640,14 @@ export function refundOrder(
         one("SELECT * FROM p_commissions WHERE id=?", m.commission_id)!,
       );
       run("UPDATE p_binary_matches SET void=1 WHERE id=?", m.id);
-      run(
-        "UPDATE p_binary_lots SET remaining=remaining+? WHERE id IN (?,?) AND void=0",
-        m.volume,
-        m.left_lot,
-        m.right_lot,
-      );
+      restoreMatch(m);
     }
     run(
       "UPDATE p_binary_lots SET void=1,remaining=0 WHERE order_id=?",
       orderId,
     );
+    reverseOrderPoints(orderId, actor);
+    reverseMerchantSale(orderId);
     if (o.paid_at)
       credit(o.user_id, "refund:" + orderId, "refund", orderId, o.amount);
     run(

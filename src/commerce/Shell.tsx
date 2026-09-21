@@ -29,7 +29,9 @@ export function CommerceShell({ children }: { children: ReactNode }) {
         </nav>
         <div>
           <LanguagePicker/><ThemeToggle />
+          <a href="/club">باشگاه مشتریان</a>
           <a href="/club/ranks">هفت رتبه باشگاه</a>
+          <a href="/merchants">پذیرندگان</a>
           <a href="/income-plan">طرح درآمد</a>
           <a href="/shop">فروشگاه</a>
           <a href="/cart">سبد خرید</a>
@@ -71,7 +73,9 @@ export function CommerceShell({ children }: { children: ReactNode }) {
             <a href="/account?tab=orders">پیگیری سفارش‌ها</a>
             <a href="/account?tab=addresses">آدرس‌های ارسال</a>
             <a href="/heritage">روایت ایران و نمادها</a>
-            <a href="/club/ranks">هفت رتبه باشگاه</a>
+            <a href="/club">باشگاه مشتریان</a>
+          <a href="/club/ranks">هفت رتبه باشگاه</a>
+          <a href="/merchants">پذیرندگان</a>
             <a href="/income-plan">طرح درآمد</a>
             <a href="/help">راهنمای خرید و پشتیبانی</a>
             <a href="/about">درباره شرکت و مدیریت</a><a href="/about#licenses">مجوزها و اسناد</a><a href="/contact">ارتباط با ما</a><a href="/legal/terms">قوانین و مقررات</a>

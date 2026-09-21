@@ -1,4 +1,5 @@
 "use client";
+import {BinaryRulesPanel,LoyaltyRulesPanel,AccessPanel,MerchantOperationsPanel,MerchantSettlementsPanel,MerchantPanel,AdminNotifications} from "./PlatformControls";
 
 import Localized from "../i18n/Localized";
 import { useEffect, useState } from "react";
@@ -9,6 +10,12 @@ import {TravelCards,AdminTravel} from "./TravelCards";
 import {LanguagePicker} from '../i18n/SiteLocale';
 import ThemeToggle from "../commerce/ThemeToggle";
 import AuthPanel from "./AuthPanel";
+import AdminHome from "./AdminHome";
+import BinaryPanel from "./BinaryPanel";
+import {ClubCatalogAdmin, PointsAdmin, RedemptionsAdmin, LoyaltyPanel} from "./ClubPanels";
+import { visibleAdminTabs, searchAdminGroups } from "./admin-navigation";
+import { useSiteLocale } from "../i18n/SiteLocale";
+import { translateText } from "../i18n/core";
 import { api, labels, RecordData } from "./client";
 import { Notice, Listing } from "./Widgets";
 import {
@@ -41,6 +48,8 @@ const userTabs = [
   ["catalog", "خرید و رزرو"],
   ["orders", "سفارش‌ها"],
   ["network", "شبکه و دعوت"],
+  ["binary", "شبکه باینری"],
+  ["loyalty", "امتیازات و مزایا"],
   ["commissions", "پورسانت‌ها"],
   ["missions", "مأموریت‌ها"],
   ["wallet", "کیف پول و برداشت"],
@@ -51,34 +60,11 @@ const userTabs = [
   ["addresses", "آدرس‌ها"],
   ["security", "امنیت حساب"],
 ];
-const adminTabs: [string, string, string[]][] = [
-  ["travel", "کارت سفر و کارگزار", ["superadmin","finance","support"]],
-  ["operations", "داشبورد کسب‌وکار", ["superadmin", "finance"]],
-  ["operations-tourism", "داشبورد گردشگری", ["superadmin", "finance"]],
-  ["operations-beauty", "داشبورد زیبایی", ["superadmin", "finance"]],
-  ["operations-craft", "داشبورد صنایع‌دستی", ["superadmin", "finance"]],
-  ["operations-ai", "داشبورد هوش مصنوعی", ["superadmin", "finance"]],
-  ["operations-leather", "داشبورد چرم ایران", ["superadmin", "finance"]],
-  ["dashboard", "سلامت مالی", ["superadmin", "finance"]],
-  ["products", "محصولات و تورها", ["superadmin", "content"]],
-  ["taxonomy", "دسته‌ها و برچسب‌ها", ["superadmin", "content"]],
-  ["orders", "سفارش‌ها", ["superadmin", "finance", "support"]],
-  ["withdrawals", "درخواست‌های برداشت", ["superadmin", "finance"]],
-  ["users", "اعضای مجموعه", ["superadmin", "support"]],
-  ["network", "مدیریت شبکه", ["superadmin"]],
-  ["commissions", "دفتر پورسانت", ["superadmin", "finance"]],
-  ["policy", "نرخ‌ها و کنترل پرداخت", ["superadmin", "finance"]],
-  ["ranks", "رتبه‌ها", ["superadmin", "finance"]],
-  ["missions", "مأموریت‌ها", ["superadmin", "content"]],
-  ["reports", "گزارش‌ها", ["superadmin", "finance"]],
-  ["content", "مدیریت محتوا", ["superadmin", "content"]],
-  ["flags", "بررسی حساب‌ها", ["superadmin", "support"]],
-  ["audit", "تاریخچهٔ تغییرات", ["superadmin"]],
-  ["settings", "تنظیمات سیستم", ["superadmin"]],
-  ["security", "امنیت حساب", ["superadmin", "content", "finance", "support"]],
-];
 export default function Portal({ admin = false }: { admin?: boolean }) {
   const site = useSiteSettings();
+  const {locale, dictionary} = useSiteLocale();
+  const [navQuery, setNavQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<RecordData | null>(null),
     [loading, setLoading] = useState(true),
     [tab, setTab] = useState("dashboard"),
@@ -93,9 +79,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
           setUser(r.user);
           const t = new URLSearchParams(location.search).get("tab");
           if (t) setTab(t);
-          else if (admin && r.user.role === "content") setTab("products");
-          else if (admin && r.user.role === "support") setTab("orders");
-          else if (admin) setTab("operations");
+          else if (admin) setTab("home");
         }
       })
       .catch((e) => {
@@ -111,32 +95,51 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
   }, [admin]);
   useEffect(() => {
     if (!user) return;
-    const id = setInterval(update, 15000);
+    const id = setInterval(() => {
+      update();
+      api("me").then(r=>setUser(r.user)).catch(e=>{if(e.message==="برای ادامه وارد حساب شوید.")setUser(null);});
+    }, 15000);
     return () => clearInterval(id);
-  }, [user]);
+  }, [user?.id]);
   const tabs = admin
-    ? adminTabs.filter((t) => user && t[2].includes(user.role))
-    : userTabs;
+    ? visibleAdminTabs(user?.role || "",user?.permissions)
+    : user?.merchant ? [...userTabs,["merchant","پنل پذیرنده"]] : userTabs;
   const current = tabs.find((t) => t[0] === tab);
   const logged = (u: RecordData) => {
     setUser(u);
-    setTab(
-      admin
-        ? u.role === "content"
-          ? "products"
-          : u.role === "support"
-            ? "orders"
-            : "dashboard"
-        : "dashboard",
-    );
+    const requested = new URLSearchParams(location.search).get("tab");
+    setTab(requested || (admin ? "home" : "dashboard"));
   };
+  const selectTab = (key: string) => {
+    setTab(key);
+    setError("");
+    setMenuOpen(false);
+    const url = new URL(location.href);
+    url.searchParams.set("tab", key);
+    history.pushState(null, "", url);
+  };
+  useEffect(() => {
+    const restoreTab = () => {
+      setTab(new URLSearchParams(location.search).get("tab") || (admin ? "home" : "dashboard"));
+      setMenuOpen(false);
+      setError("");
+    };
+    window.addEventListener("popstate", restoreTab);
+    return () => window.removeEventListener("popstate", restoreTab);
+  }, [admin]);
+  const navigationGroups = searchAdminGroups(user?.role || "", "",user?.permissions).map(group => ({
+    ...group,
+    tabs: group.tabs.filter(([key, label]) => !navQuery.trim() ||
+      searchAdminGroups(user?.role || "", navQuery,user?.permissions).some(g => g.tabs.some(t => t[0] === key)) ||
+      translateText(label, locale, dictionary).toLowerCase().includes(navQuery.trim().toLowerCase())),
+  })).filter(group => group.tabs.length > 0);
   const refreshUser = async () => {
     const r = await api("me");
     setUser(r.user);
     update();
   };
   return (
-    <Localized><div className="portal" dir="rtl" lang="fa">
+    <Localized><div className={`portal${admin ? " portal-admin" : ""}`} dir="rtl" lang="fa">
       <header className="portal-header">
         <a href="/">
           <strong>{site.site_name || "همای سعادت"}</strong>
@@ -173,7 +176,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
           <Notice error={error} />
           <AuthPanel admin={admin} onLogin={logged} />
         </>
-      ) : admin && user.role === "user" ? (
+      ) : admin && tabs.length === 0 ? (
         <div className="portal-main">
           <Notice error="این حساب دسترسی مدیریتی ندارد." />
           <a href="/account" className="portal-button">
@@ -187,19 +190,30 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
               <strong translate="no">{user.name}</strong>
               <span>{labels[user.role]}</span>
             </div>
-            <nav aria-label={admin ? "بخش‌های مدیریت" : "بخش‌های حساب"}>
-              {tabs.map(([key, label]) => (
-                <Localized key={key}><button
-                  aria-current={tab === key ? "page" : undefined}
-                  onClick={() => {
-                    setTab(key);
-                    setError("");
-                  }}
-                >
-                  {label}
-                </button></Localized>
-              ))}
-            </nav>
+            {admin ? <>
+              <button type="button" className="admin-menu-toggle" aria-expanded={menuOpen}
+                aria-controls="admin-navigation" onClick={() => setMenuOpen(!menuOpen)}>
+                بخش‌های مدیریت <span aria-hidden="true">{menuOpen ? "−" : "+"}</span>
+              </button>
+              <div id="admin-navigation" className={`admin-navigation${menuOpen ? " is-open" : ""}`}>
+                <label className="admin-nav-search">
+                  <span>جست‌وجوی بخش‌ها</span>
+                  <input type="search" value={navQuery} placeholder="نام بخش را بنویسید"
+                    onChange={e => setNavQuery(e.target.value)} />
+                </label>
+                <nav aria-label="بخش‌های مدیریت">
+                  {navigationGroups.map(group => <section key={group.title}>
+                    <h2>{group.title}</h2>
+                    {group.tabs.map(([key, label]) => <button key={key} type="button"
+                      aria-current={tab === key ? "page" : undefined} onClick={() => selectTab(key)}>{label}</button>)}
+                  </section>)}
+                  {navigationGroups.length === 0 && <p role="status">بخشی با این نام پیدا نشد.</p>}
+                </nav>
+              </div>
+            </> : <nav aria-label="بخش‌های حساب">
+              {tabs.map(([key, label]) => <button key={key} type="button"
+                aria-current={tab === key ? "page" : undefined} onClick={() => selectTab(key)}>{label}</button>)}
+            </nav>}
           </aside>
           <main className="portal-main">
             <div className="portal-title">
@@ -218,6 +232,17 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
               <Security onReauth={() => setUser(null)} />
             ) : admin ? (
               <>
+                {tab === "binary" && <BinaryPanel user={user} admin refresh={refresh}/>}
+                {tab === "binary-rules" && <BinaryRulesPanel refresh={refresh} onChange={update}/>}
+                {tab === "loyalty-policy" && <LoyaltyRulesPanel refresh={refresh} onChange={update}/>}
+                {tab === "access" && <AccessPanel refresh={refresh} onChange={refreshUser}/>}
+                {tab === "merchant-operations" && <MerchantOperationsPanel refresh={refresh} onChange={update}/>}
+                {tab === "merchant-settlements" && <MerchantSettlementsPanel refresh={refresh} onChange={update}/>}
+                {tab === "notifications" && <AdminNotifications refresh={refresh} onChange={update}/>}
+                {(tab === "merchants" || tab === "rewards") && <ClubCatalogAdmin key={tab} resource={tab} refresh={refresh} onChange={update}/>}
+                {tab === "loyalty" && <PointsAdmin refresh={refresh} onChange={update}/>}
+                {tab === "redemptions" && <RedemptionsAdmin refresh={refresh} onChange={update}/>}
+                {tab === "home" && <AdminHome user={user} refresh={refresh} onNavigate={selectTab} />}
                 {tab.startsWith("operations") && (
                   <OperationsDashboard
                     key={tab}
@@ -305,6 +330,9 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
               </>
             ) : (
               <>
+                {tab === "merchant" && <MerchantPanel refresh={refresh} onChange={update}/>}
+                {tab === "binary" && <BinaryPanel user={user} refresh={refresh}/>}
+                {tab === "loyalty" && <LoyaltyPanel refresh={refresh} onChange={update}/>}
                 {tab === "travel-cards" && <TravelCards refresh={refresh} onChange={update}/>}
                 {tab === "dashboard" && <Dashboard refresh={refresh} />}{" "}
                 {tab === "catalog" && (

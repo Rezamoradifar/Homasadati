@@ -1,3 +1,5 @@
+import {matureMerchantSales} from "./merchant-operations";
+import {matureLoyalty,expirePoints} from "./loyalty-engine";
 import {issueTravelCards,reviewTravel} from "./travel";
 import {tehranDay} from "./travel-model";
 import { atomic, all, one, run, now } from "./schema";
@@ -7,6 +9,9 @@ import { ApiError } from "../server/http";
 export async function maintenance() {
   atomic(() => {
     mature();
+    matureLoyalty();
+    matureMerchantSales();
+    for(const u of all("SELECT DISTINCT user_id FROM p_points_lots WHERE remaining>0 AND expires_at<=? LIMIT 100",now()))expirePoints(u.user_id);
     run("DELETE FROM p_sessions WHERE expires<?", Date.now());
     run("DELETE FROM p_otp WHERE expires<?", Date.now() - 86400000);
     run(
