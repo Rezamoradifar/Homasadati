@@ -1,4 +1,6 @@
 
+import {siteLocale} from "../../../src/i18n/server";
+import {loadDictionary,translateText} from "../../../src/i18n/core";
 import Localized from "../../../src/i18n/Localized";
 import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
 import { BrandCollection } from "../../VisualCollections";
@@ -31,6 +33,8 @@ export default async function BrandPage({
 }) {
   const params = await pendingParams;
   if (!isSector(params.sector)) notFound();
+  const locale=await siteLocale(),dictionary=await loadDictionary(locale);
+  const t=(text:string)=>translateText(text,locale,dictionary);
   const k = params.sector,
     b = brands[k],
     s = stories[k];
@@ -102,7 +106,7 @@ export default async function BrandPage({
               {s.chapters.map((c, i) => (
                 <Localized key={c.id}><a href={`#${c.id}`}>
                   <span>{String(i + 1).padStart(2, "0")}</span>
-                  {c.title}
+                  {t(c.title)}
                 </a></Localized>
               ))}
               <a href="#economy-model">مدل درآمد و هزینه</a>
@@ -115,7 +119,7 @@ export default async function BrandPage({
                 <span className="chapter-number">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <h2>{c.title}</h2>
+                <h2>{t(c.title)}</h2>
                 {c.paragraphs.map((p, j) => (
                   <Localized key={j}><p>{p}</p></Localized>
                 ))}
@@ -133,7 +137,7 @@ export default async function BrandPage({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    منبع: {c.source.label} ↗
+                    {t("منبع:")} {t(c.source.label)} ↗
                   </a>
                 )}
               </section></Localized>

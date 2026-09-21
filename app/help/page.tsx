@@ -1,10 +1,7 @@
 import { CommerceShell } from "../../src/commerce/Shell";
 import Localized from "../../src/i18n/Localized";
-import { all } from "../../src/platform/schema";
+import ContactDetails from "../../src/commerce/ContactDetails";
 export default function Help() {
-  const contact = all(
-    "SELECT value FROM p_settings WHERE key='site_contact' AND secret=0",
-  )[0]?.value;
   return (
     <Localized>
       <CommerceShell>
@@ -83,16 +80,7 @@ export default function Help() {
           </section>
           <section className="help-contact">
             <h2>ارتباط با مجموعه</h2>
-            {contact ? (
-              <p translate="no" className="contact-details">
-                {contact}
-              </p>
-            ) : (
-              <p>
-                اطلاعات تماس مجموعه هنوز تکمیل نشده است؛ برای سفارش ثبت‌شده،
-                شناسه و وضعیت را در حساب خود بررسی کنید.
-              </p>
-            )}
+            <ContactDetails/>
             <p>
               هنگام پیگیری، شناسه سفارش و شرح مسئله را آماده داشته باشید. رمز
               عبور، کد یک‌بارمصرف و کدهای بازیابی را ارسال نکنید.

@@ -11,7 +11,7 @@ export const brands = {
     name: "هما تمدن",
     latin: "Homa Tamaddon",
     label: "صنایع‌دستی ایران",
-    image: "/assets/craft-wide.jpg",
+    image: "/assets/craft.jpg",
     tone: "#814f31",
     tagline: "هنری که از دست‌ها می‌گذرد و در خانه می‌ماند.",
   },

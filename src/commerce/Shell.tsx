@@ -1,3 +1,4 @@
+import ContactDetails from "./ContactDetails";
 import {LanguagePicker} from '../i18n/SiteLocale';
 
 import Localized from "../i18n/Localized";
@@ -33,7 +34,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           <a href="/shop">فروشگاه</a>
           <a href="/cart">سبد خرید</a>
           <a href="/account">حساب من</a>
-          <a href="/help">راهنمای خرید</a>
+          <a href="/help">راهنمای خرید</a><a href="/contact">ارتباط با ما</a>
         </div>
       </header>
       {children}
@@ -47,7 +48,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
             src="/assets/brand-mark.png"
             alt="همای سعادت"
           />
-          <h2>ریشه در ایران، رو به جهان.</h2>
+          <h2>ریشه در ایران، رو به جهان.</h2><ContactDetails compact/>
           <p>
             گردشگری، هنر، مراقبت، فناوری و طراحی؛ پنج مسیر برای انتخاب آگاهانه.
           </p>
@@ -73,7 +74,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
             <a href="/club/ranks">هفت رتبه باشگاه</a>
             <a href="/income-plan">طرح درآمد</a>
             <a href="/help">راهنمای خرید و پشتیبانی</a>
-            <a href="/legal/terms">قوانین و مقررات</a>
+            <a href="/about">درباره شرکت و مدیریت</a><a href="/about#licenses">مجوزها و اسناد</a><a href="/contact">ارتباط با ما</a><a href="/legal/terms">قوانین و مقررات</a>
             <a href="/legal/privacy">حریم خصوصی</a>
             <a href="/">بازگشت به صفحه اصلی</a>
           </nav>

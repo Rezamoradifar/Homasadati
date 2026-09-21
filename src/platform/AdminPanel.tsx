@@ -1090,6 +1090,8 @@ export function Settings({
                 ["site_name", "نام سایت"],
                 ["site_logo", "نشانی لوگو"],
                 ["site_contact", "اطلاعات تماس"],
+                ["site_email", "ایمیل رسمی ارتباط با ما"],
+                ["site_ceo_name", "نام مدیرعامل"],
               ],
             },
             {

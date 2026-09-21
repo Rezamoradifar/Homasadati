@@ -770,6 +770,8 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "site_name",
           "site_logo",
           "site_contact",
+          "site_email",
+          "site_ceo_name",
         ]),
         value: z.string().trim().min(1).max(2000),
         reason: text,
@@ -779,7 +781,8 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       z.string()
         .regex(/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/)
         .parse(d.value);
-    if (d.key === "email_from") z.string().email().parse(d.value);
+    if (d.key === "email_from" || d.key === "site_email") z.string().email().parse(d.value);
+    if(d.key === "site_ceo_name") z.string().trim().min(2).max(120).parse(d.value);
     if (d.key === "site_logo") httpsImage.parse(d.value);
     const secret = [
       "resend_key",
