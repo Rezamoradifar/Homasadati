@@ -20,7 +20,7 @@ export const clubTiers = [
     name: "فیروزه",
     english: "Turquoise",
     tone: "turquoise",
-    priceRial: 350_000_000,
+    priceRial: 300_000_000,
   },
   {
     level: 4,
@@ -34,7 +34,7 @@ export const clubTiers = [
     name: "زمرد",
     english: "Emerald",
     tone: "emerald",
-    priceRial: 750_000_000,
+    priceRial: 700_000_000,
   },
   {
     level: 6,
