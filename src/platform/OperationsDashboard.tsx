@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { useState } from "react";
 import { amount, labels, RecordData } from "./client";
 import { DataState, Filter, Stat, Table, useData } from "./Widgets";
@@ -15,7 +17,7 @@ export function OperationsDashboard({
     refresh,
   );
   return (
-    <>
+    <Localized><>
       <div className="portal-command-banner">
         <small>HOMAY SAADAT / BUSINESS OPERATIONS</small>
         <h2>
@@ -32,7 +34,7 @@ export function OperationsDashboard({
       <Filter dates onChange={setQuery} />
       <DataState state={state}>
         {(d) => (
-          <>
+          <Localized><>
             <div className="portal-stats">
               <Stat label="فروش خالص سفارش‌های بازه" value={d.sales.revenue} />
               <Stat
@@ -76,8 +78,7 @@ export function OperationsDashboard({
                       aria-label="نمودار فروش روزانه، داده دقیق در جدول زیر"
                     >
                       {d.trend.map((r: RecordData) => (
-                        <div
-                          key={r.day}
+                        <Localized key={r.day}><div
                           title={`${r.day}: ${amount(r.sales)} تومان`}
                         >
                           <span
@@ -85,7 +86,7 @@ export function OperationsDashboard({
                               height: `${(r.sales / Math.max(1, ...d.trend.map((x: RecordData) => x.sales))) * 100}%`,
                             }}
                           />
-                        </div>
+                        </div></Localized>
                       ))}
                     </div>
                     <Table
@@ -190,9 +191,9 @@ export function OperationsDashboard({
                 ]}
               />
             </section>
-          </>
+          </></Localized>
         )}
       </DataState>
-    </>
+    </></Localized>
   );
 }

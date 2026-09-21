@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { useState } from "react";
 import { addToBasket } from "./basket";
 export default function AddToCart({
@@ -11,7 +13,7 @@ export default function AddToCart({
   const [quantity, setQuantity] = useState(1),
     [notice, setNotice] = useState("");
   return (
-    <form
+    <Localized><form
       onSubmit={(e) => {
         e.preventDefault();
         try {
@@ -44,6 +46,6 @@ export default function AddToCart({
         <a href="/cart">مشاهده سبد ←</a>
       </div>
       {notice && <p role="status">{notice}</p>}
-    </form>
+    </form></Localized>
   );
 }

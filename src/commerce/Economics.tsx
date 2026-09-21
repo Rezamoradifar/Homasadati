@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { useState } from "react";
 export default function Economics() {
   const [v, set] = useState<Record<string, string>>({
@@ -19,7 +21,7 @@ export default function Economics() {
   const format = (n: number) =>
     n.toLocaleString("fa-IR", { maximumFractionDigits: 0 });
   return (
-    <section className="economics" aria-labelledby="economic-calculator">
+    <Localized><section className="economics" aria-labelledby="economic-calculator">
       <div>
         <span className="commerce-eyebrow">تصمیم با فرض‌های خود شما</span>
         <h2 id="economic-calculator">آیا مدل فروش شما اقتصادی است؟</h2>
@@ -36,7 +38,7 @@ export default function Economics() {
           ["fixed", "هزینه ثابت ماهانه (تومان)"],
           ["orders", "تعداد سفارش ماهانه"],
         ].map(([key, label]) => (
-          <label key={key}>
+          <Localized key={key}><label>
             {label}
             <input
               type="number"
@@ -46,7 +48,7 @@ export default function Economics() {
               value={v[key]}
               onChange={(e) => set({ ...v, [key]: e.target.value })}
             />
-          </label>
+          </label></Localized>
         ))}
       </div>
       <p>
@@ -87,6 +89,6 @@ export default function Economics() {
         فرمول: (درآمد هر سفارش − هزینه متغیر آن) × تعداد سفارش − هزینه ثابت
         ماهانه.
       </small>
-    </section>
+    </section></Localized>
   );
 }

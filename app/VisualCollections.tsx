@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../src/i18n/Localized";
 import ResponsiveImage from "../src/components/media/ResponsiveImage";
 
 import { useEffect, useRef, useState } from "react";
@@ -50,7 +52,7 @@ export function CivilizationHero() {
   }, [index]);
 
   return (
-    <>
+    <Localized><>
       <ResponsiveImage
         ref={hero}
         className="hero-photo"
@@ -115,8 +117,7 @@ export function CivilizationHero() {
           onFocus={auto.pause}
         >
           {heritageSlides.map((s, i) => (
-            <button
-              key={s[0]}
+            <Localized key={s[0]}><button
               onClick={() => choose(i)}
               aria-label={s[fa ? 1 : 2]}
               aria-pressed={index === i}
@@ -127,11 +128,11 @@ export function CivilizationHero() {
                 alt=""
                 loading="lazy"
               />
-            </button>
+            </button></Localized>
           ))}
         </div>
       </div>
-    </>
+    </></Localized>
   );
 }
 const collections = {
@@ -189,7 +190,7 @@ export function BrandCollection({ sector }: { sector: string }) {
   if (!(sector in collections)) return null;
   const items = collections[sector as keyof typeof collections];
   return (
-    <section className={"collection-section collection-" + sector} dir="rtl">
+    <Localized><section className={"collection-section collection-" + sector} dir="rtl">
       <p className="commerce-eyebrow">THE HOMA COLLECTION</p>
       <h2>
         {sector === "leather"
@@ -253,7 +254,7 @@ export function BrandCollection({ sector }: { sector: string }) {
         onFocus={auto.pause}
       >
         {items.map(([id, title]) => (
-          <figure key={id}>
+          <Localized key={id}><figure>
             <ResponsiveImage
               src={"/assets/collections/" + id + ".webp"}
               sizes="(max-width: 700px) calc(100vw - 40px), (max-width: 1500px) 44vw, 640px"
@@ -261,7 +262,7 @@ export function BrandCollection({ sector }: { sector: string }) {
               loading="lazy"
             />
             <figcaption>{title}</figcaption>
-          </figure>
+          </figure></Localized>
         ))}
       </div>
       <small>
@@ -271,6 +272,6 @@ export function BrandCollection({ sector }: { sector: string }) {
       <a className="commerce-button gold" href={"/shop?vertical=" + sector}>
         مشاهده محصولات و مشخصات
       </a>
-    </section>
+    </section></Localized>
   );
 }

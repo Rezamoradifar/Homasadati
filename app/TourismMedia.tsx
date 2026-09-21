@@ -1,7 +1,9 @@
+
+import Localized from "../src/i18n/Localized";
 import PersianNarration from "./PersianNarration";
 export default function TourismMedia() {
   return (
-    <section className="tourism-media" dir="rtl">
+    <Localized><section className="tourism-media" dir="rtl">
       <p className="commerce-eyebrow">IRAN, A LIVING STORY</p>
       <h2>سفری به قلب تمدن ایران</h2>
       <p className="media-credit" id="tourism-media-credit">
@@ -52,6 +54,6 @@ export default function TourismMedia() {
           کارت سفر و درخواست هماهنگی
         </a>
       </article>
-    </section>
+    </section></Localized>
   );
 }

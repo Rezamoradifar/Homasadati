@@ -1,3 +1,6 @@
+import {LanguagePicker} from '../i18n/SiteLocale';
+
+import Localized from "../i18n/Localized";
 import ThemeToggle from "./ThemeToggle";
 import type { ReactNode } from "react";
 import { brands, sectorKeys } from "./brands";
@@ -5,7 +8,7 @@ import "./commerce.css";
 import "../../app/heritage.css";
 export function CommerceShell({ children }: { children: ReactNode }) {
   return (
-    <div className="commerce" dir="rtl" lang="fa" id="page-top">
+    <Localized><div className="commerce" dir="rtl" lang="fa" id="page-top">
       <a className="commerce-skip" href="#commerce-main">
         رفتن به محتوا
       </a>
@@ -13,18 +16,18 @@ export function CommerceShell({ children }: { children: ReactNode }) {
         <a className="commerce-logo" href="/">
           <img src="/assets/brand-mark.png" alt="" />
           <span>
-            خانواده هما<small>HOMAY SAADAT</small>
+            همای سعادت<small>باشگاه مشتریان</small>
           </span>
         </a>
         <nav aria-label="بخش‌های خانواده هما">
           {sectorKeys.map((k) => (
-            <a key={k} href={`/worlds/${k}`}>
+            <Localized key={k}><a href={`/worlds/${k}`}>
               {brands[k].name}
-            </a>
+            </a></Localized>
           ))}
         </nav>
         <div>
-          <ThemeToggle />
+          <LanguagePicker/><ThemeToggle />
           <a href="/club/ranks">هفت رتبه باشگاه</a>
           <a href="/income-plan">طرح درآمد</a>
           <a href="/shop">فروشگاه</a>
@@ -52,9 +55,9 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           <summary>جهان‌های هما</summary>
           <nav aria-label="برندها">
             {sectorKeys.map((k) => (
-              <a key={k} href={`/worlds/${k}`}>
+              <Localized key={k}><a href={`/worlds/${k}`}>
                 {brands[k].name} · {brands[k].label}
-              </a>
+              </a></Localized>
             ))}
           </nav>
         </details>
@@ -78,6 +81,6 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           <a href="#page-top">بازگشت به بالا ↑</a>
         </div>
       </footer>
-    </div>
+    </div></Localized>
   );
 }

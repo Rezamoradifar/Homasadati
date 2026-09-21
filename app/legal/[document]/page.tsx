@@ -1,3 +1,5 @@
+
+import Localized from "../../../src/i18n/Localized";
 import { notFound } from "next/navigation";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import { TERMS_VERSION } from "../../../src/platform/registration-model";
@@ -78,23 +80,23 @@ export default async function Page({
   if (params.document !== "terms" && params.document !== "privacy") notFound();
   const doc = documents[params.document];
   return (
-    <CommerceShell>
+    <Localized><CommerceShell>
       <main id="commerce-main" className="brand-body">
         <header className="brand-chapter">
           <h1>{doc.title}</h1>
           <p>نسخه {TERMS_VERSION} · منتشرشده ۲۰ سپتامبر ۲۰۲۶</p>
         </header>
         {doc.sections.map(([title, body]) => (
-          <section className="brand-chapter" key={title}>
+          <Localized key={title}><section className="brand-chapter">
             <h2>{title}</h2>
             <p>{body}</p>
-          </section>
+          </section></Localized>
         ))}
         <p>
           <a href="/account">بازگشت به حساب</a> ·{" "}
           <a href="/income-plan">طرح درآمد</a>
         </p>
       </main>
-    </CommerceShell>
+    </CommerceShell></Localized>
   );
 }

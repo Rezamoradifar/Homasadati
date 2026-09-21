@@ -1,4 +1,8 @@
 "use client";
+
+import {useSiteLocale} from "../i18n/SiteLocale";
+import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
+import Localized from "../i18n/Localized";
 import { MemberDetails } from "./MemberDetails";
 import { extendedCatalogFields } from "./catalog-fields";
 import { useRef, useState } from "react";
@@ -34,9 +38,9 @@ export const commissionColumns: [string, string, string?][] = [
 export function Dashboard({ refresh }: { refresh: number }) {
   const s = useData("dashboard", refresh);
   return (
-    <DataState state={s}>
+    <Localized><DataState state={s}>
       {(d) => (
-        <>
+        <Localized><>
           <div className="portal-stats">
             <Stat label="موجودی قابل برداشت" value={d.wallet.available} />
             <Stat label="در انتظار تسویه" value={d.wallet.pending} />
@@ -82,9 +86,9 @@ export function Dashboard({ refresh }: { refresh: number }) {
             <h2>آخرین پورسانت‌ها</h2>
             <Table rows={d.commissions} columns={commissionColumns} />
           </div>
-        </>
+        </></Localized>
       )}
-    </DataState>
+    </DataState></Localized>
   );
 }
 export function Catalog({
@@ -100,7 +104,7 @@ export function Catalog({
     [success, setSuccess] = useState("");
   const s = useData("catalog?" + q + "&page=" + page, refresh);
   return (
-    <>
+    <Localized><>
       <p className="portal-notice">
         قیمت، موجودی و مهلت لغو از محصول منتشرشدهٔ مدیر خوانده می‌شود. سفارش فقط
         پس از تأیید پرداخت نهایی می‌شود.
@@ -115,12 +119,11 @@ export function Catalog({
       <Notice error={error} success={success} />
       <DataState state={s}>
         {(d) => (
-          <>
+          <Localized><>
             {d.rows.length ? (
               <div className="portal-catalog">
                 {d.rows.map((p: RecordData) => (
-                  <Product
-                    key={p.id}
+                  <Localized key={p.id}><Product
                     product={p}
                     onFamily={(family: string) => {
                       setQ("family=" + encodeURIComponent(family));
@@ -133,7 +136,7 @@ export function Catalog({
                       onChange();
                     }}
                     onError={setError}
-                  />
+                  /></Localized>
                 ))}
               </div>
             ) : (
@@ -142,10 +145,10 @@ export function Catalog({
               </p>
             )}
             <Pagination page={page} more={d.hasMore} onChange={setPage} />
-          </>
+          </></Localized>
         )}
       </DataState>
-    </>
+    </></Localized>
   );
 }
 function Product({
@@ -161,14 +164,14 @@ function Product({
 }) {
   const key = useRef(crypto.randomUUID()),
     [busy, setBusy] = useState(false);
-  const images = JSON.parse(p.images);
+  const images = JSON.parse(p.images),{locale}=useSiteLocale(),copy=catalogCopy({title:p.title,description:p.description,details:p.details},locale);
   return (
-    <article className="portal-product">
-      {images[0] && <img src={images[0]} alt={p.title} />}
+    <Localized><article className="portal-product">
+      {images[0] && <img src={images[0]} alt={copy.title} />}
       <div>
         <small>{labels[p.vertical]}</small>
-        <h2>{p.title}</h2>
-        <p>{p.description}</p>
+        <h2>{copy.title}</h2>
+        <p>{copy.description}</p>
         <strong>{amount(p.price)} تومان</strong>
         {p.details?.comparePrice > p.price && (
           <del>{amount(p.details.comparePrice)} تومان</del>
@@ -188,21 +191,21 @@ function Product({
               {extendedCatalogFields
                 .filter(
                   (f) =>
-                    f.type !== "section" &&
+                    f.type !== "section" && isPublicSpecification(f.name) &&
                     (!f.sectors || f.sectors.includes(p.vertical)),
                 )
                 .map((f) => {
                   const value = p.details[f.name.replace("detail_", "")];
                   return value ? (
-                    <div key={f.name}>
+                    <Localized key={f.name}><div>
                       <dt>{f.label}</dt>
                       <dd>{String(value)}</dd>
-                    </div>
+                    </div></Localized>
                   ) : null;
                 })}
             </dl>
             {images.slice(1).map((src: string) => (
-              <img key={src} src={src} alt={p.title} loading="lazy" />
+              <Localized key={src}><img src={src} alt={copy.title} loading="lazy" /></Localized>
             ))}
           </details>
         )}
@@ -272,7 +275,7 @@ function Product({
           </button>
         </form>
       </div>
-    </article>
+    </article></Localized>
   );
 }
 export function Orders({
@@ -286,7 +289,7 @@ export function Orders({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   return (
-    <>
+    <Localized><>
       <Listing
         endpoint="orders"
         refresh={refresh}
@@ -303,7 +306,7 @@ export function Orders({
           ],
         }}
         actions={(o) => (
-          <button
+          <Localized><button
             className="portal-button"
             onClick={() => {
               setSelected(o);
@@ -311,7 +314,7 @@ export function Orders({
             }}
           >
             جزئیات
-          </button>
+          </button></Localized>
         )}
       />
       {selected && (
@@ -332,10 +335,10 @@ export function Orders({
               ["تاریخ", date(selected.created_at)],
               ["پایان مهلت لغو", date(selected.cancel_until)],
             ].map(([k, v]) => (
-              <div key={k}>
+              <Localized key={k}><div>
                 <dt>{k}</dt>
                 <dd>{v}</dd>
-              </div>
+              </div></Localized>
             ))}
           </dl>
           <Notice error={error} />
@@ -401,7 +404,7 @@ export function Orders({
           )}
         </Modal>
       )}
-    </>
+    </></Localized>
   );
 }
 export function Wallet({
@@ -416,9 +419,9 @@ export function Wallet({
   const s = useData("wallet", refresh),
     key = useRef(crypto.randomUUID());
   return (
-    <DataState state={s}>
+    <Localized><DataState state={s}>
       {(d) => (
-        <>
+        <Localized><>
           <div className="portal-stats">
             <Stat label="قابل برداشت" value={d.wallet.available} />
             <Stat label="در انتظار تسویه" value={d.wallet.pending} />
@@ -497,9 +500,9 @@ export function Wallet({
               ]}
             />
           </div>
-        </>
+        </></Localized>
       )}
-    </DataState>
+    </DataState></Localized>
   );
 }
 export function Network({
@@ -527,7 +530,7 @@ export function Network({
       ? window.location.origin + "/account?ref=" + user.referral_code
       : "";
   return (
-    <>
+    <Localized><>
       <div className="portal-card">
         <h2>{admin ? "مشاهدهٔ شبکه" : "دعوت به همای سعادت"}</h2>
         {admin ? (
@@ -561,12 +564,12 @@ export function Network({
       </div>
       <DataState state={s}>
         {(d) => (
-          <div className="portal-card">
+          <Localized><div className="portal-card">
             <div
               className="portal-row"
               style={{ justifyContent: "space-between" }}
             >
-              <h2>شبکهٔ {d.root.name}</h2>
+              <h2>شبکهٔ <span translate="no">{d.root.name}</span></h2>
               <button
                 className="portal-button"
                 onClick={() => setRoot(user.id)}
@@ -585,40 +588,40 @@ export function Network({
                 d.nodes
                   .filter((n: RecordData) => n.depth === 1)
                   .map((n: RecordData) => (
-                    <section key={n.id}>
+                    <Localized key={n.id}><section>
                       <button onClick={() => setRoot(n.id)}>
-                        {n.name} · {labels[n.leg] || "بدون جایگاه"}
+                        <span translate="no">{n.name}</span> · {labels[n.leg] || "بدون جایگاه"}
                       </button>
                       {d.nodes
                         .filter((c: RecordData) => c.sponsor_id === n.id)
                         .map((c: RecordData) => (
-                          <section key={c.id}>
+                          <Localized key={c.id}><section>
                             <button onClick={() => setRoot(c.id)}>
-                              {c.name} · {labels[c.leg] || "بدون جایگاه"}
+                              <span translate="no">{c.name}</span> · {labels[c.leg] || "بدون جایگاه"}
                             </button>
-                          </section>
+                          </section></Localized>
                         ))}
-                    </section>
+                    </section></Localized>
                   ))
               ) : (
                 <p className="portal-empty">زیرمجموعه‌ای ثبت نشده است.</p>
               )}
             </div>
             <Pagination page={page} more={d.hasMore} onChange={setPage} />
-          </div>
+          </div></Localized>
         )}
       </DataState>
-    </>
+    </></Localized>
   );
 }
 export function Missions({ refresh }: { refresh: number }) {
   const s = useData("missions", refresh);
   return (
-    <DataState state={s}>
+    <Localized><DataState state={s}>
       {(d) =>
         d.rows.length ? (
           d.rows.map((m: RecordData) => (
-            <div className="portal-card" key={m.id}>
+            <Localized key={m.id}><div className="portal-card">
               <h2>{m.title}</h2>
               <p>
                 {labels[m.metric]}: {amount(m.progress)} از {amount(m.target)}
@@ -640,13 +643,13 @@ export function Missions({ refresh }: { refresh: number }) {
                   }}
                 />
               </div>
-            </div>
+            </div></Localized>
           ))
         ) : (
-          <p className="portal-empty">هنوز مأموریتی فعال نشده است.</p>
+          <Localized><p className="portal-empty">هنوز مأموریتی فعال نشده است.</p></Localized>
         )
       }
-    </DataState>
+    </DataState></Localized>
   );
 }
 export function Profile({
@@ -662,7 +665,7 @@ export function Profile({
     [error, setError] = useState(""),
     [sending, setSending] = useState(false);
   return (
-    <>
+    <Localized><>
       <MemberDetails onChange={onChange} />
       <Notice success={message} error={error} />
       <div className="portal-card">
@@ -738,7 +741,7 @@ export function Profile({
           />
         )}
       </div>
-    </>
+    </></Localized>
   );
 }
 export function Addresses({
@@ -752,7 +755,7 @@ export function Addresses({
     [edit, setEdit] = useState<RecordData | null>(null),
     [error, setError] = useState("");
   return (
-    <>
+    <Localized><>
       <Notice error={error} />
       <div className="portal-card">
         <h2>{edit ? "ویرایش آدرس" : "آدرس جدید"}</h2>
@@ -783,7 +786,7 @@ export function Addresses({
       </div>
       <DataState state={s}>
         {(d) => (
-          <Table
+          <Localized><Table
             rows={d.rows}
             columns={[
               ["label", "عنوان"],
@@ -792,7 +795,7 @@ export function Addresses({
               ["postal_code", "کد پستی"],
             ]}
             actions={(r) => (
-              <>
+              <Localized><>
                 <button className="portal-button" onClick={() => setEdit(r)}>
                   ویرایش
                 </button>
@@ -809,12 +812,12 @@ export function Addresses({
                 >
                   حذف
                 </button>
-              </>
+              </></Localized>
             )}
-          />
+          /></Localized>
         )}
       </DataState>
-    </>
+    </></Localized>
   );
 }
 export { default as Security } from "./SecurityPanel";
@@ -829,7 +832,7 @@ export function Subscriptions({
     [selected, setSelected] = useState<RecordData | null>(null);
   const key = useRef(crypto.randomUUID());
   return (
-    <>
+    <Localized><>
       <Notice error={error} />
       <Listing
         endpoint="subscriptions"
@@ -841,11 +844,11 @@ export function Subscriptions({
           ["cancelled", "لغوشده", "bool"],
         ]}
         actions={(r) => (
-          <>
+          <Localized><>
             <button className="portal-button" onClick={() => setSelected(r)}>
               تمدید / لغو
             </button>
-          </>
+          </></Localized>
         )}
       />
       {selected && (
@@ -887,7 +890,7 @@ export function Subscriptions({
           />
         </Modal>
       )}
-    </>
+    </></Localized>
   );
 }
 export function Notifications({
@@ -907,7 +910,7 @@ export function Notifications({
     }
   };
   return (
-    <>
+    <Localized><>
       <Notice error={error} />
       <button
         className="portal-button"
@@ -927,12 +930,12 @@ export function Notifications({
         ]}
         actions={(r) =>
           !r.read_at && (
-            <button className="portal-button" onClick={() => mark(r.id)}>
+            <Localized><button className="portal-button" onClick={() => mark(r.id)}>
               خواندم
-            </button>
+            </button></Localized>
           )
         }
       />
-    </>
+    </></Localized>
   );
 }

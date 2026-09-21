@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { extendedCatalogFields } from "./catalog-fields";
 import { emptyCatalogDetails } from "./catalog-model";
 import { useState } from "react";
@@ -242,7 +244,7 @@ export function AdminCrud({
       }
     : {};
   return (
-    <>
+    <Localized><>
       <button
         className="portal-button primary"
         onClick={() => setEdit({})}
@@ -256,7 +258,7 @@ export function AdminCrud({
         columns={def.columns}
         filters={{ vertical: resource === "products" }}
         actions={(r) => (
-          <>
+          <Localized><>
             <button className="portal-button" onClick={() => setEdit(r)}>
               ویرایش
             </button>
@@ -297,7 +299,7 @@ export function AdminCrud({
                 مشاهده
               </a>
             )}
-          </>
+          </></Localized>
         )}
       />
       {edit && (
@@ -368,7 +370,7 @@ export function AdminCrud({
           />
         </Modal>
       )}
-    </>
+    </></Localized>
   );
 }
 export function FinancialDashboard({
@@ -384,11 +386,11 @@ export function FinancialDashboard({
     refresh,
   );
   return (
-    <>
+    <Localized><>
       <Filter dates onChange={setQ} />
       <DataState state={state}>
         {(d) => (
-          <>
+          <Localized><>
             {d.health && (
               <>
                 <div className="portal-stats">
@@ -461,8 +463,7 @@ export function FinancialDashboard({
                         ),
                       );
                       return (
-                        <div
-                          key={r.day}
+                        <Localized key={r.day}><div
                           title={`${r.day}: ${amount(r.sales)} / ${amount(r.commissions)}`}
                         >
                           <span
@@ -473,7 +474,7 @@ export function FinancialDashboard({
                               height: (r.commissions / max) * 100 + "%",
                             }}
                           />
-                        </div>
+                        </div></Localized>
                       );
                     })}
                   </div>
@@ -492,8 +493,7 @@ export function FinancialDashboard({
                         ),
                       );
                       return (
-                        <div
-                          key={r.day}
+                        <Localized key={r.day}><div
                           title={`${r.day}: ${ratio === null ? "بدون فروش" : amount(ratio * 100) + "%"}`}
                         >
                           <span
@@ -504,7 +504,7 @@ export function FinancialDashboard({
                                   : (ratio / max) * 100 + "%",
                             }}
                           />
-                        </div>
+                        </div></Localized>
                       );
                     })}
                   </div>
@@ -558,9 +558,9 @@ export function FinancialDashboard({
                 {amount(Math.round(d.subscriptionChurn * 10000) / 100)}٪
               </p>
               {Object.values(d.definitions).map((s: any) => (
-                <p className="portal-notice" key={s}>
+                <Localized key={s}><p className="portal-notice">
                   {s}
-                </p>
+                </p></Localized>
               ))}
               <div className="portal-row">
                 <DownloadButton
@@ -577,10 +577,10 @@ export function FinancialDashboard({
                 </DownloadButton>
               </div>
             </div>
-          </>
+          </></Localized>
         )}
       </DataState>
-    </>
+    </></Localized>
   );
 }
 export function CommissionPolicy({
@@ -592,9 +592,9 @@ export function CommissionPolicy({
 }) {
   const s = useData("admin/policy", refresh);
   return (
-    <DataState state={s}>
+    <Localized><DataState state={s}>
       {(d) => (
-        <div className="portal-card">
+        <Localized><div className="portal-card">
           <h2>تنظیم موتور پورسانت</h2>
           <p className="portal-notice">
             درصدها روی مبلغ واقعی فروش تومانی محاسبه می‌شوند. ترتیب تخصیص:
@@ -709,9 +709,9 @@ export function CommissionPolicy({
               onChange();
             }}
           />
-        </div>
+        </div></Localized>
       )}
-    </DataState>
+    </DataState></Localized>
   );
 }
 export function AdminOrders({
@@ -725,7 +725,7 @@ export function AdminOrders({
 }) {
   const [selected, setSelected] = useState<RecordData | null>(null);
   return (
-    <>
+    <Localized><>
       <Listing
         endpoint="admin/orders"
         refresh={refresh}
@@ -743,9 +743,9 @@ export function AdminOrders({
           ],
         }}
         actions={(r) => (
-          <button className="portal-button" onClick={() => setSelected(r)}>
+          <Localized><button className="portal-button" onClick={() => setSelected(r)}>
             مدیریت
-          </button>
+          </button></Localized>
         )}
       />
       {selected && (
@@ -786,7 +786,7 @@ export function AdminOrders({
           />
         </Modal>
       )}
-    </>
+    </></Localized>
   );
 }
 export function AdminWithdrawals({
@@ -798,7 +798,7 @@ export function AdminWithdrawals({
 }) {
   const [selected, setSelected] = useState<RecordData | null>(null);
   return (
-    <>
+    <Localized><>
       <Listing
         endpoint="admin/withdrawals"
         refresh={refresh}
@@ -813,9 +813,9 @@ export function AdminWithdrawals({
           ["created_at", "تاریخ", "date"],
         ]}
         actions={(r) => (
-          <button className="portal-button" onClick={() => setSelected(r)}>
+          <Localized><button className="portal-button" onClick={() => setSelected(r)}>
             بررسی
-          </button>
+          </button></Localized>
         )}
       />
       {selected && (
@@ -865,7 +865,7 @@ export function AdminWithdrawals({
           />
         </Modal>
       )}
-    </>
+    </></Localized>
   );
 }
 export function AdminUsers({
@@ -883,7 +883,7 @@ export function AdminUsers({
     refresh,
   );
   return (
-    <>
+    <Localized><>
       <Listing
         endpoint="admin/users"
         refresh={refresh}
@@ -896,16 +896,16 @@ export function AdminUsers({
           ["created_at", "عضویت", "date"],
         ]}
         actions={(r) => (
-          <button className="portal-button" onClick={() => setSelected(r)}>
+          <Localized><button className="portal-button" onClick={() => setSelected(r)}>
             پروفایل و دسترسی
-          </button>
+          </button></Localized>
         )}
       />
       {selected && (
         <Modal title={selected.name} onClose={() => setSelected(null)}>
           <DataState state={detail}>
             {(d) => (
-              <>
+              <Localized><>
                 <div className="portal-stats">
                   <Stat label="موجودی" value={d.wallet.available} />
                   <Stat label="پورسانت در انتظار" value={d.wallet.pending} />
@@ -949,7 +949,7 @@ export function AdminUsers({
                     ["leg", "جایگاه"],
                   ]}
                 />
-              </>
+              </></Localized>
             )}
           </DataState>
           <Form
@@ -987,7 +987,7 @@ export function AdminUsers({
           />
         </Modal>
       )}
-    </>
+    </></Localized>
   );
 }
 export function AdminNetwork({
@@ -1000,7 +1000,7 @@ export function AdminNetwork({
   user: RecordData;
 }) {
   return (
-    <>
+    <Localized><>
       <Network user={user} admin refresh={refresh} />
       <div className="portal-card">
         <h2>جابه‌جایی عضو</h2>
@@ -1049,7 +1049,7 @@ export function AdminNetwork({
           }}
         />
       </div>
-    </>
+    </></Localized>
   );
 }
 export function Settings({
@@ -1061,7 +1061,7 @@ export function Settings({
 }) {
   const s = useData("admin/settings", refresh);
   return (
-    <>
+    <Localized><>
       <div className="portal-card">
         <h2>تنظیمات سرویس‌ها و برند</h2>
         <p className="portal-notice">
@@ -1106,7 +1106,7 @@ export function Settings({
       </div>
       <DataState state={s}>
         {(d) => (
-          <Table
+          <Localized><Table
             rows={d.rows}
             columns={[
               ["key", "تنظیم"],
@@ -1114,10 +1114,10 @@ export function Settings({
               ["configured", "تنظیم‌شده", "bool"],
               ["secret", "محرمانه", "bool"],
             ]}
-          />
+          /></Localized>
         )}
       </DataState>
-    </>
+    </></Localized>
   );
 }
 export function Flags({
@@ -1129,7 +1129,7 @@ export function Flags({
 }) {
   const [selected, setSelected] = useState<RecordData | null>(null);
   return (
-    <>
+    <Localized><>
       <p className="portal-notice">
         پرچم‌ها تنها نشانهٔ نیاز به بررسی هستند؛ مسدودسازی خودکار یا اثبات تخلف
         محسوب نمی‌شوند.
@@ -1146,9 +1146,9 @@ export function Flags({
         ]}
         actions={(r) =>
           !r.resolved && (
-            <button className="portal-button" onClick={() => setSelected(r)}>
+            <Localized><button className="portal-button" onClick={() => setSelected(r)}>
               ثبت بررسی
-            </button>
+            </button></Localized>
           )
         }
       />
@@ -1171,7 +1171,7 @@ export function Flags({
           />
         </Modal>
       )}
-    </>
+    </></Localized>
   );
 }
 
@@ -1182,9 +1182,9 @@ function CatalogForm(props: {
   onSubmit: (d: RecordData) => Promise<void>;
 }) {
   return props.resource === "products" ? (
-    <ProductFieldsForm {...props} />
+    <Localized><ProductFieldsForm {...props} /></Localized>
   ) : (
-    <Form {...props} />
+    <Localized><Form {...props} /></Localized>
   );
 }
 function ProductFieldsForm(props: {
@@ -1194,9 +1194,9 @@ function ProductFieldsForm(props: {
 }) {
   const state = useData("admin/catalog-options");
   return (
-    <DataState state={state}>
+    <Localized><DataState state={state}>
       {(d) => (
-        <Form
+        <Localized><Form
           {...props}
           fields={props.fields.map((f) =>
             f.name === "taxonomy"
@@ -1212,8 +1212,8 @@ function ProductFieldsForm(props: {
                 }
               : f,
           )}
-        />
+        /></Localized>
       )}
-    </DataState>
+    </DataState></Localized>
   );
 }

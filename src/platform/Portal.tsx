@@ -1,9 +1,12 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { useEffect, useState } from "react";
 import "./panel.css";
 import { useSiteSettings } from "./SiteSettings";
 import { OperationsDashboard } from "./OperationsDashboard";
 import {TravelCards,AdminTravel} from "./TravelCards";
+import {LanguagePicker} from '../i18n/SiteLocale';
 import ThemeToggle from "../commerce/ThemeToggle";
 import AuthPanel from "./AuthPanel";
 import { api, labels, RecordData } from "./client";
@@ -133,13 +136,13 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
     update();
   };
   return (
-    <div className="portal" dir="rtl" lang="fa">
+    <Localized><div className="portal" dir="rtl" lang="fa">
       <header className="portal-header">
         <a href="/">
           <strong>{site.site_name || "همای سعادت"}</strong>
           <small>HOMAY SAADAT / {admin ? "MANAGEMENT" : "MEMBERS"}</small>
         </a>
-        <div className="portal-toplinks"><ThemeToggle/>
+        <div className="portal-toplinks"><LanguagePicker/><ThemeToggle/>
           <a href="/">وب‌سایت</a>
           <a href={admin ? "/account" : "/admin"}>
             {admin ? "حساب من" : "مدیریت"}
@@ -181,13 +184,12 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
         <div className="portal-layout">
           <aside className="portal-sidebar">
             <div className="portal-user">
-              <strong>{user.name}</strong>
+              <strong translate="no">{user.name}</strong>
               <span>{labels[user.role]}</span>
             </div>
             <nav aria-label={admin ? "بخش‌های مدیریت" : "بخش‌های حساب"}>
               {tabs.map(([key, label]) => (
-                <button
-                  key={key}
+                <Localized key={key}><button
                   aria-current={tab === key ? "page" : undefined}
                   onClick={() => {
                     setTab(key);
@@ -195,7 +197,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   }}
                 >
                   {label}
-                </button>
+                </button></Localized>
               ))}
             </nav>
           </aside>
@@ -341,6 +343,6 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
           </main>
         </div>
       )}
-    </div>
+    </div></Localized>
   );
 }

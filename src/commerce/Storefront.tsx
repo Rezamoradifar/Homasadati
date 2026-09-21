@@ -1,4 +1,8 @@
 "use client";
+
+import {useSiteLocale} from "../i18n/SiteLocale";
+import {catalogCopy} from "../i18n/catalog";
+import Localized from "../i18n/Localized";
 import ResponsiveImage from "../components/media/ResponsiveImage";
 
 import { useState } from "react";
@@ -11,6 +15,7 @@ export default function Storefront({
 }: {
   initialVertical?: string;
 }) {
+  const {locale}=useSiteLocale();
   const [vertical, setVertical] = useState(initialVertical),
     [q, setQ] = useState(""),
     [search, setSearch] = useState(""),
@@ -21,7 +26,7 @@ export default function Storefront({
     reload,
   );
   return (
-    <div className="shop-wrap">
+    <Localized><div className="shop-wrap">
       <div className="shop-heading">
         <span className="commerce-eyebrow">انتخاب از خانواده هما</span>
         <h1>
@@ -59,9 +64,9 @@ export default function Storefront({
         >
           <option value="">همه حوزه‌ها</option>
           {sectorKeys.map((k) => (
-            <option key={k} value={k}>
+            <Localized key={k}><option value={k}>
               {brands[k].name} · {brands[k].label}
-            </option>
+            </option></Localized>
           ))}
         </select>
         <button className="commerce-button">جست‌وجو</button>
@@ -78,16 +83,16 @@ export default function Storefront({
       </form>
       <DataState state={state}>
         {(d) => (
-          <>
+          <Localized><>
             {d.rows.length ? (
               <div className="shop-grid">
                 {d.rows.map((p: RecordData) => {
-                  const images = JSON.parse(p.images);
+                  const images = JSON.parse(p.images), copy=catalogCopy({title:p.title,description:p.description,details:p.details},locale);
                   return (
-                    <article key={p.id} className="shop-card">
+                    <Localized key={p.id}><article className="shop-card">
                       <a href={`/shop/${p.id}`}>
                         {images[0] ? (
-                          <ResponsiveImage src={images[0]} sizes="(max-width: 700px) 90vw, (max-width: 1050px) 44vw, 400px" alt={p.title} loading="lazy" />
+                          <ResponsiveImage src={images[0]} sizes="(max-width: 700px) 90vw, (max-width: 1050px) 44vw, 400px" alt={copy.title} loading="lazy" />
                         ) : (
                           <div className="no-image">
                             تصویر محصول هنوز ثبت نشده
@@ -100,16 +105,16 @@ export default function Storefront({
                           : p.vertical}
                       </small>
                       <h2>
-                        <a href={`/shop/${p.id}`}>{p.title}</a>
+                        <a href={`/shop/${p.id}`}>{copy.title}</a>
                       </h2>
                       <p>
-                        {p.description.slice(0, 180)}
-                        {p.description.length > 180 ? "…" : ""}
+                        {copy.description.slice(0, 180)}
+                        {copy.description.length > 180 ? "…" : ""}
                       </p>
                       <strong>{amount(p.price)} تومان</strong>
                       <a href={`/shop/${p.id}`}>مشخصات کامل و شرایط خرید ←</a>
                       <AddToCart id={p.id} stock={p.stock} />
-                    </article>
+                    </article></Localized>
                   );
                 })}
               </div>
@@ -136,9 +141,9 @@ export default function Storefront({
                 بعدی
               </button>
             </div>
-          </>
+          </></Localized>
         )}
       </DataState>
-    </div>
+    </div></Localized>
   );
 }

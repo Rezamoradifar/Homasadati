@@ -4,18 +4,22 @@ import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
 import { createOrder, settleOrder } from "./finance";
 import { paymentRequest } from "./providers";
+import {publicCatalogDetails} from './catalog-model';
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
   const rows: Row[] = items.map((item) => {
     const p = one(
-      "SELECT id,title,price,stock,published,vertical,images FROM p_products WHERE id=?",
+      "SELECT p.id,p.title,p.price,p.stock,p.published,p.vertical,p.images,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.id=?",
       item.productId,
     );
     if (!p || !p.published) throw new ApiError(409, "product_unavailable");
     if (p.stock < item.quantity) throw new ApiError(409, "out_of_stock");
+    const {details,...product}=p;
+    const copy=publicCatalogDetails(details);
     return {
-      ...p,
+      ...product,
+      details:{titleEn:copy.titleEn,titleAr:copy.titleAr},
       quantity: item.quantity,
       lineTotal: p.price * item.quantity,
     };

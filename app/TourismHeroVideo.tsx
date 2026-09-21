@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../src/i18n/Localized";
 import {useEffect, useRef, useState} from "react";
 
 // The same film previously used in HeritageHero on the homepage.
@@ -52,7 +54,7 @@ export default function TourismHeroVideo() {
     catch { setNotice("پخش خودکار ممکن نشد؛ برای پخش دوباره لمس کنید."); }
   }
 
-  return <>
+  return <Localized><>
     <img className="tourism-video-poster" src="/assets/heritage/persepolis.webp" alt="بازآفرینی هنری تخت‌جمشید" fetchPriority="high" />
     <video ref={video} className="tourism-hero-video" muted loop playsInline
       src={source} preload="none" poster="/assets/heritage/persepolis.webp"
@@ -68,5 +70,5 @@ export default function TourismHeroVideo() {
       <a href="#tourism-media-credit">تخت‌جمشید · Terra X</a>
       <span role="status">{notice}</span>
     </div>
-  </>;
+  </></Localized>;
 }

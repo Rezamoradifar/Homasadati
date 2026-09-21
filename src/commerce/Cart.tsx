@@ -1,8 +1,13 @@
 "use client";
+
+import {useSiteLocale} from "../i18n/SiteLocale";
+import {catalogCopy} from "../i18n/catalog";
+import Localized from "../i18n/Localized";
 import { useEffect, useState, useRef } from "react";
 import { api, amount, RecordData } from "../platform/client";
 import { useBasket, writeBasket } from "./basket";
 export default function Cart() {
+  const {locale}=useSiteLocale();
   const { items, ready } = useBasket(),
     [quote, setQuote] = useState<RecordData | null>(null),
     [error, setError] = useState(""),
@@ -116,7 +121,7 @@ export default function Cart() {
     }
   };
   return (
-    <div className="shop-wrap">
+    <Localized><div className="shop-wrap">
       <div className="shop-heading">
         <span className="commerce-eyebrow">یک سبد، تمام خانواده هما</span>
         <h1>سبد خرید شما</h1>
@@ -190,13 +195,14 @@ export default function Cart() {
                   (r: RecordData) => r.id === item.productId,
                 ),
                 img = p ? JSON.parse(p.images)[0] : null;
+              const title=p?catalogCopy({title:p.title,details:p.details},locale).title:undefined;
               return (
-                <article className="cart-row" key={item.productId}>
+                <Localized key={item.productId}><article className="cart-row">
                   {img ? <img src={img} alt="" /> : <span>◇</span>}
                   <div>
                     <a href={`/shop/${item.productId}`}>
                       <strong>
-                        {p?.title || `مشاهده مشخصات کالای ${i + 1}`}
+                        {title || `مشاهده مشخصات کالای ${i + 1}`}
                       </strong>
                     </a>
                     <p>
@@ -216,7 +222,7 @@ export default function Cart() {
                     <label>
                       تعداد{" "}
                       <input
-                        aria-label={`تعداد ${p?.title || i + 1}`}
+                        aria-label={`تعداد ${title || i + 1}`}
                         disabled={busy}
                         type="number"
                         min="1"
@@ -231,7 +237,7 @@ export default function Cart() {
                     </label>
                     {p && <p>{amount(p.lineTotal)} تومان</p>}
                   </div>
-                </article>
+                </article></Localized>
               );
             })}
             <a href="/shop">← ادامه خرید</a>
@@ -269,9 +275,9 @@ export default function Cart() {
                     >
                       <option value="">آدرس را انتخاب کنید</option>
                       {addresses.map((a) => (
-                        <option key={a.id} value={a.id}>
+                        <Localized key={a.id}><option translate="no" value={a.id}>
                           {a.label} — {a.city} — {a.address}
-                        </option>
+                        </option></Localized>
                       ))}
                     </select>
                     <a href="/account?tab=addresses">ثبت / ویرایش آدرس</a>
@@ -306,6 +312,6 @@ export default function Cart() {
           </aside>
         </div>
       )}
-    </div>
+    </div></Localized>
   );
 }

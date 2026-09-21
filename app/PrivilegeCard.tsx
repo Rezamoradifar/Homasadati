@@ -1,9 +1,13 @@
+import {tierPriceRial,tomanToRial} from '../src/commerce/club-tiers';
+
+import Localized from "../src/i18n/Localized";
 type Props = {
   name: string;
   tone: string;
   level?: number;
   locale?: string;
   holder?: string;
+  creditToman?: number;
 };
 export default function PrivilegeCard({
   name,
@@ -11,10 +15,12 @@ export default function PrivilegeCard({
   level,
   locale = "fa",
   holder,
+  creditToman,
 }: Props) {
   const fa = locale !== "en";
+  const amountRial=creditToman!==undefined?tomanToRial(creditToman):holder?undefined:tierPriceRial(level);
   return (
-    <div className={"privilege-card rank-" + tone}>
+    <Localized><div className={"privilege-card rank-" + tone}>
       <div className="privilege-card-lines" aria-hidden="true" />
       <img
         className="privilege-watermark"
@@ -29,9 +35,10 @@ export default function PrivilegeCard({
         <img src="/assets/brand-mark.png" alt="" loading="lazy" />
       </div>
       <div className="privilege-title">
-        <small>{fa ? "باشگاه همراهان هما" : "HOMA MEMBERS CLUB"}</small>
+        <small>{fa ? "باشگاه مشتریان" : "CUSTOMERS CLUB"}</small>
         <h3>{name}</h3>
       </div>
+      {amountRial!==undefined&&<div className="privilege-price"><small>{creditToman!==undefined?"اعتبار اولیه کارت":"قیمت پیشنهادی کارت"}</small><strong><bdi>{amountRial.toLocaleString("fa-IR")}</bdi> <span>ریال</span></strong></div>}
       <div className="privilege-bottom">
         <div>
           <span>
@@ -43,7 +50,7 @@ export default function PrivilegeCard({
                 ? "مجموعه کارت‌های سفر"
                 : "TRAVEL COLLECTION"}
           </span>
-          <strong>{holder || (fa ? "همای سعادت" : "HOMAY SAADAT")}</strong>
+          <strong translate={holder ? "no" : undefined}>{holder || (fa ? "همای سعادت" : "HOMAY SAADAT")}</strong>
         </div>
         <span className="privilege-level" dir="ltr">
           {level ? (
@@ -56,6 +63,6 @@ export default function PrivilegeCard({
           )}
         </span>
       </div>
-    </div>
+    </div></Localized>
   );
 }

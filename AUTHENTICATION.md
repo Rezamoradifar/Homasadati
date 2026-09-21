@@ -42,3 +42,15 @@ Next.js was updated to the patched 15.5 line; dynamic route parameters now use t
 - [Cloudflare: server-side token validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/)
 - [OWASP: multifactor authentication](https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html)
 - [Next.js: version 15 migration](https://nextjs.org/docs/app/guides/upgrading/version-15)
+
+## SMS and Google activation information
+
+Current status: new accounts use the verified-email enrollment flow above. Existing mobile accounts can request a login/reset OTP through Kavenegar. Enabling provider credentials alone does **not** add phone-first enrollment. Google sign-in and its callback are not implemented in this release.
+
+For SMS, provide the final HTTPS domain, provider name, supported countries, and approved verification-template name. The existing integration uses Kavenegar `verify/lookup` with `receptor`, `token`, and `template`. Configure `kavenegar_key` and `sms_template` in superadmin service settings; the API key is encrypted and never returned. Confirm template approval, account balance and actual delivery using the provider account. `sms_sender` is for notification messages, not this lookup OTP flow. An international audience may require a different provider and routing.
+
+For Google, create a Web application OAuth client in Google Cloud under an account controlled by the site owner. Supply the public Client ID, final domain, support email and consent-screen brand information. The implementation must register an exact callback URI, validate issuer/audience/signature/expiry and state/nonce, and integrate verified identity with invitation selection, required profile/consents and existing two-factor requirements. Account linking must not silently merge accounts based only on an unverified email. No callback URL is active yet. Store the Client Secret only in server configuration when the integration is implemented; do not commit or send it in chat. The site's `/legal/privacy` and `/legal/terms` URLs are available for the consent screen.
+
+Turnstile domain restriction, public Site Key and private Secret Key are also required in production as described above. Share only public configuration in messages. Do not share Google account passwords, SMS API secrets, authenticator seeds or recovery codes.
+
+Reference: [Google OpenID Connect configuration](https://developers.google.com/identity/openid-connect/openid-connect).

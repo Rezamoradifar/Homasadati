@@ -1,3 +1,6 @@
+import {SiteLocaleProvider} from '../src/i18n/SiteLocale';
+import {siteLocale} from '../src/i18n/server';
+import {direction,loadDictionary} from '../src/i18n/core';
 import {all} from '../src/platform/schema';
 import {SiteSettingsProvider} from '../src/platform/SiteSettings';
 export const dynamic='force-dynamic';
@@ -19,5 +22,5 @@ import '@fontsource/manrope/500.css';
 import '@fontsource/manrope/600.css';
 import type {Metadata} from 'next';
 import type {ReactNode} from 'react';
-export const metadata: Metadata={title:'Homay Saadat | همای سعادت',description:'A more beautiful world. Travel, beauty, Persian craftsmanship and creative technology.'};
-export default function Layout({children}: {children:ReactNode}){const settings=Object.fromEntries(all("SELECT key,value FROM p_settings WHERE secret=0 AND key IN ('site_name','site_logo','site_contact')").map(r=>[r.key,r.value]));return <html lang="fa" dir="rtl" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html: "try{var t=localStorage.getItem('homa-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch(e){}"}}/></head><body><SiteSettingsProvider value={settings}>{children}</SiteSettingsProvider></body></html>;}
+export async function generateMetadata():Promise<Metadata>{const locale=await siteLocale();return {title:locale==='en'?'Homay Saadat Customers Club':locale==='ar'?'نادي عملاء هماي سعادت':'باشگاه مشتریان همای سعادت',description:locale==='en'?'The Homa Customers Club: travel, handicrafts, leather, beauty and technology.':locale==='ar'?'نادي عملاء هما؛ السفر والحرف اليدوية والجلود والجمال والتكنولوجيا.':'باشگاه مشتریان هما؛ گردشگری، صنایع‌دستی، چرم، زیبایی و فناوری.'};}
+export default async function Layout({children}: {children:ReactNode}){const locale=await siteLocale(),dictionary=await loadDictionary(locale);const settings=Object.fromEntries(all("SELECT key,value FROM p_settings WHERE secret=0 AND key IN ('site_name','site_logo','site_contact')").map(r=>[r.key,r.value]));return <html lang={locale} dir={direction(locale)} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html: "try{var t=localStorage.getItem('homa-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch(e){}"}}/></head><body><SiteLocaleProvider initialLocale={locale} initialDictionary={dictionary}><SiteSettingsProvider value={settings}>{children}</SiteSettingsProvider></SiteLocaleProvider></body></html>;}

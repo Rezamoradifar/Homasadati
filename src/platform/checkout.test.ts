@@ -263,3 +263,11 @@ it("rebuilds the old four-sector schema without losing referenced products or in
   migrateLeather(d);
   d.close();
 });
+it('includes only published title translations in a quote without changing money or exposing internal product data', () => {
+  run('INSERT INTO p_product_details(product_id,details,updated_at) VALUES(?,?,?)',first,JSON.stringify({titleEn:'Bag',titleAr:'حقيبة',cost:45000,supplier:'private supplier',lowStock:4}),now());
+  const quote=quoteCart(payload().items);
+  expect(quote.total).toBe(400000);
+  expect(quote.rows[0].details).toEqual({titleEn:'Bag',titleAr:'حقيبة'});
+  expect(JSON.stringify(quote)).not.toContain('private supplier');
+  expect(one('SELECT stock FROM p_products WHERE id=?',first)?.stock).toBe(10);
+});

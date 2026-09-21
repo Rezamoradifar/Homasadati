@@ -1,3 +1,5 @@
+
+import Localized from "../../src/i18n/Localized";
 import Cart from "../../src/commerce/Cart";
 import { CommerceShell } from "../../src/commerce/Shell";
 export const metadata = {
@@ -6,10 +8,10 @@ export const metadata = {
 };
 export default function CartPage() {
   return (
-    <CommerceShell>
+    <Localized><CommerceShell>
       <main id="commerce-main">
         <Cart />
       </main>
-    </CommerceShell>
+    </CommerceShell></Localized>
   );
 }

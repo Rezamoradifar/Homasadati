@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { useState } from "react";
 import { errors } from "./client";
 export function MediaInput({
@@ -12,7 +14,7 @@ export function MediaInput({
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   return (
-    <span className="portal-media-input" data-uploading={busy}>
+    <Localized><span className="portal-media-input" data-uploading={busy}>
       <textarea
         name={name}
         value={value}
@@ -86,13 +88,13 @@ export function MediaInput({
           )
           .slice(0, 12)
           .map((src, i) => (
-            <img key={i} src={src} alt={`تصویر ${i + 1}`} loading="lazy" />
+            <Localized key={i}><img src={src} alt={`تصویر ${i + 1}`} loading="lazy" /></Localized>
           ))}
       </span>
       <small>
         اولین تصویر، تصویر اصلی است. برای حذف یا تغییر ترتیب، خطوط نشانی‌ها را
         ویرایش کنید.
       </small>
-    </span>
+    </span></Localized>
   );
 }

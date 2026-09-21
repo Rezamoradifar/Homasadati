@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { MediaInput } from "./MediaInput";
 import { useEffect, useRef, useState, ReactNode } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
@@ -32,7 +34,7 @@ export function Form({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   return (
-    <form
+    <Localized><form
       className="portal-form"
       onSubmit={async (e) => {
         e.preventDefault();
@@ -79,12 +81,11 @@ export function Form({
           .filter((f) => !f.sectors || f.sectors.includes(sector))
           .map((f) =>
             f.type === "section" ? (
-              <h3 className="portal-form-section" key={f.name}>
+              <Localized key={f.name}><h3 className="portal-form-section">
                 {f.label}
-              </h3>
+              </h3></Localized>
             ) : (
-              <label
-                key={f.name}
+              <Localized key={f.name}><label
                 className={
                   (f.full ? "full " : "") +
                   (f.type === "checkbox" ? "check" : "")
@@ -121,9 +122,9 @@ export function Form({
                       <option value="">انتخاب کنید</option>
                     )}
                     {f.options?.map(([v, l]) => (
-                      <option key={v} value={v}>
+                      <Localized key={v}><option value={v}>
                         {l}
-                      </option>
+                      </option></Localized>
                     ))}
                   </select>
                 ) : f.type === "checkbox" ? (
@@ -153,7 +154,7 @@ export function Form({
                   />
                 )}{" "}
                 {f.hint && <small>{f.hint}</small>}
-              </label>
+              </label></Localized>
             ),
           )}
         {error && (
@@ -167,7 +168,7 @@ export function Form({
           </button>
         </div>
       </fieldset>
-    </form>
+    </form></Localized>
   );
 }
 export function Notice({
@@ -178,7 +179,7 @@ export function Notice({
   success?: string;
 }) {
   return (
-    <>
+    <Localized><>
       {error && (
         <div className="portal-error" role="alert">
           {error}
@@ -189,7 +190,7 @@ export function Notice({
           {success}
         </div>
       )}
-    </>
+    </></Localized>
   );
 }
 export function useData(path: string, refresh = 0) {
@@ -230,15 +231,15 @@ export function DataState({
 }) {
   if (state.loading)
     return (
-      <p role="status" className="portal-loading">
+      <Localized><p role="status" className="portal-loading">
         در حال دریافت اطلاعات…
-      </p>
+      </p></Localized>
     );
-  if (state.error) return <Notice error={state.error} />;
-  return state.data ? <>{children(state.data)}</> : null;
+  if (state.error) return <Localized><Notice error={state.error} /></Localized>;
+  return state.data ? <Localized><>{children(state.data)}</></Localized> : null;
 }
 export const status = (s: unknown) => (
-  <span
+  <Localized><span
     className={
       "portal-tag " +
       (["paid", "available", "delivered", "approved"].includes(String(s))
@@ -249,7 +250,7 @@ export const status = (s: unknown) => (
     }
   >
     {labels[String(s)] || String(s)}
-  </span>
+  </span></Localized>
 );
 export function Table({
   rows,
@@ -261,23 +262,23 @@ export function Table({
   actions?: (r: RecordData) => ReactNode;
 }) {
   if (!rows.length)
-    return <p className="portal-empty">هنوز موردی ثبت نشده است.</p>;
+    return <Localized><p className="portal-empty">هنوز موردی ثبت نشده است.</p></Localized>;
   return (
-    <div className="portal-table-wrap">
+    <Localized><div className="portal-table-wrap">
       <table className="portal-table">
         <thead>
           <tr>
             {columns.map(([k, l]) => (
-              <th key={k}>{l}</th>
+              <Localized key={k}><th>{l}</th></Localized>
             ))}
             {actions && <th>عملیات</th>}
           </tr>
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={r.id || r.day || i}>
+            <Localized key={r.id || r.day || i}><tr>
               {columns.map(([k, , type]) => (
-                <td key={k} title={String(r[k] ?? "")}>
+                <Localized key={k}><td title={String(r[k] ?? "")}>
                   {type === "money"
                     ? amount(r[k])
                     : type === "date"
@@ -289,18 +290,18 @@ export function Table({
                             ? "بله"
                             : "خیر"
                           : labels[r[k]] || String(r[k] ?? "—")}
-                </td>
+                </td></Localized>
               ))}
               {actions && (
                 <td>
                   <div className="portal-row">{actions(r)}</div>
                 </td>
               )}
-            </tr>
+            </tr></Localized>
           ))}
         </tbody>
       </table>
-    </div>
+    </div></Localized>
   );
 }
 export function Stat({
@@ -313,11 +314,11 @@ export function Stat({
   unit?: string;
 }) {
   return (
-    <div className="portal-stat">
+    <Localized><div className="portal-stat">
       <small>{label}</small>
       <strong>{value === null || value === "—" ? "—" : amount(value)}</strong>
       <em>{unit}</em>
-    </div>
+    </div></Localized>
   );
 }
 export function Filter({
@@ -334,7 +335,7 @@ export function Filter({
   statuses?: string[];
 }) {
   return (
-    <form
+    <Localized><form
       className="portal-filter"
       onSubmit={(e) => {
         e.preventDefault();
@@ -354,9 +355,9 @@ export function Filter({
           <select name="vertical">
             <option value="">همهٔ حوزه‌ها</option>
             {["tourism", "beauty", "craft", "ai", "leather"].map((v) => (
-              <option key={v} value={v}>
+              <Localized key={v}><option value={v}>
                 {labels[v]}
-              </option>
+              </option></Localized>
             ))}
           </select>
         </label>
@@ -367,9 +368,9 @@ export function Filter({
           <select name="status">
             <option value="">همه</option>
             {statuses.map((s) => (
-              <option key={s} value={s}>
+              <Localized key={s}><option value={s}>
                 {labels[s]}
-              </option>
+              </option></Localized>
             ))}
           </select>
         </label>
@@ -380,9 +381,9 @@ export function Filter({
           <select name="kind">
             <option value="">همه</option>
             {["direct", "level", "binary", "rank"].map((v) => (
-              <option key={v} value={v}>
+              <Localized key={v}><option value={v}>
                 {labels[v]}
-              </option>
+              </option></Localized>
             ))}
           </select>
         </label>
@@ -400,7 +401,7 @@ export function Filter({
         </>
       )}
       <button className="portal-button">اعمال فیلتر</button>
-    </form>
+    </form></Localized>
   );
 }
 export function Pagination({
@@ -413,7 +414,7 @@ export function Pagination({
   onChange: (n: number) => void;
 }) {
   return (
-    <div className="portal-pagination">
+    <Localized><div className="portal-pagination">
       <button
         className="portal-button"
         disabled={page <= 1}
@@ -429,7 +430,7 @@ export function Pagination({
       >
         بعدی
       </button>
-    </div>
+    </div></Localized>
   );
 }
 export function Listing({
@@ -454,7 +455,7 @@ export function Listing({
     [page, setPage] = useState(1);
   const state = useData(endpoint + "?" + q + "&page=" + page, refresh);
   return (
-    <>
+    <Localized><>
       <Filter
         {...filters}
         onChange={(v) => {
@@ -464,13 +465,13 @@ export function Listing({
       />
       <DataState state={state}>
         {(d) => (
-          <>
+          <Localized><>
             <Table rows={d.rows} columns={columns} actions={actions} />
             <Pagination page={page} more={d.hasMore} onChange={setPage} />
-          </>
+          </></Localized>
         )}
       </DataState>
-    </>
+    </></Localized>
   );
 }
 export function Modal({
@@ -488,7 +489,7 @@ export function Modal({
     return () => ref.current?.close();
   }, []);
   return (
-    <dialog
+    <Localized><dialog
       className="portal-dialog"
       ref={ref}
       onCancel={onClose}
@@ -512,7 +513,7 @@ export function Modal({
         </button>
       </div>
       {children}
-    </dialog>
+    </dialog></Localized>
   );
 }
 
@@ -528,7 +529,7 @@ export function DownloadButton({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   return (
-    <div>
+    <Localized><div>
       <button
         className="portal-button"
         disabled={busy}
@@ -566,6 +567,6 @@ export function DownloadButton({
           {error}
         </p>
       )}
-    </div>
+    </div></Localized>
   );
 }

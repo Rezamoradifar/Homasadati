@@ -1,3 +1,5 @@
+
+import Localized from "../src/i18n/Localized";
 import PrivilegeCard from "./PrivilegeCard";
 const ranks = [
   ["جوانه", "Javaneh", "jade"],
@@ -11,7 +13,7 @@ const ranks = [
 export default function ClubCards({ locale = "fa" }: { locale?: string }) {
   const fa = locale !== "en";
   return (
-    <section
+    <Localized><section
       className="club-preview content-section"
       aria-labelledby="ranks-title"
     >
@@ -33,10 +35,9 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
       </div>
       <div className="club-preview-grid">
         {ranks.map(([name, en, tone], i) => (
-          <a
+          <Localized key={tone}><a
             href={"/club/ranks#rank-" + (i + 1)}
             className={"rank-card rank-" + tone}
-            key={tone}
             aria-label={fa ? "رتبه " + name : en + " rank"}
           >
             <PrivilegeCard
@@ -45,14 +46,14 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
               level={i + 1}
               locale={locale}
             />
-          </a>
+          </a></Localized>
         ))}
       </div>
       <p className="club-preview-note">
         {fa
-          ? "کارت سفر به نام عضو واجد شرایط صادر می‌شود. شرایط احراز هر رتبه و وضعیت فعال‌بودن مزایا را در صفحه باشگاه ببینید."
-          : "Travel cards are issued to eligible members. See qualification requirements and benefit availability in the club."}
+          ? "قیمت‌های روی کارت، پیشنهاد عضویت به ریال هستند؛ خرید مستقیم کارت هنوز فعال نیست. اعتبار سفر و شرایط احراز هر رتبه را در جزئیات باشگاه ببینید."
+          : "Card prices are membership proposals in Iranian rials; direct card purchase is not yet enabled. See the club for travel credit and qualification details."}
       </p>
-    </section>
+    </section></Localized>
   );
 }

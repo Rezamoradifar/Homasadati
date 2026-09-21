@@ -1,3 +1,5 @@
+
+import Localized from "../../../src/i18n/Localized";
 import { notFound } from "next/navigation";
 import { one } from "../../../src/platform/schema";
 export const dynamic = "force-dynamic";
@@ -13,7 +15,7 @@ export default async function ContentPage({
   );
   if (!p) notFound();
   return (
-    <main
+    <Localized><main
       dir="rtl"
       style={{
         fontFamily: "Vazirmatn",
@@ -35,6 +37,6 @@ export default async function ContentPage({
       )}
       <div style={{ whiteSpace: "pre-wrap", marginBlock: 30 }}>{p.body}</div>
       <a href="/account">ورود به حساب کاربری</a>
-    </main>
+    </main></Localized>
   );
 }

@@ -1,3 +1,7 @@
+import {siteLocale} from "../../../src/i18n/server";
+import {catalogCopy,isPublicSpecification} from "../../../src/i18n/catalog";
+
+import Localized from "../../../src/i18n/Localized";
 import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -21,10 +25,10 @@ export async function generateMetadata({
   const params = await pendingParams;
   const p = get(params.id);
   if (!p) return {};
-  const d = publicCatalogDetails(p.details);
+  const d = publicCatalogDetails(p.details),copy=catalogCopy({...p,details:d} as {title:string;description:string;details:Record<string,unknown>},await siteLocale());
   return {
-    title: d.seoTitle || p.title,
-    description: d.seoDescription || p.description.slice(0, 170),
+    title: copy.title,
+    description: copy.description.slice(0, 170),
   };
 }
 export default async function ProductPage({
@@ -38,23 +42,23 @@ export default async function ProductPage({
   const d = publicCatalogDetails(p.details),
     images = JSON.parse(p.images),
     brand = isSector(p.vertical) ? brands[p.vertical] : null;
+  const copy=catalogCopy({...p,details:d} as {title:string;description:string;details:Record<string,unknown>},await siteLocale());
   return (
-    <CommerceShell>
+    <Localized><CommerceShell>
       <main id="commerce-main" className="shop-wrap">
         <p>
-          <a href="/shop">فروشگاه</a> / {brand?.name} / {p.title}
+          <a href="/shop">فروشگاه</a> / {brand?.name} / {copy.title}
         </p>
         <div className="shop-product">
           <div className="shop-product-images">
             {images.length ? (
               images.map((src: string, i: number) => (
-                <ResponsiveImage
-                  key={src}
+                <Localized key={src}><ResponsiveImage
                   src={src}
                   sizes="(max-width: 700px) 90vw, (max-width: 1400px) 44vw, 650px"
-                  alt={`${p.title} — تصویر ${i + 1}`}
+                  alt={`${copy.title} — تصویر ${i + 1}`}
                   loading={i ? "lazy" : "eager"}
-                />
+                /></Localized>
               ))
             ) : (
               <p className="shop-empty">تصویر محصول هنوز ثبت نشده است.</p>
@@ -64,8 +68,8 @@ export default async function ProductPage({
             <span className="commerce-eyebrow">
               {brand?.latin} / {d.sku || p.subtype}
             </span>
-            <h1>{p.title}</h1>
-            <p>{p.description}</p>
+            <h1>{copy.title}</h1>
+            <p>{copy.description}</p>
             <h2>{Number(p.price).toLocaleString("fa-IR")} تومان</h2>
             {d.comparePrice > p.price && (
               <del>{Number(d.comparePrice).toLocaleString("fa-IR")} تومان</del>
@@ -95,16 +99,16 @@ export default async function ProductPage({
           {extendedCatalogFields
             .filter(
               (f) =>
-                f.type !== "section" &&
+                f.type !== "section" && isPublicSpecification(f.name) &&
                 (!f.sectors || f.sectors.includes(p.vertical)),
             )
             .map((f) => {
               const value = d[f.name.replace("detail_", "")];
               return value ? (
-                <div key={f.name}>
+                <Localized key={f.name}><div>
                   <dt>{f.label}</dt>
                   <dd>{String(value)}</dd>
-                </div>
+                </div></Localized>
               ) : null;
             })}
         </dl>
@@ -113,6 +117,6 @@ export default async function ProductPage({
           استفاده کنید.
         </p>
       </main>
-    </CommerceShell>
+    </CommerceShell></Localized>
   );
 }

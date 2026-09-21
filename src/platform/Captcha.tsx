@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { useEffect, useRef, useState } from "react";
 import { api } from "./client";
 type Turnstile = {
@@ -97,7 +99,7 @@ export function Captcha({
     };
   }, [action, onReady, onToken, retry]);
   return (
-    <div className="auth-captcha">
+    <Localized><div className="auth-captcha">
       <div ref={container} />
       {error && (
         <div role="alert">
@@ -111,7 +113,7 @@ export function Captcha({
           </button>
         </div>
       )}
-    </div>
+    </div></Localized>
   );
 }
 export function useCaptcha(action: string) {
@@ -127,12 +129,11 @@ export function useCaptcha(action: string) {
       setEpoch((n) => n + 1);
     },
     element: (
-      <Captcha
-        key={action + epoch}
+      <Localized key={action + epoch}><Captcha
         action={action}
         onToken={setToken}
         onReady={setReady}
-      />
+      /></Localized>
     ),
   };
 }

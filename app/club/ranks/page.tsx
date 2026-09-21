@@ -1,3 +1,6 @@
+import {tomanToRial} from '../../../src/commerce/club-tiers';
+
+import Localized from "../../../src/i18n/Localized";
 import PrivilegeCard from "../../PrivilegeCard";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import { travelPresets } from "../../../src/platform/travel-presets";
@@ -6,7 +9,7 @@ export default function RanksPage() {
   const ranks = travelPresets();
   const number = (n: number) => n.toLocaleString("fa-IR");
   return (
-    <CommerceShell>
+    <Localized><CommerceShell>
       <main id="commerce-main" className="rank-page">
         <header>
           <p className="commerce-eyebrow">HOMA PRIVILEGE / SEVEN CHAPTERS</p>
@@ -15,7 +18,7 @@ export default function RanksPage() {
             از جوانه تا سیمرغ؛ کارت سفر شخصی با هویت ایرانی. اعتبار سفر غیرنقدی
             است و با موجودی کیف پول تفاوت دارد.
           </p>
-          <p className="rank-disclosure">
+          <p>قیمت‌های روی کارت، پیشنهاد عضویت به ریال هستند؛ خرید مستقیم کارت هنوز فعال نیست. اعتبار سفر و شرایط احراز هر رتبه را در جزئیات باشگاه ببینید.</p><p className="rank-disclosure">
             کارت‌های «پیشنهادی» هنوز مزیت فعال یا وعده اعتبار نیستند. تنها
             رتبه‌ای که مدیریت قانون صدور آن را فعال کرده باشد، با احراز شرایط
             قابل صدور است.
@@ -23,9 +26,8 @@ export default function RanksPage() {
         </header>
         <div className="rank-grid">
           {ranks.map((r) => (
-            <article
+            <Localized key={r.level}><article
               className={"rank-card rank-" + r.tone}
-              key={r.level}
               id={"rank-" + r.level}
             >
               <PrivilegeCard
@@ -39,20 +41,20 @@ export default function RanksPage() {
                 </strong>
                 <dl>
                   <dt>حداقل فروش شخصی تجمعی</dt>
-                  <dd>{number(r.threshold)} تومان</dd>
+                  <dd>{number(tomanToRial(r.threshold))} ریال</dd>
                   {r.group_threshold > 0 && (
                     <>
                       <dt>حداقل فروش گروهی تجمعی</dt>
-                      <dd>{number(r.group_threshold)} تومان</dd>
+                      <dd>{number(tomanToRial(r.group_threshold))} ریال</dd>
                     </>
                   )}
                   <dt>{r.active ? "اعتبار کارت" : "اعتبار پیشنهادی کارت"}</dt>
-                  <dd>{number(r.amount)} تومان</dd>
+                  <dd>{number(tomanToRial(r.amount))} ریال</dd>
                   <dt>مدت اعتبار پس از صدور</dt>
                   <dd>{number(r.duration)} روز</dd>
                 </dl>
               </div>
-            </article>
+            </article></Localized>
           ))}
         </div>
         <section>
@@ -76,6 +78,6 @@ export default function RanksPage() {
           </a>
         </section>
       </main>
-    </CommerceShell>
+    </CommerceShell></Localized>
   );
 }

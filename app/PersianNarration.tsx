@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../src/i18n/Localized";
 import { useEffect, useRef, useState } from "react";
 export const tourismNarration =
   "ایران را می‌توان آرام‌تر شناخت؛ در سایه ستون‌های پارسه، در کوچه‌های یزد و در گفت‌وگو با هنرمندی که نقش‌های کهن را به زندگی امروز می‌آورد. در همای سعادت، سفر فرصتی برای دیدن، شنیدن و همراه شدن با فرهنگ زنده ایران است. مقصد و زمان سفر را با کارگزار گردشگری هماهنگ کنید تا برنامه متناسب با علاقه، بودجه و نیاز شما بررسی شود. اعضای واجد شرایط باشگاه، می‌توانند برای استفاده از اعتبار کارت سفر خود، دست‌کم هفت روز کاری پیش از سفر درخواست هماهنگی ثبت کنند.";
@@ -48,7 +50,7 @@ export default function PersianNarration() {
     speechSynthesis.speak(u);
   }
   return (
-    <div className="persian-narration" lang="fa">
+    <Localized><div className="persian-narration" lang="fa">
       {file ? (
         <audio
           controls
@@ -71,6 +73,6 @@ export default function PersianNarration() {
         </>
       )}
       <p role="status">{error}</p>
-    </div>
+    </div></Localized>
   );
 }

@@ -1,4 +1,7 @@
 "use client";
+
+import {tomanToRial} from '../commerce/club-tiers';
+import Localized from "../i18n/Localized";
 import PrivilegeCard from "../../app/PrivilegeCard";
 import { useState } from "react";
 import { api, amount, date, RecordData, labels } from "./client";
@@ -37,7 +40,7 @@ export function TravelCards({
     [busy, setBusy] = useState(false),
     [key, setKey] = useState("");
   return (
-    <>
+    <Localized><>
       <p className="portal-notice">
         برای هر رتبه تنظیم‌شده، یک کارت غیرنقدی به نام شما صادر می‌شود؛ خرید
         پرداخت‌شده هما تمدن و پایان مهلت لغو آن لازم است. هفت روز کاری کامل پیش
@@ -65,7 +68,7 @@ export function TravelCards({
       <Notice error={error} />
       <DataState state={state}>
         {(d) => (
-          <>
+          <Localized><>
             {!d.cards.length ? (
               <p>
                 هنوز کارت واجدشرایطی صادر نشده است؛ مبلغ اعتبار هر رتبه باید
@@ -74,20 +77,21 @@ export function TravelCards({
             ) : (
               <div className="travel-card-grid">
                 {d.cards.map((c: RecordData) => (
-                  <article className="travel-credit-card" key={c.id}>
+                  <Localized key={c.id}><article className="travel-credit-card">
                     <PrivilegeCard
                       name={c.rank_name}
                       tone={c.tone || "obsidian"}
                       level={c.level}
                       holder={c.holder_name}
+                      creditToman={Number(c.issued)}
                     />
                     <div className="travel-card-details">
                       <strong className="travel-balance">
-                        {amount(c.available)} تومان
+                        {amount(tomanToRial(Number(c.available)))} ریال
                       </strong>
                       <p>
-                        اعتبار آزاد · رزرو: {amount(c.reserved)} · مصرف:{" "}
-                        {amount(c.spent)}
+                        اعتبار آزاد · رزرو: {amount(tomanToRial(Number(c.reserved)))} · مصرف:{" "}
+                        {amount(tomanToRial(Number(c.spent)))}
                       </p>
                       <p>انقضا: {c.expires_on}</p>
                       <code>{c.id}</code>
@@ -109,7 +113,7 @@ export function TravelCards({
                         هماهنگی سفر
                       </button>
                     </div>
-                  </article>
+                  </article></Localized>
                 ))}
               </div>
             )}
@@ -131,7 +135,7 @@ export function TravelCards({
                 <DataState state={catalog}>
                   {(products) =>
                     products.rows.length ? (
-                      <Form
+                      <Localized><Form
                         initial={{ amount: selected.available }}
                         fields={[
                           {
@@ -172,9 +176,9 @@ export function TravelCards({
                           setSelected(null);
                           onChange();
                         }}
-                      />
+                      /></Localized>
                     ) : (
-                      <p>هنوز سفر منتشرشده‌ای موجود نیست.</p>
+                      <Localized><p>هنوز سفر منتشرشده‌ای موجود نیست.</p></Localized>
                     )
                   }
                 </DataState>
@@ -211,7 +215,7 @@ export function TravelCards({
               columns={columns as any}
               actions={(r) =>
                 r.status === "requested" ? (
-                  <button
+                  <Localized><button
                     className="portal-button"
                     onClick={async () => {
                       setError("");
@@ -227,14 +231,14 @@ export function TravelCards({
                     }}
                   >
                     لغو درخواست و آزادسازی اعتبار
-                  </button>
+                  </button></Localized>
                 ) : null
               }
             />
-          </>
+          </></Localized>
         )}
       </DataState>
-    </>
+    </></Localized>
   );
 }
 export function AdminTravel({
@@ -249,9 +253,9 @@ export function AdminTravel({
   const state = useData("admin/travel", refresh),
     [selected, setSelected] = useState<RecordData | null>(null);
   return (
-    <DataState state={state}>
+    <Localized><DataState state={state}>
       {(d) => (
-        <>
+        <Localized><>
           <p className="portal-notice">
             اعتبار صادرشده آزاد: {amount(d.liability.available)} تومان ·
             رزروشده: {amount(d.liability.reserved)} · مصرف‌شده:{" "}
@@ -379,7 +383,7 @@ export function AdminTravel({
             columns={[["name", "عضو"], ...columns] as any}
             actions={(r) =>
               ["requested", "approved"].includes(r.status) ? (
-                <button onClick={() => setSelected(r)}>بررسی</button>
+                <Localized><button onClick={() => setSelected(r)}>بررسی</button></Localized>
               ) : null
             }
           />
@@ -441,8 +445,8 @@ export function AdminTravel({
               <button onClick={() => setSelected(null)}>بستن</button>
             </section>
           )}
-        </>
+        </></Localized>
       )}
-    </DataState>
+    </DataState></Localized>
   );
 }

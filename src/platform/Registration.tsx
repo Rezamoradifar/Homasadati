@@ -1,4 +1,8 @@
 "use client";
+
+import {LanguagePicker} from '../i18n/SiteLocale';
+import ThemeToggle from '../commerce/ThemeToggle';
+import Localized from "../i18n/Localized";
 import { useEffect, useRef, useState, FormEvent } from "react";
 import {
   Check,
@@ -116,7 +120,7 @@ export default function Registration({
     autoComplete = "off",
     required = true,
   ) => (
-    <label>
+    <Localized><label>
       {label}
       <input
         name={key}
@@ -132,7 +136,7 @@ export default function Registration({
         minLength={key === "password" || key === "confirm" ? 12 : undefined}
         onChange={(e) => set(key, e.target.value)}
       />
-    </label>
+    </label></Localized>
   );
   async function sendCode() {
     if (busy || cooldown || !sendCaptcha.ready) return;
@@ -256,7 +260,7 @@ export default function Registration({
     setNotice("");
   }
   return (
-    <div className="registration-shell" dir="rtl">
+    <Localized><div className="registration-shell" dir="rtl">
       <aside className="registration-story">
         <a href="/" aria-label="صفحه اصلی همای سعادت">
           <img src="/assets/brand-mark.png" alt="هما" />
@@ -264,7 +268,7 @@ export default function Registration({
         <p className="auth-eyebrow">HOMA · MEMBERS CLUB</p>
         <h2>
           همراهی شما،
-          <br />
+          <br />{" "}
           آغاز یک داستان.
         </h2>
         <p>یک حساب برای تجربه‌های سفر، هنر و مجموعه‌های هما.</p>
@@ -277,8 +281,8 @@ export default function Registration({
         </div>
       </aside>
       <div className="portal-card registration">
-        <div className="auth-topline">
-          <span>باشگاه همراهان همای سعادت</span>
+        <div className="registration-preferences"><LanguagePicker/><ThemeToggle/></div><div className="auth-topline">
+          <span>باشگاه مشتریان همای سعادت</span>
           <button type="button" onClick={onBack} disabled={busy}>
             حساب دارید؟ ورود <ArrowLeft size={15} />
           </button>
@@ -298,8 +302,7 @@ export default function Registration({
               ].map(([label, Icon], i) => {
                 const StepIcon = Icon as typeof Mail;
                 return (
-                  <li
-                    key={i}
+                  <Localized key={i}><li
                     aria-current={step === i ? "step" : undefined}
                     className={i < step ? "complete" : ""}
                   >
@@ -307,7 +310,7 @@ export default function Registration({
                       {i < step ? <Check size={17} /> : <StepIcon size={17} />}
                     </span>
                     <small>{label as string}</small>
-                  </li>
+                  </li></Localized>
                 );
               })}
             </ol>
@@ -433,8 +436,7 @@ export default function Registration({
                         "دعوت همراه خود را ثبت کنید.",
                       ],
                     ].map(([value, label, hint]) => (
-                      <label
-                        key={value}
+                      <Localized key={value}><label
                         className={invitationMode === value ? "selected" : ""}
                       >
                         <input
@@ -450,7 +452,7 @@ export default function Registration({
                           <strong>{label}</strong>
                           <small>{hint}</small>
                         </span>
-                      </label>
+                      </label></Localized>
                     ))}
                   </div>
                   {invitationMode === "with-code" && (
@@ -524,7 +526,7 @@ export default function Registration({
                   <legend>علاقه‌مندی‌ها (اختیاری)</legend>
                   <div className="interest-options">
                     {interests.map(([k, l]) => (
-                      <label key={k}>
+                      <Localized key={k}><label>
                         <input
                           type="checkbox"
                           checked={form.interests.includes(k)}
@@ -538,7 +540,7 @@ export default function Registration({
                           }
                         />
                         {l}
-                      </label>
+                      </label></Localized>
                     ))}
                   </div>
                 </fieldset>
@@ -709,6 +711,6 @@ export default function Registration({
           <span>تأیید ایمیل · رمزساز · حفاظت از اطلاعات</span>
         </div>
       </div>
-    </div>
+    </div></Localized>
   );
 }

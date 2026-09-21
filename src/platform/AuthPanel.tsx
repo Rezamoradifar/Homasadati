@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import Registration from "./Registration";
 import { useState, FormEvent, useEffect } from "react";
 import { ShieldCheck } from "lucide-react";
@@ -93,10 +95,10 @@ export default function AuthPanel({
   }
   if (mode === "register")
     return (
-      <Registration onLogin={onLogin} onBack={() => changeMode("login")} />
+      <Localized><Registration onLogin={onLogin} onBack={() => changeMode("login")} /></Localized>
     );
   return (
-    <div className="portal-card portal-auth auth-login" dir="rtl">
+    <Localized><div className="portal-card portal-auth auth-login" dir="rtl">
       <p className="auth-eyebrow">
         HOMA · {admin ? "ADMIN ACCESS" : "MEMBERS CLUB"}
       </p>
@@ -114,15 +116,14 @@ export default function AuthPanel({
           ...(!admin ? [["register", "ثبت‌نام"]] : []),
           ["reset", "بازیابی رمز"],
         ].map(([key, label]) => (
-          <button
-            key={key}
+          <Localized key={key}><button
             role="tab"
             aria-selected={mode === key}
             disabled={busy}
             onClick={() => changeMode(key)}
           >
             {label}
-          </button>
+          </button></Localized>
         ))}
       </div>
       <Notice error={error} success={notice} />
@@ -275,6 +276,6 @@ export default function AuthPanel({
       <p className="auth-fineprint">
         رمز عبور و کدهای تأیید را در اختیار دیگران قرار ندهید.
       </p>
-    </div>
+    </div></Localized>
   );
 }

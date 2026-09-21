@@ -1,6 +1,8 @@
 "use client";
+
+import Localized from "../src/i18n/Localized";
 import {useLocale} from "next-intl";
 import ClubCards from "./ClubCards";
 export default function ClubPreview() {
-  return <ClubCards locale={useLocale()} />;
+  return <Localized><ClubCards locale={useLocale()} /></Localized>;
 }

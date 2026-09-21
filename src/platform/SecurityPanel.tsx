@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { api, RecordData } from "./client";
@@ -13,18 +15,18 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
     [copied, setCopied] = useState(false);
   if (codes.length)
     return (
-      <div className="portal-card">
+      <Localized><div className="portal-card">
         <RecoveryCodes codes={codes} onContinue={onReauth} />
-      </div>
+      </div></Localized>
     );
   return (
-    <div className="portal-card security-panel">
+    <Localized><div className="portal-card security-panel">
       <h2>
         <ShieldCheck size={24} /> امنیت حساب
       </h2>
       <DataState state={status}>
         {(d) => (
-          <>
+          <Localized><>
             <p className={"security-status " + (d.twoFactor ? "enabled" : "")}>
               {d.twoFactor
                 ? "ورود دومرحله‌ای فعال است"
@@ -57,8 +59,7 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
                     ]
                   : []),
               ].map(([key, label]) => (
-                <button
-                  key={key}
+                <Localized key={key}><button
                   className={
                     "portal-button " + (action === key ? "" : "secondary")
                   }
@@ -69,7 +70,7 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
                   }}
                 >
                   {label}
-                </button>
+                </button></Localized>
               ))}
             </div>
             {action && (
@@ -172,9 +173,9 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
                 />
               </>
             )}
-          </>
+          </></Localized>
         )}
       </DataState>
-    </div>
+    </div></Localized>
   );
 }

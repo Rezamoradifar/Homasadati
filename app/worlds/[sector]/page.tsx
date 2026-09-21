@@ -1,3 +1,5 @@
+
+import Localized from "../../../src/i18n/Localized";
 import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
 import { BrandCollection } from "../../VisualCollections";
 import TourismMedia from "../../TourismMedia";
@@ -33,7 +35,7 @@ export default async function BrandPage({
     b = brands[k],
     s = stories[k];
   return (
-    <CommerceShell>
+    <Localized><CommerceShell>
       <main id="commerce-main">
         <section
           className={`brand-hero ${k}`}
@@ -98,10 +100,10 @@ export default async function BrandPage({
           <aside>
             <nav aria-label="فهرست محتوای این صفحه">
               {s.chapters.map((c, i) => (
-                <a key={c.id} href={`#${c.id}`}>
+                <Localized key={c.id}><a href={`#${c.id}`}>
                   <span>{String(i + 1).padStart(2, "0")}</span>
                   {c.title}
-                </a>
+                </a></Localized>
               ))}
               <a href="#economy-model">مدل درآمد و هزینه</a>
               <a href="#questions">پرسش‌های رایج</a>
@@ -109,18 +111,18 @@ export default async function BrandPage({
           </aside>
           <div>
             {s.chapters.map((c, i) => (
-              <section className="story-chapter" id={c.id} key={c.id}>
+              <Localized key={c.id}><section className="story-chapter" id={c.id}>
                 <span className="chapter-number">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h2>{c.title}</h2>
                 {c.paragraphs.map((p, j) => (
-                  <p key={j}>{p}</p>
+                  <Localized key={j}><p>{p}</p></Localized>
                 ))}
                 {c.points && (
                   <ul>
                     {c.points.map((p) => (
-                      <li key={p}>{p}</li>
+                      <Localized key={p}><li>{p}</li></Localized>
                     ))}
                   </ul>
                 )}
@@ -134,7 +136,7 @@ export default async function BrandPage({
                     منبع: {c.source.label} ↗
                   </a>
                 )}
-              </section>
+              </section></Localized>
             ))}
           </div>
         </div>
@@ -147,14 +149,14 @@ export default async function BrandPage({
               ["هزینه‌هایی که باید دید", s.economics.costs],
               ["شاخص‌های قابل سنجش", s.economics.metrics],
             ].map(([title, items]) => (
-              <article key={String(title)}>
+              <Localized key={String(title)}><article>
                 <h3>{title}</h3>
                 <ul>
                   {(items as string[]).map((x) => (
-                    <li key={x}>{x}</li>
+                    <Localized key={x}><li>{x}</li></Localized>
                   ))}
                 </ul>
-              </article>
+              </article></Localized>
             ))}
           </div>
         </section>
@@ -162,10 +164,10 @@ export default async function BrandPage({
         <section id="questions" className="brand-faq">
           <h2>پرسش‌های رایج</h2>
           {s.faq.map(([q, a]) => (
-            <details key={q}>
+            <Localized key={q}><details>
               <summary>{q}</summary>
               <p>{a}</p>
-            </details>
+            </details></Localized>
           ))}
           <p className="source-date">
             آخرین بررسی محتوای مستند: ۲۰ سپتامبر ۲۰۲۶. تحلیل اقتصادی این صفحه
@@ -185,14 +187,14 @@ export default async function BrandPage({
             {sectorKeys
               .filter((x) => x !== k)
               .map((x) => (
-                <a href={`/worlds/${x}`} key={x}>
+                <Localized key={x}><a href={`/worlds/${x}`}>
                   <strong>{brands[x].name}</strong>
                   <span>{brands[x].label} ←</span>
-                </a>
+                </a></Localized>
               ))}
           </div>
         </section>
       </main>
-    </CommerceShell>
+    </CommerceShell></Localized>
   );
 }

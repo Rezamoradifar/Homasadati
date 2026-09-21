@@ -232,3 +232,70 @@ html[data-theme="dark"] .shop-product > div > img {
     min-height: 48px;
   }
 }
+
+/* Customer-club identity and a consistent touch target on every screen. */
+html .theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px 9px;
+  flex-shrink: 0;
+  border: 1px solid #a9905c70;
+  border-radius: 999px;
+  background: #e9e5d9;
+  color: #173e36;
+}
+html .theme-toggle .theme-track {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: space-around;
+  direction: ltr;
+  width: 46px;
+  height: 26px;
+  border-radius: 99px;
+  background: #d1d4c8;
+}
+html .theme-track svg {position: relative; z-index: 1;}
+html .theme-thumb {
+  position: absolute;
+  inset: 2px auto 2px 2px;
+  width: 22px;
+  border-radius: 50%;
+  background: #fffaf0;
+  box-shadow: 0 1px 4px #102c2a33;
+  transition: transform .18s ease;
+}
+html .theme-toggle[aria-pressed="true"] .theme-thumb {transform: translateX(20px);background:#cfb57b;}
+html .theme-label {font-size:12px;line-height:1;}
+html[data-theme="dark"] .theme-toggle {background:#193b34;color:#f3ead3;}
+html[data-theme="dark"] .theme-track {background:#102722;}
+html .site-language-picker select {min-height:44px;max-width:110px;border:1px solid #a9905c70;border-radius:8px;background:transparent;color:inherit;padding:6px;font:inherit;font-size:14px;}
+html .registration-preferences {display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:20px;}
+html .privilege-card, html .travel-credit-card .privilege-card {grid-template-rows:auto 1fr auto auto;aspect-ratio:auto;min-height:250px;gap:9px;}
+html .privilege-card.rank-jade {--card-base:#6a3427;--card-glow:#b8784e;--card-foil:#fff1d5;}
+html .privilege-card.rank-forest {--card-base:#102e22;--card-glow:#315d42;--card-foil:#f3e6c5;}
+html .privilege-price {display:grid;gap:3px;border-top:1px solid #e4cfa533;padding-top:9px;}
+html .privilege-price small {font-size:9px;opacity:.85;}
+html .privilege-price strong {font-family:Vazirmatn,Manrope,sans-serif;font-size:clamp(17px,1.6vw,24px);line-height:1.35;white-space:nowrap;}
+html .privilege-price strong > span {font-size:11px;font-weight:400;}
+html .privilege-bottom {gap:8px;}
+html .site-header .brand small {font-family:Vazirmatn,Manrope,sans-serif;letter-spacing:0;font-size:12px;}
+html[dir="ltr"] .registration-shell,html[dir="ltr"] .portal {direction:ltr;}
+html[dir="ltr"] .registration-story {text-align:left;}
+html .commerce-header > div {display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+@media(max-width:600px){
+ html .site-header .brand {flex:1;}
+ html .site-header .brand strong {font-size:clamp(16px,4.8vw,20px)!important;}
+ html .header-actions {gap:4px!important;}
+ html .header-actions .theme-toggle {padding:4px;min-width:54px;}
+ html .theme-toggle .theme-label {display:none;}
+ html .header-actions .theme-toggle>.theme-track {display:flex!important;}
+ html .privilege-price strong {font-size:clamp(18px,5.6vw,24px);}
+ html .site-header .brand small {font-size:10px!important;}
+ html .portal-header {flex-wrap:wrap;}
+}
+@media(prefers-reduced-motion:reduce){html .theme-thumb {transition:none;}}

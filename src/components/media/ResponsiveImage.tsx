@@ -1,5 +1,7 @@
 "use client";
 import Image from "next/image";
+import {useSiteLocale} from "../../i18n/SiteLocale";
+import {translateText} from "../../i18n/core";
 import { forwardRef, type ImgHTMLAttributes } from "react";
 import { imageDimensions } from "./image-dimensions";
 type Props = Omit<
@@ -22,6 +24,8 @@ const ResponsiveImage = forwardRef<HTMLImageElement, Props>(
     },
     ref,
   ) {
+    const {locale,dictionary}=useSiteLocale();
+    alt=translateText(alt,locale,dictionary);
     const dimensions = src ? imageDimensions[src] : undefined;
     if (!src || !dimensions || Math.max(...dimensions) <= 256)
       return (

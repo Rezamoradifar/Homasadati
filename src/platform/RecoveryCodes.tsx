@@ -1,4 +1,6 @@
 "use client";
+
+import Localized from "../i18n/Localized";
 import { useState } from "react";
 export function RecoveryCodes({
   codes,
@@ -10,7 +12,7 @@ export function RecoveryCodes({
   const [saved, setSaved] = useState(false),
     [copied, setCopied] = useState(false);
   return (
-    <section className="recovery-codes" aria-labelledby="recovery-heading">
+    <Localized><section className="recovery-codes" aria-labelledby="recovery-heading">
       <p className="auth-eyebrow">حفاظت از دسترسی شما</p>
       <h2 id="recovery-heading">کدهای بازیابی را نگه دارید</h2>
       <p>
@@ -20,7 +22,7 @@ export function RecoveryCodes({
       </p>
       <div className="recovery-grid" dir="ltr">
         {codes.map((code) => (
-          <code key={code}>{code}</code>
+          <Localized key={code}><code>{code}</code></Localized>
         ))}
       </div>
       <div className="auth-actions">
@@ -72,6 +74,6 @@ export function RecoveryCodes({
       <button className="portal-button" disabled={!saved} onClick={onContinue}>
         ادامه
       </button>
-    </section>
+    </section></Localized>
   );
 }
