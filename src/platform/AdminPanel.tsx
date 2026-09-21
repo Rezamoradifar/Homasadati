@@ -18,9 +18,13 @@ import {
 } from "./Widgets";
 import { commissionColumns, orderColumns, Network } from "./UserPanel";
 import { policySchema, productSchema } from "./validation";
-const verticals: [string, string][] = ["tourism", "beauty", "craft", "ai", "leather"].map(
-  (k) => [k, labels[k]],
-);
+const verticals: [string, string][] = [
+  "tourism",
+  "beauty",
+  "craft",
+  "ai",
+  "leather",
+].map((k) => [k, labels[k]]);
 const catalogFields: Field[] = [
   { name: "title", label: "عنوان" },
   { name: "vertical", label: "حوزه", type: "select", options: verticals },
@@ -907,8 +911,30 @@ export function AdminUsers({
                   <Stat label="پورسانت در انتظار" value={d.wallet.pending} />
                 </div>
                 <p>شناسه کاربر: {d.user.id}</p>
-                {d.memberDetails&&<div><h3>مشخصات تکمیلی</h3><p>{JSON.parse(d.memberDetails.details).firstName} {JSON.parse(d.memberDetails.details).lastName} · {JSON.parse(d.memberDetails.details).country} / {JSON.parse(d.memberDetails.details).city}</p><p>{JSON.parse(d.memberDetails.details).occupation}</p><p>{d.memberDetails.contact_verified_at?'تأیید راه تماس ثبت شده':'بدون سابقه تأیید در فرم جدید'} · احراز رسمی مدارک انجام نشده</p></div>}
-                {d.consent&&<p>پذیرش قوانین: {d.consent.version} · {date(d.consent.accepted_at)}</p>}
+                {d.memberDetails && (
+                  <div>
+                    <h3>مشخصات تکمیلی</h3>
+                    <p>
+                      {JSON.parse(d.memberDetails.details).firstName}{" "}
+                      {JSON.parse(d.memberDetails.details).lastName} ·{" "}
+                      {JSON.parse(d.memberDetails.details).country} /{" "}
+                      {JSON.parse(d.memberDetails.details).city}
+                    </p>
+                    <p>{JSON.parse(d.memberDetails.details).occupation}</p>
+                    <p>
+                      {d.memberDetails.contact_verified_at
+                        ? "تأیید راه تماس ثبت شده"
+                        : "بدون سابقه تأیید در فرم جدید"}{" "}
+                      · احراز رسمی مدارک انجام نشده
+                    </p>
+                  </div>
+                )}
+                {d.consent && (
+                  <p>
+                    پذیرش قوانین: {d.consent.version} ·{" "}
+                    {date(d.consent.accepted_at)}
+                  </p>
+                )}
                 <p>رتبه: {d.rank.current?.name || "بدون رتبه"}</p>
                 <h3>سفارش‌ها</h3>
                 <Table rows={d.orders} columns={orderColumns} />
@@ -1052,6 +1078,8 @@ export function Settings({
               options: [
                 ["resend_key", "کلید API ایمیل Resend"],
                 ["email_from", "ایمیل فرستندهٔ تأییدشده"],
+                ["turnstile_site_key", "کلید عمومی کپچا Turnstile"],
+                ["turnstile_secret_key", "کلید محرمانه کپچا Turnstile"],
                 ["kavenegar_key", "کلید API پیامک کاوه‌نگار"],
                 ["sms_template", "نام الگوی OTP پیامک"],
                 ["sms_sender", "شماره فرستنده پیامک اعلان"],

@@ -1,6 +1,21 @@
-import {installTravelPresets} from './travel-presets';
-import {cardsFor,issueTravelCards,travelCalendar,saveTravelRule,saveTravelCalendar,requestTravel,reviewTravel} from "./travel";
-import {registrationSchema,referralCode,memberDetailsSchema} from "./registration-model";
+import { installTravelPresets } from "./travel-presets";
+import {
+  cardsFor,
+  issueTravelCards,
+  travelCalendar,
+  saveTravelRule,
+  saveTravelCalendar,
+  requestTravel,
+  reviewTravel,
+} from "./travel";
+import {
+  registrationSchema,
+  referralCode,
+  memberDetailsSchema,
+  registrationEmail,
+  verifyEmailSchema,
+} from "./registration-model";
+import { captchaConfig, verifyCaptcha } from "./captcha";
 import {
   cartItemsSchema,
   checkoutSchema,
@@ -12,7 +27,7 @@ import {
 import { media } from "./media";
 import { operations } from "./operations";
 import { publicCatalogDetails } from "./catalog-model";
-import { randomUUID } from "node:crypto";
+import { randomUUID, randomBytes } from "node:crypto";
 import { z } from "zod";
 import {
   ApiError,
@@ -50,6 +65,11 @@ import {
   userOf,
   verifyTotp,
   ipOf,
+  decrypt,
+  matchingTotp,
+  recoveryCodes,
+  verifySecondFactor,
+  dummyPassword,
 } from "./security";
 import {
   sendOtp,
@@ -131,8 +151,8 @@ function paged(sql: string, args: unknown[], page: number) {
   const rows = all(sql + " LIMIT 31 OFFSET ?", ...args, (page - 1) * 30);
   return { rows: rows.slice(0, 30), hasMore: rows.length > 30, page };
 }
-function respondSession(user: Row, req: Request) {
-  const response = json({ user: publicUser(user) });
+function respondSession(user: Row, req: Request, extra: Row = {}) {
+  const response = json({ user: publicUser(user), ...extra });
   response.headers.set(
     "Set-Cookie",
     sessionCookie(session(user.id, req.headers.get("user-agent") || "")),
@@ -187,9 +207,29 @@ function signup(data: Row, ip: string) {
       ip,
     );
     run("INSERT INTO p_wallets(user_id) VALUES(?)", user);
-    run("INSERT INTO p_member_details VALUES(?,?,?,?)",user,JSON.stringify(data.details),now(),now());
-    run("INSERT INTO p_consents VALUES(?,?,?,?,?,?,?,?)",randomUUID(),user,data.termsVersion,1,1,1,Number(data.marketingConsent),now());
-    run("UPDATE p_users SET preferences=? WHERE id=?",JSON.stringify({email:data.marketingConsent,sms:false,inApp:true}),user);
+    run(
+      "INSERT INTO p_member_details VALUES(?,?,?,?)",
+      user,
+      JSON.stringify(data.details),
+      now(),
+      now(),
+    );
+    run(
+      "INSERT INTO p_consents VALUES(?,?,?,?,?,?,?,?)",
+      randomUUID(),
+      user,
+      data.termsVersion,
+      1,
+      1,
+      1,
+      Number(data.marketingConsent),
+      now(),
+    );
+    run(
+      "UPDATE p_users SET preferences=? WHERE id=?",
+      JSON.stringify({ email: data.marketingConsent, sms: false, inApp: true }),
+      user,
+    );
     if (
       process.env.TRUST_PROXY === "1" &&
       one(
@@ -237,6 +277,7 @@ const loginSchema = z.object({
     .string()
     .regex(/^\d{6}$/)
     .optional(),
+  recoveryCode: z.string().max(30).optional(),
 });
 async function auth(req: Request, path: string[], data: Row) {
   const action = path[1];
@@ -249,29 +290,119 @@ async function auth(req: Request, path: string[], data: Row) {
       })
       .parse(data);
     if (d.purpose === "contact") userOf(req);
+    else await verifyCaptcha(data.captchaToken, "otp");
+    if (d.purpose === "register") registrationEmail.parse(d.target);
     return json(await sendOtp(d.target, d.purpose));
+  }
+  if (action === "verify-email") {
+    const d = verifyEmailSchema.parse(data);
+    await verifyCaptcha(d.captchaToken, "verify_email");
+    const secret = newTotpSecret(),
+      encrypted = encrypt(secret),
+      token = randomBytes(32).toString("hex");
+    consumeOtp(d.challenge, d.target, "register", d.code);
+    // Account existence is disclosed only to a person who verified this mailbox.
+    if (activeUser(d.target)) throw new ApiError(409, "account_exists");
+    atomic(() => {
+      run(
+        "DELETE FROM p_enrollments WHERE target=? OR expires<?",
+        d.target,
+        Date.now(),
+      );
+      run(
+        "INSERT INTO p_enrollments VALUES(?,?,?,?,0,0)",
+        hash(token),
+        d.target,
+        encrypted,
+        Date.now() + 900000,
+      );
+    });
+    return json({
+      verificationToken: token,
+      secret,
+      expiresIn: 900,
+      uri: `otpauth://totp/Homa:${encodeURIComponent(d.target)}?secret=${secret}&issuer=Homa&algorithm=SHA1&digits=6&period=30`,
+    });
   }
   if (action === "register") {
     const d = registrationSchema.parse(data);
-    // Keep OTP failure counters outside a transaction. An invalid sponsor must not consume a valid code.
-    if(d.referral && !one("SELECT id FROM p_users WHERE referral_code=? AND blocked=0",d.referral)) throw new ApiError(400,"invalid_referral");
-    if(activeUser(d.target)) throw new ApiError(409,"account_exists");
-    consumeOtp(d.challenge, d.target, "register", d.code);
-    return respondSession(signup(d, ipOf(req)), req);
+    await verifyCaptcha(d.captchaToken, "register");
+    if (
+      d.referral &&
+      !one(
+        "SELECT id FROM p_users WHERE referral_code=? AND blocked=0",
+        d.referral,
+      )
+    )
+      throw new ApiError(400, "invalid_referral");
+    // Reserve each attempt atomically across workers. A wrong TOTP must not
+    // roll back this counter with the later account-creation transaction.
+    const enrollment = atomic(() => {
+      const pending = one(
+        "SELECT * FROM p_enrollments WHERE token_hash=? AND target=?",
+        hash(d.verificationToken),
+        d.target,
+      );
+      if (
+        !pending ||
+        pending.used ||
+        pending.expires <= Date.now() ||
+        pending.attempts >= 5
+      )
+        throw new ApiError(401, "enrollment_expired");
+      run(
+        "UPDATE p_enrollments SET attempts=attempts+1 WHERE token_hash=?",
+        pending.token_hash,
+      );
+      return pending;
+    });
+    const step = matchingTotp(decrypt(enrollment.secret), d.totp);
+    if (step === undefined) throw new ApiError(401, "invalid_otp");
+    const result = atomic(() => {
+      const claimed = run(
+        "UPDATE p_enrollments SET used=1 WHERE token_hash=? AND used=0 AND expires>?",
+        enrollment.token_hash,
+        Date.now(),
+      );
+      if (!claimed.changes) throw new ApiError(401, "enrollment_expired");
+      const u = signup(d, ipOf(req));
+      run(
+        "UPDATE p_users SET otp_secret=?,otp_last=? WHERE id=?",
+        enrollment.secret,
+        step,
+        u.id,
+      );
+      u.otp_secret = enrollment.secret;
+      audit(u.id, "security.enrolled", u.id, null, {
+        emailVerified: true,
+        twoFactor: true,
+        invitationMode: d.invitationMode,
+      });
+      return { u, codes: recoveryCodes(u.id) };
+    });
+    return respondSession(result.u, req, { recoveryCodes: result.codes });
   }
   if (action === "login") {
     const d = loginSchema.parse(data);
+    await verifyCaptcha(data.captchaToken, "login");
     limit("login:" + hash(d.target), 8, 300);
     const u = activeUser(d.target);
-    if (!u || u.blocked) throw new ApiError(401, "invalid_credentials");
     if (d.password) {
-      if (!checkPassword(d.password, u.password))
+      const valid = checkPassword(d.password, u?.password || dummyPassword);
+      if (!valid || !u || u.blocked)
         throw new ApiError(401, "invalid_credentials");
     } else {
       if (!d.challenge || !d.code) throw new ApiError(400, "invalid_input");
       consumeOtp(d.challenge, d.target, "login", d.code);
+      if (!u || u.blocked) throw new ApiError(401, "invalid_credentials");
     }
-    verifyTotp(u, d.totp || "");
+    verifySecondFactor(u!, d.totp || "", d.recoveryCode);
+    if (d.password && !u!.password.startsWith("s2:"))
+      run(
+        "UPDATE p_users SET password=? WHERE id=?",
+        passwordHash(d.password),
+        u!.id,
+      );
     run("UPDATE p_users SET last_seen=? WHERE id=?", now(), u.id);
     return respondSession(u, req);
   }
@@ -283,12 +414,14 @@ async function auth(req: Request, path: string[], data: Row) {
         challenge: id,
         code: z.string().regex(/^\d{6}$/),
         totp: z.string().optional(),
+        recoveryCode: z.string().max(30).optional(),
       })
       .parse(data);
+    await verifyCaptcha(data.captchaToken, "reset");
     consumeOtp(d.challenge, d.target, "reset", d.code);
     const u = activeUser(d.target);
     if (!u || u.blocked) throw new ApiError(401, "invalid_credentials");
-    verifyTotp(u, d.totp || "");
+    verifySecondFactor(u, d.totp || "", d.recoveryCode);
     atomic(() => {
       run(
         "UPDATE p_users SET password=? WHERE id=?",
@@ -471,6 +604,8 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         key: z.enum([
           "resend_key",
           "email_from",
+          "turnstile_site_key",
+          "turnstile_secret_key",
           "kavenegar_key",
           "sms_template",
           "sms_sender",
@@ -487,6 +622,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     if (d.key === "site_logo") httpsImage.parse(d.value);
     const secret = [
       "resend_key",
+      "turnstile_secret_key",
       "kavenegar_key",
       "zarinpal_merchant",
     ].includes(d.key);
@@ -691,8 +827,16 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       if (!member) throw new ApiError(404, "not_found");
       return json({
         user: publicUser(member),
-        memberDetails:one("SELECT details,contact_verified_at FROM p_member_details WHERE user_id=?",entity)||null,
-        consent:one("SELECT version,accepted_at FROM p_consents WHERE user_id=? ORDER BY accepted_at DESC LIMIT 1",entity)||null,
+        memberDetails:
+          one(
+            "SELECT details,contact_verified_at FROM p_member_details WHERE user_id=?",
+            entity,
+          ) || null,
+        consent:
+          one(
+            "SELECT version,accepted_at FROM p_consents WHERE user_id=? ORDER BY accepted_at DESC LIMIT 1",
+            entity,
+          ) || null,
         wallet: wallet(entity),
         rank: rankProgress(entity),
         orders: all(
@@ -910,20 +1054,38 @@ export async function handle(req: Request, path: string[]) {
       get = method === "GET";
     if (path[0] === "media") return await media(req, path);
     let data: Row = {};
+    if (path.join("/") === "auth/config" && get) return json(captchaConfig());
     if (!get) {
       sameOrigin(req);
       data = await body(req, 65536);
     }
-    if(path.join('/')==='referrals/check' && method==='POST') {
-      limit('referral-check:'+ipOf(req),15,300);
-      const code=referralCode.parse(data.code);
-      return json({valid:!!one("SELECT id FROM p_users WHERE referral_code=? AND blocked=0",code)});
+    if (path.join("/") === "referrals/check" && method === "POST") {
+      limit("referral-check:" + ipOf(req), 15, 300);
+      const code = referralCode.parse(data.code);
+      return json({
+        valid: !!one(
+          "SELECT id FROM p_users WHERE referral_code=? AND blocked=0",
+          code,
+        ),
+      });
     }
-    if(path.join('/')==='income-plan' && get) {
-      const raw=setting('commission_policy');
-      if(!raw) return json({configured:false});
-      const p=policy();
-      return json({configured:true,directBps:p.directBps,levels:p.levels,binaryBps:p.binaryBps,maxPayoutBps:p.maxPayoutBps,withdrawMin:p.withdrawMin,withdrawMax:p.withdrawMax,paused:p.paused,ranks:all('SELECT name,personal_threshold,group_threshold,bonus_bps FROM p_ranks ORDER BY personal_threshold,group_threshold')});
+    if (path.join("/") === "income-plan" && get) {
+      const raw = setting("commission_policy");
+      if (!raw) return json({ configured: false });
+      const p = policy();
+      return json({
+        configured: true,
+        directBps: p.directBps,
+        levels: p.levels,
+        binaryBps: p.binaryBps,
+        maxPayoutBps: p.maxPayoutBps,
+        withdrawMin: p.withdrawMin,
+        withdrawMax: p.withdrawMax,
+        paused: p.paused,
+        ranks: all(
+          "SELECT name,personal_threshold,group_threshold,bonus_bps FROM p_ranks ORDER BY personal_threshold,group_threshold",
+        ),
+      });
     }
     if (path[0] === "auth" && method === "POST")
       return await auth(req, path, data);
@@ -994,33 +1156,97 @@ export async function handle(req: Request, path: string[]) {
             ),
       });
     }
-    if(path[0]==='admin'&&path[1]==='travel'){
-      const actor=userOf(req,['superadmin','finance','support']);
-      if(get)return json({liability:one('SELECT COALESCE(SUM(available),0) AS available,COALESCE(SUM(reserved),0) AS reserved,COALESCE(SUM(spent),0) AS spent FROM p_travel_cards'),rules:all('SELECT t.*,r.name FROM p_travel_rules t JOIN p_ranks r ON r.id=t.rank_id'),ranks:all('SELECT id,name FROM p_ranks ORDER BY name'),calendar:travelCalendar(),rows:all('SELECT t.*,u.name FROM p_travel_requests t JOIN p_users u ON u.id=t.user_id ORDER BY t.created_at DESC LIMIT 100')});
-      limit('travel-admin:'+actor.id,60,300);
-      if(path[2]==='review'){if(data.status==='redeemed'&&actor.role==='support')throw new ApiError(403,'forbidden');return json(reviewTravel(actor.id,data));}
-      if(!['superadmin','finance'].includes(actor.role))throw new ApiError(403,'forbidden');
-      if(path[2]==='presets'){return json({presets:installTravelPresets(actor.id)});}
-      if(path[2]==='rules'){saveTravelRule(actor.id,data);return json({ok:true});}
-      if(path[2]==='calendar'){saveTravelCalendar(actor.id,data);return json({ok:true});}
-      throw new ApiError(404,'not_found');
+    if (path[0] === "admin" && path[1] === "travel") {
+      const actor = userOf(req, ["superadmin", "finance", "support"]);
+      if (get)
+        return json({
+          liability: one(
+            "SELECT COALESCE(SUM(available),0) AS available,COALESCE(SUM(reserved),0) AS reserved,COALESCE(SUM(spent),0) AS spent FROM p_travel_cards",
+          ),
+          rules: all(
+            "SELECT t.*,r.name FROM p_travel_rules t JOIN p_ranks r ON r.id=t.rank_id",
+          ),
+          ranks: all("SELECT id,name FROM p_ranks ORDER BY name"),
+          calendar: travelCalendar(),
+          rows: all(
+            "SELECT t.*,u.name FROM p_travel_requests t JOIN p_users u ON u.id=t.user_id ORDER BY t.created_at DESC LIMIT 100",
+          ),
+        });
+      limit("travel-admin:" + actor.id, 60, 300);
+      if (path[2] === "review") {
+        if (data.status === "redeemed" && actor.role === "support")
+          throw new ApiError(403, "forbidden");
+        return json(reviewTravel(actor.id, data));
+      }
+      if (!["superadmin", "finance"].includes(actor.role))
+        throw new ApiError(403, "forbidden");
+      if (path[2] === "presets") {
+        return json({ presets: installTravelPresets(actor.id) });
+      }
+      if (path[2] === "rules") {
+        saveTravelRule(actor.id, data);
+        return json({ ok: true });
+      }
+      if (path[2] === "calendar") {
+        saveTravelCalendar(actor.id, data);
+        return json({ ok: true });
+      }
+      throw new ApiError(404, "not_found");
     }
     if (path[0] === "admin") return await admin(req, path, data, url);
     const u = userOf(req),
       q = query(url);
     if (!get) limit("member-write:" + u.id, 80, 300);
-    if(path[0]==='member-details') {
-      if(get)return json({profile:one('SELECT details,contact_verified_at,updated_at FROM p_member_details WHERE user_id=?',u.id)||null,consent:one('SELECT version,accepted_at FROM p_consents WHERE user_id=? ORDER BY accepted_at DESC LIMIT 1',u.id)||null});
-      const d=memberDetailsSchema.parse(data);
-      atomic(()=>{const before=one('SELECT details FROM p_member_details WHERE user_id=?',u.id);run("INSERT INTO p_member_details VALUES(?,?,'',?) ON CONFLICT(user_id) DO UPDATE SET details=excluded.details,updated_at=excluded.updated_at",u.id,JSON.stringify(d),now());run('UPDATE p_users SET name=? WHERE id=?',d.firstName+' '+d.lastName,u.id);audit(u.id,'member.details',u.id,before?.details||null,d);});
-      return json({ok:true});
+    if (path[0] === "member-details") {
+      if (get)
+        return json({
+          profile:
+            one(
+              "SELECT details,contact_verified_at,updated_at FROM p_member_details WHERE user_id=?",
+              u.id,
+            ) || null,
+          consent:
+            one(
+              "SELECT version,accepted_at FROM p_consents WHERE user_id=? ORDER BY accepted_at DESC LIMIT 1",
+              u.id,
+            ) || null,
+        });
+      const d = memberDetailsSchema.parse(data);
+      atomic(() => {
+        const before = one(
+          "SELECT details FROM p_member_details WHERE user_id=?",
+          u.id,
+        );
+        run(
+          "INSERT INTO p_member_details VALUES(?,?,'',?) ON CONFLICT(user_id) DO UPDATE SET details=excluded.details,updated_at=excluded.updated_at",
+          u.id,
+          JSON.stringify(d),
+          now(),
+        );
+        run(
+          "UPDATE p_users SET name=? WHERE id=?",
+          d.firstName + " " + d.lastName,
+          u.id,
+        );
+        audit(u.id, "member.details", u.id, before?.details || null, d);
+      });
+      return json({ ok: true });
     }
-    if(path[0]==='travel-cards'){
-      if(get)return json({cards:cardsFor(u.id),rows:all('SELECT * FROM p_travel_requests WHERE user_id=? ORDER BY created_at DESC LIMIT 100',u.id),calendar:travelCalendar()});
-      if(path[1]==='sync')return json({cards:issueTravelCards(u.id)});
-      if(path[1]==='requests')return json(requestTravel(u.id,data));
-      if(path[1]==='cancel')return json(reviewTravel(u.id,{...data,status:'cancelled'},true));
-      throw new ApiError(404,'not_found');
+    if (path[0] === "travel-cards") {
+      if (get)
+        return json({
+          cards: cardsFor(u.id),
+          rows: all(
+            "SELECT * FROM p_travel_requests WHERE user_id=? ORDER BY created_at DESC LIMIT 100",
+            u.id,
+          ),
+          calendar: travelCalendar(),
+        });
+      if (path[1] === "sync") return json({ cards: issueTravelCards(u.id) });
+      if (path[1] === "requests") return json(requestTravel(u.id, data));
+      if (path[1] === "cancel")
+        return json(reviewTravel(u.id, { ...data, status: "cancelled" }, true));
+      throw new ApiError(404, "not_found");
     }
     if (path[0] === "me" && get) return json({ user: publicUser(u) });
     if (path[0] === "dashboard" && get) {
@@ -1059,25 +1285,48 @@ export async function handle(req: Request, path: string[]) {
       return json({ ok: true });
     }
     if (path[0] === "contact" && !get) {
+      limit("security:" + u.id, 8, 300);
       const d = z
         .object({
           target: contact,
           challenge: id,
           code: z.string().regex(/^\d{6}$/),
           password: z.string().max(128),
+          totp: z
+            .string()
+            .regex(/^\d{6}$/)
+            .optional(),
         })
         .parse(data);
       if (!checkPassword(d.password, u.password))
         throw new ApiError(401, "invalid_credentials");
+      verifyTotp(u, d.totp || "");
       consumeOtp(d.challenge, d.target, "contact", d.code);
       run(
         `UPDATE p_users SET ${d.target.includes("@") ? "email" : "phone"}=? WHERE id=?`,
         d.target,
         u.id,
       );
+      run(
+        "DELETE FROM p_sessions WHERE user_id=? AND token_hash!=?",
+        u.id,
+        hash(tokenOf(req)),
+      );
+      audit(u.id, "security.contact", u.id, null, {
+        kind: d.target.includes("@") ? "email" : "phone",
+      });
       return json({ ok: true });
     }
+    if (path[0] === "security" && get)
+      return json({
+        twoFactor: !!u.otp_secret,
+        recoveryRemaining: one(
+          "SELECT COUNT(*) n FROM p_recovery_codes WHERE user_id=?",
+          u.id,
+        )!.n,
+      });
     if (path[0] === "security" && !get) {
+      limit("security:" + u.id, 8, 300);
       const d = z
         .object({
           action: z.enum([
@@ -1086,21 +1335,28 @@ export async function handle(req: Request, path: string[]) {
             "totp-setup",
             "totp-enable",
             "totp-disable",
+            "recovery-regenerate",
           ]),
           currentPassword: z.string().max(128),
           newPassword: password.optional(),
           code: z.string().max(10).optional(),
+          recoveryCode: z.string().max(30).optional(),
         })
         .parse(data);
       if (!checkPassword(d.currentPassword, u.password))
         throw new ApiError(401, "invalid_credentials");
       if (d.action === "totp-setup") {
-        verifyTotp(u, d.code || "");
+        verifySecondFactor(u, d.code || "", d.recoveryCode);
         const secret = newTotpSecret();
         run(
           "UPDATE p_users SET otp_pending=? WHERE id=?",
           encrypt(secret),
           u.id,
+        );
+        run(
+          "INSERT INTO p_totp_setups VALUES(?,?) ON CONFLICT(user_id) DO UPDATE SET expires=excluded.expires",
+          u.id,
+          Date.now() + 600000,
         );
         return json({
           secret,
@@ -1108,19 +1364,46 @@ export async function handle(req: Request, path: string[]) {
         });
       }
       if (d.action === "totp-enable") {
-        if (!u.otp_pending) throw new ApiError(409, "invalid_state");
-        verifyTotp(u, d.code || "", u.otp_pending);
-        run(
-          "UPDATE p_users SET otp_secret=otp_pending,otp_pending=NULL WHERE id=?",
+        const setup = one(
+          "SELECT expires FROM p_totp_setups WHERE user_id=?",
           u.id,
         );
-      } else {
-        verifyTotp(u, d.code || "");
-        if (d.action === "totp-disable")
+        if (!u.otp_pending || !setup || setup.expires <= Date.now())
+          throw new ApiError(409, "enrollment_expired");
+        const step = matchingTotp(decrypt(u.otp_pending), d.code || "");
+        if (step === undefined) throw new ApiError(401, "invalid_otp");
+        const codes = atomic(() => {
           run(
-            "UPDATE p_users SET otp_secret=NULL,otp_pending=NULL WHERE id=?",
+            "UPDATE p_users SET otp_secret=otp_pending,otp_pending=NULL,otp_last=? WHERE id=?",
+            step,
             u.id,
           );
+          run("DELETE FROM p_totp_setups WHERE user_id=?", u.id);
+          const codes = recoveryCodes(u.id);
+          run("DELETE FROM p_sessions WHERE user_id=?", u.id);
+          audit(u.id, "security.totp-enable", u.id, null, { enabled: true });
+          return codes;
+        });
+        return json({ ok: true, reauthenticate: true, recoveryCodes: codes });
+      } else {
+        verifySecondFactor(u, d.code || "", d.recoveryCode);
+        if (d.action === "recovery-regenerate") {
+          if (!u.otp_secret) throw new ApiError(409, "invalid_state");
+          const codes = recoveryCodes(u.id);
+          audit(u.id, "security.recovery-regenerate", u.id, null, {
+            count: codes.length,
+          });
+          run("DELETE FROM p_sessions WHERE user_id=?", u.id);
+          return json({ ok: true, reauthenticate: true, recoveryCodes: codes });
+        }
+        if (d.action === "totp-disable") {
+          run(
+            "UPDATE p_users SET otp_secret=NULL,otp_pending=NULL,otp_last=0 WHERE id=?",
+            u.id,
+          );
+          run("DELETE FROM p_recovery_codes WHERE user_id=?", u.id);
+          run("DELETE FROM p_totp_setups WHERE user_id=?", u.id);
+        }
         if (d.action === "password") {
           if (!d.newPassword) throw new ApiError(400, "invalid_input");
           run(
@@ -1131,6 +1414,9 @@ export async function handle(req: Request, path: string[]) {
         }
       }
       run("DELETE FROM p_sessions WHERE user_id=?", u.id);
+      audit(u.id, "security." + d.action, u.id, null, {
+        sessionsRevoked: true,
+      });
       return json({ ok: true, reauthenticate: true });
     }
     if (path[0] === "checkouts") {

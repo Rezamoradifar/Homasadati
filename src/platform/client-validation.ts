@@ -1,5 +1,16 @@
-import {travelRuleSchema,travelCalendarSchema,travelRequestSchema,travelReviewSchema} from "./travel-model";
-import {registrationSchema,referralCode,memberDetailsSchema} from "./registration-model";
+import {
+  travelRuleSchema,
+  travelCalendarSchema,
+  travelRequestSchema,
+  travelReviewSchema,
+} from "./travel-model";
+import {
+  registrationSchema,
+  referralCode,
+  memberDetailsSchema,
+  verifyEmailSchema,
+  captchaToken,
+} from "./registration-model";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { z } from "zod";
 import {
@@ -25,19 +36,20 @@ export function validateClient(path: string, method: string, data: unknown) {
   if (p.join("/") === "cart/quote")
     schema = z.object({ items: cartItemsSchema });
   if (p[0] === "checkouts" && !p[1]) schema = checkoutSchema;
-  if(path==='admin/travel/rules')schema=travelRuleSchema;
-  if(path==='admin/travel/calendar')schema=travelCalendarSchema;
-  if(path==='admin/travel/review')schema=travelReviewSchema;
-  if(path==='travel-cards/requests')schema=travelRequestSchema;
-  if(path==='travel-cards/cancel')schema=z.object({id,reason:text});
+  if (path === "admin/travel/rules") schema = travelRuleSchema;
+  if (path === "admin/travel/calendar") schema = travelCalendarSchema;
+  if (path === "admin/travel/review") schema = travelReviewSchema;
+  if (path === "travel-cards/requests") schema = travelRequestSchema;
+  if (path === "travel-cards/cancel") schema = z.object({ id, reason: text });
   if (p[0] === "auth") {
     if (p[1] === "otp")
       schema = z.object({
         target: contact,
         purpose: z.enum(["register", "login", "reset", "contact"]),
+        captchaToken,
       });
-    if (p[1] === "register")
-      schema = registrationSchema;
+    if (p[1] === "verify-email") schema = verifyEmailSchema;
+    if (p[1] === "register") schema = registrationSchema;
     if (p[1] === "login")
       schema = z
         .object({
@@ -46,6 +58,8 @@ export function validateClient(path: string, method: string, data: unknown) {
           challenge: id.optional(),
           code: otp.optional(),
           totp: otp.optional(),
+          recoveryCode: z.string().max(30).optional(),
+          captchaToken,
         })
         .refine((v) => v.password || (v.challenge && v.code));
     if (p[1] === "reset")
@@ -55,6 +69,8 @@ export function validateClient(path: string, method: string, data: unknown) {
         challenge: id,
         code: otp,
         totp: otp.optional(),
+        recoveryCode: z.string().max(30).optional(),
+        captchaToken,
       });
   }
   if (p[0] === "orders") {
@@ -78,8 +94,8 @@ export function validateClient(path: string, method: string, data: unknown) {
       idempotencyKey: id,
       totp: otp.optional(),
     });
-  if(p[0]=== "referrals")schema=z.object({code:referralCode});
-  if(p[0]=== "member-details")schema=memberDetailsSchema;
+  if (p[0] === "referrals") schema = z.object({ code: referralCode });
+  if (p[0] === "member-details") schema = memberDetailsSchema;
   if (p[0] === "profile")
     schema = z.object({
       name: text,
@@ -90,7 +106,13 @@ export function validateClient(path: string, method: string, data: unknown) {
       }),
     });
   if (p[0] === "contact")
-    schema = z.object({ target: contact, challenge: id, code: otp, password });
+    schema = z.object({
+      target: contact,
+      challenge: id,
+      code: otp,
+      password,
+      totp: otp.optional(),
+    });
   if (p[0] === "addresses") {
     if (method === "DELETE") id.parse(p[1]);
     else
@@ -117,10 +139,12 @@ export function validateClient(path: string, method: string, data: unknown) {
           "totp-setup",
           "totp-enable",
           "totp-disable",
+          "recovery-regenerate",
         ]),
         currentPassword: password,
         newPassword: password.optional(),
         code: z.string().max(6).optional(),
+        recoveryCode: z.string().max(30).optional(),
       })
       .refine((v) => v.action !== "password" || !!v.newPassword);
   if (p[0] === "admin") {
@@ -221,6 +245,8 @@ export function validateClient(path: string, method: string, data: unknown) {
             .object({
               key: z.enum([
                 "resend_key",
+                "turnstile_site_key",
+                "turnstile_secret_key",
                 "email_from",
                 "kavenegar_key",
                 "sms_template",

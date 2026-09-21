@@ -1,6 +1,6 @@
 import { randomInt, randomUUID } from "node:crypto";
 import { hash, ApiError, limit } from "../server/http";
-import { one, run, now } from "./schema";
+import { one, run, now, atomic } from "./schema";
 import { decrypt, encrypt } from "./security";
 import { policySchema, Policy } from "./validation";
 export function setting(key: string) {
@@ -37,18 +37,26 @@ export async function providerFetch(url: string, init: RequestInit) {
 }
 export async function sendOtp(target: string, purpose: string) {
   limit("otp-target:" + hash(target), 3, 300);
+  limit("otp-cooldown:" + hash(target), 1, 60);
   const code = randomInt(100000, 1000000).toString(),
     id = randomUUID();
   // No OTP is returned or logged. Only a one-way hash is persisted.
-  run(
-    "INSERT INTO p_otp VALUES(?,?,?,?,?,0,0,?)",
-    id,
-    target,
-    purpose,
-    hash(id + ":" + code),
-    Date.now() + 300000,
-    now(),
-  );
+  atomic(() => {
+    run(
+      "UPDATE p_otp SET used=1 WHERE target=? AND purpose=? AND used=0",
+      target,
+      purpose,
+    );
+    run(
+      "INSERT INTO p_otp VALUES(?,?,?,?,?,0,0,?)",
+      id,
+      target,
+      purpose,
+      hash(id + ":" + code),
+      Date.now() + 300000,
+      now(),
+    );
+  });
   try {
     if (target.includes("@")) {
       const key = setting("resend_key"),
@@ -64,7 +72,7 @@ export async function sendOtp(target: string, purpose: string) {
         body: JSON.stringify({
           from,
           to: [target],
-          subject: "Homay Saadat — verification code",
+          subject: "کد تأیید همای سعادت | HOMA",
           text: `کد تأیید همای سعادت: ${code}\nاعتبار: ۵ دقیقه. این کد را در اختیار دیگران قرار ندهید.`,
         }),
       });
@@ -92,7 +100,7 @@ export async function sendOtp(target: string, purpose: string) {
     run("UPDATE p_otp SET used=1 WHERE id=?", id);
     throw e;
   }
-  return { challenge: id, expiresIn: 300 };
+  return { challenge: id, expiresIn: 300, retryAfter: 60 };
 }
 export async function paymentRequest(orderId: string, amount: number) {
   const merchant = setting("zarinpal_merchant");

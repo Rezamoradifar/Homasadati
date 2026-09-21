@@ -36,15 +36,33 @@ export function decrypt(value: string) {
 }
 export function passwordHash(password: string) {
   const salt = randomBytes(16).toString("hex");
-  return salt + ":" + scryptSync(password, salt, 64).toString("hex");
+  return (
+    "s2:" +
+    salt +
+    ":" +
+    scryptSync(password, salt, 64, {
+      N: 32768,
+      r: 8,
+      p: 3,
+      maxmem: 64 * 1024 * 1024,
+    }).toString("hex")
+  );
 }
 export function checkPassword(password: string, stored: string) {
-  const [salt, key] = stored.split(":");
+  const modern = stored.startsWith("s2:");
+  const [salt, key] = (modern ? stored.slice(3) : stored).split(":");
   if (!salt || !key) return false;
-  const out = scryptSync(password, salt, 64),
+  const out = scryptSync(
+      password,
+      salt,
+      64,
+      modern ? { N: 32768, r: 8, p: 3, maxmem: 64 * 1024 * 1024 } : {},
+    ),
     expected = Buffer.from(key, "hex");
   return out.length === expected.length && timingSafeEqual(out, expected);
 }
+// Match the work performed for a current password when the account does not exist.
+export const dummyPassword = "s2:" + "0".repeat(32) + ":" + "0".repeat(128);
 export function sessionCookie(token: string, age = 604800) {
   return `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${age}${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
 }
@@ -157,6 +175,49 @@ export function verifyTotp(u: Row, code: string, secret = u.otp_secret) {
     match,
   );
   if (!changed.changes) throw new ApiError(401, "invalid_otp");
+}
+export function matchingTotp(secret: string, code: string) {
+  const step = Math.floor(Date.now() / 30000);
+  return [step - 1, step, step + 1].find((n) => totp(secret, n) === code);
+}
+export function recoveryCodes(userId: string) {
+  return atomic(() => {
+    run("DELETE FROM p_recovery_codes WHERE user_id=?", userId);
+    const codes = Array.from({ length: 10 }, () =>
+      randomBytes(10).toString("hex").match(/.{4}/g)!.join("-"),
+    );
+    for (const code of codes)
+      run(
+        "INSERT INTO p_recovery_codes VALUES(?,?,?)",
+        userId,
+        hash(userId + ":" + code.replaceAll("-", "")),
+        now(),
+      );
+    return codes;
+  });
+}
+export function verifySecondFactor(u: Row, code: string, recovery?: string) {
+  if (!u.otp_secret) return;
+  if (!recovery) {
+    verifyTotp(u, code);
+    return;
+  }
+  limit("recovery:" + u.id, 5, 300);
+  const normalized = recovery.toLowerCase().replaceAll("-", "").trim();
+  if (!/^[a-f0-9]{20}$/.test(normalized))
+    throw new ApiError(401, "invalid_otp");
+  const consumed = run(
+    "DELETE FROM p_recovery_codes WHERE user_id=? AND code_hash=?",
+    u.id,
+    hash(u.id + ":" + normalized),
+  );
+  if (!consumed.changes) throw new ApiError(401, "invalid_otp");
+  audit(u.id, "security.recovery-used", u.id, null, {
+    remaining: one(
+      "SELECT COUNT(*) n FROM p_recovery_codes WHERE user_id=?",
+      u.id,
+    )!.n,
+  });
 }
 export function consumeOtp(
   challenge: string,

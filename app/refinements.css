@@ -334,92 +334,714 @@ html [dir="rtl"] :is(button, input, select, textarea) {
     scroll-behavior: auto !important;
   }
 }
-@media(max-width:700px){.commerce-header>div{display:flex;flex-wrap:wrap;gap:8px 14px;width:100%;align-items:center}.commerce-header>div>a{white-space:nowrap;padding-block:6px}.commerce-header nav{gap:14px}.commerce-header nav a{white-space:nowrap}.commerce-header{gap:16px}}
+@media (max-width: 700px) {
+  .commerce-header > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    width: 100%;
+    align-items: center;
+  }
+  .commerce-header > div > a {
+    white-space: nowrap;
+    padding-block: 6px;
+  }
+  .commerce-header nav {
+    gap: 14px;
+  }
+  .commerce-header nav a {
+    white-space: nowrap;
+  }
+  .commerce-header {
+    gap: 16px;
+  }
+}
 
 /* Give the hero copy its own flow so Persian text cannot collide with the gallery. */
-html .hero{height:auto;min-height:760px;display:flex;align-items:center}
-html .hero .hero-content,html[dir=rtl] .hero .hero-content{position:relative;inset:auto;width:55%;max-width:840px;margin:0 6%;padding:74px 0 240px!important}
-html .hero h1,html[dir=rtl] .hero h1{font-size:clamp(42px,5.2vw,76px);line-height:1.45}
-html .hero .hero-sub{font-size:clamp(18px,1.8vw,25px);line-height:1.9}
-html .hero .hero-buttons{flex-wrap:wrap}
-html .civilization-controls .gallery-play{font-size:14px;min-height:44px}
-html .civilization-caption small{font-size:12px}
-html .hero .civilization-caption button{min-width:44px;min-height:44px}
-html .hero .hero-shade{background:linear-gradient(90deg,#061a20ce,#061a2030 90%)}
-html .collection-rail figure{flex-basis:calc((100% - 24px)/2)}
-html .collection-rail img{aspect-ratio:4/3;object-fit:cover;border-radius:12px}
-html .collection-rail figcaption{font-size:18px;font-weight:500}
-html .collection-section>p,html .tourism-media p{font-size:16px}
-html .collection-section small{font-size:14px}
-html .club-preview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
-html .club-preview-grid .rank-card{text-decoration:none;transition:transform .2s,box-shadow .2s}
-html .club-preview-grid .rank-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px #081e1e22}
-html .club-preview-grid .rank-art{min-height:190px;aspect-ratio:1.6;padding:22px}
-html .club-preview-grid .rank-art h3{font-size:26px;color:#f4e5c4}
-html .club-preview-grid .rank-art img{width:48px;height:48px;top:22px;left:18px}
-html .rank-jade{--card-tone:#557556}
-html .club-preview-note{font-size:14px;color:var(--muted);margin-top:24px;max-width:760px}
-html .world-copy>p:last-of-type,html[dir=rtl] .world-copy>p:last-of-type{font-size:14px;line-height:1.9}
-html .world-card{height:auto;min-height:440px}
-html .world-copy{padding-bottom:54px;min-height:205px}
-html .world-copy .round-arrow{bottom:8px}
-html .intro-narrative>p,html .journey-detail>p:not(.eyebrow),html .craft-story>p:not(.eyebrow),html .beauty-editorial p:not(.eyebrow),html .studio-details>p,html .business-partnership p,html .enquiry-process p,html .faq-items p{font-size:16px}
-html .footer-introduction>div>p:last-child,html .footer-track,html .landing-footer[data-variant=editorial] [data-footer-newsletter]>div>p:last-child{font-size:14px}
-html .landing-footer[data-variant=editorial] :is(input,select){font-size:16px!important;min-height:48px}
-html .landing-footer[data-variant=editorial] [data-footer-legal]{flex-wrap:wrap;gap:16px}
-html .landing-footer[data-variant=editorial] [data-footer-legal] a{min-height:44px;display:inline-flex;align-items:center}
-html .rank-description dt,html .rank-description strong{font-size:14px}
-@media(max-width:900px){html .club-preview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}html .hero .hero-content,html[dir=rtl] .hero .hero-content{width:88%;max-width:650px}}
-@media(max-width:600px){
- html .hero{min-height:730px}
- html .hero .hero-content,html[dir=rtl] .hero .hero-content{padding:48px 0 230px!important}
- html .hero h1,html[dir=rtl] .hero h1{font-size:clamp(34px,9vw,48px);line-height:1.6}
- html .hero .hero-fa{font-size:14px}
- html .collection-rail figure{flex-basis:88%}
- html .collection-nav{flex-wrap:wrap}
- html .club-preview-grid{grid-template-columns:1fr;gap:16px}
- html .club-preview-grid .rank-art{min-height:190px;max-height:230px}
- html .world-grid{grid-template-columns:1fr}
- html .world-card{min-height:0}
- html .world-card>img{height:auto;aspect-ratio:4/3}
- html .world-copy,html[dir=rtl] .world-copy{min-height:150px}
- html .world-copy h3,html[dir=rtl] .world-copy h3{font-size:24px}
- html .header-actions select{min-height:44px;font-size:14px!important}
- html .site-header .mobile-menu,html .header-actions .theme-toggle{min-width:44px;min-height:44px}
- html .site-header .brand strong{font-size:20px!important}
- html .utility-bar{font-size:12px}
- html .utility-bar>span{display:none}
- html .utility-bar>div{width:100%;justify-content:space-between}
+html .hero {
+  height: auto;
+  min-height: 760px;
+  display: flex;
+  align-items: center;
 }
-html[dir=rtl] body,html[dir=rtl] :is(h1,h2,h3){font-family:"Vazirmatn",sans-serif;letter-spacing:normal}
-html .skip-link:not(:focus){clip-path:inset(50%);width:1px;height:1px;overflow:hidden;padding:0;white-space:nowrap}
-html .skip-link:focus{color:#173b35;inset-inline-start:16px}
-@media(max-width:600px){html .destination-picker{flex-wrap:wrap}html .destination-picker button{flex:1 1 80px;justify-content:center;gap:6px;padding-inline:8px}}
+html .hero .hero-content,
+html[dir="rtl"] .hero .hero-content {
+  position: relative;
+  inset: auto;
+  width: 55%;
+  max-width: 840px;
+  margin: 0 6%;
+  padding: 74px 0 240px !important;
+}
+html .hero h1,
+html[dir="rtl"] .hero h1 {
+  font-size: clamp(42px, 5.2vw, 76px);
+  line-height: 1.45;
+}
+html .hero .hero-sub {
+  font-size: clamp(18px, 1.8vw, 25px);
+  line-height: 1.9;
+}
+html .hero .hero-buttons {
+  flex-wrap: wrap;
+}
+html .civilization-controls .gallery-play {
+  font-size: 14px;
+  min-height: 44px;
+}
+html .civilization-caption small {
+  font-size: 12px;
+}
+html .hero .civilization-caption button {
+  min-width: 44px;
+  min-height: 44px;
+}
+html .hero .hero-shade {
+  background: linear-gradient(90deg, #061a20ce, #061a2030 90%);
+}
+html .collection-rail figure {
+  flex-basis: calc((100% - 24px) / 2);
+}
+html .collection-rail img {
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 12px;
+}
+html .collection-rail figcaption {
+  font-size: 18px;
+  font-weight: 500;
+}
+html .collection-section > p,
+html .tourism-media p {
+  font-size: 16px;
+}
+html .collection-section small {
+  font-size: 14px;
+}
+html .club-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+html .club-preview-grid .rank-card {
+  text-decoration: none;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+html .club-preview-grid .rank-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px #081e1e22;
+}
+html .club-preview-grid .rank-art {
+  min-height: 190px;
+  aspect-ratio: 1.6;
+  padding: 22px;
+}
+html .club-preview-grid .rank-art h3 {
+  font-size: 26px;
+  color: #f4e5c4;
+}
+html .club-preview-grid .rank-art img {
+  width: 48px;
+  height: 48px;
+  top: 22px;
+  left: 18px;
+}
+html .rank-jade {
+  --card-tone: #557556;
+}
+html .club-preview-note {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 24px;
+  max-width: 760px;
+}
+html .world-copy > p:last-of-type,
+html[dir="rtl"] .world-copy > p:last-of-type {
+  font-size: 14px;
+  line-height: 1.9;
+}
+html .world-card {
+  height: auto;
+  min-height: 440px;
+}
+html .world-copy {
+  padding-bottom: 54px;
+  min-height: 205px;
+}
+html .world-copy .round-arrow {
+  bottom: 8px;
+}
+html .intro-narrative > p,
+html .journey-detail > p:not(.eyebrow),
+html .craft-story > p:not(.eyebrow),
+html .beauty-editorial p:not(.eyebrow),
+html .studio-details > p,
+html .business-partnership p,
+html .enquiry-process p,
+html .faq-items p {
+  font-size: 16px;
+}
+html .footer-introduction > div > p:last-child,
+html .footer-track,
+html
+  .landing-footer[data-variant="editorial"]
+  [data-footer-newsletter]
+  > div
+  > p:last-child {
+  font-size: 14px;
+}
+html .landing-footer[data-variant="editorial"] :is(input, select) {
+  font-size: 16px !important;
+  min-height: 48px;
+}
+html .landing-footer[data-variant="editorial"] [data-footer-legal] {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+html .landing-footer[data-variant="editorial"] [data-footer-legal] a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+html .rank-description dt,
+html .rank-description strong {
+  font-size: 14px;
+}
+@media (max-width: 900px) {
+  html .club-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html .hero .hero-content,
+  html[dir="rtl"] .hero .hero-content {
+    width: 88%;
+    max-width: 650px;
+  }
+}
+@media (max-width: 600px) {
+  html .hero {
+    min-height: 730px;
+  }
+  html .hero .hero-content,
+  html[dir="rtl"] .hero .hero-content {
+    padding: 48px 0 230px !important;
+  }
+  html .hero h1,
+  html[dir="rtl"] .hero h1 {
+    font-size: clamp(34px, 9vw, 48px);
+    line-height: 1.6;
+  }
+  html .hero .hero-fa {
+    font-size: 14px;
+  }
+  html .collection-rail figure {
+    flex-basis: 88%;
+  }
+  html .collection-nav {
+    flex-wrap: wrap;
+  }
+  html .club-preview-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  html .club-preview-grid .rank-art {
+    min-height: 190px;
+    max-height: 230px;
+  }
+  html .world-grid {
+    grid-template-columns: 1fr;
+  }
+  html .world-card {
+    min-height: 0;
+  }
+  html .world-card > img {
+    height: auto;
+    aspect-ratio: 4/3;
+  }
+  html .world-copy,
+  html[dir="rtl"] .world-copy {
+    min-height: 150px;
+  }
+  html .world-copy h3,
+  html[dir="rtl"] .world-copy h3 {
+    font-size: 24px;
+  }
+  html .header-actions select {
+    min-height: 44px;
+    font-size: 14px !important;
+  }
+  html .site-header .mobile-menu,
+  html .header-actions .theme-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  html .site-header .brand strong {
+    font-size: 20px !important;
+  }
+  html .utility-bar {
+    font-size: 12px;
+  }
+  html .utility-bar > span {
+    display: none;
+  }
+  html .utility-bar > div {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+html[dir="rtl"] body,
+html[dir="rtl"] :is(h1, h2, h3) {
+  font-family: "Vazirmatn", sans-serif;
+  letter-spacing: normal;
+}
+html .skip-link:not(:focus) {
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  white-space: nowrap;
+}
+html .skip-link:focus {
+  color: #173b35;
+  inset-inline-start: 16px;
+}
+@media (max-width: 600px) {
+  html .destination-picker {
+    flex-wrap: wrap;
+  }
+  html .destination-picker button {
+    flex: 1 1 80px;
+    justify-content: center;
+    gap: 6px;
+    padding-inline: 8px;
+  }
+}
 
 /* Tourism opens with the original background film; rank cards follow the hero. */
-html .brand-hero.tourism{min-height:660px;padding-bottom:120px;isolation:isolate}
-html .brand-hero.tourism .tourism-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
-html .brand-hero.tourism:after{z-index:1;pointer-events:none;background:linear-gradient(270deg,#071b20c7,#071b2029)}
-html .brand-hero.tourism>div{z-index:2}
-html .brand-hero.tourism>.tourism-video-controls{position:absolute;inset-inline:8%;bottom:24px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;max-width:none;font-size:14px;color:#fff}
-html .tourism-video-controls button{padding:10px 18px;min-height:44px;min-width:100px;background:#102d2de6;border:1px solid #d7b879;border-radius:6px;color:#fff;font:inherit}
-html .tourism-video-controls a{text-decoration:underline;text-underline-offset:4px;text-shadow:0 1px 5px #000}
-html .tourism-video-controls [role=status]:empty{display:none}
-html .tourism-video-controls [role=status]{flex-basis:100%;font-size:14px}
-html .commerce .club-preview{padding:64px max(6vw,20px);background:#f7f5ef}
-html[data-theme=dark] .commerce .club-preview{background:#101c1d}
-html .commerce .club-preview .section-heading{display:flex;align-items:end;justify-content:space-between;gap:24px;padding-bottom:30px}
-html .commerce .club-preview h2{font-size:clamp(26px,3vw,42px);margin:10px 0}
-html .commerce .club-preview .editorial-link{font-size:14px;border-bottom:1px solid #b99d68;padding:12px 0;white-space:nowrap}
-html .commerce .club-preview .eyebrow{font-size:14px;color:#94713b}
-html[data-theme=dark] .commerce .club-preview .eyebrow{color:#d9bb80}
-html .club-preview .rank-art{min-width:0;width:100%}
-@media(max-width:600px){
- html .brand-hero.tourism{min-height:600px;padding:48px 6% 132px}
- html .brand-hero.tourism h1{font-size:clamp(36px,10vw,52px)}
- html .brand-hero.tourism .commerce-button{display:flex;width:fit-content;margin:12px 0 0}
- html .brand-hero.tourism>.tourism-video-controls{inset-inline:6%;bottom:20px}
- html .commerce .club-preview{padding:38px 6%}
- html .commerce .club-preview .section-heading{display:block}
- html .commerce .club-preview .editorial-link{display:inline-flex;margin-top:10px}
+html .brand-hero.tourism {
+  min-height: 660px;
+  padding-bottom: 120px;
+  isolation: isolate;
+}
+html .brand-hero.tourism .tourism-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+html .brand-hero.tourism:after {
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(270deg, #071b20c7, #071b2029);
+}
+html .brand-hero.tourism > div {
+  z-index: 2;
+}
+html .brand-hero.tourism > .tourism-video-controls {
+  position: absolute;
+  inset-inline: 8%;
+  bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  max-width: none;
+  font-size: 14px;
+  color: #fff;
+}
+html .tourism-video-controls button {
+  padding: 10px 18px;
+  min-height: 44px;
+  min-width: 100px;
+  background: #102d2de6;
+  border: 1px solid #d7b879;
+  border-radius: 6px;
+  color: #fff;
+  font: inherit;
+}
+html .tourism-video-controls a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-shadow: 0 1px 5px #000;
+}
+html .tourism-video-controls [role="status"]:empty {
+  display: none;
+}
+html .tourism-video-controls [role="status"] {
+  flex-basis: 100%;
+  font-size: 14px;
+}
+html .commerce .club-preview {
+  padding: 64px max(6vw, 20px);
+  background: #f7f5ef;
+}
+html[data-theme="dark"] .commerce .club-preview {
+  background: #101c1d;
+}
+html .commerce .club-preview .section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 30px;
+}
+html .commerce .club-preview h2 {
+  font-size: clamp(26px, 3vw, 42px);
+  margin: 10px 0;
+}
+html .commerce .club-preview .editorial-link {
+  font-size: 14px;
+  border-bottom: 1px solid #b99d68;
+  padding: 12px 0;
+  white-space: nowrap;
+}
+html .commerce .club-preview .eyebrow {
+  font-size: 14px;
+  color: #94713b;
+}
+html[data-theme="dark"] .commerce .club-preview .eyebrow {
+  color: #d9bb80;
+}
+html .club-preview .rank-art {
+  min-width: 0;
+  width: 100%;
+}
+@media (max-width: 600px) {
+  html .brand-hero.tourism {
+    min-height: 600px;
+    padding: 48px 6% 132px;
+  }
+  html .brand-hero.tourism h1 {
+    font-size: clamp(36px, 10vw, 52px);
+  }
+  html .brand-hero.tourism .commerce-button {
+    display: flex;
+    width: fit-content;
+    margin: 12px 0 0;
+  }
+  html .brand-hero.tourism > .tourism-video-controls {
+    inset-inline: 6%;
+    bottom: 20px;
+  }
+  html .commerce .club-preview {
+    padding: 38px 6%;
+  }
+  html .commerce .club-preview .section-heading {
+    display: block;
+  }
+  html .commerce .club-preview .editorial-link {
+    display: inline-flex;
+    margin-top: 10px;
+  }
+}
+
+/* A single membership card face across the collection and issued travel cards. */
+html .club-preview-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+html .rank-card {
+  border-radius: 17px;
+  border: 1px solid #ad996f55;
+  box-shadow: 0 10px 25px #1230290b;
+  scroll-margin-top: 110px;
+}
+.privilege-card {
+  --card-base: #152c24;
+  --card-glow: #62856a;
+  --card-foil: #e7d6ae;
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1.586;
+  min-height: 215px;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 16px;
+  color: var(--card-foil);
+  background:
+    radial-gradient(ellipse at 12% 0%, var(--card-glow), transparent 70%),
+    linear-gradient(130deg, var(--card-base), #0c171b);
+  box-shadow:
+    inset 0 0 0 1px #e7d6ae3d,
+    inset 0 0 40px #0002;
+}
+.privilege-card.rank-jade {
+  --card-base: #234735;
+  --card-glow: #66896b;
+  --card-foil: #f2e7c8;
+}
+.privilege-card.rank-forest {
+  --card-base: #14251d;
+  --card-glow: #375744;
+  --card-foil: #dcd1ac;
+}
+.privilege-card.rank-turquoise {
+  --card-base: #103e46;
+  --card-glow: #328c96;
+  --card-foil: #e7edda;
+}
+.privilege-card.rank-ruby {
+  --card-base: #3d1728;
+  --card-glow: #994760;
+  --card-foil: #f0d4c4;
+}
+.privilege-card.rank-emerald {
+  --card-base: #073b2a;
+  --card-glow: #16896a;
+  --card-foil: #f4dfa6;
+}
+.privilege-card.rank-gold {
+  --card-base: #47351d;
+  --card-glow: #a2894d;
+  --card-foil: #fff2cd;
+}
+.privilege-card.rank-obsidian {
+  --card-base: #151923;
+  --card-glow: #3c4559;
+  --card-foil: #e9c58d;
+}
+.privilege-card:after {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid #eddab42a;
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: -1;
+}
+.privilege-card-lines {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  left: -105px;
+  bottom: -170px;
+  border: 1px solid #e8d4a744;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 16px #0000,
+    0 0 0 17px #e8d4a72b,
+    0 0 0 33px #0000,
+    0 0 0 34px #e8d4a71c,
+    0 0 0 52px #0000,
+    0 0 0 53px #e8d4a713;
+  z-index: -1;
+  transform: rotate(-25deg) scaleY(1.5);
+}
+html .privilege-card .privilege-watermark {
+  position: absolute;
+  width: 62%;
+  height: auto;
+  left: -4%;
+  top: 14%;
+  opacity: 0.12;
+  mix-blend-mode: screen;
+  z-index: -1;
+  pointer-events: none;
+}
+.privilege-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+.privilege-top > span {
+  font:
+    500 12px Manrope,
+    sans-serif;
+  letter-spacing: 0.11em;
+}
+.privilege-top b {
+  font-weight: 400;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  margin-inline-start: 5px;
+}
+.privilege-top > img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  margin: -8px -6px;
+}
+.privilege-title {
+  margin-top: 12px;
+}
+.privilege-title small {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  opacity: 0.82;
+}
+.privilege-card .privilege-title h3 {
+  font:
+    500 clamp(28px, 2.4vw, 36px)/1.4 Vazirmatn,
+    sans-serif !important;
+  margin: 3px 0 0 !important;
+  color: var(--card-foil) !important;
+  letter-spacing: 0;
+}
+.privilege-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  margin-top: 18px;
+}
+.privilege-bottom > div {
+  display: grid;
+  gap: 4px;
+}
+.privilege-bottom > div > span {
+  font-size: 9px;
+  opacity: 0.75;
+}
+.privilege-bottom strong {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+.privilege-level {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: Manrope, sans-serif;
+}
+.privilege-level b {
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1;
+}
+.privilege-level i {
+  font-size: 9px;
+  font-style: normal;
+  opacity: 0.65;
+}
+html .rank-description {
+  padding: 24px 26px;
+}
+.rank-description > strong {
+  display: inline-block;
+  padding: 5px 10px;
+  border: 1px solid #ab8f573d;
+  border-radius: 5px;
+  font-size: 11px !important;
+  line-height: 1.8;
+}
+.rank-description dd {
+  font-variant-numeric: tabular-nums;
+}
+html .travel-credit-card {
+  display: block;
+  padding: 0;
+  border: 1px solid #a8905b50;
+  border-radius: 17px;
+  overflow: hidden;
+  background: #fffdf8;
+  color: #173f37;
+  min-width: 0;
+}
+.travel-credit-card > .travel-card-details {
+  padding: 24px;
+}
+.travel-card-details .travel-balance {
+  font-size: 26px;
+  color: inherit;
+}
+.travel-card-details code {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+  display: block;
+  direction: ltr;
+  text-align: start;
+}
+.travel-card-details p {
+  font-size: 12px;
+}
+.travel-credit-card .privilege-card {
+  width: 100%;
+  min-height: 230px;
+}
+.travel-card-details .portal-button {
+  margin-top: 15px;
+}
+html[data-theme="dark"] .travel-credit-card {
+  background: #182e2b;
+  color: #edf0e7;
+}
+@media (min-width: 1001px) {
+  html .club-preview-grid > .rank-card:last-child:nth-child(3n + 1) {
+    grid-column: 2;
+  }
+}
+@media (max-width: 1100px) {
+  .privilege-card {
+    padding: 22px;
+    min-height: 210px;
+  }
+  .privilege-top > span {
+    font-size: 10px;
+  }
+  .privilege-top b {
+    font-size: 8px;
+    letter-spacing: 0.08em;
+  }
+  .privilege-top > img {
+    width: 36px;
+    height: 36px;
+  }
+}
+@media (max-width: 1000px) {
+  html .club-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  html .club-preview-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .privilege-card {
+    padding: 24px;
+    min-height: 210px;
+  }
+  .privilege-top > span {
+    font-size: 12px;
+  }
+  .privilege-top b {
+    font-size: 9px;
+  }
+  .privilege-card .privilege-title h3 {
+    font-size: 32px !important;
+  }
+  .privilege-top > img {
+    width: 44px;
+    height: 44px;
+  }
+}
+.privilege-card .privilege-top > img,
+.privilege-card .privilege-watermark {
+  filter: grayscale(1) contrast(3) sepia(0.5);
+  mix-blend-mode: screen;
+}
+html .privilege-card .privilege-watermark {
+  opacity: 0.08;
+}
+.privilege-card-lines {
+  border-color: #e8d4a72b;
+  box-shadow:
+    0 0 0 16px #0000,
+    0 0 0 17px #e8d4a710,
+    0 0 0 33px #0000,
+    0 0 0 34px #e8d4a70a;
+}
+.travel-credit-card .privilege-bottom strong {
+  font-size: 11px;
 }

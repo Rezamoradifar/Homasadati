@@ -1,5 +1,5 @@
 "use client";
-import {MemberDetails} from "./MemberDetails";
+import { MemberDetails } from "./MemberDetails";
 import { extendedCatalogFields } from "./catalog-fields";
 import { useRef, useState } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
@@ -663,7 +663,8 @@ export function Profile({
     [sending, setSending] = useState(false);
   return (
     <>
-      <MemberDetails onChange={onChange}/><Notice success={message} error={error} />
+      <MemberDetails onChange={onChange} />
+      <Notice success={message} error={error} />
       <div className="portal-card">
         <h2>اطلاعات و ترجیحات شما</h2>
         <p>
@@ -724,6 +725,9 @@ export function Profile({
             fields={[
               { name: "password", label: "رمز عبور فعلی", type: "password" },
               { name: "code", label: "کد تأیید", max: 6 },
+              ...(user.twoFactor
+                ? [{ name: "totp", label: "کد برنامه رمزساز", max: 6 }]
+                : []),
             ]}
             onSubmit={async (d) => {
               await api("contact", "POST", { ...d, target, challenge });
@@ -813,72 +817,7 @@ export function Addresses({
     </>
   );
 }
-export function Security({ onReauth }: { onReauth: () => void }) {
-  const [secret, setSecret] = useState(""),
-    [notice, setNotice] = useState("");
-  return (
-    <>
-      <Notice success={notice} />
-      <div className="portal-card">
-        <h2>امنیت حساب</h2>
-        <p className="portal-notice">
-          تغییر رمز، خروج از دستگاه‌ها و تغییر وضعیت دومرحله‌ای، تمام نشست‌های
-          فعلی را باطل می‌کند. برای فعال‌سازی دومرحله‌ای ابتدا کلید بسازید و در
-          برنامهٔ رمزساز وارد کنید.
-        </p>
-        <Form
-          fields={[
-            {
-              name: "currentPassword",
-              label: "رمز عبور فعلی",
-              type: "password",
-            },
-            {
-              name: "action",
-              label: "عملیات",
-              type: "select",
-              options: [
-                ["password", "تغییر رمز"],
-                ["revoke", "خروج از تمام دستگاه‌ها"],
-                ["totp-setup", "ساخت کلید دومرحله‌ای"],
-                ["totp-enable", "تأیید و فعال‌سازی دومرحله‌ای"],
-                ["totp-disable", "غیرفعال‌سازی دومرحله‌ای"],
-              ],
-            },
-            {
-              name: "newPassword",
-              label: "رمز جدید (فقط برای تغییر رمز)",
-              type: "password",
-              required: false,
-            },
-            {
-              name: "code",
-              label: "کد رمزساز (در صورت نیاز)",
-              required: false,
-              max: 6,
-            },
-          ]}
-          onSubmit={async (d) => {
-            if (!d.newPassword) delete d.newPassword;
-            const r = await api("security", "POST", d);
-            if (r.secret) {
-              setSecret(r.secret);
-              setNotice(
-                "کلید را در برنامهٔ رمزساز ثبت کنید؛ سپس کد شش‌رقمی را با عملیات فعال‌سازی تأیید کنید.",
-              );
-            }
-            if (r.reauthenticate) onReauth();
-          }}
-        />
-        {secret && (
-          <div className="portal-code" style={{ marginTop: 22 }}>
-            {secret}
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
+export { default as Security } from "./SecurityPanel";
 export function Subscriptions({
   refresh,
   onChange,

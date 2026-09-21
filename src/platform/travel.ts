@@ -26,7 +26,8 @@ function craftPurchase(user: string) {
   );
 }
 export function cardEligible(card: Row) {
-  if (!one("SELECT id FROM p_users WHERE id=? AND blocked=0", card.user_id)) return false;
+  if (!one("SELECT id FROM p_users WHERE id=? AND blocked=0", card.user_id))
+    return false;
   const s = sales(card.user_id);
   return (
     !!craftPurchase(card.user_id) &&
@@ -36,7 +37,7 @@ export function cardEligible(card: Row) {
 }
 export function cardsFor(user: string): Row[] {
   return all(
-    "SELECT * FROM p_travel_cards WHERE user_id=? ORDER BY issued_at DESC",
+    "SELECT c.*, (SELECT tone FROM p_travel_presets WHERE rank_id=c.rank_id ORDER BY level LIMIT 1) tone, (SELECT level FROM p_travel_presets WHERE rank_id=c.rank_id ORDER BY level LIMIT 1) level FROM p_travel_cards c WHERE c.user_id=? ORDER BY c.issued_at DESC",
     user,
   ).map((c) => ({
     ...c,

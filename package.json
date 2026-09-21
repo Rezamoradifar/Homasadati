@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "next build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest run",
@@ -13,7 +13,8 @@
     "setup": "node scripts/setup.mjs",
     "platform:setup": "tsx scripts/platform-setup.ts",
     "platform:worker": "tsx scripts/platform-worker.ts",
-    "platform:backup": "tsx scripts/platform-backup.ts"
+    "platform:backup": "tsx scripts/platform-backup.ts",
+    "auth:preflight": "NODE_ENV=production tsx scripts/auth-preflight.ts"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",
@@ -24,12 +25,12 @@
     "exceljs": "^4.4.0",
     "framer-motion": "^11.18.2",
     "lucide-react": "^0.468.0",
-    "next": "^14.2.35",
-    "next-intl": "^3.26.5",
+    "next": "^15.5.25",
+    "next-intl": "^4.14.5",
     "pdfkit": "^0.20.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.4",
     "tsx": "^4.23.15",
     "zod": "^3.25.76"
   },
@@ -47,12 +48,18 @@
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
     "jsdom": "^24.1.3",
-    "postcss": "^8.4.49",
+    "postcss": "^8.5.23",
     "prettier": "^3.9.8",
     "storybook": "^8.6.14",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
     "vite": "^6.4.3",
     "vitest": "^2.1.9"
+  },
+  "overrides": {
+    "postcss": "$postcss",
+    "exceljs": {
+      "uuid": "^11.1.1"
+    }
   }
 }

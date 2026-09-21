@@ -12,11 +12,12 @@ function get(id: string) {
     id,
   );
 }
-export function generateMetadata({
-  params,
+export async function generateMetadata({
+  params: pendingParams,
 }: {
-  params: { id: string };
-}): Metadata {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const params = await pendingParams;
   const p = get(params.id);
   if (!p) return {};
   const d = publicCatalogDetails(p.details);
@@ -25,7 +26,12 @@ export function generateMetadata({
     description: d.seoDescription || p.description.slice(0, 170),
   };
 }
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default async function ProductPage({
+  params: pendingParams,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const params = await pendingParams;
   const p = get(params.id);
   if (!p) notFound();
   const d = publicCatalogDetails(p.details),

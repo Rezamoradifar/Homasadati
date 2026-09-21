@@ -7,7 +7,13 @@ import { randomUUID } from "node:crypto";
 import { handle } from "./api";
 import { platformDb, run, one, now } from "./schema";
 import { saveSetting } from "./providers";
-import { passwordHash, session, SESSION_COOKIE } from "./security";
+import {
+  passwordHash,
+  session,
+  SESSION_COOKIE,
+  totp,
+  decrypt,
+} from "./security";
 const directory = mkdtempSync(join(tmpdir(), "homay-platform-e2e-"));
 let admin: string,
   adminId: string,
@@ -43,12 +49,29 @@ async function register(target: string, referral?: string) {
   expect(sent.status).toBe(200);
   const d = await sent.json();
   expect(d.code).toBeUndefined();
+  const verification = await (
+    await request("auth/verify-email", "POST", {
+      target,
+      challenge: d.challenge,
+      code,
+    })
+  ).json();
   const response = await request("auth/register", "POST", {
     target,
     password: pw,
-    details:{firstName:"عضو",lastName:"آزمون",country:"ایران",city:"تهران"},termsAccepted:true,privacyAccepted:true,adultConfirmed:true,termsVersion:"2026-09-20-v1",
-    challenge: d.challenge,
-    code,
+    details: {
+      firstName: "عضو",
+      lastName: "آزمون",
+      country: "ایران",
+      city: "تهران",
+    },
+    termsAccepted: true,
+    privacyAccepted: true,
+    adultConfirmed: true,
+    termsVersion: "2026-09-20-v1",
+    verificationToken: verification.verificationToken,
+    totp: totp(verification.secret),
+    invitationMode: referral ? "with-code" : "without-code",
     referral,
   });
   expect(response.status).toBe(200);
@@ -217,6 +240,13 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
       "withdrawals",
       "POST",
       {
+        totp: totp(
+          decrypt(
+            one("SELECT otp_secret FROM p_users WHERE id=?", sponsorId)!
+              .otp_secret,
+          ),
+          Math.floor(Date.now() / 30000) + 1,
+        ),
         amount: 9000,
         iban: "IR062960000000100324200001",
         idempotencyKey: randomUUID(),
@@ -306,7 +336,19 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     const revoke = await request(
       "security",
       "POST",
-      { action: "revoke", currentPassword: pw },
+      {
+        action: "revoke",
+        currentPassword: pw,
+        code: totp(
+          decrypt(
+            one(
+              "SELECT otp_secret FROM p_users WHERE email=?",
+              "buyer@test.example",
+            )!.otp_secret,
+          ),
+          Math.floor(Date.now() / 30000) + 1,
+        ),
+      },
       buyer,
     );
     expect(revoke.status).toBe(200);

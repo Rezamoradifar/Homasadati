@@ -1,4 +1,5 @@
 "use client";
+import PrivilegeCard from "../../app/PrivilegeCard";
 import { useState } from "react";
 import { api, amount, date, RecordData, labels } from "./client";
 import { Form, DataState, useData, Notice, Table } from "./Widgets";
@@ -74,12 +75,16 @@ export function TravelCards({
               <div className="travel-card-grid">
                 {d.cards.map((c: RecordData) => (
                   <article className="travel-credit-card" key={c.id}>
-                    <img src="/assets/heritage/simurgh.webp" alt="" />
-                    <div>
-                      <small>HOMAY SAADAT · TRAVEL PRIVILEGE</small>
-                      <h2>{c.holder_name}</h2>
-                      <p>{c.rank_name}</p>
-                      <strong>{amount(c.available)} تومان</strong>
+                    <PrivilegeCard
+                      name={c.rank_name}
+                      tone={c.tone || "obsidian"}
+                      level={c.level}
+                      holder={c.holder_name}
+                    />
+                    <div className="travel-card-details">
+                      <strong className="travel-balance">
+                        {amount(c.available)} تومان
+                      </strong>
                       <p>
                         اعتبار آزاد · رزرو: {amount(c.reserved)} · مصرف:{" "}
                         {amount(c.spent)}
@@ -256,7 +261,18 @@ export function AdminTravel({
           {role !== "support" && (
             <>
               <section className="portal-card">
-                <h2>اعتبار سفر هر رتبه</h2><a href="/club/ranks" target="_blank" rel="noreferrer">مشاهده هفت رتبه و طراحی کارت‌ها</a><Form fields={[]} submit="ایجاد هفت رتبه پیشنهادی با صدور غیرفعال" onSubmit={async()=>{await api("admin/travel/presets","POST",{});onChange();}}/>
+                <h2>اعتبار سفر هر رتبه</h2>
+                <a href="/club/ranks" target="_blank" rel="noreferrer">
+                  مشاهده هفت رتبه و طراحی کارت‌ها
+                </a>
+                <Form
+                  fields={[]}
+                  submit="ایجاد هفت رتبه پیشنهادی با صدور غیرفعال"
+                  onSubmit={async () => {
+                    await api("admin/travel/presets", "POST", {});
+                    onChange();
+                  }}
+                />
                 <p>
                   هر عضو یک کارت برای هر رتبه دریافت می‌کند. تغییر قانون فقط
                   صدورهای بعدی را تغییر می‌دهد؛ اعتبار کارت موجود افزایش یا

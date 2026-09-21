@@ -58,7 +58,9 @@ export function Form({
                 ? raw === "on"
                 : field.type === "number"
                   ? Number(raw)
-                  : String(raw ?? "").trim();
+                  : field.type === "password"
+                    ? String(raw ?? "")
+                    : String(raw ?? "").trim();
         }
         setBusy(true);
         setError("");

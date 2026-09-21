@@ -1,3 +1,4 @@
+import PrivilegeCard from "../../PrivilegeCard";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import { travelPresets } from "../../../src/platform/travel-presets";
 export const metadata = { title: "هفت رتبه باشگاه و کارت سفر | همای سعادت" };
@@ -22,14 +23,16 @@ export default function RanksPage() {
         </header>
         <div className="rank-grid">
           {ranks.map((r) => (
-            <article className={"rank-card rank-" + r.tone} key={r.level}>
-              <div className="rank-art">
-                <span>HOMA PRIVILEGE</span>
-                <img src="/assets/brand-mark.png" alt="" />
-                <small>{number(r.level).padStart(2, "۰")} / ۰۷</small>
-                <h2>{r.display_name}</h2>
-                <p>کارت به نام عضو واجد شرایط</p>
-              </div>
+            <article
+              className={"rank-card rank-" + r.tone}
+              key={r.level}
+              id={"rank-" + r.level}
+            >
+              <PrivilegeCard
+                name={r.display_name}
+                tone={r.tone}
+                level={r.level}
+              />
               <div className="rank-description">
                 <strong>
                   {r.active ? "صدور فعال" : "پیشنهاد؛ صدور غیرفعال"}

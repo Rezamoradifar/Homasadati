@@ -1,7 +1,12 @@
 import { notFound } from "next/navigation";
 import { one } from "../../../src/platform/schema";
 export const dynamic = "force-dynamic";
-export default function ContentPage({ params }: { params: { slug: string } }) {
+export default async function ContentPage({
+  params: pendingParams,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const params = await pendingParams;
   const p = one(
     "SELECT * FROM p_content WHERE slug=? AND published=1",
     params.slug,

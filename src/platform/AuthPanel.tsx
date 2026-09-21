@@ -1,8 +1,10 @@
 "use client";
 import Registration from "./Registration";
-import { useState } from "react";
+import { useState, FormEvent, useEffect } from "react";
+import { ShieldCheck } from "lucide-react";
 import { api, RecordData } from "./client";
-import { Form, Field, Notice } from "./Widgets";
+import { Notice } from "./Widgets";
+import { useCaptcha } from "./Captcha";
 export default function AuthPanel({
   onLogin,
   admin = false,
@@ -12,164 +14,266 @@ export default function AuthPanel({
 }) {
   const [mode, setMode] = useState("login"),
     [otp, setOtp] = useState(false),
-    [challenge, setChallenge] = useState(""),
-    [target, setTarget] = useState(""),
-    [busy, setBusy] = useState(false),
+    [recovery, setRecovery] = useState(false),
+    [challenge, setChallenge] = useState("");
+  const [target, setTarget] = useState(""),
+    [password, setPassword] = useState(""),
+    [code, setCode] = useState(""),
+    [totp, setTotp] = useState(""),
+    [recoveryCode, setRecoveryCode] = useState("");
+  const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [notice, setNotice] = useState("");
-  const needsCode = mode !== "login" || otp;
-  const fields: Field[] = [
-    {
-      name: "target",
-      label: "ایمیل یا شماره موبایل",
-      hint: "موبایل با پیش‌شماره کشور؛ مانند ‎+98912…",
-    },
-    ...(mode === "register"
-      ? [
-          { name: "name", label: "نام و نام خانوادگی" },
-          { name: "referral", label: "کد معرف (اختیاری)", required: false },
-        ]
-      : []),
-    ...(!otp || mode !== "login"
-      ? [
-          {
-            name: "password",
-            label: mode === "reset" ? "رمز جدید" : "رمز عبور",
-            type: "password",
-            hint: "حداقل ۱۲ نویسه",
-          },
-        ]
-      : []),
-    ...(needsCode ? [{ name: "code", label: "کد تأیید شش‌رقمی", max: 6 }] : []),
-    ...(mode !== "register"
-      ? [
-          {
-            name: "totp",
-            label: "کد دومرحله‌ای (اگر فعال است)",
-            required: false,
-            max: 6,
-          },
-        ]
-      : []),
-  ];
-  if(mode==="register")return <Registration onLogin={onLogin} onBack={()=>setMode("login")}/>;
+    [notice, setNotice] = useState(""),
+    [cooldown, setCooldown] = useState(0);
+  const sendCaptcha = useCaptcha("otp"),
+    submitCaptcha = useCaptcha(mode === "reset" ? "reset" : "login");
+  const needsCode = mode === "reset" || otp;
+  useEffect(() => {
+    if (!cooldown) return;
+    const t = setTimeout(() => setCooldown((v) => v - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+  function changeMode(next: string) {
+    setMode(next);
+    setChallenge("");
+    setCode("");
+    setPassword("");
+    setTotp("");
+    setRecoveryCode("");
+    setError("");
+    setNotice("");
+    submitCaptcha.reset();
+  }
+  async function send() {
+    if (busy || cooldown || !sendCaptcha.ready) return;
+    setBusy(true);
+    setError("");
+    try {
+      const r = await api("auth/otp", "POST", {
+        target,
+        purpose: mode,
+        captchaToken: sendCaptcha.token,
+      });
+      setChallenge(r.challenge);
+      setCode("");
+      setCooldown(r.retryAfter || 60);
+      setNotice("کد به راه تماس واردشده ارسال شد؛ ۵ دقیقه اعتبار دارد.");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+      sendCaptcha.reset();
+    }
+  }
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    if (busy || !submitCaptcha.ready) return;
+    setBusy(true);
+    setError("");
+    try {
+      const payload = {
+        target,
+        ...(!otp || mode === "reset" ? { password } : {}),
+        ...(needsCode ? { challenge, code } : {}),
+        ...(!recovery && totp ? { totp } : {}),
+        ...(recovery && recoveryCode ? { recoveryCode } : {}),
+        captchaToken: submitCaptcha.token,
+      };
+      const r = await api("auth/" + mode, "POST", payload);
+      if (mode === "reset") {
+        changeMode("login");
+        setNotice("رمز تغییر کرد و نشست‌های قبلی بسته شدند. دوباره وارد شوید.");
+      } else onLogin(r.user);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+      submitCaptcha.reset();
+    }
+  }
+  if (mode === "register")
+    return (
+      <Registration onLogin={onLogin} onBack={() => changeMode("login")} />
+    );
   return (
-    <div className="portal-card portal-auth">
-      <p style={{ color: "#8d764e" }}>
-        همای سعادت / {admin ? "مدیریت مجموعه" : "باشگاه همراهان"}
+    <div className="portal-card portal-auth auth-login" dir="rtl">
+      <p className="auth-eyebrow">
+        HOMA · {admin ? "ADMIN ACCESS" : "MEMBERS CLUB"}
       </p>
       <h1>
-        {mode === "register"
-          ? "عضویت در همای سعادت"
-          : mode === "reset"
-            ? "بازیابی دسترسی"
-            : admin
-              ? "ورود مدیران"
-              : "خوش آمدید"}
+        {mode === "reset"
+          ? "بازیابی دسترسی"
+          : admin
+            ? "ورود مدیران"
+            : "خوش آمدید"}
       </h1>
-      <p>سفارش‌ها، همراهان و امور مالی خود را یک‌جا مدیریت کنید.</p>
+      <p>با حساب خود وارد دنیای همراهان هما شوید.</p>
       <div className="portal-tabs" role="tablist" aria-label="روش دسترسی">
         {[
           ["login", "ورود"],
           ...(!admin ? [["register", "ثبت‌نام"]] : []),
           ["reset", "بازیابی رمز"],
-        ].map(([k, l]) => (
+        ].map(([key, label]) => (
           <button
-            key={k}
+            key={key}
             role="tab"
-            aria-selected={mode === k}
-            onClick={() => {
-              setMode(k);
-              setChallenge("");
-              setNotice("");
-              setError("");
-            }}
+            aria-selected={mode === key}
+            disabled={busy}
+            onClick={() => changeMode(key)}
           >
-            {l}
+            {label}
           </button>
         ))}
       </div>
-      {mode === "login" && (
-        <label className="portal-row" style={{ marginBottom: 20 }}>
-          <input
-            type="checkbox"
-            checked={otp}
-            onChange={(e) => setOtp(e.target.checked)}
-          />{" "}
-          ورود با کد یک‌بارمصرف
-        </label>
-      )}
-      {needsCode && (
-        <div className="portal-card">
+      <Notice error={error} success={notice} />
+      <form onSubmit={submit}>
+        <fieldset disabled={busy}>
           <label>
-            گیرندهٔ کد
+            ایمیل یا شماره موبایل
             <input
-              style={{
-                width: "100%",
-                padding: 12,
-                border: "1px solid #b6c4b7",
-                marginBlock: 10,
-              }}
-              aria-label="گیرندهٔ کد"
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
+              name="target"
               dir="ltr"
+              autoComplete="username"
+              maxLength={254}
+              required
+              value={target}
+              placeholder="name@example.com"
+              onChange={(e) => {
+                setTarget(e.target.value);
+                setChallenge("");
+                setCode("");
+              }}
             />
+            <small>
+              برای حساب‌های قدیمی با موبایل، پیش‌شماره کشور را وارد کنید.
+            </small>
           </label>
+          {mode === "login" && (
+            <label className="auth-check">
+              <input
+                type="checkbox"
+                checked={otp}
+                onChange={(e) => {
+                  setOtp(e.target.checked);
+                  setChallenge("");
+                  setCode("");
+                }}
+              />
+              ورود با کد ایمیل یا پیامک
+            </label>
+          )}
+          {(!otp || mode === "reset") && (
+            <label>
+              {mode === "reset" ? "رمز عبور جدید؛ حداقل ۱۲ نویسه" : "رمز عبور"}
+              <input
+                name="password"
+                type="password"
+                autoComplete={
+                  mode === "reset" ? "new-password" : "current-password"
+                }
+                minLength={mode === "reset" ? 12 : 1}
+                maxLength={128}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+          )}
+          {needsCode && (
+            <div className="email-code-form">
+              {sendCaptcha.element}
+              <button
+                type="button"
+                className="portal-button secondary"
+                disabled={!target || busy || cooldown > 0 || !sendCaptcha.ready}
+                onClick={send}
+              >
+                {cooldown
+                  ? `ارسال مجدد تا ${cooldown.toLocaleString("fa-IR")} ثانیه`
+                  : challenge
+                    ? "ارسال دوباره کد"
+                    : "ارسال کد تأیید"}
+              </button>
+              <label>
+                کد تأیید ایمیل / پیامک
+                <input
+                  className="otp-input"
+                  name="code"
+                  autoComplete="one-time-code"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  dir="ltr"
+                  maxLength={6}
+                  required
+                  value={code}
+                  onChange={(e) =>
+                    setCode(e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                />
+              </label>
+            </div>
+          )}
+          <div className="login-second-factor">
+            <strong>
+              <ShieldCheck size={18} /> تأیید دومرحله‌ای
+            </strong>
+            <p>اگر رمزساز حساب شما فعال است، کد آن را وارد کنید.</p>
+            {recovery ? (
+              <label>
+                کد بازیابی یک‌بارمصرف
+                <input
+                  name="recoveryCode"
+                  dir="ltr"
+                  autoComplete="off"
+                  maxLength={24}
+                  required
+                  value={recoveryCode}
+                  onChange={(e) => setRecoveryCode(e.target.value)}
+                />
+              </label>
+            ) : (
+              <label>
+                کد برنامه رمزساز
+                <input
+                  name="totp"
+                  className="otp-input"
+                  autoComplete="one-time-code"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  dir="ltr"
+                  maxLength={6}
+                  value={totp}
+                  onChange={(e) =>
+                    setTotp(e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                />
+              </label>
+            )}
+            <button
+              type="button"
+              className="auth-text-button"
+              onClick={() => setRecovery((v) => !v)}
+            >
+              {recovery
+                ? "استفاده از برنامه رمزساز"
+                : "به رمزساز دسترسی ندارم؛ استفاده از کد بازیابی"}
+            </button>
+          </div>
+          {submitCaptcha.element}
           <button
             className="portal-button"
-            disabled={busy || !target}
-            onClick={async () => {
-              setBusy(true);
-              setError("");
-              try {
-                const r = await api("auth/otp", "POST", {
-                  target,
-                  purpose: mode,
-                });
-                setChallenge(r.challenge);
-                setNotice(
-                  "کد ارسال شد و پنج دقیقه اعتبار دارد. همان گیرنده را در فرم وارد کنید.",
-                );
-              } catch (e) {
-                setError((e as Error).message);
-              } finally {
-                setBusy(false);
-              }
-            }}
+            disabled={busy || !submitCaptcha.ready || (needsCode && !challenge)}
           >
-            {busy ? "در حال ارسال…" : "ارسال کد"}
+            {busy
+              ? "در حال بررسی…"
+              : mode === "reset"
+                ? "تغییر رمز عبور"
+                : "ورود به حساب"}
           </button>
-        </div>
-      )}
-      <Notice error={error} success={notice} />
-      <Form
-        key={mode + String(otp) + challenge}
-        fields={fields}
-        initial={{
-          target,
-          referral:
-            typeof window !== "undefined"
-              ? new URLSearchParams(window.location.search).get("ref") || ""
-              : "",
-        }}
-        submit={mode === "reset" ? "تغییر رمز" : "ادامه"}
-        onSubmit={async (d) => {
-          const payload: RecordData = {
-            ...d,
-            ...(needsCode ? { challenge } : {}),
-            ...(!d.totp ? { totp: undefined } : {}),
-          };
-          if (mode === "login" && otp) delete payload.password;
-          const r = await api("auth/" + mode, "POST", payload);
-          if (mode === "reset") {
-            setMode("login");
-            setNotice("رمز تغییر کرد. دوباره وارد شوید.");
-          } else onLogin(r.user);
-        }}
-      />
-      <p className="portal-notice">
-        کد تأیید و رمز عبور را در اختیار دیگران قرار ندهید.
+        </fieldset>
+      </form>
+      <p className="auth-fineprint">
+        رمز عبور و کدهای تأیید را در اختیار دیگران قرار ندهید.
       </p>
     </div>
   );

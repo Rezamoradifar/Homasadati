@@ -78,6 +78,11 @@ export function platformDb() {
   (6,'پارسه',250000000,5000000,365,'gold',NULL),
   (7,'سیمرغ',500000000,10000000,365,'obsidian',NULL);
   INSERT OR IGNORE INTO p_migrations VALUES(6,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_enrollments(token_hash TEXT PRIMARY KEY,target TEXT NOT NULL,secret TEXT NOT NULL,expires INTEGER NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,used INTEGER NOT NULL DEFAULT 0);
+  CREATE INDEX IF NOT EXISTS p_enrollment_target ON p_enrollments(target);
+  CREATE TABLE IF NOT EXISTS p_recovery_codes(user_id TEXT NOT NULL REFERENCES p_users(id),code_hash TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(user_id,code_hash));
+  CREATE TABLE IF NOT EXISTS p_totp_setups(user_id TEXT PRIMARY KEY REFERENCES p_users(id),expires INTEGER NOT NULL);
+  INSERT OR IGNORE INTO p_migrations VALUES(7,datetime('now'));
   `);
   ready = d;
   return d;

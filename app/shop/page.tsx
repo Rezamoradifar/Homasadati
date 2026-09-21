@@ -6,11 +6,12 @@ export const metadata = {
   description:
     "محصولات ایرانی، چرم، صنایع‌دستی، مراقبت، تور و اشتراک با مشخصات کامل و سبد خرید.",
 };
-export default function Shop({
-  searchParams,
+export default async function Shop({
+  searchParams: pendingSearch,
 }: {
-  searchParams: { vertical?: string };
+  searchParams: Promise<{ vertical?: string }>;
 }) {
+  const searchParams = await pendingSearch;
   const v = searchParams.vertical || "";
   return (
     <CommerceShell>

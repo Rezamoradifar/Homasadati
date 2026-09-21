@@ -1,18 +1,19 @@
-import {BrandCollection} from '../../VisualCollections';
-import TourismMedia from '../../TourismMedia';
-import TourismHeroVideo from '../../TourismHeroVideo';
-import ClubCards from '../../ClubCards';
+import { BrandCollection } from "../../VisualCollections";
+import TourismMedia from "../../TourismMedia";
+import TourismHeroVideo from "../../TourismHeroVideo";
+import ClubCards from "../../ClubCards";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { brands, isSector, sectorKeys } from "../../../src/commerce/brands";
 import { stories } from "../../../src/commerce/content";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import Economics from "../../../src/commerce/Economics";
-export function generateMetadata({
-  params,
+export async function generateMetadata({
+  params: pendingParams,
 }: {
-  params: { sector: string };
-}): Metadata {
+  params: Promise<{ sector: string }>;
+}): Promise<Metadata> {
+  const params = await pendingParams;
   if (!isSector(params.sector)) return {};
   const b = brands[params.sector];
   return {
@@ -20,7 +21,12 @@ export function generateMetadata({
     description: stories[params.sector].intro,
   };
 }
-export default function BrandPage({ params }: { params: { sector: string } }) {
+export default async function BrandPage({
+  params: pendingParams,
+}: {
+  params: Promise<{ sector: string }>;
+}) {
+  const params = await pendingParams;
   if (!isSector(params.sector)) notFound();
   const k = params.sector,
     b = brands[k],
@@ -32,11 +38,15 @@ export default function BrandPage({ params }: { params: { sector: string } }) {
           className={`brand-hero ${k}`}
           style={{ backgroundColor: b.tone }}
         >
-          {k === "tourism" ? <TourismHeroVideo /> : b.image && (
-            <img
-              src={b.image}
-              alt="تصویر مفهومی حوزه فعالیت؛ تصویر محصول قابل خرید نیست"
-            />
+          {k === "tourism" ? (
+            <TourismHeroVideo />
+          ) : (
+            b.image && (
+              <img
+                src={b.image}
+                alt="تصویر مفهومی حوزه فعالیت؛ تصویر محصول قابل خرید نیست"
+              />
+            )
           )}
           <div>
             <span className="commerce-eyebrow">
@@ -63,7 +73,26 @@ export default function BrandPage({ params }: { params: { sector: string } }) {
           <h2>{b.label}؛ فراتر از یک انتخاب</h2>
           <p>{s.intro}</p>
         </section>
-        {k==='tourism'&&<TourismMedia/>}{k==='craft'&&<section className="tourism-media"><h2>هنر ایرانی، اعتبار سفر شما</h2><p>با عضویت در باشگاه و خرید واجد شرایط از هما تمدن، پس از پایان مهلت لغو و احراز رتبه، کارت سفر به نام شما صادر می‌شود. اعتبار هر رتبه را مدیریت تعیین می‌کند؛ این اعتبار غیرنقدی است و درخواست استفاده باید حداقل هفت روز کاری کامل پیش از سفر به کارگزار برسد.</p><a className="commerce-button gold" href="/account?tab=travel-cards">مشاهده کارت‌های سفر من</a></section>}<BrandCollection sector={k}/><div className="story-layout">
+        {k === "tourism" && <TourismMedia />}
+        {k === "craft" && (
+          <section className="tourism-media">
+            <h2>هنر ایرانی، اعتبار سفر شما</h2>
+            <p>
+              با عضویت در باشگاه و خرید واجد شرایط از هما تمدن، پس از پایان مهلت
+              لغو و احراز رتبه، کارت سفر به نام شما صادر می‌شود. اعتبار هر رتبه
+              را مدیریت تعیین می‌کند؛ این اعتبار غیرنقدی است و درخواست استفاده
+              باید حداقل هفت روز کاری کامل پیش از سفر به کارگزار برسد.
+            </p>
+            <a
+              className="commerce-button gold"
+              href="/account?tab=travel-cards"
+            >
+              مشاهده کارت‌های سفر من
+            </a>
+          </section>
+        )}
+        <BrandCollection sector={k} />
+        <div className="story-layout">
           <aside>
             <nav aria-label="فهرست محتوای این صفحه">
               {s.chapters.map((c, i) => (
