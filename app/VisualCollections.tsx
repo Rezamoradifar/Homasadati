@@ -1,4 +1,6 @@
 "use client";
+import ResponsiveImage from "../src/components/media/ResponsiveImage";
+
 import { useEffect, useRef, useState } from "react";
 import { useAutoGallery } from "../src/commerce/useAutoGallery";
 import { useLocale } from "next-intl";
@@ -37,14 +39,19 @@ export function CivilizationHero() {
     const rail = strip.current;
     const active = rail?.children[index];
     if (!rail || !active) return;
-    const item = active.getBoundingClientRect(), frame = rail.getBoundingClientRect();
-    rail.scrollBy({left: item.left - frame.left - (frame.width - item.width) / 2,
-      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+    const item = active.getBoundingClientRect(),
+      frame = rail.getBoundingClientRect();
+    rail.scrollBy({
+      left: item.left - frame.left - (frame.width - item.width) / 2,
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
   }, [index]);
 
   return (
     <>
-      <img
+      <ResponsiveImage
         ref={hero}
         className="hero-photo"
         src={"/assets/heritage/" + heritageSlides[index][0] + ".webp"}
@@ -114,8 +121,9 @@ export function CivilizationHero() {
               aria-label={s[fa ? 1 : 2]}
               aria-pressed={index === i}
             >
-              <img
+              <ResponsiveImage
                 src={"/assets/heritage/" + s[0] + ".webp"}
+                sizes="(max-width: 700px) 58px, 74px"
                 alt=""
                 loading="lazy"
               />
@@ -144,18 +152,40 @@ const collections = {
 };
 export function BrandCollection({ sector }: { sector: string }) {
   const rail = useRef<HTMLDivElement>(null);
-  const slide = useRef(0);
-  const auto = useAutoGallery(
-    rail,
-    () => {
-      const r = rail.current;
-      if (!r || r.children.length < 2) return;
-      slide.current = (slide.current + 1) % r.children.length;
-      const width = r.children[0].getBoundingClientRect().width + 24;
-      r.scrollTo({ left: -slide.current * width, behavior: "smooth" });
-    },
-    5500,
-  );
+  const [slide, setSlide] = useState(0);
+  function nearestSlide() {
+    const r = rail.current;
+    if (!r) return 0;
+    const edge = r.getBoundingClientRect().right;
+    return Array.from(r.children).reduce(
+      (best, child, i, children) =>
+        Math.abs(child.getBoundingClientRect().right - edge) <
+        Math.abs(children[best].getBoundingClientRect().right - edge)
+          ? i
+          : best,
+      0,
+    );
+  }
+  function move(step: number) {
+    const r = rail.current;
+    if (!r || r.children.length < 2) return;
+    const gap = parseFloat(getComputedStyle(r).columnGap) || 0;
+    const width = r.children[0].getBoundingClientRect().width;
+    const visible = Math.max(
+      1,
+      Math.round((r.clientWidth + gap) / (width + gap)),
+    );
+    const positions = Math.max(1, r.children.length - visible + 1);
+    const next = (nearestSlide() + step + positions) % positions;
+    const item = r.children[next].getBoundingClientRect();
+    r.scrollTo({
+      left: r.scrollLeft + item.right - r.getBoundingClientRect().right,
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  }
+  const auto = useAutoGallery(rail, () => move(1), 5500);
   if (!(sector in collections)) return null;
   const items = collections[sector as keyof typeof collections];
   return (
@@ -181,27 +211,52 @@ export function BrandCollection({ sector }: { sector: string }) {
         </button>
         <button
           aria-label="تصاویر قبلی"
-          onClick={() => { auto.pause(); rail.current?.scrollBy({ left: 400, behavior: "smooth" }); }}
+          onClick={() => {
+            auto.pause();
+            move(-1);
+          }}
         >
           →
         </button>
         <button
           aria-label="تصاویر بعدی"
-          onClick={() => { auto.pause(); rail.current?.scrollBy({ left: -400, behavior: "smooth" }); }}
+          onClick={() => {
+            auto.pause();
+            move(1);
+          }}
         >
           ←
         </button>
+        <span
+          className="collection-position"
+          aria-live={auto.paused ? "polite" : "off"}
+        >
+          {new Intl.NumberFormat("fa").format(slide + 1)} /{" "}
+          {new Intl.NumberFormat("fa").format(items.length)}
+        </span>
       </div>
       <div
         className="collection-rail"
         ref={rail}
+        tabIndex={0}
+        role="region"
+        aria-label="گالری محصولات هما؛ برای تصاویر بیشتر ورق بزنید"
+        onScroll={() => setSlide(nearestSlide())}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+            event.preventDefault();
+            auto.pause();
+            move(event.key === "ArrowLeft" ? 1 : -1);
+          }
+        }}
         onPointerDown={auto.pause}
         onFocus={auto.pause}
       >
         {items.map(([id, title]) => (
           <figure key={id}>
-            <img
+            <ResponsiveImage
               src={"/assets/collections/" + id + ".webp"}
+              sizes="(max-width: 700px) calc(100vw - 40px), (max-width: 1500px) 44vw, 640px"
               alt={title + "؛ تصویر مفهومی برند"}
               loading="lazy"
             />

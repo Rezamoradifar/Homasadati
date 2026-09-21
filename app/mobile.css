@@ -1,0 +1,234 @@
+/* Image frames stay stable while phone-sized sources load. */
+html .world-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+html .world-card {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+html .world-card > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+html .world-copy,
+html[dir="rtl"] .world-copy {
+  flex: 1;
+  min-height: 0;
+  padding: 22px 22px 54px;
+}
+html .beauty-section .beauty-editorial {
+  margin-top: 0;
+}
+html .collection-rail {
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  padding-bottom: 8px;
+}
+html .collection-rail figure {
+  min-width: 0;
+  scroll-snap-stop: always;
+}
+html .collection-rail img {
+  display: block;
+  height: auto;
+  object-fit: contain;
+  background: #f0e9df;
+}
+html .collection-nav {
+  align-items: center;
+}
+html .collection-nav button {
+  min-height: 44px;
+  min-width: 44px;
+}
+html .collection-position {
+  margin-inline-start: auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  direction: ltr;
+}
+html .travel-card-grid,
+html .travel-cards-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+}
+/* Aspect ratio must never give a card a minimum width larger than its column. */
+html .privilege-card,
+html .travel-credit-card .privilege-card {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  gap: 12px;
+  padding: clamp(18px, 3vw, 26px);
+}
+html .privilege-title,
+html .privilege-bottom {
+  margin-top: 0;
+  min-width: 0;
+}
+html .privilege-title {
+  align-self: center;
+}
+html .privilege-bottom > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+html .privilege-level {
+  flex-shrink: 0;
+}
+html .shop-card img,
+html .shop-product > div > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #f0e9df;
+}
+html .shop-product > div > img {
+  max-height: 75svh;
+}
+html .shop-card,
+html .shop-product > div,
+html .shop-toolbar > *,
+html .commerce-header > * {
+  min-width: 0;
+}
+html .shop-card h2,
+html .shop-product h1 {
+  overflow-wrap: anywhere;
+}
+html[data-theme="dark"] .collection-rail img,
+html[data-theme="dark"] .shop-card img,
+html[data-theme="dark"] .shop-product > div > img {
+  background: #253632;
+}
+@media (max-width: 1000px) {
+  html .world-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  /* Controls follow the text in normal flow, including with enlarged text. */
+  html .hero {
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+  }
+  html .hero .hero-content,
+  html[dir="rtl"] .hero .hero-content {
+    order: 1;
+    width: 88%;
+    max-width: none;
+    margin: 0;
+    padding: 48px 0 32px !important;
+  }
+  html .hero .civilization-controls {
+    position: relative;
+    inset: auto;
+    order: 2;
+    width: 88%;
+    padding-bottom: 24px;
+  }
+  html .civilization-caption {
+    gap: 10px;
+  }
+}
+@media (max-width: 767px) {
+  html .gallery-strip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    height: auto;
+    gap: 10px;
+    overflow: visible;
+  }
+  html .gallery-strip > button {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+  html .gallery-strip > button:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    aspect-ratio: 2 / 1;
+  }
+  html .gallery-strip img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  html .beauty-portrait-pair {
+    min-height: 0;
+    gap: 10px;
+  }
+  html .beauty-portrait-pair img {
+    min-width: 0;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+  html .privilege-card .privilege-title h3 {
+    font-size: clamp(24px, 7vw, 32px) !important;
+  }
+  html .privilege-top > span {
+    font-size: 11px;
+  }
+  html .privilege-top b {
+    font-size: 8px;
+  }
+  html .privilege-top > img {
+    width: 36px;
+    height: 36px;
+  }
+  html
+    :is(.request-form, .portal-form, .shop-toolbar, .auth-shell)
+    :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    font-size: 16px;
+  }
+}
+@media (max-width: 700px) {
+  html .collection-rail figure {
+    flex: 0 0 100%;
+  }
+  html .collection-rail figcaption {
+    padding: 14px 0 8px;
+    font-size: 16px;
+    line-height: 1.9;
+  }
+  html .civilization-thumbs button,
+  html .civilization-thumbs img {
+    height: 44px;
+  }
+}
+@media (max-width: 600px) {
+  html .world-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+  html .world-copy h3,
+  html[dir="rtl"] .world-copy h3 {
+    font-size: clamp(21px, 6vw, 24px);
+  }
+  html .world-copy,
+  html[dir="rtl"] .world-copy {
+    padding: 18px 18px 48px;
+  }
+  html .hero-buttons > * {
+    justify-content: center;
+    min-height: 48px;
+  }
+}

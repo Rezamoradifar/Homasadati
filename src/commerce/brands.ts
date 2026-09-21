@@ -41,5 +41,5 @@ export const brands = {
   },
 } as const;
 export type Sector = keyof typeof brands;
-export const sectorKeys = Object.keys(brands) as Sector[];
+export const sectorKeys: Sector[] = ["tourism", "craft", "leather", "beauty", "ai"];
 export const isSector = (s: string): s is Sector => Object.prototype.hasOwnProperty.call(brands, s);

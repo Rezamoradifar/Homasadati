@@ -1,4 +1,6 @@
 "use client";
+import ResponsiveImage from "../components/media/ResponsiveImage";
+
 import { useState } from "react";
 import { DataState, useData } from "../platform/Widgets";
 import { amount, RecordData } from "../platform/client";
@@ -85,7 +87,7 @@ export default function Storefront({
                     <article key={p.id} className="shop-card">
                       <a href={`/shop/${p.id}`}>
                         {images[0] ? (
-                          <img src={images[0]} alt={p.title} loading="lazy" />
+                          <ResponsiveImage src={images[0]} sizes="(max-width: 700px) 90vw, (max-width: 1050px) 44vw, 400px" alt={p.title} loading="lazy" />
                         ) : (
                           <div className="no-image">
                             تصویر محصول هنوز ثبت نشده

@@ -5,6 +5,7 @@ import './globals.css';
 import './collections.css';
 import './theme.css';
 import './refinements.css';
+import './mobile.css';
 import '@fontsource/cormorant-garamond/400.css';
 import '@fontsource/cormorant-garamond/500.css';
 import '@fontsource/cormorant-garamond/600.css';

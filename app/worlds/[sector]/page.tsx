@@ -1,3 +1,4 @@
+import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
 import { BrandCollection } from "../../VisualCollections";
 import TourismMedia from "../../TourismMedia";
 import TourismHeroVideo from "../../TourismHeroVideo";
@@ -42,8 +43,9 @@ export default async function BrandPage({
             <TourismHeroVideo />
           ) : (
             b.image && (
-              <img
+              <ResponsiveImage
                 src={b.image}
+                fetchPriority="high"
                 alt="تصویر مفهومی حوزه فعالیت؛ تصویر محصول قابل خرید نیست"
               />
             )

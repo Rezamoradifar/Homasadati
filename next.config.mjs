@@ -1,6 +1,11 @@
 const nextConfig = {
   distDir: process.env.HOMAY_BUILD_DIRECTORY || ".next",
   poweredByHeader: false,
+  images: {
+    deviceSizes: [320, 480, 640, 750, 828, 1080, 1200, 1600, 1920, 2560, 3840],
+    imageSizes: [32, 48, 64, 96, 128, 192, 256],
+    formats: ["image/webp"],
+  },
   serverExternalPackages: ["better-sqlite3", "pdfkit", "exceljs", "sharp"],
   async headers() {
     return [

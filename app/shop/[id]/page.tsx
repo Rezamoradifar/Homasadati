@@ -1,3 +1,4 @@
+import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { one } from "../../../src/platform/schema";
@@ -47,9 +48,10 @@ export default async function ProductPage({
           <div className="shop-product-images">
             {images.length ? (
               images.map((src: string, i: number) => (
-                <img
+                <ResponsiveImage
                   key={src}
                   src={src}
+                  sizes="(max-width: 700px) 90vw, (max-width: 1400px) 44vw, 650px"
                   alt={`${p.title} — تصویر ${i + 1}`}
                   loading={i ? "lazy" : "eager"}
                 />
