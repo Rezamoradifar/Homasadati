@@ -4,6 +4,7 @@ import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
 import { MemberDetails } from "./MemberDetails";
+import { MemberOverview } from "./MemberOverview";
 import { extendedCatalogFields } from "./catalog-fields";
 import { useRef, useState } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
@@ -35,12 +36,17 @@ export const commissionColumns: [string, string, string?][] = [
   ["available_at", "زمان آزادسازی", "date"],
   ["created_at", "تاریخ", "date"],
 ];
-export function Dashboard({ refresh }: { refresh: number }) {
+export function Dashboard({ refresh, user, onNavigate }: {
+  refresh: number;
+  user: RecordData;
+  onNavigate: (tab: string) => void;
+}) {
   const s = useData("dashboard", refresh);
   return (
     <Localized><DataState state={s}>
       {(d) => (
         <Localized><>
+          <MemberOverview user={user} activity={d.activity} onNavigate={onNavigate} />
           <div className="portal-stats">
             <Stat label="موجودی قابل برداشت" value={d.wallet.available} />
             <Stat label="در انتظار تسویه" value={d.wallet.pending} />

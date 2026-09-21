@@ -111,6 +111,87 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 describe("Panels use actual APIs and SQLite", () => {
+  it("retries an unavailable account connection without presenting a false signed-out state", async () => {
+    authCookie = member;
+    forceOffline = true;
+    const user = userEvent.setup();
+    render(<Portal />);
+    await screen.findByRole("heading", { name: "اتصال به حساب برقرار نشد" });
+    expect(screen.queryByRole("button", { name: "ورود به حساب" })).toBeNull();
+    forceOffline = false;
+    await user.click(screen.getByRole("button", { name: "تلاش دوباره" }));
+    await screen.findByText("موجودی قابل برداشت");
+    expect(
+      screen.queryByRole("heading", { name: "اتصال به حساب برقرار نشد" }),
+    ).toBeNull();
+  });
+
+  it("opens personal notifications from live activity counts and updates the count after reading", async () => {
+    authCookie = member;
+    const owner = one("SELECT id FROM p_users WHERE role='user'")!.id;
+    const other = one("SELECT id FROM p_users WHERE role='content'")!.id;
+    const ownId = randomUUID(),
+      otherId = randomUUID();
+    run(
+      "INSERT INTO p_notifications VALUES(?,?,?,?,NULL,?)",
+      ownId,
+      owner,
+      "پیام حساب من",
+      "جزئیات پیام من",
+      now(),
+    );
+    run(
+      "INSERT INTO p_notifications VALUES(?,?,?,?,NULL,?)",
+      otherId,
+      other,
+      "پیام خصوصی عضو دیگر",
+      "نباید نمایش یابد",
+      now(),
+    );
+    const user = userEvent.setup();
+    render(<Portal />);
+    const counter = await screen.findByRole("link", {
+      name: "۱ اعلان خوانده‌نشده",
+    });
+    expect(screen.queryByRole("link", { name: "مدیریت" })).toBeNull();
+    await user.click(counter);
+    await screen.findByText("پیام حساب من");
+    expect(window.location.search).toBe("?tab=notifications");
+    expect(screen.queryByText("پیام خصوصی عضو دیگر")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "همه خوانده شدند" }));
+    await waitFor(() =>
+      expect(
+        one("SELECT read_at FROM p_notifications WHERE id=?", ownId)!.read_at,
+      ).toBeTruthy(),
+    );
+    await user.click(screen.getByRole("button", { name: "نمای کلی" }));
+    await screen.findByRole("link", { name: "۰ اعلان خوانده‌نشده" });
+    expect(
+      one("SELECT read_at FROM p_notifications WHERE id=?", otherId)!.read_at,
+    ).toBeNull();
+    run("DELETE FROM p_notifications WHERE id IN (?,?)", ownId, otherId);
+  });
+
+  it.each(["سفارش‌ها", "تازه‌سازی"])(
+    "removes private data when %s encounters an expired session",
+    async (action) => {
+      authCookie = member;
+      const user = userEvent.setup();
+      render(<Portal />);
+      await screen.findByText("موجودی قابل برداشت");
+      authCookie = "";
+      await user.click(screen.getByRole("button", { name: action }));
+      await screen.findByText(
+        "نشست شما پایان یافته است؛ دوباره وارد حساب شوید.",
+      );
+      await screen.findByRole("button", { name: "ورود به حساب" });
+      expect(
+        screen.queryByRole("navigation", { name: "بخش‌های حساب" }),
+      ).toBeNull();
+      expect(screen.queryByText("موجودی قابل برداشت")).toBeNull();
+    },
+  );
+
   it("creates a private support thread, replies as staff and hides internal notes from its owner", async () => {
     authCookie = member;
     window.history.replaceState(null, "", "/account?tab=tickets");

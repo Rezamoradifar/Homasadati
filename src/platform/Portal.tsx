@@ -28,9 +28,10 @@ import {
   LoyaltyPanel,
 } from "./ClubPanels";
 import { visibleAdminTabs, searchAdminGroups } from "./admin-navigation";
+import { memberNavigation } from "./member-navigation";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import { translateText } from "../i18n/core";
-import { api, labels, RecordData } from "./client";
+import { api, labels, PlatformApiError, RecordData } from "./client";
 import { Notice, Listing } from "./Widgets";
 import {
   Addresses,
@@ -57,29 +58,13 @@ import {
   Flags,
   Settings,
 } from "./AdminPanel";
-const userTabs = [
-  ["tickets", "پشتیبانی"],
-  ["dashboard", "نمای کلی"],
-  ["catalog", "خرید و رزرو"],
-  ["orders", "سفارش‌ها"],
-  ["network", "شبکه و دعوت"],
-  ["binary", "شبکه باینری"],
-  ["loyalty", "امتیازات و مزایا"],
-  ["commissions", "پورسانت‌ها"],
-  ["missions", "مأموریت‌ها"],
-  ["wallet", "کیف پول و برداشت"],
-  ["travel-cards", "کارت سفر من"],
-  ["subscriptions", "اشتراک‌های من"],
-  ["notifications", "اعلان‌ها"],
-  ["profile", "پروفایل"],
-  ["addresses", "آدرس‌ها"],
-  ["security", "امنیت حساب"],
-];
 export default function Portal({ admin = false }: { admin?: boolean }) {
   const site = useSiteSettings();
   const { locale, dictionary } = useSiteLocale();
   const [navQuery, setNavQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [connectionAttempt, setConnectionAttempt] = useState(0);
+  const [connectionError, setConnectionError] = useState("");
   const [user, setUser] = useState<RecordData | null>(null),
     [loading, setLoading] = useState(true),
     [tab, setTab] = useState("dashboard"),
@@ -88,6 +73,8 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
   const update = () => setRefresh((n) => n + 1);
   useEffect(() => {
     let live = true;
+    setLoading(true);
+    setConnectionError("");
     api("me")
       .then((r) => {
         if (live) {
@@ -98,8 +85,11 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
         }
       })
       .catch((e) => {
-        if (live && e.message !== "برای ادامه وارد حساب شوید.")
-          setError(e.message);
+        if (
+          live &&
+          !(e instanceof PlatformApiError && e.code === "unauthorized")
+        )
+          setConnectionError(e.message);
       })
       .finally(() => {
         if (live) setLoading(false);
@@ -107,27 +97,57 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
     return () => {
       live = false;
     };
-  }, [admin]);
+  }, [admin, connectionAttempt]);
+  useEffect(() => {
+    const expired = () => {
+      if (!user) return;
+      setUser(null);
+      setMenuOpen(false);
+      setConnectionError("");
+      setError("نشست شما پایان یافته است؛ دوباره وارد حساب شوید.");
+    };
+    window.addEventListener("platform-session-expired", expired);
+    return () =>
+      window.removeEventListener("platform-session-expired", expired);
+  }, [user?.id]);
   useEffect(() => {
     if (!user) return;
-    const id = setInterval(() => {
-      update();
-      api("me")
-        .then((r) => setUser(r.user))
-        .catch((e) => {
-          if (e.message === "برای ادامه وارد حساب شوید.") setUser(null);
-        });
+    let live = true,
+      checking = false;
+    const id = setInterval(async () => {
+      if (checking) return;
+      checking = true;
+      try {
+        const r = await api("me");
+        if (live) {
+          setUser(r.user);
+          setConnectionError("");
+          update();
+        }
+      } catch (e) {
+        if (
+          live &&
+          !(e instanceof PlatformApiError && e.code === "unauthorized")
+        )
+          setConnectionError((e as Error).message);
+      } finally {
+        checking = false;
+      }
     }, 15000);
-    return () => clearInterval(id);
+    return () => {
+      live = false;
+      clearInterval(id);
+    };
   }, [user?.id]);
+  const userGroups = memberNavigation(Boolean(user?.merchant));
   const tabs = admin
     ? visibleAdminTabs(user?.role || "", user?.permissions)
-    : user?.merchant
-      ? [...userTabs, ["merchant", "پنل پذیرنده"]]
-      : userTabs;
+    : userGroups.flatMap((group) => group.tabs);
   const current = tabs.find((t) => t[0] === tab);
   const logged = (u: RecordData) => {
     setUser(u);
+    setError("");
+    setConnectionError("");
     const requested = new URLSearchParams(location.search).get("tab");
     setTab(requested || (admin ? "home" : "dashboard"));
   };
@@ -173,12 +193,13 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
   const refreshUser = async () => {
     const r = await api("me");
     setUser(r.user);
+    setConnectionError("");
     update();
   };
   return (
     <Localized>
       <div
-        className={`portal${admin ? " portal-admin" : ""}`}
+        className={`portal ${admin ? "portal-admin" : "portal-member"}`}
         dir="rtl"
         lang="fa"
       >
@@ -191,9 +212,13 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
             <LanguagePicker />
             <ThemeToggle />
             <a href="/">وب‌سایت</a>
-            <a href={admin ? "/account" : "/admin"}>
-              {admin ? "حساب من" : "مدیریت"}
-            </a>
+            {(admin ||
+              (user &&
+                visibleAdminTabs(user.role, user.permissions).length > 0)) && (
+              <a href={admin ? "/account" : "/admin"}>
+                {admin ? "حساب من" : "مدیریت"}
+              </a>
+            )}
             {user && (
               <button
                 className="portal-button gold"
@@ -201,6 +226,8 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   try {
                     await api("auth/logout", "POST");
                     setUser(null);
+                    setError("");
+                    setConnectionError("");
                   } catch (e) {
                     setError((e as Error).message);
                   }
@@ -215,6 +242,17 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
           <p role="status" className="portal-loading">
             در حال بررسی حساب…
           </p>
+        ) : !user && connectionError ? (
+          <main className="portal-card portal-auth">
+            <h1>اتصال به حساب برقرار نشد</h1>
+            <Notice error={connectionError} />
+            <button
+              className="portal-button"
+              onClick={() => setConnectionAttempt((n) => n + 1)}
+            >
+              تلاش دوباره
+            </button>
+          </main>
         ) : !user ? (
           <>
             <Notice error={error} />
@@ -228,7 +266,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
             </a>
           </div>
         ) : (
-          <div className="portal-layout">
+          <div className="portal-layout" key={user.id}>
             <aside className="portal-sidebar">
               <div className="portal-user">
                 <strong translate="no">{user.name}</strong>
@@ -282,31 +320,68 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   </div>
                 </>
               ) : (
-                <nav aria-label="بخش‌های حساب">
-                  {tabs.map(([key, label]) => (
-                    <button
-                      key={key}
-                      type="button"
-                      aria-current={tab === key ? "page" : undefined}
-                      onClick={() => selectTab(key)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </nav>
+                <>
+                  <button
+                    className="member-menu-toggle"
+                    type="button"
+                    aria-expanded={menuOpen}
+                    aria-controls="member-navigation"
+                    onClick={() => setMenuOpen(!menuOpen)}
+                  >
+                    بخش‌های حساب{" "}
+                    <span aria-hidden="true">{menuOpen ? "−" : "+"}</span>
+                  </button>
+                  <nav
+                    id="member-navigation"
+                    className={menuOpen ? "is-open" : ""}
+                    aria-label="بخش‌های حساب"
+                  >
+                    {userGroups.map((group) => (
+                      <section key={group.title}>
+                        <h2>{group.title}</h2>
+                        {group.tabs.map(([key, label]) => (
+                          <button
+                            key={key}
+                            type="button"
+                            aria-current={tab === key ? "page" : undefined}
+                            onClick={() => selectTab(key)}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </section>
+                    ))}
+                  </nav>
+                </>
               )}
             </aside>
             <main className="portal-main">
               <div className="portal-title">
                 <div>
                   <h1>{current?.[1] || "پنل همای سعادت"}</h1>
-                  <p>اطلاعات واقعی حساب · به‌روزرسانی هر ۱۵ ثانیه</p>
+                  <p>
+                    {connectionError
+                      ? "ارتباط قطع است؛ اطلاعات ممکن است قدیمی باشد."
+                      : "اطلاعات حساب · بررسی به‌روزرسانی هر ۱۵ ثانیه"}
+                  </p>
                 </div>
-                <button className="portal-button" onClick={update}>
+                <button
+                  className="portal-button"
+                  onClick={() =>
+                    refreshUser().catch((e) => {
+                      if (!(
+                        e instanceof PlatformApiError &&
+                        e.code === "unauthorized"
+                      ))
+                        setConnectionError(e.message);
+                    })
+                  }
+                >
                   تازه‌سازی
                 </button>
               </div>
               <Notice error={error} />
+              <Notice error={connectionError} />
               {!current ? (
                 <Notice error="بخش انتخاب‌شده در دسترس نیست." />
               ) : tab === "security" ? (
@@ -476,7 +551,13 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   {tab === "travel-cards" && (
                     <TravelCards refresh={refresh} onChange={update} />
                   )}
-                  {tab === "dashboard" && <Dashboard refresh={refresh} />}{" "}
+                  {tab === "dashboard" && (
+                    <Dashboard
+                      refresh={refresh}
+                      user={user}
+                      onNavigate={selectTab}
+                    />
+                  )}{" "}
                   {tab === "catalog" && (
                     <Catalog refresh={refresh} onChange={update} />
                   )}{" "}

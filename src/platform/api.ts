@@ -1535,6 +1535,19 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "dashboard" && get) {
       const start = persianMonthStart();
       return json({
+        activity: one(
+          `SELECT
+            (SELECT COUNT(*) FROM p_orders WHERE user_id=? AND status IN ('pending','processing','shipped')) AS activeOrders,
+            (SELECT COUNT(*) FROM p_notifications WHERE user_id=? AND read_at IS NULL) AS unreadNotifications,
+            (SELECT COUNT(*) FROM p_tickets WHERE user_id=? AND status!='closed') AS openTickets,
+            (SELECT COUNT(*) FROM p_subscriptions WHERE user_id=? AND cancelled=0 AND starts_at<=? AND expires_at>?) AS activeSubscriptions`,
+          u.id,
+          u.id,
+          u.id,
+          u.id,
+          now(),
+          now(),
+        ),
         wallet: wallet(u.id),
         sales: sales(u.id, start),
         rank: rankProgress(u.id),

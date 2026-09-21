@@ -22,6 +22,21 @@
 
 ## قرارداد ماژول‌های جدید
 
+`GET /api/platform/dashboard` نیازمند نشست معتبر است و شناسه کاربر را از نشست می‌گیرد. خروجی شامل `wallet`, `sales`, `rank`, پنج `orders` و پنج `commissions` آخر و خلاصه `activity` است:
+
+```json
+{
+  "activity": {
+    "activeOrders": 0,
+    "unreadNotifications": 0,
+    "openTickets": 0,
+    "activeSubscriptions": 0
+  }
+}
+```
+
+این نمونه ساختار پاسخ است؛ مقادیر از دیتابیس محاسبه می‌شوند. سفارش در جریان pending/processing/shipped است؛ تیکت closed شمرده نمی‌شود؛ اشتراک لغوشده، منقضی یا با شروع آینده فعال نیست. پارامتر کاربر در URL دسترسی به حساب دیگری ایجاد نمی‌کند. پاسخ بدون نشست ۴۰۱ با `unauthorized` است.
+
 `docs/openapi.json`، OpenAPI 3.0.3 برای باینری، باشگاه، پذیرندگان و مدیریت دسترسی است. ساختار ورودی‌ها از همان Zod مورد استفاده سرور تولید می‌شود:
 
 ```bash

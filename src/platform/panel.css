@@ -1784,3 +1784,170 @@ html[dir="ltr"] .binary-leg {
 .support-message time {
   font-size: 0.85rem;
 }
+
+/* Member workspace: account data and navigation share the existing API. */
+.member-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(22px, 3vw, 40px);
+  margin-bottom: 22px;
+  border-radius: 20px;
+  background: linear-gradient(125deg, #153c34, #286458);
+  color: #fff9e9;
+}
+.member-welcome span {
+  color: #e6c994;
+  font-size: 12px;
+}
+.portal .member-welcome h2 {
+  margin: 10px 0;
+  font-size: clamp(22px, 2.6vw, 32px);
+}
+.member-welcome a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid #bda777;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+.member-activity,
+.member-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.member-activity a,
+.member-shortcuts a {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--p-line);
+  border-radius: 14px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.member-activity a:hover,
+.member-shortcuts a:hover {
+  border-color: #9c7840;
+  background: #faf6eb;
+}
+.member-activity svg,
+.member-shortcuts svg {
+  color: #87692e;
+}
+.member-activity strong {
+  font-size: 27px;
+  line-height: 1.3;
+}
+.member-activity span,
+.member-shortcuts p {
+  color: #5d7167;
+  font-size: 12px;
+}
+.member-shortcuts p {
+  margin: 0;
+}
+.member-services {
+  margin-bottom: 28px;
+}
+.portal-member .portal-sidebar nav {
+  display: grid;
+  overflow: visible;
+}
+.portal-member .portal-sidebar nav section {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+.portal-member .portal-sidebar nav h2 {
+  margin: 6px 12px;
+  font-size: 11px;
+  color: #5d7167;
+}
+.portal-member .portal-sidebar nav button {
+  width: 100%;
+  white-space: normal;
+  border-radius: 9px;
+}
+.portal-member .member-menu-toggle {
+  display: none;
+}
+html[data-theme="dark"] .member-activity a,
+html[data-theme="dark"] .member-shortcuts a {
+  background: #192e2e;
+  border-color: #405956;
+}
+html[data-theme="dark"] .member-activity a:hover,
+html[data-theme="dark"] .member-shortcuts a:hover {
+  background: #294940;
+}
+html[data-theme="dark"] .member-activity span,
+html[data-theme="dark"] .member-shortcuts p,
+html[data-theme="dark"] .portal-member .portal-sidebar nav h2 {
+  color: #c9d8cd;
+}
+html[data-theme="dark"] .member-activity svg,
+html[data-theme="dark"] .member-shortcuts svg {
+  color: #e6c994;
+}
+@media (max-width: 1100px) {
+  .member-activity,
+  .member-shortcuts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .portal-member .portal-header {
+    height: auto;
+    min-height: 90px;
+    flex-wrap: wrap;
+    padding-block: 14px;
+    gap: 12px;
+  }
+  .portal-member .portal-toplinks {
+    flex-wrap: wrap;
+  }
+  .portal-member .member-menu-toggle {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 14px;
+  }
+  .portal-member #member-navigation {
+    display: none;
+  }
+  .portal-member #member-navigation.is-open {
+    display: grid;
+    margin-top: 12px;
+  }
+  .member-welcome {
+    align-items: start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .member-activity,
+  .member-shortcuts {
+    gap: 10px;
+  }
+  .member-activity a,
+  .member-shortcuts a {
+    padding: 14px;
+  }
+}
+@media (max-width: 360px) {
+  .member-shortcuts {
+    grid-template-columns: 1fr;
+  }
+}

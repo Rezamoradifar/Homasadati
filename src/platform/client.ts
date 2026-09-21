@@ -86,6 +86,15 @@ export const errors: Record<string, string> = {
   origin_denied: "نشانی سایت با تنظیمات سرور هماهنگ نیست.",
   origin_required: "درخواست معتبر نیست.",
 };
+export class PlatformApiError extends Error {
+  constructor(
+    public code: string,
+    public status: number,
+  ) {
+    super(errors[code] || "عملیات انجام نشد؛ دوباره تلاش کنید.");
+    this.name = "PlatformApiError";
+  }
+}
 export async function api(path: string, method = "GET", data?: unknown) {
   if (method !== "GET") {
     try {
@@ -114,10 +123,14 @@ export async function api(path: string, method = "GET", data?: unknown) {
   } catch {
     throw new Error("پاسخ قابل خواندن از سرور دریافت نشد.");
   }
-  if (!response.ok)
-    throw new Error(
-      errors[result.error] || "عملیات انجام نشد؛ دوباره تلاش کنید.",
+  if (!response.ok) {
+    if (result.error === "unauthorized" && typeof window !== "undefined")
+      window.dispatchEvent(new Event("platform-session-expired"));
+    throw new PlatformApiError(
+      String(result.error || "server_error"),
+      response.status,
     );
+  }
   return result;
 }
 export const amount = (n: unknown) => Number(n ?? 0).toLocaleString("fa-IR");
