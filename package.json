@@ -18,7 +18,9 @@
     "api:spec": "node --import tsx scripts/generate-openapi.ts",
     "platform:verify-backup": "node --import tsx scripts/platform-verify-backup.ts",
     "platform:restore-drill": "node --import tsx scripts/platform-restore-drill.ts",
-    "platform:benchmark": "node scripts/platform-read-benchmark.mjs"
+    "platform:benchmark": "node scripts/platform-read-benchmark.mjs",
+    "platform:offsite-backup": "node --import tsx scripts/platform-offsite-backup.ts",
+    "platform:monitor": "node --import tsx scripts/platform-monitor.ts"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",

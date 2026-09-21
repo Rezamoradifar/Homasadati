@@ -1,9 +1,17 @@
-import {loyaltyPolicy} from "./loyalty-engine";
-import {assertAccess} from "./access";
-import {resourceRoles} from "./access-model";
-import {extensionAdmin, extensionMember} from "./extension-api";
-import {binaryReport} from "./binary-report";
-import {adjustPoints, saveMerchant, saveReward, redeemReward, reviewRedemption, clubSummary} from "./club";
+import { operationsApi } from "./operations-api";
+import { loyaltyPolicy } from "./loyalty-engine";
+import { assertAccess } from "./access";
+import { resourceRoles } from "./access-model";
+import { extensionAdmin, extensionMember } from "./extension-api";
+import { binaryReport } from "./binary-report";
+import {
+  adjustPoints,
+  saveMerchant,
+  saveReward,
+  redeemReward,
+  reviewRedemption,
+  clubSummary,
+} from "./club";
 import { serviceReadiness, recordServiceFailure } from "./readiness";
 import { googleClientId, googleChallenge, googleIdentity } from "./google-auth";
 import { installTravelPresets } from "./travel-presets";
@@ -701,36 +709,77 @@ export function reports(from: string, to: string) {
 async function admin(req: Request, path: string[], data: Row, url: URL) {
   const resource = path[1];
   const allowed = permissions[resource];
-  if (resource === "access") {const owner=userOf(req,["superadmin"]);return (await extensionAdmin(req,path,data,owner))!;}
+  if (resource === "access") {
+    const owner = userOf(req, ["superadmin"]);
+    return (await extensionAdmin(req, path, data, owner))!;
+  }
   if (!allowed) throw new ApiError(404, "not_found");
   const u = userOf(req),
     q = query(url),
     get = req.method === "GET";
-  assertAccess(u,resource,!get);
-  const extension=await extensionAdmin(req,path,data,u);
-  if(extension)return extension;
+  assertAccess(u, resource, !get);
+  const operation = operationsApi(req, path, data, u, true);
+  if (operation) return operation;
+  const extension = await extensionAdmin(req, path, data, u);
+  if (extension) return extension;
   const entity = path[2];
   if (entity) id.parse(entity);
-  if (["binary", "merchants", "loyalty", "rewards", "redemptions"].includes(resource)) {
-    if (path.length !== 2 || !["GET", "POST"].includes(req.method)) throw new ApiError(405, "method_not_allowed");
-    if (!get) limit("club-admin:"+u.id, 60, 300);
+  if (
+    ["binary", "merchants", "loyalty", "rewards", "redemptions"].includes(
+      resource,
+    )
+  ) {
+    if (path.length !== 2 || !["GET", "POST"].includes(req.method))
+      throw new ApiError(405, "method_not_allowed");
+    if (!get) limit("club-admin:" + u.id, 60, 300);
     if (resource === "binary") {
       if (!get) throw new ApiError(405, "method_not_allowed");
       return json(binaryReport(q.user || u.id, q.page));
     }
-    if (resource === "merchants") return get
-      ? json(paged("SELECT * FROM p_merchants WHERE name LIKE ? OR city LIKE ? ORDER BY updated_at DESC,id", ["%"+q.q+"%","%"+q.q+"%"],q.page))
-      : json(saveMerchant(u.id,data));
+    if (resource === "merchants")
+      return get
+        ? json(
+            paged(
+              "SELECT * FROM p_merchants WHERE name LIKE ? OR city LIKE ? ORDER BY updated_at DESC,id",
+              ["%" + q.q + "%", "%" + q.q + "%"],
+              q.page,
+            ),
+          )
+        : json(saveMerchant(u.id, data));
     if (resource === "loyalty") {
-      if (!get) return json(adjustPoints(u.id,data));
+      if (!get) return json(adjustPoints(u.id, data));
       if (q.user) {
-        if (!one("SELECT id FROM p_users WHERE id=?",q.user)) throw new ApiError(404,"not_found");
-        return json(clubSummary(q.user,q.page));
+        if (!one("SELECT id FROM p_users WHERE id=?", q.user))
+          throw new ApiError(404, "not_found");
+        return json(clubSummary(q.user, q.page));
       }
-      return json(paged(`SELECT l.*,u.name FROM p_points_ledger l JOIN p_users u ON u.id=l.user_id ORDER BY l.created_at DESC,l.id DESC`,[],q.page));
+      return json(
+        paged(
+          `SELECT l.*,u.name FROM p_points_ledger l JOIN p_users u ON u.id=l.user_id ORDER BY l.created_at DESC,l.id DESC`,
+          [],
+          q.page,
+        ),
+      );
     }
-    if (resource === "rewards") return get ? json(paged("SELECT * FROM p_rewards ORDER BY updated_at DESC,id",[],q.page)) : json(saveReward(u.id,data));
-    return get ? json(paged(`SELECT r.*,u.name FROM p_redemptions r JOIN p_users u ON u.id=r.user_id WHERE (?='' OR r.status=?) ORDER BY r.created_at DESC,r.id DESC`,[q.status,q.status],q.page)) : json(reviewRedemption(u.id,data));
+    if (resource === "rewards")
+      return get
+        ? json(
+            paged(
+              "SELECT * FROM p_rewards ORDER BY updated_at DESC,id",
+              [],
+              q.page,
+            ),
+          )
+        : json(saveReward(u.id, data));
+    return get
+      ? json(
+          paged(
+            `SELECT r.*,u.name FROM p_redemptions r JOIN p_users u ON u.id=r.user_id WHERE (?='' OR r.status=?) ORDER BY r.created_at DESC,r.id DESC`,
+            [q.status, q.status],
+            q.page,
+          ),
+        )
+      : json(reviewRedemption(u.id, data));
   }
   if (resource === "catalog-options")
     return json({
@@ -792,8 +841,10 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       z.string()
         .regex(/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/)
         .parse(d.value);
-    if (d.key === "email_from" || d.key === "site_email") z.string().email().parse(d.value);
-    if(d.key === "site_ceo_name") z.string().trim().min(2).max(120).parse(d.value);
+    if (d.key === "email_from" || d.key === "site_email")
+      z.string().email().parse(d.value);
+    if (d.key === "site_ceo_name")
+      z.string().trim().min(2).max(120).parse(d.value);
     if (d.key === "site_logo") httpsImage.parse(d.value);
     const secret = [
       "resend_key",
@@ -951,7 +1002,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       })
       .parse(data);
     if (d.action === "refund") {
-      assertAccess(u,"refunds",true);
+      assertAccess(u, "refunds", true);
       return json(refundOrder(d.id, u.id, true, d.reason));
     }
     atomic(() => {
@@ -980,7 +1031,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     if (get)
       return json(
         paged(
-          "SELECT w.*,u.name FROM p_withdrawals w JOIN p_users u ON u.id=w.user_id WHERE (?='' OR w.status=?) ORDER BY created_at DESC",
+          "SELECT w.*,u.name,r.first_actor,r.second_actor,a.name approver_name,b.name payer_name FROM p_withdrawals w JOIN p_users u ON u.id=w.user_id LEFT JOIN p_withdrawal_reviews r ON r.withdrawal_id=w.id LEFT JOIN p_users a ON a.id=r.first_actor LEFT JOIN p_users b ON b.id=r.second_actor WHERE (?='' OR w.status=?) ORDER BY w.created_at DESC",
           [q.status, q.status],
           q.page,
         ),
@@ -1044,7 +1095,15 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     atomic(() => {
       const before = one("SELECT * FROM p_users WHERE id=?", d.id);
       if (!before) throw new ApiError(404, "not_found");
-      if ((d.role || before.role !== "user" || one("SELECT user_id FROM p_access_assignments WHERE user_id=?",d.id)) && u.role !== "superadmin")
+      if (
+        (d.role ||
+          before.role !== "user" ||
+          one(
+            "SELECT user_id FROM p_access_assignments WHERE user_id=?",
+            d.id,
+          )) &&
+        u.role !== "superadmin"
+      )
         throw new ApiError(403, "forbidden");
       run(
         "UPDATE p_users SET blocked=?,role=? WHERE id=?",
@@ -1268,8 +1327,13 @@ export async function handle(req: Request, path: string[]) {
         ),
       });
     }
-    if(path.join("/")==="auth/refresh" && method==="POST"){
-      return atomic(()=>{const u=userOf(req);limit("session-refresh:"+u.id,20,300);run("DELETE FROM p_sessions WHERE token_hash=?",hash(tokenOf(req)));return respondSession(u,req);});
+    if (path.join("/") === "auth/refresh" && method === "POST") {
+      return atomic(() => {
+        const u = userOf(req);
+        limit("session-refresh:" + u.id, 20, 300);
+        run("DELETE FROM p_sessions WHERE token_hash=?", hash(tokenOf(req)));
+        return respondSession(u, req);
+      });
     }
     if (path[0] === "auth" && method === "POST")
       return await auth(req, path, data);
@@ -1330,12 +1394,26 @@ export async function handle(req: Request, path: string[]) {
         })),
       });
     }
-    if(path.join("/")==="club"&&get)return json({policy:loyaltyPolicy(),levels:all("SELECT name,threshold,benefits FROM p_loyalty_levels WHERE active=1 ORDER BY threshold LIMIT 100"),rewards:all("SELECT id,title,description,points,stock FROM p_rewards WHERE active=1 ORDER BY points,id LIMIT 100")});
+    if (path.join("/") === "club" && get)
+      return json({
+        policy: loyaltyPolicy(),
+        levels: all(
+          "SELECT name,threshold,benefits FROM p_loyalty_levels WHERE active=1 ORDER BY threshold LIMIT 100",
+        ),
+        rewards: all(
+          "SELECT id,title,description,points,stock FROM p_rewards WHERE active=1 ORDER BY points,id LIMIT 100",
+        ),
+      });
     if (path[0] === "merchants" && get && path.length === 1) {
       const mq = query(url);
-      return json(paged(`SELECT id,name,category,city,address,phone,website,description FROM p_merchants
+      return json(
+        paged(
+          `SELECT id,name,category,city,address,phone,website,description FROM p_merchants
         WHERE active=1 AND (name LIKE ? OR city LIKE ? OR category LIKE ?) ORDER BY name,id`,
-        ["%"+mq.q+"%","%"+mq.q+"%","%"+mq.q+"%"],mq.page));
+          ["%" + mq.q + "%", "%" + mq.q + "%", "%" + mq.q + "%"],
+          mq.page,
+        ),
+      );
     }
     if (path[0] === "content" && get) {
       const slug = url.searchParams.get("slug");
@@ -1349,7 +1427,7 @@ export async function handle(req: Request, path: string[]) {
     }
     if (path[0] === "admin" && path[1] === "travel") {
       const actor = userOf(req);
-      assertAccess(actor,"travel",!get);
+      assertAccess(actor, "travel", !get);
       if (get)
         return json({
           liability: one(
@@ -1366,10 +1444,11 @@ export async function handle(req: Request, path: string[]) {
         });
       limit("travel-admin:" + actor.id, 60, 300);
       if (path[2] === "review") {
-        if (data.status === "redeemed") assertAccess(actor,"travel-manage",true);
+        if (data.status === "redeemed")
+          assertAccess(actor, "travel-manage", true);
         return json(reviewTravel(actor.id, data));
       }
-      assertAccess(actor,"travel-manage",true);
+      assertAccess(actor, "travel-manage", true);
       if (path[2] === "presets") {
         return json({ presets: installTravelPresets(actor.id) });
       }
@@ -1387,7 +1466,10 @@ export async function handle(req: Request, path: string[]) {
     const u = userOf(req),
       q = query(url);
     if (!get) limit("member-write:" + u.id, 80, 300);
-    const extra=extensionMember(req,path,data,u);if(extra)return extra;
+    const operation = operationsApi(req, path, data, u);
+    if (operation) return operation;
+    const extra = extensionMember(req, path, data, u);
+    if (extra) return extra;
     if (path[0] === "member-details") {
       if (get)
         return json({
@@ -1440,13 +1522,14 @@ export async function handle(req: Request, path: string[]) {
       throw new ApiError(404, "not_found");
     }
     if (path[0] === "binary" && get && path.length === 1) {
-      if (q.user && q.user !== u.id) throw new ApiError(403,"forbidden");
-      return json(binaryReport(u.id,q.page));
+      if (q.user && q.user !== u.id) throw new ApiError(403, "forbidden");
+      return json(binaryReport(u.id, q.page));
     }
     if (path[0] === "loyalty") {
-      if (path.length === 1 && get) return json(clubSummary(u.id,q.page));
-      if (path.length === 2 && path[1] === "redeem" && method === "POST") return json(redeemReward(u.id,data),201);
-      throw new ApiError(405,"method_not_allowed");
+      if (path.length === 1 && get) return json(clubSummary(u.id, q.page));
+      if (path.length === 2 && path[1] === "redeem" && method === "POST")
+        return json(redeemReward(u.id, data), 201);
+      throw new ApiError(405, "method_not_allowed");
     }
     if (path[0] === "me" && get) return json({ user: publicUser(u) });
     if (path[0] === "dashboard" && get) {

@@ -1,4 +1,5 @@
 "use client";
+import { MerchantReviewPanel } from "./SupportPanels";
 import { useRef, useState } from "react";
 import Localized from "../i18n/Localized";
 import { api, RecordData } from "./client";
@@ -477,7 +478,11 @@ export function MerchantOperationsPanel({ refresh, onChange }: Props) {
     </Localized>
   );
 }
-export function MerchantSettlementsPanel({ refresh, onChange }: Props) {
+export function MerchantSettlementsPanel({
+  refresh,
+  onChange,
+  userId,
+}: Props & { userId: string }) {
   const [page, setPage] = useState(1),
     key = useRef(""),
     state = useData(`admin/merchant-settlements?page=${page}`, refresh);
@@ -489,7 +494,9 @@ export function MerchantSettlementsPanel({ refresh, onChange }: Props) {
           <p>
             مانده قابل تسویه از سفارش تحویل‌شده و پس از مهلت لغو ایجاد می‌شود.
             این فرم فقط پرداخت بانکی انجام‌شده را با شماره پیگیری ثبت می‌کند.
-            مرجوعی پس از پرداخت، از مانده فروش‌های بعدی کسر می‌شود.
+            ثبت نهایی به تأیید مدیر مجاز دوم نیاز دارد. تا آن زمان مبلغ برای
+            بررسی رزرو می‌شود. مرجوعی پس از پرداخت، از مانده فروش‌های بعدی کسر
+            می‌شود.
           </p>
           <Form
             fields={[
@@ -519,6 +526,7 @@ export function MerchantSettlementsPanel({ refresh, onChange }: Props) {
                   ["name", "پذیرنده"],
                   ["id", "شناسه پذیرنده"],
                   ["balance", "مانده تسویه", "money"],
+                  ["reserved", "در انتظار تأیید دوم", "money"],
                 ]}
               />
               <Table
@@ -531,6 +539,11 @@ export function MerchantSettlementsPanel({ refresh, onChange }: Props) {
                   ["created_at", "تاریخ", "date"],
                 ]}
               />
+              <MerchantReviewPanel
+                rows={d.reviews.rows}
+                onChange={onChange}
+                userId={userId}
+              />
               <Table
                 rows={d.payments.rows}
                 columns={[
@@ -542,7 +555,12 @@ export function MerchantSettlementsPanel({ refresh, onChange }: Props) {
               />
               <Pagination
                 page={page}
-                more={d.hasMore || d.balances.hasMore || d.payments.hasMore}
+                more={
+                  d.hasMore ||
+                  d.balances.hasMore ||
+                  d.payments.hasMore ||
+                  d.reviews.hasMore
+                }
                 onChange={setPage}
               />
             </>

@@ -4,19 +4,19 @@
 
 ## مسیرهای اصلی موجود
 
-| بخش | مسیرها | کاربرد |
-|---|---|---|
-| احراز هویت | `auth/config`, `auth/otp`, `auth/verify-email`, `auth/verify-contact`, `auth/register`, `auth/login`, `auth/logout`, `auth/reset`, `auth/refresh` | عضویت، OTP، نشست، بازیابی، چرخش نشست |
-| گوگل | `auth/google-challenge`, `auth/google`, `auth/google-login` | چالش و تأیید هویت گوگل با کنترل اتصال حساب |
-| حساب | `me`, `profile`, `member-details`, `contact`, `security` | اطلاعات حساب، تنظیمات، 2FA و نشست‌ها |
-| فروشگاه | `catalog`, `cart/quote`, `checkouts`, `orders`, `addresses`, `subscriptions` | کاتالوگ، سبد، سفارش و خدمات |
-| پرداخت | `orders/{id}/payment`, `checkouts/{id}/payment`, `payment/callback` | ایجاد پرداخت و تأیید سمت سرور |
-| پیگیری | `orders/{id}`, `orders/{id}/invoice`, `orders/{id}/cancel` | مشاهده، فاکتور و لغو با رضایت بازگشت به کیف پول |
-| باشگاه | `club`, `loyalty`, `loyalty/redeem`, `loyalty/cancel`, `missions`, `travel-cards` | شرایط عمومی، امتیازات، مزایا، مأموریت‌ها و کارت سفر |
-| شبکه | `referrals/check`, `network`, `binary`, `commissions`, `income-plan` | دعوت، معرف، جایگاه و گزارش مالی |
-| مالی | `wallet`, `withdrawals` | گردش پول و درخواست برداشت |
-| محتوا | `content`, `merchants`, `notifications` | محتوا و پذیرندگان عمومی؛ اعلان‌های شخصی |
-| پذیرنده | `merchant`, `merchant/orders` | محصولات، سفارش‌های همان پذیرنده و پیگیری تحویل |
+| بخش        | مسیرها                                                                                                                                            | کاربرد                                              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| احراز هویت | `auth/config`, `auth/otp`, `auth/verify-email`, `auth/verify-contact`, `auth/register`, `auth/login`, `auth/logout`, `auth/reset`, `auth/refresh` | عضویت، OTP، نشست، بازیابی، چرخش نشست                |
+| گوگل       | `auth/google-challenge`, `auth/google`, `auth/google-login`                                                                                       | چالش و تأیید هویت گوگل با کنترل اتصال حساب          |
+| حساب       | `me`, `profile`, `member-details`, `contact`, `security`                                                                                          | اطلاعات حساب، تنظیمات، 2FA و نشست‌ها                |
+| فروشگاه    | `catalog`, `cart/quote`, `checkouts`, `orders`, `addresses`, `subscriptions`                                                                      | کاتالوگ، سبد، سفارش و خدمات                         |
+| پرداخت     | `orders/{id}/payment`, `checkouts/{id}/payment`, `payment/callback`                                                                               | ایجاد پرداخت و تأیید سمت سرور                       |
+| پیگیری     | `orders/{id}`, `orders/{id}/invoice`, `orders/{id}/cancel`                                                                                        | مشاهده، فاکتور و لغو با رضایت بازگشت به کیف پول     |
+| باشگاه     | `club`, `loyalty`, `loyalty/redeem`, `loyalty/cancel`, `missions`, `travel-cards`                                                                 | شرایط عمومی، امتیازات، مزایا، مأموریت‌ها و کارت سفر |
+| شبکه       | `referrals/check`, `network`, `binary`, `commissions`, `income-plan`                                                                              | دعوت، معرف، جایگاه و گزارش مالی                     |
+| مالی       | `wallet`, `withdrawals`                                                                                                                           | گردش پول و درخواست برداشت                           |
+| محتوا      | `content`, `merchants`, `notifications`                                                                                                           | محتوا و پذیرندگان عمومی؛ اعلان‌های شخصی             |
+| پذیرنده    | `merchant`, `merchant/orders`                                                                                                                     | محصولات، سفارش‌های همان پذیرنده و پیگیری تحویل      |
 
 روش HTTP و بدنه باید مطابق handler یا قرارداد ماژول باشد؛ همه مسیرهای فوق الزاماً هر دو GET و POST را نمی‌پذیرند. سفارش‌ها و سبدها پرداخت دوباره را با کلید تکرار کنترل می‌کنند. تأیید پرداخت از مرورگر پذیرفته نمی‌شود؛ callback با درگاه بررسی می‌شود.
 
@@ -71,3 +71,14 @@ npm run api:spec
 ## CI
 
 Workflow با دسترسی خواندن مخزن، تست‌ها، تولید قرارداد API و build را اجرا می‌کند. تنظیم Actionها با مستندات رسمی [checkout](https://github.com/actions/checkout) و [setup-node](https://github.com/actions/setup-node) تطبیق داده شده است. اجرای workflow روی GitHub هنوز انجام نشده است.
+
+## عملیات (migration 11)
+
+- `GET/POST /api/platform/tickets`: فهرست/ثبت درخواست عضو؛ `GET/PATCH /tickets/:id` جزئیات/بستن؛ `POST /tickets/:id/replies` پاسخ.
+- `GET /api/platform/admin/tickets` و `GET/PATCH /admin/tickets/:id` و `POST /admin/tickets/:id/replies`: مجوز خواندن/نوشتن تیکت؛ internal فقط کارکنان.
+- `GET/POST /api/platform/admin/binary-schedule`: snapshot زمان‌بندی برای سفارش جدید؛ اجرای مالی توسط worker.
+- `POST /api/platform/admin/merchant-settlements/review`: تأیید/رد مستقل با `id`, `action`, `reason`. ثبت اولیه تسویه اکنون پیشنهاد رزروشده می‌سازد.
+- `GET /api/health/ready`: Bearer MONITOR_TOKEN؛ 401/200/503؛ جزئیات بدون داده شخصی.
+- برداشت paid به دو مدیر مستقل نیاز دارد؛ خطاهای `self_payment_review`, `first_approval_required`, `second_approver_required`.
+
+قراردادهای جدید از Zod در OpenAPI تولید می‌شوند. رفتار و مهاجرت درخواست قدیمی در [OPERATIONS.md](OPERATIONS.md) است.

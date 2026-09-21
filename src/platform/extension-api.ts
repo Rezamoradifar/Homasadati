@@ -148,7 +148,12 @@ export async function extensionAdmin(
               page,
             ),
             balances: paged(
-              "SELECT m.id,m.name,COALESCE(SUM(l.amount),0) balance FROM p_merchants m LEFT JOIN p_merchant_ledger l ON l.merchant_id=m.id GROUP BY m.id ORDER BY m.name,m.id",
+              "SELECT m.id,m.name,COALESCE(SUM(l.amount),0) balance,(SELECT COALESCE(SUM(r.amount),0) FROM p_merchant_payment_reviews r WHERE r.merchant_id=m.id AND r.status='pending') reserved FROM p_merchants m LEFT JOIN p_merchant_ledger l ON l.merchant_id=m.id GROUP BY m.id ORDER BY m.name,m.id",
+              [],
+              page,
+            ),
+            reviews: paged(
+              "SELECT r.*,m.name merchant_name,a.name first_name,b.name second_name FROM p_merchant_payment_reviews r JOIN p_merchants m ON m.id=r.merchant_id JOIN p_users a ON a.id=r.first_actor LEFT JOIN p_users b ON b.id=r.second_actor ORDER BY r.created_at DESC,r.id",
               [],
               page,
             ),

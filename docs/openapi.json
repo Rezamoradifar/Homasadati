@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Homay Saadat club and administration API",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "Contract for the club, binary, merchants and delegated administration modules. Other existing auth, catalogue, order and travel routes are indexed in API.md. All writes require same-origin JSON requests. JWT is not used: authentication is a rotated opaque HttpOnly cookie session."
   },
   "paths": {
@@ -1920,6 +1920,683 @@
           }
         }
       }
+    },
+    "/api/platform/admin/binary-schedule": {
+      "get": {
+        "summary": "Configure daily or weekly processing for future orders; view the last 100 order cycles",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      },
+      "post": {
+        "summary": "Configure daily or weekly processing for future orders; view the last 100 order cycles",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BinarySchedule"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/platform/admin/merchant-settlements/review": {
+      "post": {
+        "summary": "Independent second-person review of a recorded merchant payment",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MerchantReview"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/platform/tickets": {
+      "get": {
+        "summary": "List own support requests or create a private request",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      },
+      "post": {
+        "summary": "List own support requests or create a private request",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/platform/admin/tickets": {
+      "get": {
+        "summary": "Search and filter support requests; tickets:read required",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/platform/tickets/{id}": {
+      "get": {
+        "summary": "Read own thread or close it at the expected version",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Read own thread or close it at the expected version",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketClose"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/platform/admin/tickets/{id}": {
+      "get": {
+        "summary": "Read internal notes; manage status, priority and assignee",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Read internal notes; manage status, priority and assignee",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketReview"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/platform/tickets/{id}/replies": {
+      "post": {
+        "summary": "Append a message idempotently; internal notes require staff write permission",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketReply"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/platform/admin/tickets/{id}/replies": {
+      "post": {
+        "summary": "Append a message idempotently; internal notes require staff write permission",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketReply"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1931,6 +2608,213 @@
       }
     },
     "schemas": {
+      "TicketCreate": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "order",
+              "payment",
+              "network",
+              "account",
+              "other"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "high",
+              "urgent"
+            ]
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "orderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "default": null
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "subject",
+          "category",
+          "priority",
+          "body",
+          "idempotencyKey"
+        ],
+        "additionalProperties": false
+      },
+      "TicketReply": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "internal": {
+            "type": "boolean",
+            "default": false
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "body",
+          "idempotencyKey"
+        ],
+        "additionalProperties": false
+      },
+      "TicketReview": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "waiting_support",
+              "waiting_user",
+              "closed"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "high",
+              "urgent"
+            ]
+          },
+          "assigneeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "status",
+          "priority",
+          "assigneeId",
+          "expectedVersion",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "TicketClose": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "BinarySchedule": {
+        "type": "object",
+        "properties": {
+          "schedule": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "immediate",
+                  "daily",
+                  "weekly"
+                ]
+              },
+              "hour": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 23
+              },
+              "weekday": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 6
+              }
+            },
+            "required": [
+              "mode",
+              "hour",
+              "weekday"
+            ],
+            "additionalProperties": false
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "schedule",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "MerchantReview": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "confirm",
+              "reject"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
       "BinaryRulesUpdate": {
         "type": "object",
         "properties": {

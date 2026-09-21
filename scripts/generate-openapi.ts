@@ -1,3 +1,11 @@
+import {
+  ticketCreateSchema,
+  ticketReplySchema,
+  ticketReviewSchema,
+  ticketCloseSchema,
+  binaryScheduleUpdateSchema,
+  merchantReviewSchema,
+} from "../src/platform/operations-model";
 import { writeFileSync } from "node:fs";
 import { z } from "zod";
 import {
@@ -97,6 +105,12 @@ function schema(input: z.ZodTypeAny): Record<string, unknown> {
   return {};
 }
 const components: Record<string, z.ZodTypeAny> = {
+  TicketCreate: ticketCreateSchema,
+  TicketReply: ticketReplySchema,
+  TicketReview: ticketReviewSchema,
+  TicketClose: ticketCloseSchema,
+  BinarySchedule: binaryScheduleUpdateSchema,
+  MerchantReview: merchantReviewSchema,
   BinaryRulesUpdate: z
     .object({ rules: binaryRulesSchema, reason: text })
     .strict(),
@@ -326,6 +340,65 @@ endpoint(
   "Link or unlink a merchant and product for future orders",
   "MerchantProduct",
 );
+endpoint(
+  "admin/binary-schedule",
+  ["get", "post"],
+  "Configure daily or weekly processing for future orders; view the last 100 order cycles",
+  "BinarySchedule",
+);
+endpoint(
+  "admin/merchant-settlements/review",
+  ["post"],
+  "Independent second-person review of a recorded merchant payment",
+  "MerchantReview",
+);
+endpoint(
+  "tickets",
+  ["get", "post"],
+  "List own support requests or create a private request",
+  "TicketCreate",
+);
+endpoint(
+  "admin/tickets",
+  ["get"],
+  "Search and filter support requests; tickets:read required",
+);
+endpoint(
+  "tickets/{id}",
+  ["get", "patch"],
+  "Read own thread or close it at the expected version",
+  "TicketClose",
+);
+endpoint(
+  "admin/tickets/{id}",
+  ["get", "patch"],
+  "Read internal notes; manage status, priority and assignee",
+  "TicketReview",
+);
+for (const prefix of ["tickets", "admin/tickets"]) {
+  endpoint(
+    prefix + "/{id}/replies",
+    ["post"],
+    "Append a message idempotently; internal notes require staff write permission",
+    "TicketReply",
+  );
+  for (const suffix of ["/{id}", "/{id}/replies"])
+    for (const operation of Object.values(
+      paths["/api/platform/" + prefix + suffix],
+    ) as any[])
+      operation.parameters.push({
+        in: "path",
+        name: "id",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      });
+  for (const name of ["q", "status"])
+    paths["/api/platform/" + prefix].get.parameters.push({
+      in: "query",
+      name,
+      schema: { type: "string" },
+    });
+}
 for (const path of ["merchants", "admin/merchants"])
   paths["/api/platform/" + path].get.parameters.push({
     in: "query",
@@ -344,7 +417,7 @@ writeFileSync(
       openapi: "3.0.3",
       info: {
         title: "Homay Saadat club and administration API",
-        version: "2.0.0",
+        version: "2.1.0",
         description:
           "Contract for the club, binary, merchants and delegated administration modules. Other existing auth, catalogue, order and travel routes are indexed in API.md. All writes require same-origin JSON requests. JWT is not used: authentication is a rotated opaque HttpOnly cookie session.",
       },

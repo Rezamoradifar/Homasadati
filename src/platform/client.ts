@@ -1,15 +1,26 @@
 import { validateClient } from "./client-validation";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
-  merchant_unavailable:"پذیرنده یا قرارداد این محصول فعال نیست.",
-  merchant_terms_invalid:"سهم پذیرنده و سقف پورسانت شبکه نیاز به اصلاح مدیر مالی دارند.",
+  self_payment_review: "نمی‌توانید پرداخت مربوط به حساب خودتان را بررسی کنید.",
+  second_approver_required: "این پرداخت باید توسط مدیر مجاز دیگری تأیید شود.",
+  first_approval_required: "ابتدا یک مدیر مجاز باید تأیید نخست را ثبت کند.",
+  ticket_limit:
+    "ابتدا درخواست‌های باز قبلی را پیگیری یا ببندید؛ حداکثر ۲۰ درخواست باز مجاز است.",
+  record_changed:
+    "اطلاعات تغییر کرده است؛ فهرست را تازه‌سازی کنید و دوباره اقدام کنید.",
+  merchant_unavailable: "پذیرنده یا قرارداد این محصول فعال نیست.",
+  merchant_terms_invalid:
+    "سهم پذیرنده و سقف پورسانت شبکه نیاز به اصلاح مدیر مالی دارند.",
   insufficient_points: "امتیاز کافی برای این عملیات ندارید.",
   method_not_allowed: "این عملیات در این مسیر مجاز نیست.",
-  google_not_configured:"ورود گوگل هنوز تنظیم نشده است.",
-  google_verification_failed:"تأیید گوگل نامعتبر یا منقضی است؛ دوباره تلاش کنید.",
-  google_already_linked:"این حساب قبلاً به گوگل متصل شده است.",
-  google_link_required:"ابتدا وارد حساب قبلی شوید و گوگل را از بخش امنیت متصل کنید؛ برای حساب جدید ثبت‌نام را انتخاب کنید.",
-  google_email_check_required:"برای این نشانی، ثبت‌نام با کد تأیید ایمیل را انجام دهید.",
+  google_not_configured: "ورود گوگل هنوز تنظیم نشده است.",
+  google_verification_failed:
+    "تأیید گوگل نامعتبر یا منقضی است؛ دوباره تلاش کنید.",
+  google_already_linked: "این حساب قبلاً به گوگل متصل شده است.",
+  google_link_required:
+    "ابتدا وارد حساب قبلی شوید و گوگل را از بخش امنیت متصل کنید؛ برای حساب جدید ثبت‌نام را انتخاب کنید.",
+  google_email_check_required:
+    "برای این نشانی، ثبت‌نام با کد تأیید ایمیل را انجام دهید.",
   captcha_not_configured:
     "ورود امن هنوز آماده نیست؛ لطفاً با پشتیبانی تماس بگیرید.",
   captcha_required: "ابتدا بررسی امنیتی کپچا را کامل کنید.",
@@ -115,6 +126,15 @@ export const date = (v: unknown) =>
     ? new Date(String(v)).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" })
     : "—";
 export const labels: Record<string, string> = {
+  waiting_support: "در انتظار پشتیبانی",
+  waiting_user: "در انتظار کاربر",
+  closed: "بسته‌شده",
+  normal: "عادی",
+  high: "زیاد",
+  urgent: "فوری",
+  confirmed: "تأیید نهایی",
+  account: "حساب کاربری",
+  other: "سایر",
   fulfilled: "تحویل‌شده",
   requested: "در انتظار بررسی",
   tourism: "گردشگری",

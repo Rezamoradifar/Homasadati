@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily encrypted offsite backup
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+RandomizedDelaySec=15m
+Persistent=true
+Unit=homay-offsite-backup.service
+
+[Install]
+WantedBy=timers.target

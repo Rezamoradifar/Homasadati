@@ -31,7 +31,9 @@ export function serviceReadiness() {
     }
   };
   const worker = timestamp("worker_last_success"),
-    backup = timestamp("backup_last_success");
+    backup = timestamp("backup_last_success"),
+    offsite = timestamp("offsite_last_success"),
+    binary = timestamp("binary_cycle_last_success");
   const recent = (value: string | null, ms: number) =>
     !!value &&
     Number.isFinite(Date.parse(value)) &&
@@ -53,6 +55,18 @@ export function serviceReadiness() {
     ],
     worker: { lastSuccess: worker, healthy: recent(worker, 120000) },
     backup: { lastSuccess: backup, healthy: recent(backup, 36 * 3600000) },
+    offsite: { lastSuccess: offsite, healthy: recent(offsite, 36 * 3600000) },
+    binaryCycle: { lastSuccess: binary },
+    monitoring: {
+      configured: !!process.env.ALERT_WEBHOOK_URL,
+      lastAlert: timestamp("monitor_last_alert"),
+    },
+    openTickets: one(
+      "SELECT COUNT(*) n FROM p_tickets WHERE status='waiting_support'",
+    )!.n,
+    pendingMerchantReviews: one(
+      "SELECT COUNT(*) n FROM p_merchant_payment_reviews WHERE status='pending'",
+    )!.n,
     pendingOrders: one(
       "SELECT COUNT(*) n FROM p_orders WHERE paid_at IS NOT NULL AND status IN ('processing','shipped')",
     )!.n,

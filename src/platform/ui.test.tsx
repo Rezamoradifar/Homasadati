@@ -98,7 +98,9 @@ beforeAll(() => {
     this.removeAttribute("open");
   };
 });
-beforeEach(() => { window.history.replaceState(null, "", "/"); });
+beforeEach(() => {
+  window.history.replaceState(null, "", "/");
+});
 afterEach(() => {
   cleanup();
   forceOffline = false;
@@ -109,16 +111,118 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 describe("Panels use actual APIs and SQLite", () => {
-  it("saves binary rules and calculates a scenario through the management form", async()=>{
-    authCookie=admin;window.history.replaceState(null,"","/admin?tab=binary-rules");const user=userEvent.setup();render(<Portal admin/>);
-    const ratio=await screen.findByLabelText("ضریب شاخه چپ");await user.clear(ratio);await user.type(ratio,"2");
-    await user.type(screen.getByLabelText("دلیل تغییر"),"تأیید قواعد آزمایشی");await user.click(screen.getByRole("button",{name:"ذخیره"}));
-    await waitFor(()=>expect(JSON.parse(one("SELECT value FROM p_settings WHERE key='binary_rules'")!.value).leftRatio).toBe(2));
-    await user.type(await screen.findByLabelText("حجم چپ"),"2000");await user.type(screen.getByLabelText("حجم راست"),"1000");await user.type(screen.getByLabelText("بودجه باقی‌مانده سفارش پس از سایر پورسانت‌ها"),"500");await user.type(screen.getByLabelText("نرخ باینری (%)"),"10");await user.click(screen.getByRole("button",{name:"محاسبه سناریو"}));await screen.findByText("پورسانت محاسبه‌شده");expect(one("SELECT COUNT(*) n FROM p_binary_matches")!.n).toBe(0);
+  it("creates a private support thread, replies as staff and hides internal notes from its owner", async () => {
+    authCookie = member;
+    window.history.replaceState(null, "", "/account?tab=tickets");
+    const user = userEvent.setup();
+    render(<Portal />);
+    await user.type(
+      await screen.findByLabelText("موضوع درخواست"),
+      "پیگیری خرید آزمایشی",
+    );
+    await user.type(
+      screen.getByLabelText("شرح درخواست"),
+      "لطفاً وضعیت سفارش را بررسی کنید.",
+    );
+    await user.click(screen.getByRole("button", { name: "ثبت درخواست" }));
+    await screen.findByRole("heading", { name: "پیگیری خرید آزمایشی" });
+    const ticket = one(
+      "SELECT id FROM p_tickets WHERE subject=?",
+      "پیگیری خرید آزمایشی",
+    )!;
+    cleanup();
+    authCookie = admin;
+    window.history.replaceState(null, "", "/admin?tab=tickets");
+    render(<Portal admin />);
+    await user.click(
+      await screen.findByRole("button", { name: "مشاهده گفت‌وگو" }),
+    );
+    await user.type(
+      await screen.findByLabelText("متن پاسخ"),
+      "یادداشت محرمانه همکاران",
+    );
+    await user.click(screen.getByLabelText("یادداشت داخلی؛ فقط برای پشتیبانی"));
+    await user.click(screen.getByRole("button", { name: "ارسال پاسخ" }));
+    await screen.findByText("یادداشت محرمانه همکاران");
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("متن پاسخ") as HTMLTextAreaElement).value,
+      ).toBe(""),
+    );
+    await user.type(screen.getByLabelText("متن پاسخ"), "سفارش شما بررسی شد.");
+    await user.click(screen.getByRole("button", { name: "ارسال پاسخ" }));
+    await screen.findByText("سفارش شما بررسی شد.");
+    cleanup();
+    authCookie = member;
+    window.history.replaceState(null, "", "/account?tab=tickets");
+    render(<Portal />);
+    await user.click(
+      await screen.findByRole("button", { name: "مشاهده گفت‌وگو" }),
+    );
+    await screen.findByText("سفارش شما بررسی شد.");
+    expect(screen.queryByText("یادداشت محرمانه همکاران")).toBeNull();
+    expect(
+      one("SELECT status FROM p_tickets WHERE id=?", ticket.id)!.status,
+    ).toBe("waiting_user");
   });
-  it("opens assigned management tools for a member without changing their base role",async()=>{
-    const userId=one("SELECT id FROM p_users WHERE role='user'")!.id,roleId=randomUUID();run("INSERT INTO p_access_roles VALUES(?,?,'[\"binary:read\"]',1,?)",roleId,"نقش گزارش",now());run("INSERT INTO p_access_assignments VALUES(?,?,?)",userId,roleId,now());
-    authCookie=member;window.history.replaceState(null,"","/admin?tab=binary");render(<Portal admin/>);await screen.findByRole("heading",{name:"درخت جایگاه باینری"});expect(screen.queryByRole("button",{name:"نقش‌ها و مجوزها"})).toBeNull();expect(screen.queryByRole("button",{name:"تسویه پذیرندگان"})).toBeNull();run("DELETE FROM p_access_assignments WHERE user_id=? AND role_id=?",userId,roleId);
+  it("saves binary rules and calculates a scenario through the management form", async () => {
+    authCookie = admin;
+    window.history.replaceState(null, "", "/admin?tab=binary-rules");
+    const user = userEvent.setup();
+    render(<Portal admin />);
+    const ratio = await screen.findByLabelText("ضریب شاخه چپ");
+    await user.clear(ratio);
+    await user.type(ratio, "2");
+    await user.type(screen.getByLabelText("دلیل تغییر"), "تأیید قواعد آزمایشی");
+    await user.click(screen.getByRole("button", { name: "ذخیره" }));
+    await waitFor(() =>
+      expect(
+        JSON.parse(
+          one("SELECT value FROM p_settings WHERE key='binary_rules'")!.value,
+        ).leftRatio,
+      ).toBe(2),
+    );
+    await user.type(await screen.findByLabelText("حجم چپ"), "2000");
+    await user.type(screen.getByLabelText("حجم راست"), "1000");
+    await user.type(
+      screen.getByLabelText("بودجه باقی‌مانده سفارش پس از سایر پورسانت‌ها"),
+      "500",
+    );
+    await user.type(screen.getByLabelText("نرخ باینری (%)"), "10");
+    await user.click(screen.getByRole("button", { name: "محاسبه سناریو" }));
+    await screen.findByText("پورسانت محاسبه‌شده");
+    expect(one("SELECT COUNT(*) n FROM p_binary_matches")!.n).toBe(0);
+  });
+  it("opens assigned management tools for a member without changing their base role", async () => {
+    const userId = one("SELECT id FROM p_users WHERE role='user'")!.id,
+      roleId = randomUUID();
+    run(
+      "INSERT INTO p_access_roles VALUES(?,?,'[\"binary:read\"]',1,?)",
+      roleId,
+      "نقش گزارش",
+      now(),
+    );
+    run(
+      "INSERT INTO p_access_assignments VALUES(?,?,?)",
+      userId,
+      roleId,
+      now(),
+    );
+    authCookie = member;
+    window.history.replaceState(null, "", "/admin?tab=binary");
+    render(<Portal admin />);
+    await screen.findByRole("heading", { name: "درخت جایگاه باینری" });
+    expect(
+      screen.queryByRole("button", { name: "نقش‌ها و مجوزها" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "تسویه پذیرندگان" }),
+    ).toBeNull();
+    run(
+      "DELETE FROM p_access_assignments WHERE user_id=? AND role_id=?",
+      userId,
+      roleId,
+    );
   });
 
   it("grants club points and redeems an approved benefit through the actual UI", async () => {
@@ -126,28 +230,47 @@ describe("Panels use actual APIs and SQLite", () => {
     window.history.replaceState(null, "", "/admin?tab=rewards");
     const user = userEvent.setup();
     let view = render(<Portal admin />);
-    await user.click(await screen.findByRole("button", {name: "افزودن مزیت باشگاه"}));
-    const modal=screen.getByRole("dialog");
-    await user.type(within(modal).getByLabelText("عنوان"),"مزیت آزمون");
-    await user.type(within(modal).getByLabelText("امتیاز لازم"),"25");
-    await user.type(within(modal).getByLabelText("ظرفیت باقی‌مانده"),"2");
-    await user.type(within(modal).getByLabelText("دلیل تغییر"),"تأیید برای آزمون");
+    await user.click(
+      await screen.findByRole("button", { name: "افزودن مزیت باشگاه" }),
+    );
+    const modal = screen.getByRole("dialog");
+    await user.type(within(modal).getByLabelText("عنوان"), "مزیت آزمون");
+    await user.type(within(modal).getByLabelText("امتیاز لازم"), "25");
+    await user.type(within(modal).getByLabelText("ظرفیت باقی‌مانده"), "2");
+    await user.type(
+      within(modal).getByLabelText("دلیل تغییر"),
+      "تأیید برای آزمون",
+    );
     await user.click(within(modal).getByLabelText("فعال"));
-    await user.click(within(modal).getByRole("button",{name:"ذخیره"}));
-    await screen.findByRole("cell",{name:"مزیت آزمون"});
-    await user.click(screen.getByRole("button",{name:"مدیریت امتیازات"}));
-    await user.type(await screen.findByLabelText("شناسهٔ کاربر"),one("SELECT id FROM p_users WHERE role='user'")!.id);
-    await user.type(screen.getByLabelText("تغییر امتیاز؛ مثبت یا منفی"),"40");
-    await user.type(screen.getByLabelText("دلیل تغییر"),"سند امتیاز آزمون");
-    await user.click(screen.getByRole("button",{name:"ذخیره"}));
-    await screen.findByRole("cell",{name:"سند امتیاز آزمون"});
-    view.unmount(); authCookie=member;
-    window.history.replaceState(null,"","/account?tab=loyalty");
-    view=render(<Portal/>);
-    await user.click(await screen.findByRole("button",{name:"درخواست مزیت"}));
-    await user.click(within(screen.getByRole("dialog")).getByRole("button",{name:"تأیید و کسر امتیاز"}));
-    await screen.findByRole("cell",{name:"در انتظار بررسی"});
-    expect(one("SELECT SUM(delta) n FROM p_points_ledger WHERE user_id=(SELECT id FROM p_users WHERE role='user')")!.n).toBe(15);
+    await user.click(within(modal).getByRole("button", { name: "ذخیره" }));
+    await screen.findByRole("cell", { name: "مزیت آزمون" });
+    await user.click(screen.getByRole("button", { name: "مدیریت امتیازات" }));
+    await user.type(
+      await screen.findByLabelText("شناسهٔ کاربر"),
+      one("SELECT id FROM p_users WHERE role='user'")!.id,
+    );
+    await user.type(screen.getByLabelText("تغییر امتیاز؛ مثبت یا منفی"), "40");
+    await user.type(screen.getByLabelText("دلیل تغییر"), "سند امتیاز آزمون");
+    await user.click(screen.getByRole("button", { name: "ذخیره" }));
+    await screen.findByRole("cell", { name: "سند امتیاز آزمون" });
+    view.unmount();
+    authCookie = member;
+    window.history.replaceState(null, "", "/account?tab=loyalty");
+    view = render(<Portal />);
+    await user.click(
+      await screen.findByRole("button", { name: "درخواست مزیت" }),
+    );
+    await user.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "تأیید و کسر امتیاز",
+      }),
+    );
+    await screen.findByRole("cell", { name: "در انتظار بررسی" });
+    expect(
+      one(
+        "SELECT SUM(delta) n FROM p_points_ledger WHERE user_id=(SELECT id FROM p_users WHERE role='user')",
+      )!.n,
+    ).toBe(15);
   });
 
   it("opens the manager workspace and keeps section navigation in the URL", async () => {
@@ -155,8 +278,10 @@ describe("Panels use actual APIs and SQLite", () => {
     const user = userEvent.setup();
     render(<Portal admin />);
     await screen.findByRole("heading", { name: "کارهای امروز، در یک نگاه" });
-    await user.click(screen.getByRole("link", { name: /محصولات و تورها ثبت و ویرایش/ }));
-    await screen.findByRole("button", {name: "افزودن محصول / تور / پلن"});
+    await user.click(
+      screen.getByRole("link", { name: /محصولات و تورها ثبت و ویرایش/ }),
+    );
+    await screen.findByRole("button", { name: "افزودن محصول / تور / پلن" });
     expect(new URLSearchParams(location.search).get("tab")).toBe("products");
     window.history.replaceState(null, "", "/admin?tab=home");
     window.dispatchEvent(new PopStateEvent("popstate"));
@@ -166,24 +291,38 @@ describe("Panels use actual APIs and SQLite", () => {
     authCookie = admin;
     const user = userEvent.setup();
     render(<Portal admin />);
-    const search = await screen.findByRole("searchbox", { name: "جست‌وجوی بخش‌ها" });
+    const search = await screen.findByRole("searchbox", {
+      name: "جست‌وجوی بخش‌ها",
+    });
     await user.type(search, "برداشت");
-    const nav = screen.getByRole("navigation", {name: "بخش‌های مدیریت"});
-    expect(within(nav).getByRole("button", {name: "درخواست‌های برداشت"})).toBeTruthy();
-    expect(within(nav).queryByRole("button", {name: "اعضای مجموعه"})).toBeNull();
+    const nav = screen.getByRole("navigation", { name: "بخش‌های مدیریت" });
+    expect(
+      within(nav).getByRole("button", { name: "درخواست‌های برداشت" }),
+    ).toBeTruthy();
+    expect(
+      within(nav).queryByRole("button", { name: "اعضای مجموعه" }),
+    ).toBeNull();
     await user.clear(search);
     await user.type(search, "zzzzzz");
-    expect(within(nav).getByRole("status").textContent).toContain("بخشی با این نام پیدا نشد.");
+    expect(within(nav).getByRole("status").textContent).toContain(
+      "بخشی با این نام پیدا نشد.",
+    );
     await user.clear(search);
-    expect(within(nav).getByRole("button", {name: "اعضای مجموعه"})).toBeTruthy();
+    expect(
+      within(nav).getByRole("button", { name: "اعضای مجموعه" }),
+    ).toBeTruthy();
   });
   it("limits content managers to their permitted tools, including direct links", async () => {
     authCookie = contentAdmin;
     const view = render(<Portal admin />);
-    await screen.findByRole("heading", {name: "کارهای امروز، در یک نگاه"});
-    expect(screen.getByRole("button", {name: "مدیریت محتوا"})).toBeTruthy();
-    expect(screen.queryByRole("button", {name: "درخواست‌های برداشت"})).toBeNull();
-    expect(screen.queryByRole("link", {name: /درخواست‌های برداشت/})).toBeNull();
+    await screen.findByRole("heading", { name: "کارهای امروز، در یک نگاه" });
+    expect(screen.getByRole("button", { name: "مدیریت محتوا" })).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "درخواست‌های برداشت" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("link", { name: /درخواست‌های برداشت/ }),
+    ).toBeNull();
     expect(screen.queryByText("فروش خالص سفارش‌های بازه")).toBeNull();
     view.unmount();
     window.history.replaceState(null, "", "/admin?tab=withdrawals");

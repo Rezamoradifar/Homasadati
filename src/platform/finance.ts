@@ -1,4 +1,10 @@
 import {
+  paymentActor,
+  approveWithdrawal,
+  confirmWithdrawal,
+} from "./payment-controls";
+import { binarySchedule } from "./binary-schedule";
+import {
   merchantTerms,
   recordMerchantSale,
   reverseMerchantSale,
@@ -286,90 +292,110 @@ export function calculateCommissions(order: Row) {
       now(),
     );
     saveLotTerms(lotId, rules);
-    if (p.binaryBps && binaryEligible(parent.id, rules)) {
-      while (budget > 0) {
-        const minimumUnits = Math.ceil(10000 / p.binaryBps);
-        const leftLots = nextBinaryLots(
-            parent.id,
-            "left",
-            rules.leftRatio * minimumUnits,
-          ),
-          rightLots = nextBinaryLots(
-            parent.id,
-            "right",
-            rules.rightRatio * minimumUnits,
-          );
-        if (!leftLots.length || !rightLots.length) break;
-        const result = binaryQuote({
-          left: leftLots.reduce((n, l) => n + l.remaining, 0),
-          right: rightLots.reduce((n, l) => n + l.remaining, 0),
-          budget,
-          alreadyEarned: dailyBinaryEarned(parent.id),
-          rateBps: p.binaryBps,
-          eligible: true,
-          rules,
-        });
-        const { volume, amount } = result;
-        if (!amount) break;
-        const allocations = [
-          ...lotAllocations(leftLots, result.leftConsumed),
-          ...lotAllocations(rightLots, result.rightConsumed),
-        ];
-        const l = leftLots[0],
-          r = rightLots[0],
-          match = randomUUID();
-        const maturity = allocations
-          .map(
-            (a) =>
-              one(
-                "SELECT cancel_until FROM p_orders WHERE id=?",
-                a.lot.order_id,
-              )!.cancel_until,
-          )
-          .sort()
-          .at(-1);
-        const commission = award(
-          parent.id,
-          order,
-          "binary",
-          amount,
-          "binary:" + match,
-          maturity,
-        );
-        run(
-          "INSERT INTO p_binary_matches VALUES(?,?,?,?,?,0)",
-          match,
-          l.id,
-          r.id,
-          volume,
-          commission,
-        );
-        for (const a of allocations) {
-          run(
-            "UPDATE p_binary_lots SET remaining=remaining-? WHERE id=?",
-            a.volume,
-            a.lot.id,
-          );
-          run(
-            "INSERT INTO p_binary_match_allocations VALUES(?,?,?)",
-            match,
-            a.lot.id,
-            a.volume,
-          );
-        }
-        run(
-          "INSERT INTO p_binary_match_terms VALUES(?,?,?,?,?)",
-          match,
-          result.leftConsumed,
-          result.rightConsumed,
-          JSON.stringify(rules),
-          binaryDay(),
-        );
-        budget -= amount;
-      }
-    }
+    if (
+      (JSON.parse(order.policy).binarySchedule?.mode || "immediate") ===
+      "immediate"
+    )
+      budget = matchBinaryForOrder(order, parent.id, budget).budget;
     child = parent;
   }
+}
+export function matchBinaryForOrder(
+  order: Row,
+  user: string,
+  budget: number,
+  maxMatches = Number.MAX_SAFE_INTEGER,
+  cutoff = now(),
+) {
+  const p = JSON.parse(order.policy);
+  const rules = p.binaryRules || legacyBinaryRules;
+  let matches = 0;
+  if (p.binaryBps && binaryEligible(user, rules)) {
+    while (budget > 0 && matches < maxMatches) {
+      const minimumUnits = Math.ceil(10000 / p.binaryBps);
+      const leftLots = nextBinaryLots(
+          user,
+          "left",
+          rules.leftRatio * minimumUnits,
+          cutoff,
+        ),
+        rightLots = nextBinaryLots(
+          user,
+          "right",
+          rules.rightRatio * minimumUnits,
+          cutoff,
+        );
+      if (!leftLots.length || !rightLots.length) break;
+      const result = binaryQuote({
+        left: leftLots.reduce((n, l) => n + l.remaining, 0),
+        right: rightLots.reduce((n, l) => n + l.remaining, 0),
+        budget,
+        alreadyEarned: dailyBinaryEarned(user),
+        rateBps: p.binaryBps,
+        eligible: true,
+        rules,
+      });
+      const { volume, amount } = result;
+      if (!amount) break;
+      const allocations = [
+        ...lotAllocations(leftLots, result.leftConsumed),
+        ...lotAllocations(rightLots, result.rightConsumed),
+      ];
+      const l = leftLots[0],
+        r = rightLots[0],
+        match = randomUUID();
+      const maturity = [
+        order.cancel_until,
+        ...allocations.map(
+          (a) =>
+            one("SELECT cancel_until FROM p_orders WHERE id=?", a.lot.order_id)!
+              .cancel_until,
+        ),
+      ]
+        .sort()
+        .at(-1);
+      const commission = award(
+        user,
+        order,
+        "binary",
+        amount,
+        "binary:" + match,
+        maturity,
+      );
+      run(
+        "INSERT INTO p_binary_matches VALUES(?,?,?,?,?,0)",
+        match,
+        l.id,
+        r.id,
+        volume,
+        commission,
+      );
+      for (const a of allocations) {
+        run(
+          "UPDATE p_binary_lots SET remaining=remaining-? WHERE id=?",
+          a.volume,
+          a.lot.id,
+        );
+        run(
+          "INSERT INTO p_binary_match_allocations VALUES(?,?,?)",
+          match,
+          a.lot.id,
+          a.volume,
+        );
+      }
+      run(
+        "INSERT INTO p_binary_match_terms VALUES(?,?,?,?,?)",
+        match,
+        result.leftConsumed,
+        result.rightConsumed,
+        JSON.stringify(rules),
+        binaryDay(),
+      );
+      budget -= amount;
+      matches++;
+    }
+  }
+  return { budget, matches };
 }
 export function mature() {
   for (const c of all(
@@ -432,6 +458,14 @@ export function settleOrder(orderId: string, reference: string) {
     );
     const saved = one("SELECT * FROM p_orders WHERE id=?", o.id)!;
     calculateCommissions(saved);
+    const schedule = JSON.parse(saved.policy).binarySchedule;
+    if (schedule && schedule.mode !== "immediate")
+      run(
+        "INSERT OR IGNORE INTO p_binary_scheduled_orders(order_id,schedule,paid_at) VALUES(?,?,?)",
+        saved.id,
+        JSON.stringify(schedule),
+        saved.paid_at,
+      );
     accrueOrderPoints(saved);
     recordMerchantSale(saved);
     if (o.vertical === "ai") {
@@ -536,6 +570,7 @@ export function createOrder(
       JSON.stringify({
         ...p,
         binaryRules: binaryRules(),
+        binarySchedule: binarySchedule(),
         loyaltyPolicy: loyaltyPolicy(),
         merchantTerms: merchant,
         orderTerms: {
@@ -728,11 +763,36 @@ export function reviewWithdrawal(
   return atomic(() => {
     const w = one("SELECT * FROM p_withdrawals WHERE id=?", id);
     if (!w) throw new ApiError(404, "not_found");
-    if (w.status === action) return w;
+    paymentActor(actor, "withdrawals", w.user_id);
+    if (w.status === action) {
+      if (action === "paid" && w.bank_reference !== reference)
+        throw new ApiError(409, "idempotency_conflict");
+      if (
+        action === "approved" &&
+        !one(
+          "SELECT withdrawal_id FROM p_withdrawal_reviews WHERE withdrawal_id=?",
+          id,
+        )
+      ) {
+        payoutGuard();
+        if (wallet(w.user_id).debt) throw new ApiError(409, "invalid_state");
+        approveWithdrawal(id, actor, w.user_id);
+        audit(
+          actor,
+          "withdrawal.legacy_approval",
+          id,
+          null,
+          { firstActor: actor },
+          reason,
+        );
+      }
+      return w;
+    }
     if (action === "approved") {
       payoutGuard();
       if (w.status !== "pending" || wallet(w.user_id).debt)
         throw new ApiError(409, "invalid_state");
+      approveWithdrawal(id, actor, w.user_id);
       ledger(
         w.user_id,
         "approve:" + id,
@@ -760,6 +820,7 @@ export function reviewWithdrawal(
       payoutGuard();
       if (w.status !== "approved" || !reference || wallet(w.user_id).debt)
         throw new ApiError(409, "invalid_state");
+      confirmWithdrawal(id, actor, w.user_id);
     }
     run(
       "UPDATE p_withdrawals SET status=?,reason=?,bank_reference=?,updated_at=? WHERE id=?",

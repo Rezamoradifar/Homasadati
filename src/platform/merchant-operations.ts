@@ -1,3 +1,5 @@
+import { paymentActor } from "./payment-controls";
+import { merchantReviewSchema } from "./operations-model";
 import { randomUUID } from "node:crypto";
 import { all, one, run, atomic, now, Row } from "./schema";
 import { ApiError } from "../server/http";
@@ -143,7 +145,7 @@ export function merchantBalance(id: string) {
     id,
   )!.n as number;
 }
-export function recordMerchantPayment(actor: string, input: unknown) {
+function applyMerchantPayment(actor: string, input: unknown) {
   const d = merchantPaymentSchema.parse(input);
   return atomic(() => {
     const payload = JSON.stringify(d),
@@ -181,6 +183,119 @@ export function recordMerchantPayment(actor: string, input: unknown) {
     return { id };
   });
 }
+export function merchantReserved(merchant: string) {
+  return one(
+    "SELECT COALESCE(SUM(amount),0) n FROM p_merchant_payment_reviews WHERE merchant_id=? AND status='pending'",
+    merchant,
+  )!.n as number;
+}
+export function recordMerchantPayment(actor: string, input: unknown) {
+  const d = merchantPaymentSchema.parse(input),
+    payload = JSON.stringify(d);
+  return atomic(() => {
+    paymentActor(actor, "merchant-settlements");
+    const old = one(
+      "SELECT * FROM p_merchant_payment_reviews WHERE idem_key=?",
+      d.idempotencyKey,
+    );
+    if (old) {
+      if (old.payload !== payload || old.first_actor !== actor)
+        throw new ApiError(409, "idempotency_conflict");
+      return { id: old.id, status: old.status };
+    }
+    const contract = one(
+      "SELECT c.owner_id FROM p_merchant_contracts c JOIN p_merchants m ON m.id=c.merchant_id WHERE c.merchant_id=? AND c.active=1 AND m.active=1",
+      d.merchantId,
+    );
+    if (!contract) throw new ApiError(404, "not_found");
+    paymentActor(actor, "merchant-settlements", contract.owner_id);
+    matureMerchantSales();
+    if (
+      merchantBalance(d.merchantId) - merchantReserved(d.merchantId) <
+      d.amount
+    )
+      throw new ApiError(409, "insufficient_balance");
+    if (
+      one(
+        "SELECT id FROM p_merchant_payments WHERE bank_reference=?",
+        d.bankReference,
+      )
+    )
+      throw new ApiError(409, "duplicate_record");
+    const id = randomUUID();
+    run(
+      "INSERT INTO p_merchant_payment_reviews(id,merchant_id,owner_id,amount,bank_reference,idem_key,payload,first_actor,status,reason,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,'pending',?,?,?)",
+      id,
+      d.merchantId,
+      contract.owner_id,
+      d.amount,
+      d.bankReference,
+      d.idempotencyKey,
+      payload,
+      actor,
+      d.reason,
+      now(),
+      now(),
+    );
+    audit(actor, "merchant.payment_proposed", id, null, d, d.reason);
+    return { id, status: "pending" };
+  });
+}
+export function reviewMerchantPayment(actor: string, input: unknown) {
+  const d = merchantReviewSchema.parse(input);
+  return atomic(() => {
+    const review = one(
+      "SELECT * FROM p_merchant_payment_reviews WHERE id=?",
+      d.id,
+    );
+    if (!review) throw new ApiError(404, "not_found");
+    paymentActor(actor, "merchant-settlements", review.owner_id);
+    const owner = one(
+      "SELECT owner_id FROM p_merchant_contracts WHERE merchant_id=?",
+      review.merchant_id,
+    )?.owner_id;
+    paymentActor(actor, "merchant-settlements", owner);
+    if (review.first_actor === actor)
+      throw new ApiError(403, "second_approver_required");
+    const status = d.action === "confirm" ? "confirmed" : "rejected";
+    if (review.status === status) {
+      if (review.second_actor !== actor || review.review_reason !== d.reason)
+        throw new ApiError(409, "idempotency_conflict");
+      return { id: review.id, status };
+    }
+    if (review.status !== "pending") throw new ApiError(409, "invalid_state");
+    let payment: string | null = null;
+    if (d.action === "confirm") {
+      paymentActor(review.first_actor, "merchant-settlements", review.owner_id);
+      paymentActor(review.first_actor, "merchant-settlements", owner);
+      matureMerchantSales();
+      if (
+        merchantBalance(review.merchant_id) <
+        merchantReserved(review.merchant_id)
+      )
+        throw new ApiError(409, "insufficient_balance");
+      payment = applyMerchantPayment(actor, JSON.parse(review.payload)).id;
+    }
+    run(
+      "UPDATE p_merchant_payment_reviews SET status=?,second_actor=?,review_reason=?,payment_id=?,updated_at=? WHERE id=?",
+      status,
+      actor,
+      d.reason,
+      payment,
+      now(),
+      review.id,
+    );
+    audit(
+      actor,
+      "merchant.payment_" + status,
+      review.id,
+      { status: review.status },
+      { status, paymentId: payment },
+      d.reason,
+    );
+    return { id: review.id, status };
+  });
+}
 export function merchantWorkspace(user: string, page = 1) {
   const merchants = all(
     "SELECT m.id,m.name,c.reference,c.share_bps,c.starts_on,c.ends_on,c.active FROM p_merchants m JOIN p_merchant_contracts c ON c.merchant_id=m.id WHERE c.owner_id=?",
@@ -202,7 +317,11 @@ export function merchantWorkspace(user: string, page = 1) {
     (page - 1) * 30,
   );
   return {
-    merchants: merchants.map((m) => ({ ...m, balance: merchantBalance(m.id) })),
+    merchants: merchants.map((m) => ({
+      ...m,
+      balance: merchantBalance(m.id),
+      reserved: merchantReserved(m.id),
+    })),
     orders: orders.slice(0, 30),
     hasMore: orders.length > 30,
     products: all(

@@ -631,6 +631,13 @@ describe("Merchant accounting and notifications", () => {
     expect((await post("admin/merchant-settlements", payload)).id).toBe(
       first.id,
     );
+    expect(merchantBalance(m)).toBe(600);
+    const checker = member("finance");
+    await post(
+      "admin/merchant-settlements/review",
+      { id: first.id, action: "confirm", reason: "Verified transfer" },
+      checker,
+    );
     expect(merchantBalance(m)).toBe(0);
     refundOrder(o.id, admin, true, "Refund after settlement");
     expect(merchantBalance(m)).toBe(-600);

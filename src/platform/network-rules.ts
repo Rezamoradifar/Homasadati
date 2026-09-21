@@ -74,15 +74,16 @@ export function nextBinaryLots(
   user: string,
   leg: string,
   minimumVolume: number,
+  cutoff = now(),
 ): Row[] {
   const result: Row[] = [];
   let total = 0;
   // Collect a FIFO prefix, including fragments smaller than a matching ratio.
   for (const value of platformDb()
     .prepare(
-      `SELECT l.* FROM p_binary_lots l LEFT JOIN p_binary_lot_terms t ON t.lot_id=l.id WHERE l.user_id=? AND l.leg=? AND l.remaining>0 AND l.void=0 AND (t.expires_at IS NULL OR t.expires_at>?) ORDER BY l.created_at,l.id`,
+      `SELECT l.* FROM p_binary_lots l LEFT JOIN p_binary_lot_terms t ON t.lot_id=l.id WHERE l.user_id=? AND l.leg=? AND l.remaining>0 AND l.void=0 AND l.created_at<=? AND (t.expires_at IS NULL OR t.expires_at>?) ORDER BY l.created_at,l.id`,
     )
-    .iterate(user, leg, now())) {
+    .iterate(user, leg, cutoff, now())) {
     const lot = value as Row;
     result.push(lot);
     total += lot.remaining;

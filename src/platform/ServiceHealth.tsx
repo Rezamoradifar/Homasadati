@@ -49,6 +49,28 @@ export default function ServiceHealth({ refresh }: { refresh: number }) {
                     </strong>
                     <p>{date(d.backup.lastSuccess)}</p>
                   </article>
+                  <article>
+                    <h3>پشتیبان خارج از سرور</h3>
+                    <strong>
+                      {d.offsite.healthy
+                        ? "نسخه تازه ثبت شده"
+                        : "نیازمند بررسی"}
+                    </strong>
+                    <p>{date(d.offsite.lastSuccess)}</p>
+                  </article>
+                  <article>
+                    <h3>پایش و هشدار</h3>
+                    <strong>
+                      {d.monitoring.configured
+                        ? "تنظیم‌شده؛ نیازمند آزمون واقعی"
+                        : "نیازمند تنظیم"}
+                    </strong>
+                    <p>{date(d.monitoring.lastAlert)}</p>
+                  </article>
+                  <article>
+                    <h3>پردازش دوره‌ای باینری</h3>
+                    <p>{date(d.binaryCycle.lastSuccess)}</p>
+                  </article>
                 </div>
                 <dl className="readiness-tasks">
                   <dt>سفارش پرداخت‌شده در انتظار تکمیل</dt>
@@ -57,6 +79,10 @@ export default function ServiceHealth({ refresh }: { refresh: number }) {
                   <dd>{d.unpublished}</dd>
                   <dt>محصول با ترجمه ناقص</dt>
                   <dd>{d.missingTranslations}</dd>
+                  <dt>درخواست در انتظار پشتیبانی</dt>
+                  <dd>{d.openTickets}</dd>
+                  <dt>تسویه پذیرنده در انتظار تأیید دوم</dt>
+                  <dd>{d.pendingMerchantReviews}</dd>
                   <dt>اعلان ناموفق پس از چند تلاش</dt>
                   <dd>{d.failedNotifications}</dd>
                 </dl>

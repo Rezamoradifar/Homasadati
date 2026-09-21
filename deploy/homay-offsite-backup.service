@@ -1,0 +1,18 @@
+[Unit]
+Description=Verified encrypted offsite backup for Homay Saadat
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=homay
+Group=homay
+WorkingDirectory=/opt/homay/app
+Environment=NODE_ENV=production
+Environment=BACKUP_DIRECTORY=/opt/homay/backups
+EnvironmentFile=/etc/homay/operations.env
+ExecStart=/usr/bin/node --import tsx scripts/platform-offsite-backup.ts
+TimeoutStartSec=7200
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true

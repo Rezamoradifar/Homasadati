@@ -125,6 +125,18 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_announcements(id TEXT PRIMARY KEY,actor_id TEXT NOT NULL REFERENCES p_users(id),payload TEXT NOT NULL,created_at TEXT NOT NULL);
   INSERT OR IGNORE INTO p_migrations VALUES(10,datetime('now'));
 
+  CREATE TABLE IF NOT EXISTS p_tickets(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),subject TEXT NOT NULL,category TEXT NOT NULL,priority TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('waiting_support','waiting_user','closed')),order_id TEXT REFERENCES p_orders(id),assignee_id TEXT REFERENCES p_users(id),version INTEGER NOT NULL DEFAULT 1,idem_key TEXT NOT NULL,payload TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,UNIQUE(user_id,idem_key));
+  CREATE INDEX IF NOT EXISTS p_tickets_owner ON p_tickets(user_id,updated_at);
+  CREATE INDEX IF NOT EXISTS p_tickets_queue ON p_tickets(status,updated_at);
+  CREATE TABLE IF NOT EXISTS p_ticket_messages(id TEXT PRIMARY KEY,ticket_id TEXT NOT NULL REFERENCES p_tickets(id),actor_id TEXT NOT NULL REFERENCES p_users(id),body TEXT NOT NULL,internal INTEGER NOT NULL CHECK(internal IN(0,1)),idem_key TEXT NOT NULL,payload TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(ticket_id,actor_id,idem_key));
+  CREATE INDEX IF NOT EXISTS p_ticket_messages_thread ON p_ticket_messages(ticket_id,created_at);
+  CREATE TABLE IF NOT EXISTS p_withdrawal_reviews(withdrawal_id TEXT PRIMARY KEY REFERENCES p_withdrawals(id),first_actor TEXT NOT NULL REFERENCES p_users(id),approved_at TEXT NOT NULL,second_actor TEXT REFERENCES p_users(id),paid_at TEXT);
+  CREATE TABLE IF NOT EXISTS p_merchant_payment_reviews(id TEXT PRIMARY KEY,merchant_id TEXT NOT NULL REFERENCES p_merchants(id),owner_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),bank_reference TEXT NOT NULL,idem_key TEXT NOT NULL UNIQUE,payload TEXT NOT NULL,first_actor TEXT NOT NULL REFERENCES p_users(id),second_actor TEXT REFERENCES p_users(id),status TEXT NOT NULL CHECK(status IN ('pending','confirmed','rejected')),reason TEXT NOT NULL,review_reason TEXT NOT NULL DEFAULT '',payment_id TEXT REFERENCES p_merchant_payments(id),created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
+  CREATE UNIQUE INDEX IF NOT EXISTS p_merchant_review_reference ON p_merchant_payment_reviews(bank_reference) WHERE status!='rejected';
+  CREATE TABLE IF NOT EXISTS p_binary_scheduled_orders(order_id TEXT PRIMARY KEY REFERENCES p_orders(id),schedule TEXT NOT NULL,paid_at TEXT NOT NULL,last_cycle TEXT);
+  CREATE TABLE IF NOT EXISTS p_binary_order_cycles(order_id TEXT NOT NULL REFERENCES p_orders(id),cycle_key TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>=0),matches INTEGER NOT NULL CHECK(matches>=0),created_at TEXT NOT NULL,PRIMARY KEY(order_id,cycle_key));
+  INSERT OR IGNORE INTO p_migrations VALUES(11,datetime('now'));
+
   `);
   ready = d;
   return d;
