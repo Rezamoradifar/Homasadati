@@ -1,3 +1,4 @@
+import {installTravelPresets} from './travel-presets';
 import {cardsFor,issueTravelCards,travelCalendar,saveTravelRule,saveTravelCalendar,requestTravel,reviewTravel} from "./travel";
 import {registrationSchema,referralCode,memberDetailsSchema} from "./registration-model";
 import {
@@ -999,6 +1000,7 @@ export async function handle(req: Request, path: string[]) {
       limit('travel-admin:'+actor.id,60,300);
       if(path[2]==='review'){if(data.status==='redeemed'&&actor.role==='support')throw new ApiError(403,'forbidden');return json(reviewTravel(actor.id,data));}
       if(!['superadmin','finance'].includes(actor.role))throw new ApiError(403,'forbidden');
+      if(path[2]==='presets'){return json({presets:installTravelPresets(actor.id)});}
       if(path[2]==='rules'){saveTravelRule(actor.id,data);return json({ok:true});}
       if(path[2]==='calendar'){saveTravelCalendar(actor.id,data);return json({ok:true});}
       throw new ApiError(404,'not_found');

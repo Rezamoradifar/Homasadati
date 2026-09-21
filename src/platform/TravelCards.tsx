@@ -256,7 +256,7 @@ export function AdminTravel({
           {role !== "support" && (
             <>
               <section className="portal-card">
-                <h2>اعتبار سفر هر رتبه</h2>
+                <h2>اعتبار سفر هر رتبه</h2><a href="/club/ranks" target="_blank" rel="noreferrer">مشاهده هفت رتبه و طراحی کارت‌ها</a><Form fields={[]} submit="ایجاد هفت رتبه پیشنهادی با صدور غیرفعال" onSubmit={async()=>{await api("admin/travel/presets","POST",{});onChange();}}/>
                 <p>
                   هر عضو یک کارت برای هر رتبه دریافت می‌کند. تغییر قانون فقط
                   صدورهای بعدی را تغییر می‌دهد؛ اعتبار کارت موجود افزایش یا

@@ -240,3 +240,17 @@ card expiry does not cause automatic renewal at the same rank.
 Theme preference persists locally and respects OS preference on first visit.
 Narration requires an authorized recording; set `NEXT_PUBLIC_TOURISM_NARRATION_URL`
 and rebuild to enable the audio player. Current images are 1672×941, not native 4K.
+
+## Seven-rank proposal (migration 6)
+`/club/ranks` reads seven named design proposals from `p_travel_presets`: جوانه،
+سرو، فیروزه، یاقوت، زمرد، پارسه، سیمرغ. These are business configuration proposals,
+not fabricated customer data. Proposed personal-sales thresholds are 5, 15, 30,
+60, 120, 250 and 500 million toman; corresponding one-year credits are 100k, 300k,
+600k, 1.2m, 2.4m, 5m and 10m toman. The public page clearly labels inactive proposals.
+Admin travel management can install the seven proposals transactionally and
+idempotently. Installation creates real ranks with zero commission bonus and
+inactive travel-credit rules. Existing same-name ranks cause a conflict and rollback;
+no existing rules are overwritten. Finance must review actual margins, existing
+commissions, cumulative card liabilities and travel redemption cost before activating
+any rule. Actual configured names, thresholds, amounts and activity are displayed
+on the public rank page after installation. Existing card snapshots are unchanged.

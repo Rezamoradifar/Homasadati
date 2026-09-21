@@ -1,5 +1,7 @@
 import {BrandCollection} from '../../VisualCollections';
 import TourismMedia from '../../TourismMedia';
+import TourismHeroVideo from '../../TourismHeroVideo';
+import ClubCards from '../../ClubCards';
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { brands, isSector, sectorKeys } from "../../../src/commerce/brands";
@@ -30,7 +32,7 @@ export default function BrandPage({ params }: { params: { sector: string } }) {
           className={`brand-hero ${k}`}
           style={{ backgroundColor: b.tone }}
         >
-          {b.image && (
+          {k === "tourism" ? <TourismHeroVideo /> : b.image && (
             <img
               src={b.image}
               alt="تصویر مفهومی حوزه فعالیت؛ تصویر محصول قابل خرید نیست"
@@ -55,6 +57,7 @@ export default function BrandPage({ params }: { params: { sector: string } }) {
             </span>
           )}
         </section>
+        {k === "tourism" && <ClubCards />}
         <section id="story" className="brand-intro">
           <span className="commerce-eyebrow">هویت، کیفیت و ارزش اقتصادی</span>
           <h2>{b.label}؛ فراتر از یک انتخاب</h2>

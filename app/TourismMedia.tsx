@@ -1,35 +1,10 @@
-"use client";
-import { useState } from "react";
+import PersianNarration from "./PersianNarration";
 export default function TourismMedia() {
-  const [failed, setFailed] = useState(false);
-  const audio = process.env.NEXT_PUBLIC_TOURISM_NARRATION_URL;
   return (
     <section className="tourism-media" dir="rtl">
       <p className="commerce-eyebrow">IRAN, A LIVING STORY</p>
       <h2>سفری به قلب تمدن ایران</h2>
-      {!failed ? (
-        <video
-          controls
-          playsInline
-          preload="none"
-          poster="/assets/heritage/persepolis.webp"
-          onError={() => setFailed(true)}
-          aria-label="فیلم بازسازی تخت‌جمشید"
-        >
-          <source
-            src={
-              process.env.NEXT_PUBLIC_HERO_VIDEO_URL ||
-              "https://upload.wikimedia.org/wikipedia/commons/5/53/Persepolis%2C_Hauptstadt_Persiens_%28CC_BY-SA_4.0%29.webm"
-            }
-          />
-        </video>
-      ) : (
-        <p role="alert">
-          فیلم بارگذاری نشد. اتصال اینترنت را بررسی کنید.{" "}
-          <button onClick={() => setFailed(false)}>تلاش دوباره</button>
-        </p>
-      )}
-      <p className="media-credit">
+      <p className="media-credit" id="tourism-media-credit">
         بازسازی هنری تخت‌جمشید، ZDF / Terra X؛{" "}
         <a
           href="https://creativecommons.org/licenses/by-sa/4.0/"
@@ -38,7 +13,14 @@ export default function TourismMedia() {
         >
           CC BY-SA 4.0
         </a>
-        . نشان سازنده متعلق به منبع فیلم است. <a href="https://commons.wikimedia.org/wiki/File:Persepolis,_Hauptstadt_Persiens_(CC_BY-SA_4.0).webm" target="_blank" rel="noreferrer">صفحه منبع فیلم</a>
+        . نشان سازنده متعلق به منبع فیلم است.{" "}
+        <a
+          href="https://commons.wikimedia.org/wiki/File:Persepolis,_Hauptstadt_Persiens_(CC_BY-SA_4.0).webm"
+          target="_blank"
+          rel="noreferrer"
+        >
+          صفحه منبع فیلم
+        </a>
       </p>
       <article>
         <h3>روایت سفر</h3>
@@ -49,18 +31,7 @@ export default function TourismMedia() {
           ایران است. مقصد و زمان سفر را با کارگزار گردشگری هماهنگ کنید تا برنامه
           متناسب با علاقه، بودجه و نیاز شما بررسی شود.
         </p>
-        {audio ? (
-          <audio
-            controls
-            preload="none"
-            src={audio}
-            aria-label="روایت صوتی گردشگری ایران"
-          />
-        ) : (
-          <p className="media-credit">
-            نسخه صوتی پس از بارگذاری اجرای مجاز گوینده منتشر می‌شود.
-          </p>
-        )}
+        <PersianNarration />
       </article>
       <article className="travel-benefit-intro">
         <h3>از هنر ایرانی تا تجربه سفر</h3>

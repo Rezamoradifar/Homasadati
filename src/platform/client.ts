@@ -1,6 +1,7 @@
 import { validateClient } from "./client-validation";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
+  rank_name_conflict:"رتبه هم‌نام وجود دارد. ابتدا نام رتبه قبلی را تغییر دهید؛ هیچ تغییری اعمال نشد.",
   travel_notice:"درخواست باید حداقل هفت روز کاری کامل پیش از سفر و در محدوده اعتبار کارت باشد.",
   travel_ineligible:"شرایط خرید، رتبه یا اعتبار کارت برای این عملیات برقرار نیست.",
   too_large: "حجم اطلاعات ارسالی بیش از حد مجاز است.",

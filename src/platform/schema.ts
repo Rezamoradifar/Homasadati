@@ -68,6 +68,16 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_travel_requests(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),card_id TEXT NOT NULL REFERENCES p_travel_cards(id),product_id TEXT NOT NULL REFERENCES p_products(id),title TEXT NOT NULL,travel_date TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),quoted_total INTEGER NOT NULL CHECK(quoted_total>=amount),status TEXT NOT NULL CHECK(status IN('requested','approved','rejected','redeemed','cancelled')),note TEXT NOT NULL,reference TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,idem_key TEXT NOT NULL,payload TEXT NOT NULL,calendar TEXT NOT NULL,decision_reason TEXT NOT NULL DEFAULT '',UNIQUE(user_id,idem_key));
   CREATE INDEX IF NOT EXISTS p_travel_request_user ON p_travel_requests(user_id,created_at);
   INSERT OR IGNORE INTO p_migrations VALUES(5,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_travel_presets(level INTEGER PRIMARY KEY,name TEXT NOT NULL,personal_threshold INTEGER NOT NULL,credit INTEGER NOT NULL,valid_days INTEGER NOT NULL,tone TEXT NOT NULL,rank_id TEXT REFERENCES p_ranks(id));
+  INSERT OR IGNORE INTO p_travel_presets VALUES
+  (1,'جوانه',5000000,100000,365,'jade',NULL),
+  (2,'سرو',15000000,300000,365,'forest',NULL),
+  (3,'فیروزه',30000000,600000,365,'turquoise',NULL),
+  (4,'یاقوت',60000000,1200000,365,'ruby',NULL),
+  (5,'زمرد',120000000,2400000,365,'emerald',NULL),
+  (6,'پارسه',250000000,5000000,365,'gold',NULL),
+  (7,'سیمرغ',500000000,10000000,365,'obsidian',NULL);
+  INSERT OR IGNORE INTO p_migrations VALUES(6,datetime('now'));
   `);
   ready = d;
   return d;

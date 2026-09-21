@@ -46,10 +46,35 @@ ZDF/Terra X/interscience film/Faber Courtial, Gero von Boehm/Hassan Rashedi, And
 They are artistic/concept campaign images, not documentary photographs,
 product inventory evidence or native 4K assets. No artificial upscaling is claimed.
 The homepage has 15 selectable heritage images and no video. Video is now on
-`/worlds/tourism`, controls enabled, no autoplay and no added Homa overlay.
+`/worlds/tourism`, controls enabled, muted autoplay in view and no added Homa overlay.
 The source film still contains its original ZDF/Terra X marks; it has not been
 represented as an unbranded original. Source attribution and CC BY-SA link remain.
 Supply a licensed unbranded HD/4K film using `NEXT_PUBLIC_HERO_VIDEO_URL` to replace it.
 For tourism audio, supply an authorized recording using
-`NEXT_PUBLIC_TOURISM_NARRATION_URL`, then rebuild. No voice imitation or recording
-has been generated. Without a recording the page displays the narration text.
+`NEXT_PUBLIC_TOURISM_NARRATION_FA_URL`, then rebuild. No voice imitation or recording
+has been generated. Without a recording the page offers Persian device speech where available and a readable transcript.
+
+## Homa accessories collection and playback refinement
+Added `public/assets/collections/leather-belt.webp`, `leather-women.webp` and
+`leather-men.webp` using built-in ImageGen. Prompt set: product-mockup, wide luxury
+editorial photograph of respectively leather belts, women's handbags, and men's
+briefcase/messenger bag; warm travertine, dark emerald backdrop, soft studio light,
+precise leather grain and stitching, embossed text `HOMA`, no people or extra text.
+Native dimensions remain 1672×941. These are clearly labelled brand concepts, not
+edited photographs of the owner's actual inventory. No new product photos were
+attached to this request; enhancement of actual inventory photos remains pending.
+
+Homepage and collection galleries auto-advance only while in view, stop when the
+tab is hidden, respect reduced motion, and have an explicit pause control. Tourism
+video auto-plays muted in view; the original non-Persian soundtrack stays muted.
+Persian narration prefers `NEXT_PUBLIC_TOURISM_NARRATION_FA_URL`. Otherwise it uses
+only an installed `fa` speech-synthesis voice. If unavailable it explains the
+limitation and leaves the readable Persian transcript. No non-Persian voice is
+silently selected, and no claim of a recorded professional narrator is made.
+
+## Tourism background placement
+The original homepage film now fills the tourism hero at `/worlds/tourism` instead
+of the still hero image. It plays muted and loops while in view, with an explicit
+pause/play control, reduced-motion handling and an image fallback. The seven rank
+cards appear immediately after that hero. Narration and source credit remain
+below; a second standalone video player is no longer rendered.

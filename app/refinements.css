@@ -1,0 +1,425 @@
+/* Shared editorial typography, comfortable Persian reading and robust small screens. */
+html body {
+  font-family: "Manrope", "Vazirmatn", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+html [dir="rtl"] {
+  font-family: "Vazirmatn", "Manrope", sans-serif;
+  letter-spacing: normal;
+}
+html [dir="rtl"] :is(h1, h2, h3) {
+  font-family: "Vazirmatn", sans-serif;
+  letter-spacing: normal;
+  line-height: 1.65;
+  font-weight: 600;
+}
+html [dir="rtl"] :is(p, li) {
+  line-height: 2.05;
+}
+html
+  [dir="rtl"]
+  :is(
+    .journey-detail p,
+    .craft-story > p,
+    .beauty-editorial p,
+    .intro-narrative > p,
+    .business-partnership p,
+    .faq-items p
+  ) {
+  font-size: 15px;
+}
+html [dir="rtl"] :is(button, input, select, textarea) {
+  font-family: inherit;
+}
+.hero-content {
+  padding-bottom: 185px !important;
+}
+.hero-photo {
+  image-rendering: auto;
+}
+.gallery-play {
+  display: block;
+  margin: 8px 0 10px auto;
+  font-size: 11px;
+}
+.civilization-thumbs {
+  scrollbar-width: thin;
+  scrollbar-color: #b49a65 transparent;
+}
+.collection-rail {
+  scrollbar-width: thin;
+  scrollbar-color: #b49a65 transparent;
+}
+.collection-rail img {
+  box-shadow: 0 14px 35px #07191615;
+}
+.collection-section small {
+  opacity: 1;
+  color: var(--muted);
+}
+.persian-narration small {
+  display: block;
+  margin-top: 12px;
+}
+.beauty-editorial > .beauty-portrait-pair {
+  padding: 0;
+  min-height: 440px;
+  align-self: stretch;
+}
+.beauty-portrait-pair img {
+  max-height: none;
+  height: 100%;
+  min-height: 440px;
+}
+.beauty-editorial {
+  overflow: hidden;
+  border-radius: 12px;
+}
+.collection-nav button {
+  min-height: 44px;
+}
+.commerce-header nav {
+  scrollbar-width: thin;
+}
+.commerce-footer {
+  position: relative;
+  border-top: 2px solid #c7a46a;
+}
+.commerce-footer h2 {
+  font-size: clamp(23px, 3vw, 38px);
+  margin-bottom: 18px;
+}
+.commerce-footer nav a {
+  padding-block: 5px;
+  min-height: 38px;
+}
+.commerce-footer a:hover {
+  color: #e5c990;
+}
+.commerce-footer .footer-brand-mark {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+  object-fit: contain;
+}
+.commerce-footer details summary {
+  font-weight: 600;
+  cursor: pointer;
+  color: #e4c48a;
+  margin-bottom: 16px;
+}
+.commerce-footer details nav {
+  display: grid;
+}
+.commerce-footer details {
+  min-width: 0;
+}
+.commerce-footer .commerce-footer-bottom {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  border-top: 1px solid #a1b3a644;
+  padding-top: 24px;
+  font-size: 12px;
+}
+.commerce-footer-bottom a {
+  padding: 8px 0;
+}
+.landing-footer[data-variant="editorial"] {
+  background: radial-gradient(
+    ellipse at 85% 0%,
+    #254c40,
+    #0d2825 68%
+  ) !important;
+}
+.landing-footer[data-variant="editorial"] .footer-introduction {
+  padding-block: 42px;
+}
+.landing-footer[data-variant="editorial"] [data-footer-columns] {
+  gap: 24px;
+  padding-block: 32px;
+}
+.landing-footer[data-variant="editorial"] [data-footer-columns] a {
+  font-size: 14px;
+  min-height: 44px;
+}
+.landing-footer[data-variant="editorial"] [data-footer-columns] h2 {
+  font-size: 15px !important;
+}
+.landing-footer[data-variant="editorial"] [data-footer-columns] p {
+  font-size: 14px;
+  color: #c4d2c6;
+}
+.landing-footer[data-variant="editorial"] .footer-signature {
+  padding-block: 24px;
+}
+.landing-footer[data-variant="editorial"] .footer-signature > span {
+  font-size: clamp(40px, 9vw, 120px);
+  color: #bccaad65;
+}
+.landing-footer[data-variant="editorial"] :is(input, select) {
+  border-radius: 8px !important;
+  font-size: 14px !important;
+}
+.landing-footer[data-variant="editorial"] [data-footer-legal] p {
+  font-size: 12px;
+}
+.rank-page {
+  max-width: 1400px;
+  margin: auto;
+  padding: 70px 6%;
+}
+.rank-page header {
+  max-width: 850px;
+  margin-bottom: 45px;
+}
+.rank-page h1 {
+  font-size: clamp(30px, 4vw, 54px);
+  margin: 16px 0;
+}
+.rank-disclosure {
+  border-inline-start: 3px solid #bda16e;
+  padding-inline-start: 20px;
+  margin: 25px 0;
+}
+.rank-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+.rank-card {
+  border: 1px solid #ad996f55;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.rank-art {
+  background: linear-gradient(120deg, var(--card-tone, #31594d), #081e1e);
+  color: #f1dfb8;
+  padding: 26px;
+  position: relative;
+  aspect-ratio: 1.6;
+  overflow: hidden;
+}
+.rank-art > span {
+  font:
+    11px "Manrope",
+    sans-serif;
+  letter-spacing: 0.15em;
+}
+.rank-art img {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  left: 22px;
+  top: 30px;
+  opacity: 0.8;
+}
+.rank-art small {
+  display: block;
+  margin: 20px 0 8px;
+}
+.rank-art h2 {
+  font-size: 30px !important;
+}
+.rank-art p {
+  font-size: 11px;
+}
+.rank-forest {
+  --card-tone: #24492c;
+}
+.rank-turquoise {
+  --card-tone: #176c78;
+}
+.rank-ruby {
+  --card-tone: #733346;
+}
+.rank-emerald {
+  --card-tone: #11644f;
+}
+.rank-gold {
+  --card-tone: #786038;
+}
+.rank-obsidian {
+  --card-tone: #353949;
+}
+.rank-description {
+  padding: 24px;
+  background: #fffdf8;
+}
+.rank-description strong {
+  font-size: 13px;
+}
+.rank-description dl {
+  margin-top: 15px;
+}
+.rank-description dt {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 10px;
+}
+.rank-description dd {
+  margin: 4px 0;
+  font-size: 17px;
+}
+.rank-page > section {
+  margin-top: 55px;
+}
+.rank-page ol {
+  list-style: decimal;
+  padding-inline-start: 24px;
+  margin: 20px 0;
+}
+
+@media (max-width: 850px) {
+  .rank-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .hero-content {
+    padding-bottom: 160px !important;
+  }
+  .beauty-editorial > .beauty-portrait-pair,
+  .beauty-portrait-pair img {
+    min-height: 290px;
+  }
+  .rank-grid {
+    grid-template-columns: 1fr;
+  }
+  .rank-page {
+    padding: 36px 6%;
+  }
+  .commerce-footer {
+    display: block;
+    padding: 38px 6%;
+  }
+  .commerce-footer details {
+    border-top: 1px solid #cad6c133;
+    padding: 16px 0;
+  }
+  .commerce-footer details summary {
+    margin: 0;
+  }
+  .commerce-footer details nav {
+    padding-top: 14px;
+  }
+  .commerce-footer-bottom {
+    margin-top: 18px;
+  }
+  .landing-footer[data-variant="editorial"] [data-footer-columns] a {
+    min-height: 46px;
+  }
+  .gallery-play {
+    font-size: 10px;
+  }
+  .civilization-caption {
+    gap: 10px;
+  }
+  .civilization-caption span {
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
+@media(max-width:700px){.commerce-header>div{display:flex;flex-wrap:wrap;gap:8px 14px;width:100%;align-items:center}.commerce-header>div>a{white-space:nowrap;padding-block:6px}.commerce-header nav{gap:14px}.commerce-header nav a{white-space:nowrap}.commerce-header{gap:16px}}
+
+/* Give the hero copy its own flow so Persian text cannot collide with the gallery. */
+html .hero{height:auto;min-height:760px;display:flex;align-items:center}
+html .hero .hero-content,html[dir=rtl] .hero .hero-content{position:relative;inset:auto;width:55%;max-width:840px;margin:0 6%;padding:74px 0 240px!important}
+html .hero h1,html[dir=rtl] .hero h1{font-size:clamp(42px,5.2vw,76px);line-height:1.45}
+html .hero .hero-sub{font-size:clamp(18px,1.8vw,25px);line-height:1.9}
+html .hero .hero-buttons{flex-wrap:wrap}
+html .civilization-controls .gallery-play{font-size:14px;min-height:44px}
+html .civilization-caption small{font-size:12px}
+html .hero .civilization-caption button{min-width:44px;min-height:44px}
+html .hero .hero-shade{background:linear-gradient(90deg,#061a20ce,#061a2030 90%)}
+html .collection-rail figure{flex-basis:calc((100% - 24px)/2)}
+html .collection-rail img{aspect-ratio:4/3;object-fit:cover;border-radius:12px}
+html .collection-rail figcaption{font-size:18px;font-weight:500}
+html .collection-section>p,html .tourism-media p{font-size:16px}
+html .collection-section small{font-size:14px}
+html .club-preview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+html .club-preview-grid .rank-card{text-decoration:none;transition:transform .2s,box-shadow .2s}
+html .club-preview-grid .rank-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px #081e1e22}
+html .club-preview-grid .rank-art{min-height:190px;aspect-ratio:1.6;padding:22px}
+html .club-preview-grid .rank-art h3{font-size:26px;color:#f4e5c4}
+html .club-preview-grid .rank-art img{width:48px;height:48px;top:22px;left:18px}
+html .rank-jade{--card-tone:#557556}
+html .club-preview-note{font-size:14px;color:var(--muted);margin-top:24px;max-width:760px}
+html .world-copy>p:last-of-type,html[dir=rtl] .world-copy>p:last-of-type{font-size:14px;line-height:1.9}
+html .world-card{height:auto;min-height:440px}
+html .world-copy{padding-bottom:54px;min-height:205px}
+html .world-copy .round-arrow{bottom:8px}
+html .intro-narrative>p,html .journey-detail>p:not(.eyebrow),html .craft-story>p:not(.eyebrow),html .beauty-editorial p:not(.eyebrow),html .studio-details>p,html .business-partnership p,html .enquiry-process p,html .faq-items p{font-size:16px}
+html .footer-introduction>div>p:last-child,html .footer-track,html .landing-footer[data-variant=editorial] [data-footer-newsletter]>div>p:last-child{font-size:14px}
+html .landing-footer[data-variant=editorial] :is(input,select){font-size:16px!important;min-height:48px}
+html .landing-footer[data-variant=editorial] [data-footer-legal]{flex-wrap:wrap;gap:16px}
+html .landing-footer[data-variant=editorial] [data-footer-legal] a{min-height:44px;display:inline-flex;align-items:center}
+html .rank-description dt,html .rank-description strong{font-size:14px}
+@media(max-width:900px){html .club-preview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}html .hero .hero-content,html[dir=rtl] .hero .hero-content{width:88%;max-width:650px}}
+@media(max-width:600px){
+ html .hero{min-height:730px}
+ html .hero .hero-content,html[dir=rtl] .hero .hero-content{padding:48px 0 230px!important}
+ html .hero h1,html[dir=rtl] .hero h1{font-size:clamp(34px,9vw,48px);line-height:1.6}
+ html .hero .hero-fa{font-size:14px}
+ html .collection-rail figure{flex-basis:88%}
+ html .collection-nav{flex-wrap:wrap}
+ html .club-preview-grid{grid-template-columns:1fr;gap:16px}
+ html .club-preview-grid .rank-art{min-height:190px;max-height:230px}
+ html .world-grid{grid-template-columns:1fr}
+ html .world-card{min-height:0}
+ html .world-card>img{height:auto;aspect-ratio:4/3}
+ html .world-copy,html[dir=rtl] .world-copy{min-height:150px}
+ html .world-copy h3,html[dir=rtl] .world-copy h3{font-size:24px}
+ html .header-actions select{min-height:44px;font-size:14px!important}
+ html .site-header .mobile-menu,html .header-actions .theme-toggle{min-width:44px;min-height:44px}
+ html .site-header .brand strong{font-size:20px!important}
+ html .utility-bar{font-size:12px}
+ html .utility-bar>span{display:none}
+ html .utility-bar>div{width:100%;justify-content:space-between}
+}
+html[dir=rtl] body,html[dir=rtl] :is(h1,h2,h3){font-family:"Vazirmatn",sans-serif;letter-spacing:normal}
+html .skip-link:not(:focus){clip-path:inset(50%);width:1px;height:1px;overflow:hidden;padding:0;white-space:nowrap}
+html .skip-link:focus{color:#173b35;inset-inline-start:16px}
+@media(max-width:600px){html .destination-picker{flex-wrap:wrap}html .destination-picker button{flex:1 1 80px;justify-content:center;gap:6px;padding-inline:8px}}
+
+/* Tourism opens with the original background film; rank cards follow the hero. */
+html .brand-hero.tourism{min-height:660px;padding-bottom:120px;isolation:isolate}
+html .brand-hero.tourism .tourism-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
+html .brand-hero.tourism:after{z-index:1;pointer-events:none;background:linear-gradient(270deg,#071b20c7,#071b2029)}
+html .brand-hero.tourism>div{z-index:2}
+html .brand-hero.tourism>.tourism-video-controls{position:absolute;inset-inline:8%;bottom:24px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;max-width:none;font-size:14px;color:#fff}
+html .tourism-video-controls button{padding:10px 18px;min-height:44px;min-width:100px;background:#102d2de6;border:1px solid #d7b879;border-radius:6px;color:#fff;font:inherit}
+html .tourism-video-controls a{text-decoration:underline;text-underline-offset:4px;text-shadow:0 1px 5px #000}
+html .tourism-video-controls [role=status]:empty{display:none}
+html .tourism-video-controls [role=status]{flex-basis:100%;font-size:14px}
+html .commerce .club-preview{padding:64px max(6vw,20px);background:#f7f5ef}
+html[data-theme=dark] .commerce .club-preview{background:#101c1d}
+html .commerce .club-preview .section-heading{display:flex;align-items:end;justify-content:space-between;gap:24px;padding-bottom:30px}
+html .commerce .club-preview h2{font-size:clamp(26px,3vw,42px);margin:10px 0}
+html .commerce .club-preview .editorial-link{font-size:14px;border-bottom:1px solid #b99d68;padding:12px 0;white-space:nowrap}
+html .commerce .club-preview .eyebrow{font-size:14px;color:#94713b}
+html[data-theme=dark] .commerce .club-preview .eyebrow{color:#d9bb80}
+html .club-preview .rank-art{min-width:0;width:100%}
+@media(max-width:600px){
+ html .brand-hero.tourism{min-height:600px;padding:48px 6% 132px}
+ html .brand-hero.tourism h1{font-size:clamp(36px,10vw,52px)}
+ html .brand-hero.tourism .commerce-button{display:flex;width:fit-content;margin:12px 0 0}
+ html .brand-hero.tourism>.tourism-video-controls{inset-inline:6%;bottom:20px}
+ html .commerce .club-preview{padding:38px 6%}
+ html .commerce .club-preview .section-heading{display:block}
+ html .commerce .club-preview .editorial-link{display:inline-flex;margin-top:10px}
+}

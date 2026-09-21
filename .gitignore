@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 .next/
 storybook-static/
 *.tsbuildinfo
@@ -15,3 +15,5 @@ data/
 backups/
 
 .next-dev/
+
+.next-qa/
