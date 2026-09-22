@@ -13,6 +13,7 @@ import { brands, isSector, sectorKeys } from "../../../src/commerce/brands";
 import { stories } from "../../../src/commerce/content";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import Economics from "../../../src/commerce/Economics";
+import { CraftCategoryGrid } from "../../../src/commerce/CraftNav";
 export async function generateMetadata({
   params: pendingParams,
 }: {
@@ -82,6 +83,7 @@ export default async function BrandPage({
           <p>{s.intro}</p>
         </section>
         {k === "tourism" && <TourismMedia />}
+        {k === "craft" && <CraftCategoryGrid />}
         {k === "craft" && (
           <section className="tourism-media">
             <h2>هنر ایرانی، اعتبار سفر شما</h2>

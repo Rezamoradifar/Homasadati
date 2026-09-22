@@ -138,6 +138,9 @@ const querySchema = z.object({
   user: z.string().uuid().optional(),
   kind: z.string().max(30).default(""),
   family: z.string().max(200).default(""),
+  cat: z.string().regex(/^[a-z-]{0,40}$/).default(""),
+  tech: z.string().regex(/^[a-z-]{0,40}$/).default(""),
+  item: z.string().regex(/^[a-z-]{0,40}$/).default(""),
 });
 function query(url: URL) {
   const q = querySchema.parse(Object.fromEntries(url.searchParams));
@@ -1395,7 +1398,7 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "catalog" && get) {
       const q = query(url);
       const result = paged(
-        "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR p.vertical=?) AND (?='' OR d.family=?) ORDER BY p.created_at DESC",
+        "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR p.vertical=?) AND (?='' OR d.family=?) AND (?='' OR IFNULL(json_extract(d.details,'$.craftCategory'),'')=? OR (?='leather' AND p.vertical='leather')) AND (?='' OR json_extract(d.details,'$.craftTechnique')=?) AND (?='' OR json_extract(d.details,'$.craftItem')=?) ORDER BY p.created_at DESC",
         [
           "%" + q.q + "%",
           "%" + q.q + "%",
@@ -1403,6 +1406,13 @@ export async function handle(req: Request, path: string[]) {
           q.vertical,
           q.family,
           q.family,
+          q.cat,
+          q.cat,
+          q.cat,
+          q.tech,
+          q.tech,
+          q.item,
+          q.item,
         ],
         q.page,
       );

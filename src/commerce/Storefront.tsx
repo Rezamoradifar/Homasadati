@@ -11,10 +11,17 @@ import { DataState, useData } from "../platform/Widgets";
 import { amount, RecordData } from "../platform/client";
 import { brands, sectorKeys, isSector } from "./brands";
 import AddToCart from "./AddToCart";
+import CraftNav from "./CraftNav";
 export default function Storefront({
   initialVertical = "",
+  cat = "",
+  tech = "",
+  item = "",
 }: {
   initialVertical?: string;
+  cat?: string;
+  tech?: string;
+  item?: string;
 }) {
   const {locale}=useSiteLocale();
   const [vertical, setVertical] = useState(initialVertical),
@@ -23,7 +30,8 @@ export default function Storefront({
     [page, setPage] = useState(1),
     [reload, setReload] = useState(0);
   const state = useData(
-    `catalog?vertical=${encodeURIComponent(vertical)}&q=${encodeURIComponent(q)}&page=${page}`,
+    `catalog?vertical=${encodeURIComponent(vertical)}&q=${encodeURIComponent(q)}&page=${page}` +
+      (cat ? `&cat=${cat}&tech=${tech}&item=${item}` : ""),
     reload,
   );
   return (
@@ -40,6 +48,9 @@ export default function Storefront({
           مجموعه.
         </p>
       </div>
+      {(cat || vertical === "craft" || vertical === "leather") && (
+        <CraftNav cat={cat} tech={tech} item={item} />
+      )}
       <form
         className="shop-toolbar"
         onSubmit={(e) => {
