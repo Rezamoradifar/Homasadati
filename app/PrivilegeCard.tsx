@@ -33,7 +33,7 @@ export default function PrivilegeCard({
       />
       <div className="privilege-top">
         <span dir="ltr">
-          HOMA <b>PRIVILEGE</b>
+          HOMAY <b>PRIVILEGE</b>
         </span>
         <img src="/assets/brand-mark.png" alt="" loading="lazy" />
       </div>
@@ -62,7 +62,7 @@ export default function PrivilegeCard({
               <i>/ 07</i>
             </>
           ) : (
-            <b>HOMA</b>
+            <b>HOMAY</b>
           )}
         </span>
       </div>

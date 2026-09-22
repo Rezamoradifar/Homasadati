@@ -124,7 +124,7 @@ export default function Cart() {
   return (
     <Localized><div className="shop-wrap">
       <div className="shop-heading">
-        <span className="commerce-eyebrow">یک سبد، تمام خانواده همای</span>
+        <span className="commerce-eyebrow">یک سبد برای همهٔ خانوادهٔ همای</span>
         <h1>سبد خرید شما</h1>
         <p>تعداد، مشخصات و مبلغ را پیش از ثبت سفارش بررسی کنید.</p>
       </div>

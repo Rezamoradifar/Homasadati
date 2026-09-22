@@ -14,7 +14,7 @@ export default function RanksPage() {
     <Localized><CommerceShell>
       <main id="commerce-main" className="rank-page">
         <header>
-          <p className="commerce-eyebrow">HOMA PRIVILEGE / SEVEN CHAPTERS</p>
+          <p className="commerce-eyebrow">باشگاه همای / هفت رتبه</p>
           <h1>هفت رتبه؛ یک مسیر همراهی</h1>
           <p>
             از جوانه تا سیمرغ؛ کارت سفر شخصی با هویت ایرانی. اعتبار سفر غیرنقدی
@@ -27,7 +27,7 @@ export default function RanksPage() {
           </p>
         </header>
         <SevenCardPublic />
-        <section className="rank-comparison" aria-labelledby="compare-title"><h2 id="compare-title">مقایسه هفت کارت</h2><p>اعتبار سفر با سقف پاداش هفتگی پلن جدید متفاوت است.</p><div className="comparison-scroll" role="region" aria-label="جدول مقایسه کارت‌ها" tabIndex={0}><table><thead><tr><th scope="col">کارت</th><th scope="col">اعتبار سفر</th><th scope="col">حداقل فروش شخصی</th><th scope="col">اعتبار (روز)</th><th scope="col">وضعیت صدور</th></tr></thead><tbody>{ranks.map(r=><Localized key={r.level}><tr><th scope="row"><a href={"#rank-"+r.level}>{r.display_name}</a></th><td><Money toman={r.amount}/></td><td><Money toman={r.threshold}/></td><td>{number(r.duration)}</td><td>{r.active?"صدور فعال":"پیشنهاد؛ صدور غیرفعال"}</td></tr></Localized>)}</tbody></table></div><p>خرید کارت به‌تنهایی رتبه ایجاد نمی‌کند؛ شرایط فروش شخصی و گروهی و خرید واجد شرایط هر رتبه ملاک است.</p></section>
+        <section className="rank-comparison" aria-labelledby="compare-title"><h2 id="compare-title">مقایسهٔ هفت کارت</h2><p>اعتبار سفر با سقف پاداش هفتگی پلن جدید متفاوت است.</p><div className="comparison-scroll" role="region" aria-label="جدول مقایسه کارت‌ها" tabIndex={0}><table><thead><tr><th scope="col">کارت</th><th scope="col">اعتبار سفر</th><th scope="col">حداقل فروش شخصی</th><th scope="col">اعتبار (روز)</th><th scope="col">وضعیت صدور</th></tr></thead><tbody>{ranks.map(r=><Localized key={r.level}><tr><th scope="row"><a href={"#rank-"+r.level}>{r.display_name}</a></th><td><Money toman={r.amount}/></td><td><Money toman={r.threshold}/></td><td>{number(r.duration)}</td><td>{r.active?"صدور فعال":"پیشنهاد؛ صدور غیرفعال"}</td></tr></Localized>)}</tbody></table></div><p>خرید کارت به‌تنهایی رتبه ایجاد نمی‌کند؛ شرایط فروش شخصی و گروهی و خرید واجد شرایط هر رتبه ملاک است.</p></section>
         <UsdNote/>
         <div className="rank-grid">
           {ranks.map((r) => (

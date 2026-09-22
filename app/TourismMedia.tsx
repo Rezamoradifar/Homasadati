@@ -4,7 +4,7 @@ import PersianNarration from "./PersianNarration";
 export default function TourismMedia() {
   return (
     <Localized><section className="tourism-media" dir="rtl">
-      <p className="commerce-eyebrow">IRAN, A LIVING STORY</p>
+      <p className="commerce-eyebrow">ایران، روایتی زنده</p>
       <h2>سفری به قلب تمدن ایران</h2>
       <p className="media-credit" id="tourism-media-credit">
         بازسازی هنری تخت‌جمشید، ZDF / Terra X؛{" "}

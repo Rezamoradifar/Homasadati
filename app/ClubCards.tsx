@@ -13,7 +13,7 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
     >
       <div className="section-heading">
         <div>
-          <p className="eyebrow">HOMA PRIVILEGE</p>
+          <p className="eyebrow">کارت‌های باشگاه همای</p>
           <h2 id="ranks-title">
             {fa
               ? "هفت رتبه، هفت رنگ همراهی"

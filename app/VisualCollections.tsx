@@ -183,7 +183,7 @@ export function BrandCollection({ sector }: { sector: string }) {
   const items = collections[sector as keyof typeof collections];
   return (
     <Localized><section className={"collection-section collection-" + sector} dir="rtl">
-      <p className="commerce-eyebrow">THE HOMA COLLECTION</p>
+      <p className="commerce-eyebrow">مجموعهٔ همای</p>
       <h2>
         {sector === "leather"
           ? "چرم اصیل ایرانی؛ امضای همای"

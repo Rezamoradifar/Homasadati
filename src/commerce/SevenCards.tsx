@@ -10,7 +10,7 @@ export default function SevenCards() {
   return (
     <Localized>
       <section className="brand-chapter">
-        <h2>طرح هفت کارت باشگاه</h2>
+        <h2>طرح هفت‌کارتی باشگاه</h2>
         <p>مبالغ این جدول به تومان است. سقف پاداش، درآمد تضمین‌شده نیست.</p>
         <div style={{ overflowX: "auto" }}>
           <table className="portal-table">

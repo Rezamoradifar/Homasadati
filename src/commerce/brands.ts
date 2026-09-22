@@ -9,7 +9,7 @@ export const brands = {
   },
   craft: {
     name: "همای تمدن",
-    latin: "Homa Tamaddon",
+    latin: "Homay Tamaddon",
     label: "صنایع‌دستی ایران",
     image: "/assets/craft.jpg",
     tone: "#395679",
@@ -17,7 +17,7 @@ export const brands = {
   },
   beauty: {
     name: "همای زیبا",
-    latin: "Homa Ziba",
+    latin: "Homay Ziba",
     label: "زیبایی و مراقبت",
     image: "/assets/collections/beauty-cream.webp",
     tone: "#895766",
@@ -25,7 +25,7 @@ export const brands = {
   },
   ai: {
     name: "همای هوشمند",
-    latin: "Homa Intelligence",
+    latin: "Homay Intelligence",
     label: "هوش مصنوعی و رشد",
     image: "/assets/collections/ai-human.webp",
     tone: "#344b68",
