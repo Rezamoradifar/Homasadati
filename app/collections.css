@@ -23,7 +23,7 @@
 }
 .civilization-controls button,
 .collection-nav button {
-  border: 1px solid #c7a46a88;
+  border: 1px solid #bc9e7588;
   background: #1c212aaa;
   color: #fff;
   border-radius: 6px;
@@ -45,7 +45,7 @@
 }
 .civilization-thumbs button[aria-pressed="true"] {
   opacity: 1;
-  outline: 2px solid #d7b879;
+  outline: 2px solid #c6ad8a;
 }
 .civilization-thumbs img {
   width: 74px;
@@ -107,7 +107,7 @@
 }
 .tourism-media article {
   padding: 30px 0;
-  border-top: 1px solid #ad946844;
+  border-top: 1px solid #6887ad44;
   margin-top: 30px;
 }
 .tourism-media audio {
@@ -118,14 +118,14 @@
   opacity: 0.7;
 }
 .travel-benefit-intro {
-  background: #b69a5b12;
+  background: #5e84b312;
   padding: 30px !important;
   border-radius: 16px;
 }
 .travel-card {
   background: linear-gradient(125deg, #1f252f, #0f1216);
-  color: #f4e5c1;
-  border: 1px solid #bba16c;
+  color: #e7ddce;
+  border: 1px solid #b99a6e;
   border-radius: 20px;
   padding: 30px;
   position: relative;
@@ -134,7 +134,7 @@
 .travel-card:after {
   content: "HOMA";
   position: absolute;
-  font-family: serif;
+  font-family: var(--font-fa), serif;
   font-size: 70px;
   opacity: 0.07;
   bottom: 0;
@@ -142,7 +142,7 @@
   pointer-events: none;
 }
 .travel-card h3 {
-  color: #edcb8e;
+  color: #d4c1a7;
 }
 .travel-card p {
   color: inherit;
@@ -154,7 +154,7 @@
 }
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #c69b4f;
+  outline: 3px solid #6186b4;
   outline-offset: 4px;
 }
 @media (max-width: 700px) {
@@ -188,10 +188,10 @@ a:focus-visible {
 .travel-credit-card {
   position: relative;
   isolation: isolate;
-  border: 1px solid #bda472;
+  border: 1px solid #bc9e73;
   border-radius: 20px;
   background: #161a20;
-  color: #f3e8cc;
+  color: #ebe1d4;
   overflow: hidden;
   min-height: 320px;
 }
@@ -208,7 +208,7 @@ a:focus-visible {
   padding: 26px;
 }
 .travel-credit-card h2 {
-  color: #efd098 !important;
+  color: #d8c7af !important;
 }
 .travel-credit-card code {
   font-size: 10px;

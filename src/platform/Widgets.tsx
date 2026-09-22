@@ -496,7 +496,7 @@ export function Modal({
       ref={ref}
       onCancel={onClose}
       style={{
-        border: "1px solid #d3c5b7",
+        border: "1px solid #d3c7b7",
         borderRadius: 8,
         padding: 28,
         width: "min(760px,calc(100% - 30px))",

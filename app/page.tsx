@@ -31,7 +31,7 @@ import {functionalCopy} from './function-copy';
 import {sectionContent} from './section-content';
 const translations={en,fa,ar};
 const images=['tourism.jpg','collections/beauty-portrait.webp','craft.jpg','collections/ai-human.webp'];
-const galleryImages=['heritage/persepolis.webp','heritage/cyrus.webp','heritage/griffin.webp','heritage/simurgh.webp','collections/ai-human.webp','craft-wide.jpg'];
+const galleryImages=['heritage/persepolis.webp','heritage/cyrus.webp','heritage/simurgh.webp','collections/ai-human.webp','craft-wide.jpg'];
 const sections=['tourism','beauty','handicrafts','ai'];
 function requestKey(){const bytes=crypto.getRandomValues(new Uint8Array(16));bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;const hex=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;}
 const ValueIcons=[GlobeHemisphereWest,FlowerLotus,Diamond,Cpu];

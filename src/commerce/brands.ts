@@ -12,7 +12,7 @@ export const brands = {
     latin: "Homa Tamaddon",
     label: "صنایع‌دستی ایران",
     image: "/assets/craft.jpg",
-    tone: "#814f31",
+    tone: "#395679",
     tagline: "هنری که از دست‌ها می‌گذرد و در خانه می‌ماند.",
   },
   beauty: {
@@ -28,7 +28,7 @@ export const brands = {
     latin: "Homa Intelligence",
     label: "هوش مصنوعی و رشد",
     image: "/assets/collections/ai-human.webp",
-    tone: "#343f68",
+    tone: "#344b68",
     tagline: "فناوری در خدمت انسان، خلاقیت و کسب‌وکار.",
   },
   leather: {
@@ -36,7 +36,7 @@ export const brands = {
     latin: "Homa Leather",
     label: "چرم و طراحی ایرانی",
     image: "/assets/collections/leather-bag.webp",
-    tone: "#663f2a",
+    tone: "#2e4562",
     tagline: "خوش‌ساخت، ماندگار، همراه روزهای تو.",
   },
 } as const;

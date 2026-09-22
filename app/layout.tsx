@@ -10,17 +10,11 @@ import './collections.css';
 import './theme.css';
 import './refinements.css';
 import './mobile.css';
-import '@fontsource/cormorant-garamond/400.css';
-import '@fontsource/cormorant-garamond/500.css';
-import '@fontsource/cormorant-garamond/600.css';
 import '@fontsource/vazirmatn/300.css';
 import '@fontsource/vazirmatn/400.css';
 import '@fontsource/vazirmatn/500.css';
 import '@fontsource/vazirmatn/600.css';
 import '@fontsource/vazirmatn/700.css';
-import '@fontsource/manrope/400.css';
-import '@fontsource/manrope/500.css';
-import '@fontsource/manrope/600.css';
 import type {Metadata} from 'next';
 import type {ReactNode} from 'react';
 export async function generateMetadata():Promise<Metadata>{const locale=await siteLocale();return {title:locale==='en'?'Homay Saadat Club':locale==='ar'?'نادي عملاء هماي سعادت':'باشگاه مشتریان همای سعادت',description:locale==='en'?'The Homay Saadat club: travel, handicrafts, leather, beauty and technology.':locale==='ar'?'نادي عملاء هما؛ السفر والحرف اليدوية والجلود والجمال والتكنولوجيا.':'باشگاه مشتریان هما؛ گردشگری، صنایع‌دستی، چرم، زیبایی و فناوری.'};}
