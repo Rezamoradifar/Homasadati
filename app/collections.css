@@ -24,7 +24,7 @@
 .civilization-controls button,
 .collection-nav button {
   border: 1px solid #c7a46a88;
-  background: #182e2aaa;
+  background: #1c212aaa;
   color: #fff;
   border-radius: 6px;
   padding: 8px 14px;
@@ -102,7 +102,7 @@
 .tourism-media video {
   width: 100%;
   border-radius: 16px;
-  background: #102c2a;
+  background: #181d24;
   max-height: 75vh;
 }
 .tourism-media article {
@@ -123,7 +123,7 @@
   border-radius: 16px;
 }
 .travel-card {
-  background: linear-gradient(125deg, #123c37, #071e1c);
+  background: linear-gradient(125deg, #1f252f, #0f1216);
   color: #f4e5c1;
   border: 1px solid #bba16c;
   border-radius: 20px;
@@ -190,7 +190,7 @@ a:focus-visible {
   isolation: isolate;
   border: 1px solid #bda472;
   border-radius: 20px;
-  background: #0b2b28;
+  background: #161a20;
   color: #f3e8cc;
   overflow: hidden;
   min-height: 320px;

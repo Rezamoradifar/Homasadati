@@ -496,12 +496,12 @@ export function Modal({
       ref={ref}
       onCancel={onClose}
       style={{
-        border: "1px solid #c4cdbd",
+        border: "1px solid #d3c5b7",
         borderRadius: 8,
         padding: 28,
         width: "min(760px,calc(100% - 30px))",
         maxHeight: "90vh",
-        color: "#254331",
+        color: "#2a323e",
         background: "#fff",
       }}
     >

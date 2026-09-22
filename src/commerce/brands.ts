@@ -4,7 +4,7 @@ export const brands = {
     latin: "Homay Saadat",
     label: "گردشگری ایران",
     image: "/assets/tourism-wide.jpg",
-    tone: "#155b5b",
+    tone: "#2d3543",
     tagline: "ایران را زندگی کن؛ آرام، عمیق، به‌یادماندنی.",
   },
   craft: {

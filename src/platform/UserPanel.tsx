@@ -265,7 +265,7 @@ function Product({
               پرداخت{" "}
               <select
                 name="method"
-                style={{ padding: 10, border: "1px solid #bfccb9" }}
+                style={{ padding: 10, border: "1px solid #d1c2b4" }}
               >
                 <option value="zarinpal">درگاه بانکی</option>
                 <option value="wallet">کیف پول</option>
@@ -706,7 +706,7 @@ export function Profile({
           <input
             value={target}
             onChange={(e) => setTarget(e.target.value)}
-            style={{ padding: 10, border: "1px solid #b7c9b4" }}
+            style={{ padding: 10, border: "1px solid #cebeaf" }}
           />
         </label>
         <button

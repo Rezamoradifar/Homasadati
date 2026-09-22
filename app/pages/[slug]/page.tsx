@@ -23,7 +23,7 @@ export default async function ContentPage({
         margin: "50px auto",
         padding: 25,
         lineHeight: 2,
-        color: "#183f33",
+        color: "#232934",
       }}
     >
       <a href="/">همای سعادت</a>

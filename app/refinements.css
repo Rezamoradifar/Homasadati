@@ -53,7 +53,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
   scrollbar-color: #b49a65 transparent;
 }
 .collection-rail img {
-  box-shadow: 0 14px 35px #07191615;
+  box-shadow: 0 14px 35px #0d0f1315;
 }
 .collection-section small {
   opacity: 1;
@@ -122,7 +122,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 20px;
-  border-top: 1px solid #a1b3a644;
+  border-top: 1px solid #beaa9644;
   padding-top: 24px;
   font-size: 12px;
 }
@@ -132,8 +132,8 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 .landing-footer[data-variant="editorial"] {
   background: radial-gradient(
     ellipse at 85% 0%,
-    #254c40,
-    #0d2825 68%
+    #2d3644,
+    #151920 68%
   ) !important;
 }
 .landing-footer[data-variant="editorial"] .footer-introduction {
@@ -152,14 +152,14 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 }
 .landing-footer[data-variant="editorial"] [data-footer-columns] p {
   font-size: 14px;
-  color: #c4d2c6;
+  color: #d7cbbf;
 }
 .landing-footer[data-variant="editorial"] .footer-signature {
   padding-block: 24px;
 }
 .landing-footer[data-variant="editorial"] .footer-signature > span {
   font-size: clamp(40px, 9vw, 120px);
-  color: #bccaad65;
+  color: #ccbcab65;
 }
 .landing-footer[data-variant="editorial"] :is(input, select) {
   border-radius: 8px !important;
@@ -197,7 +197,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
   overflow: hidden;
 }
 .rank-art {
-  background: linear-gradient(120deg, var(--card-tone, #31594d), #081e1e);
+  background: linear-gradient(120deg, var(--card-tone, #374253), #0f1217);
   color: #f1dfb8;
   padding: 26px;
   position: relative;
@@ -299,7 +299,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
     padding: 38px 6%;
   }
   .commerce-footer details {
-    border-top: 1px solid #cad6c133;
+    border-top: 1px solid #d8ccbf33;
     padding: 16px 0;
   }
   .commerce-footer details summary {
@@ -397,7 +397,7 @@ html .hero .civilization-caption button {
   min-height: 44px;
 }
 html .hero .hero-shade {
-  background: linear-gradient(90deg, #061a20ce, #061a2030 90%);
+  background: linear-gradient(90deg, #0f1217ce, #0f121730 90%);
 }
 html .collection-rail figure {
   flex-basis: calc((100% - 24px) / 2);
@@ -431,7 +431,7 @@ html .club-preview-grid .rank-card {
 }
 html .club-preview-grid .rank-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px #081e1e22;
+  box-shadow: 0 12px 30px #0f121722;
 }
 html .club-preview-grid .rank-art {
   min-height: 190px;
@@ -449,7 +449,7 @@ html .club-preview-grid .rank-art img {
   left: 18px;
 }
 html .rank-jade {
-  --card-tone: #557556;
+  --card-tone: #516079;
 }
 html .club-preview-note {
   font-size: 14px;
@@ -604,7 +604,7 @@ html .skip-link:not(:focus) {
   white-space: nowrap;
 }
 html .skip-link:focus {
-  color: #173b35;
+  color: #212731;
   inset-inline-start: 16px;
 }
 @media (max-width: 600px) {
@@ -637,7 +637,7 @@ html .brand-hero.tourism .tourism-hero-video {
 html .brand-hero.tourism:after {
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(270deg, #071b20c7, #071b2029);
+  background: linear-gradient(270deg, #101317c7, #10131729);
 }
 html .brand-hero.tourism > div {
   z-index: 2;
@@ -658,7 +658,7 @@ html .tourism-video-controls button {
   padding: 10px 18px;
   min-height: 44px;
   min-width: 100px;
-  background: #102d2de6;
+  background: #181d25e6;
   border: 1px solid #d7b879;
   border-radius: 6px;
   color: #fff;
@@ -748,12 +748,12 @@ html .club-preview-grid {
 html .rank-card {
   border-radius: 17px;
   border: 1px solid #ad996f55;
-  box-shadow: 0 10px 25px #1230290b;
+  box-shadow: 0 10px 25px #1a1f280b;
   scroll-margin-top: 110px;
 }
 .privilege-card {
-  --card-base: #152c24;
-  --card-glow: #62856a;
+  --card-base: #1a1f27;
+  --card-glow: #5c6e8b;
   --card-foil: #e7d6ae;
   isolation: isolate;
   position: relative;
@@ -768,14 +768,14 @@ html .rank-card {
   color: var(--card-foil);
   background:
     radial-gradient(ellipse at 12% 0%, var(--card-glow), transparent 70%),
-    linear-gradient(130deg, var(--card-base), #0c171b);
+    linear-gradient(130deg, var(--card-base), #101317);
   box-shadow:
     inset 0 0 0 1px #e7d6ae3d,
     inset 0 0 40px #0002;
 }
 .privilege-card.rank-jade {
-  --card-base: #234735;
-  --card-glow: #66896b;
+  --card-base: #2a3340;
+  --card-glow: #60728f;
   --card-foil: #f2e7c8;
 }
 .privilege-card.rank-forest {
@@ -945,7 +945,7 @@ html .travel-credit-card {
   border-radius: 17px;
   overflow: hidden;
   background: #fffdf8;
-  color: #173f37;
+  color: #222934;
   min-width: 0;
 }
 .travel-credit-card > .travel-card-details {

@@ -1,6 +1,6 @@
 .commerce {
   background: var(--homa-light-bg);
-  color: #243c34;
+  color: #262e3a;
   font-family: var(--font-fa), sans-serif;
   line-height: 1.9;
 }
@@ -95,8 +95,8 @@
   inset: 0;
   background: linear-gradient(
     270deg,
-    rgba(10, 28, 25, 0.9),
-    rgba(10, 28, 25, 0.18)
+    rgba(21, 25, 33, 0.9),
+    rgba(21, 25, 33, 0.18)
   );
 }
 .brand-hero > div {
@@ -131,13 +131,13 @@
   padding: 12px 23px;
   font-size: 14px;
   font-weight: 600;
-  background: #164638;
+  background: #252c37;
   color: #fff !important;
   gap: 8px;
 }
 .commerce-button.gold {
   background: #dab477;
-  color: #27392d !important;
+  color: #262e3a !important;
 }
 .commerce-button.outline {
   background: transparent;
@@ -228,7 +228,7 @@
 }
 .economic-model {
   padding: 65px 7vw;
-  background: #163f36;
+  background: #222933;
   color: #fff;
 }
 .economic-model > div {
@@ -237,7 +237,7 @@
   gap: 25px;
 }
 .economic-model article {
-  border-top: 1px solid #6d8e76;
+  border-top: 1px solid #647897;
   padding-top: 15px;
 }
 .economic-model li {
@@ -263,7 +263,7 @@
 .commerce select,
 .commerce textarea {
   background: #fff;
-  border: 1px solid #bfc6b9;
+  border: 1px solid #cfc0b0;
   border-radius: 3px;
   padding: 10px;
   max-width: 100%;
@@ -292,7 +292,7 @@
 }
 .source-date {
   font-size: 12px;
-  color: #697365;
+  color: #656a73;
   margin-top: 30px;
 }
 .brand-final {
@@ -323,7 +323,7 @@
 }
 .commerce-footer {
   padding: 60px 6vw 25px;
-  background: #102f28;
+  background: #191e26;
   color: #eef0e7;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
@@ -337,7 +337,7 @@
 }
 .commerce-footer > p {
   grid-column: 1/-1;
-  border-top: 1px solid #456053;
+  border-top: 1px solid #424f63;
   padding-top: 20px;
   font-size: 12px;
 }
@@ -435,7 +435,7 @@
 }
 .product-specs dt {
   font-size: 12px;
-  color: #697365;
+  color: #656a73;
 }
 .product-specs dd {
   margin: 8px 0 0;
@@ -512,7 +512,7 @@
 .brand-home-links a {
   padding: 22px 12px;
   border-top: 1px solid #a98b60;
-  color: #294239;
+  color: #2b3340;
   text-decoration: none;
 }
 .brand-home-links strong {
@@ -526,7 +526,7 @@
   grid-column: 1/-1;
   text-align: center;
   padding: 12px;
-  background: #173f34;
+  background: #222934;
   color: #fff;
 }
 @media (max-width: 1050px) {
