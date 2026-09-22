@@ -13,7 +13,7 @@ export async function generateMetadata() { return translatedMetadata({
 export default async function Shop({
   searchParams: pendingSearch,
 }: {
-  searchParams: Promise<{ vertical?: string; cat?: string; tech?: string; item?: string }>;
+  searchParams: Promise<{ vertical?: string; cat?: string; tech?: string; item?: string; q?: string }>;
 }) {
   const searchParams = await pendingSearch;
   // Leather is presented inside handicrafts; old leather links land there.
@@ -26,7 +26,7 @@ export default async function Shop({
   return (
     <Localized><CommerceShell>
       <main id="commerce-main">
-        <Storefront initialVertical={isSector(v) ? v : ""} {...craft} />
+        <Storefront initialVertical={isSector(v) ? v : ""} initialQuery={(searchParams.q || "").slice(0, 200)} {...craft} />
       </main>
     </CommerceShell></Localized>
   );

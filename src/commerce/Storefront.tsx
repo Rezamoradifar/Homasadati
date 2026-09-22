@@ -14,19 +14,21 @@ import AddToCart from "./AddToCart";
 import CraftNav from "./CraftNav";
 export default function Storefront({
   initialVertical = "",
+  initialQuery = "",
   cat = "",
   tech = "",
   item = "",
 }: {
   initialVertical?: string;
+  initialQuery?: string;
   cat?: string;
   tech?: string;
   item?: string;
 }) {
   const {locale}=useSiteLocale();
   const [vertical, setVertical] = useState(initialVertical),
-    [q, setQ] = useState(""),
-    [search, setSearch] = useState(""),
+    [q, setQ] = useState(initialQuery),
+    [search, setSearch] = useState(initialQuery),
     [page, setPage] = useState(1),
     [reload, setReload] = useState(0);
   const state = useData(

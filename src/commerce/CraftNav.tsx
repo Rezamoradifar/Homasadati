@@ -1,6 +1,6 @@
 "use client";
 import Localized from "../i18n/Localized";
-import { craftCategories, craftCategory, craftShopHref } from "./craft-taxonomy";
+import { craftCategories, craftCategory, craftShopHref, itemsFor } from "./craft-taxonomy";
 
 /** Handicraft category tree. With `active` values it marks the current
  * category, copper technique and item, and offers the next level down. */
@@ -48,7 +48,7 @@ export default function CraftNav({
             <a href={craftShopHref(current.id, tech)} aria-current={!item ? "page" : undefined}>
               همهٔ محصولات
             </a>
-            {current.items.map((i) => (
+            {itemsFor(current, tech).map((i) => (
               <Localized key={i.id}>
                 <a href={craftShopHref(current.id, tech, i.id)} aria-current={i.id === item ? "page" : undefined}>
                   {i.name}

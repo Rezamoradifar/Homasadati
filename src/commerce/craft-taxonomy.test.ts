@@ -9,6 +9,10 @@ test("accepts only technique and item paths that belong to the category", () => 
   expect(validCraftPath("copper", "", "belt")).toBe(false);
   expect(validCraftPath("", "khatam", "")).toBe(false);
   expect(validCraftPath("gold", "", "")).toBe(false);
+  expect(validCraftPath("copper", "turquoise", "samovar-tea-set")).toBe(true);
+  expect(validCraftPath("copper", "khatam", "samovar-set")).toBe(true);
+  expect(validCraftPath("copper", "pardaz", "samovar-set")).toBe(false);
+  expect(validCraftPath("copper", "", "samovar-set")).toBe(false);
 });
 
 test("links every category, leather included, through the handicrafts shop", () => {
