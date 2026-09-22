@@ -8,6 +8,7 @@ export type UsdRate = { rialPerUsd: number; updatedAt: string; source: "auto" | 
 
 const REFRESH_MS = 6 * 60 * 60 * 1000; // four requests a day fit free API quotas
 export const STALE_MS = 48 * 60 * 60 * 1000;
+const RETRY_MS = 30 * 60 * 1000; // back-off after a failed fetch
 const MIN_RATE = 10_000, MAX_RATE = 100_000_000; // rial per USD sanity bounds
 
 const persianDigits = "۰۱۲۳۴۵۶۷۸۹", arabicDigits = "٠١٢٣٤٥٦٧٨٩";
@@ -52,20 +53,26 @@ function storedAuto(): UsdRate | undefined {
   }
 }
 
-/** Fetches the configured rate source at most every six hours. A reading that
- * moves more than half away from the previous one is rejected as a parse error. */
+/** Fetches the configured rate source at most every six hours, and after a
+ * failure waits half an hour before trying again. While the previous rate is
+ * still fresh, a reading more than 50% away from it is rejected as a likely
+ * parse error; once it has gone stale any valid reading is accepted. */
 export async function refreshUsdRate(nowMs = Date.now()) {
   const url = setting("fx_source_url"), path = setting("fx_source_path");
   if (!url || !path) return;
   const previous = storedAuto();
   if (previous && nowMs - Date.parse(previous.updatedAt) < REFRESH_MS) return;
+  const lastAttempt = Number(setting("fx_usd_attempt") || 0);
+  if (nowMs - lastAttempt < RETRY_MS) return;
+  saveSetting("fx_usd_attempt", String(nowMs));
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(15000), redirect: "error" });
     if (!response.ok) throw new Error("fx_rejected");
     const raw = parseAmount(readPath(await response.json(), path));
     const rialPerUsd = Math.round(setting("fx_source_unit") === "toman" ? raw * 10 : raw);
     if (!validRate(rialPerUsd)) throw new Error("fx_invalid");
-    if (previous && Math.abs(rialPerUsd - previous.rialPerUsd) / previous.rialPerUsd > 0.5)
+    const fresh = previous && nowMs - Date.parse(previous.updatedAt) < STALE_MS;
+    if (fresh && Math.abs(rialPerUsd - previous.rialPerUsd) / previous.rialPerUsd > 0.5)
       throw new Error("fx_jump");
     saveSetting("fx_usd", JSON.stringify({ rialPerUsd, updatedAt: new Date(nowMs).toISOString(), source: "auto" }));
   } catch (e) {
