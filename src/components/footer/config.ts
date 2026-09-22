@@ -4,7 +4,7 @@ const group = (id: string, routes: string[]): FooterColumnConfig => ({
 });
 export const defaultColumns: readonly FooterColumnConfig[] = [
   group('verticals', ['tourism', 'beauty', 'handicrafts', 'leather', 'content', 'club', 'ai']),
-  group('services', ['booking', 'concierge', 'global-shipping', 'dalarit', 'api', 'partners']),
+  group('services', ['booking', 'concierge', 'api', 'partners']),
   group('company', ['about', 'careers', 'press', 'sustainability', 'contact']),
   group('support', ['help', 'faq', 'terms', 'privacy', 'refund'])
 ];

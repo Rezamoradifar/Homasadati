@@ -8,6 +8,10 @@ import { useAutoGallery } from "../src/commerce/useAutoGallery";
 import { useLocale } from "next-intl";
 export const heritageSlides = [
   ["persepolis", "تخت‌جمشید", "Persepolis"],
+  ["griffin", "شیردال", "Griffin"],
+  ["darius", "داریوش", "Darius"],
+  ["pasargadae", "آرامگاه کوروش، پاسارگاد", "Tomb of Cyrus, Pasargadae"],
+  ["apadana", "آپادانا", "Apadana"],
   ["isfahan", "اصفهان", "Isfahan"],
   ["yazd", "یزد", "Yazd"],
 ];
