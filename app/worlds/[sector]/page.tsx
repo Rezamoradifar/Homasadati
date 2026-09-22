@@ -8,8 +8,9 @@ import TourismMedia from "../../TourismMedia";
 import TourismHeroVideo from "../../TourismHeroVideo";
 import ClubCards from "../../ClubCards";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { brands, isSector, sectorKeys } from "../../../src/commerce/brands";
+import { notFound, redirect } from "next/navigation";
+import { brands, isSector, menuSectors } from "../../../src/commerce/brands";
+import { craftShopHref } from "../../../src/commerce/craft-taxonomy";
 import { stories } from "../../../src/commerce/content";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import Economics from "../../../src/commerce/Economics";
@@ -34,6 +35,7 @@ export default async function BrandPage({
 }) {
   const params = await pendingParams;
   if (!isSector(params.sector)) notFound();
+  if (params.sector === "leather") redirect(craftShopHref("leather"));
   const locale=await siteLocale(),dictionary=await loadDictionary(locale);
   const t=(text:string)=>translateText(text,locale,dictionary);
   const k = params.sector,
@@ -190,7 +192,7 @@ export default async function BrandPage({
         <section className="brand-related">
           <h2>دیگر جهان‌های همای</h2>
           <div>
-            {sectorKeys
+            {menuSectors
               .filter((x) => x !== k)
               .map((x) => (
                 <Localized key={x}><a href={`/worlds/${x}`}>

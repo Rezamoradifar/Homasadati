@@ -4,7 +4,7 @@ import {LanguagePicker} from '../i18n/SiteLocale';
 import Localized from "../i18n/Localized";
 import ThemeToggle from "./ThemeToggle";
 import type { ReactNode } from "react";
-import { brands, sectorKeys } from "./brands";
+import { brands, menuSectors } from "./brands";
 import "./commerce.css";
 import "../../app/heritage.css";
 export function CommerceShell({ children }: { children: ReactNode }) {
@@ -21,7 +21,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           </span>
         </a>
         <nav aria-label="بخش‌های خانواده همای">
-          {sectorKeys.map((k) => (
+          {menuSectors.map((k) => (
             <Localized key={k}><a href={`/worlds/${k}`}>
               {brands[k].name}
             </a></Localized>
@@ -58,7 +58,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
         <details open>
           <summary>جهان‌های همای</summary>
           <nav aria-label="برندها">
-            {sectorKeys.map((k) => (
+            {menuSectors.map((k) => (
               <Localized key={k}><a href={`/worlds/${k}`}>
                 {brands[k].name} · {brands[k].label}
               </a></Localized>

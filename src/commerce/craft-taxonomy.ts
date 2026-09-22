@@ -61,8 +61,7 @@ export function validCraftPath(category: string, technique: string, item: string
 
 /** Shop link for a node of the tree. */
 export function craftShopHref(category: string, technique = "", item = "") {
-  const c = craftCategory(category);
-  const params = new URLSearchParams({ vertical: c?.vertical || "craft", cat: category });
+  const params = new URLSearchParams({ vertical: "craft", cat: category });
   if (technique) params.set("tech", technique);
   if (item) params.set("item", item);
   return "/shop?" + params.toString();

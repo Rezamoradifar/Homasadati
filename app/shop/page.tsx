@@ -16,7 +16,10 @@ export default async function Shop({
   searchParams: Promise<{ vertical?: string; cat?: string; tech?: string; item?: string }>;
 }) {
   const searchParams = await pendingSearch;
-  const v = searchParams.vertical || "";
+  // Leather is presented inside handicrafts; old leather links land there.
+  const leather = searchParams.vertical === "leather";
+  const v = leather ? "craft" : searchParams.vertical || "";
+  if (leather && !searchParams.cat) searchParams.cat = "leather";
   const craft = validCraftPath(searchParams.cat || "", searchParams.tech || "", searchParams.item || "")
     ? { cat: searchParams.cat || "", tech: searchParams.tech || "", item: searchParams.item || "" }
     : { cat: "", tech: "", item: "" };

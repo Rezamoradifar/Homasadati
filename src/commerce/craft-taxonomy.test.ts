@@ -11,7 +11,7 @@ test("accepts only technique and item paths that belong to the category", () => 
   expect(validCraftPath("gold", "", "")).toBe(false);
 });
 
-test("links leather to the leather catalogue and copper to handicrafts", () => {
-  expect(craftShopHref("leather", "", "bag")).toBe("/shop?vertical=leather&cat=leather&item=bag");
+test("links every category, leather included, through the handicrafts shop", () => {
+  expect(craftShopHref("leather", "", "bag")).toBe("/shop?vertical=craft&cat=leather&item=bag");
   expect(craftShopHref("copper", "pardaz", "vase")).toBe("/shop?vertical=craft&cat=copper&tech=pardaz&item=vase");
 });

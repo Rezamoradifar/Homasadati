@@ -42,4 +42,6 @@ export const brands = {
 } as const;
 export type Sector = keyof typeof brands;
 export const sectorKeys: Sector[] = ["tourism", "craft", "leather", "beauty", "ai"];
+/** Sectors shown in menus; leather is presented inside handicrafts. */
+export const menuSectors: Sector[] = sectorKeys.filter((k) => k !== "leather");
 export const isSector = (s: string): s is Sector => Object.prototype.hasOwnProperty.call(brands, s);

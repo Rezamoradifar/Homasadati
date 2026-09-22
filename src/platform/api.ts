@@ -1398,10 +1398,11 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "catalog" && get) {
       const q = query(url);
       const result = paged(
-        "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR p.vertical=?) AND (?='' OR d.family=?) AND (?='' OR IFNULL(json_extract(d.details,'$.craftCategory'),'')=? OR (?='leather' AND p.vertical='leather')) AND (?='' OR json_extract(d.details,'$.craftTechnique')=?) AND (?='' OR json_extract(d.details,'$.craftItem')=?) ORDER BY p.created_at DESC",
+        "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR p.vertical=? OR (?='craft' AND p.vertical='leather')) AND (?='' OR d.family=?) AND (?='' OR IFNULL(json_extract(d.details,'$.craftCategory'),'')=? OR (?='leather' AND p.vertical='leather')) AND (?='' OR json_extract(d.details,'$.craftTechnique')=?) AND (?='' OR json_extract(d.details,'$.craftItem')=?) ORDER BY p.created_at DESC",
         [
           "%" + q.q + "%",
           "%" + q.q + "%",
+          q.vertical,
           q.vertical,
           q.vertical,
           q.family,
