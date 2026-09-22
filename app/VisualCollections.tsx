@@ -8,20 +8,10 @@ import { useAutoGallery } from "../src/commerce/useAutoGallery";
 import { useLocale } from "next-intl";
 export const heritageSlides = [
   ["persepolis", "تخت‌جمشید", "Persepolis"],
-  ["griffin", "شیردال", "Griffin"],
-  ["simurgh", "سیمرغ", "Simurgh"],
-  ["cyrus", "کوروش", "Cyrus"],
-  ["darius", "داریوش", "Darius"],
-  ["pasargadae", "پاسارگاد", "Pasargadae"],
-  ["apadana", "آپادانا", "Apadana"],
   ["isfahan", "اصفهان", "Isfahan"],
   ["lotfollah", "نقش و نور", "Light and pattern"],
-  ["shushtar", "شوشتر", "Shushtar"],
-  ["bam", "ارگ بم", "Bam"],
-  ["yazd", "یزد", "Yazd"],
-  ["sassanid", "میراث ساسانی", "Sassanid heritage"],
   ["tabriz", "بازار تبریز", "Tabriz"],
-  ["garden", "باغ ایرانی", "Persian garden"],
+  ["yazd", "یزد", "Yazd"],
 ];
 export function CivilizationHero() {
   const locale = useLocale(),
@@ -34,7 +24,7 @@ export function CivilizationHero() {
   );
   function choose(n: number) {
     auto.pause();
-    const next = (n + 15) % 15;
+    const next = (n + heritageSlides.length) % heritageSlides.length;
     setIndex(next);
   }
   useEffect(() => {
@@ -64,7 +54,7 @@ export function CivilizationHero() {
         className="civilization-controls"
         role="region"
         aria-label={
-          fa ? "پانزده روایت از تمدن ایران" : "Fifteen visions of Iran"
+          fa ? "روایت‌هایی از تمدن ایران" : "Stories of Iranian civilisation"
         }
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") {
@@ -85,7 +75,8 @@ export function CivilizationHero() {
             ←
           </button>
           <span aria-live={auto.paused ? "polite" : "off"}>
-            {String(index + 1).padStart(2, "0")} / 15 ·{" "}
+            {String(index + 1).padStart(2, "0")} /{" "}
+            {String(heritageSlides.length).padStart(2, "0")} ·{" "}
             {heritageSlides[index][fa ? 1 : 2]}{" "}
             <small>{fa ? "بازآفرینی هنری" : "Artistic interpretation"}</small>
           </span>
