@@ -56,7 +56,7 @@ export function Captcha({
     setError("");
     (async () => {
       try {
-        const config = await api("auth/config");
+        const config = await api("auth/config?action=" + encodeURIComponent(action));
         if (disposed) return;
         if (!config.ready)
           throw new Error(
@@ -70,7 +70,7 @@ export function Captcha({
         if (disposed || !container.current) return;
         widget = window.turnstile!.render(container.current, {
           sitekey: config.siteKey,
-          action,
+          action: action === "admin-password-login" ? "login" : action,
           theme: "auto",
           size: "flexible",
           callback: (token: string) => {

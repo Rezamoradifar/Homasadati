@@ -1,3 +1,5 @@
+import { cardPlan, saveCardPlan } from "./seven-card";
+import { previewCardMatches } from "./seven-card-model";
 import { setting } from "./providers";
 import { z } from "zod";
 import { ApiError, json, limit } from "../server/http";
@@ -52,6 +54,8 @@ export async function extensionAdmin(
   const resource = path[1];
   if (
     ![
+      "seven-card-plan",
+      "seven-card-simulate",
       "binary-rules",
       "binary-simulate",
       "loyalty-policy",
@@ -70,6 +74,8 @@ export async function extensionAdmin(
   if (!get) limit("extension-admin:" + u.id, 60, 300);
   if (
     [
+      "seven-card-plan",
+      "seven-card-simulate",
       "binary-rules",
       "binary-simulate",
       "loyalty-policy",
@@ -80,6 +86,12 @@ export async function extensionAdmin(
     path.length !== 2
   )
     throw new ApiError(404, "not_found");
+  if (resource === "seven-card-plan")
+    return json(get ? cardPlan() : saveCardPlan(u.id, data));
+  if (resource === "seven-card-simulate") {
+    if (get) throw new ApiError(405, "method_not_allowed");
+    return json(previewCardMatches(data));
+  }
   if (resource === "binary-rules")
     return json(get ? { rules: binaryRules() } : saveBinaryRules(u.id, data));
   if (resource === "binary-simulate") {
@@ -219,6 +231,10 @@ export function extensionMember(
   data: Row,
   u: Row,
 ): Response | null {
+  if (path.join("/") === "seven-card-plan") {
+    if (req.method !== "GET") throw new ApiError(405, "method_not_allowed");
+    return json(cardPlan());
+  }
   if (path[0] === "merchant") {
     if (path.length === 1 && req.method === "GET")
       return json(merchantWorkspace(u.id, pageOf(req)));

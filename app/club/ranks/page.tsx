@@ -1,3 +1,4 @@
+import SevenCardPublic from "../../../src/platform/SevenCardPublic";
 import { translatedMetadata } from "../../../src/i18n/server";
 import {tomanToRial,tierPriceRial} from '../../../src/commerce/club-tiers';
 
@@ -19,13 +20,14 @@ export default function RanksPage() {
             از جوانه تا سیمرغ؛ کارت سفر شخصی با هویت ایرانی. اعتبار سفر غیرنقدی
             است و با موجودی کیف پول تفاوت دارد.
           </p>
-          <p>قیمت‌های روی کارت، پیشنهاد عضویت به ریال هستند؛ خرید مستقیم کارت هنوز فعال نیست. اعتبار سفر و شرایط احراز هر رتبه را در جزئیات باشگاه ببینید.</p><p className="rank-disclosure">
+          <p>کارت سفر تابع مقررات جداگانه است؛ جدول پلن جدید در ادامه آمده است.</p><p className="rank-disclosure">
             کارت‌های «پیشنهادی» هنوز مزیت فعال یا وعده اعتبار نیستند. تنها
             رتبه‌ای که مدیریت قانون صدور آن را فعال کرده باشد، با احراز شرایط
             قابل صدور است.
           </p>
         </header>
-        <section className="rank-comparison" aria-labelledby="compare-title"><h2 id="compare-title">مقایسه هفت کارت</h2><p>قیمت پیشنهادی عضویت با اعتبار غیرنقدی سفر تفاوت دارد. مبلغ قابل استفاده و صدور فعال را جداگانه بررسی کنید.</p><div className="comparison-scroll" role="region" aria-label="جدول مقایسه کارت‌ها" tabIndex={0}><table><thead><tr><th scope="col">کارت</th><th scope="col">قیمت پیشنهادی (ریال)</th><th scope="col">اعتبار سفر (ریال)</th><th scope="col">حداقل فروش شخصی (ریال)</th><th scope="col">اعتبار (روز)</th><th scope="col">وضعیت صدور</th></tr></thead><tbody>{ranks.map(r=><Localized key={r.level}><tr><th scope="row"><a href={"#rank-"+r.level}>{r.display_name}</a></th><td>{number(tierPriceRial(r.level)||0)}</td><td>{number(tomanToRial(r.amount))}</td><td>{number(tomanToRial(r.threshold))}</td><td>{number(r.duration)}</td><td>{r.active?"صدور فعال":"پیشنهاد؛ صدور غیرفعال"}</td></tr></Localized>)}</tbody></table></div><p>خرید کارت به‌تنهایی رتبه ایجاد نمی‌کند؛ شرایط فروش شخصی و گروهی و خرید واجد شرایط هر رتبه ملاک است.</p></section>
+        <SevenCardPublic />
+        <section className="rank-comparison" aria-labelledby="compare-title"><h2 id="compare-title">مقایسه هفت کارت</h2><p>اعتبار سفر با سقف پاداش هفتگی پلن جدید متفاوت است.</p><div className="comparison-scroll" role="region" aria-label="جدول مقایسه کارت‌ها" tabIndex={0}><table><thead><tr><th scope="col">کارت</th><th scope="col">اعتبار سفر (ریال)</th><th scope="col">حداقل فروش شخصی (ریال)</th><th scope="col">اعتبار (روز)</th><th scope="col">وضعیت صدور</th></tr></thead><tbody>{ranks.map(r=><Localized key={r.level}><tr><th scope="row"><a href={"#rank-"+r.level}>{r.display_name}</a></th><td>{number(tomanToRial(r.amount))}</td><td>{number(tomanToRial(r.threshold))}</td><td>{number(r.duration)}</td><td>{r.active?"صدور فعال":"پیشنهاد؛ صدور غیرفعال"}</td></tr></Localized>)}</tbody></table></div><p>خرید کارت به‌تنهایی رتبه ایجاد نمی‌کند؛ شرایط فروش شخصی و گروهی و خرید واجد شرایط هر رتبه ملاک است.</p></section>
         <div className="rank-grid">
           {ranks.map((r) => (
             <Localized key={r.level}><article
@@ -36,6 +38,7 @@ export default function RanksPage() {
                 name={r.display_name}
                 tone={r.tone}
                 level={r.level}
+                showPurchaseMinimum={false}
               />
               <div className="rank-description">
                 <strong>

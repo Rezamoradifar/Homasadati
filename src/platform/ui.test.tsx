@@ -114,6 +114,28 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 describe("Panels use actual APIs and SQLite", () => {
+  it("shows the draft card plan to members without presenting rewards as a balance", async () => {
+    authCookie = member;
+    window.history.replaceState(null, "", "/account?tab=seven-card-plan");
+    render(<Portal />);
+    await screen.findByText("الماس");
+    expect(screen.getByText(/پرداخت، فعال‌سازی جایگاه و صدور ووچر/)).toBeTruthy();
+    expect(screen.queryByText("تصمیم‌های اجرایی پلن")).toBeNull();
+  });
+  it("saves card decisions and previews whole-match rewards through real admin APIs", async () => {
+    authCookie = admin;
+    window.history.replaceState(null, "", "/admin?tab=seven-card-plan");
+    const user = userEvent.setup();
+    render(<Portal admin />);
+    await user.selectOptions(await screen.findByLabelText("شمارنده پاداش هشتم"), "desk");
+    await user.type(screen.getByLabelText("دلیل تغییر"), "بررسی قواعد پلن");
+    await user.click(screen.getByRole("button", { name: "ذخیره" }));
+    await waitFor(() => expect(JSON.parse(one("SELECT value FROM p_settings WHERE key='seven_card_plan_draft'")!.value).decisions.counterScope).toBe("desk"));
+    await user.click(screen.getByRole("button", { name: "محاسبه" }));
+    await screen.findByText("تعداد تعادل قابل پرداخت");
+    expect(screen.getByText("پاداش نقدی").nextElementSibling?.textContent).toContain("۱۰٬۸۰۰٬۰۰۰");
+  });
+
   it("loads the member account and wallet in English while preserving the member name", async () => {
     authCookie = member;
     const user = userEvent.setup();
@@ -218,6 +240,27 @@ describe("Panels use actual APIs and SQLite", () => {
     },
   );
 
+  it("lets the configured temporary administrator sign in without a captcha widget", async () => {
+    authCookie = "";
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("TURNSTILE_SITE_KEY", "");
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "");
+    vi.stubEnv("TEMP_ADMIN_PASSWORD_LOGIN_UNTIL", new Date(Date.now() + 7200000).toISOString());
+    try {
+      const user = userEvent.setup();
+      render(<Portal admin />);
+      await user.type(await screen.findByLabelText(/ایمیل یا شماره موبایل/), "superadmin@test.example");
+      await user.type(screen.getByLabelText("رمز عبور"), password);
+      const button = screen.getByRole("button", { name: "ورود به حساب" });
+      await waitFor(() => expect((button as HTMLButtonElement).disabled).toBe(false));
+      await user.click(button);
+      await screen.findByRole("button", { name: "خروج" });
+      expect(screen.queryByRole("button", { name: "ورود به حساب" })).toBeNull();
+    } finally {
+      cleanup();
+      vi.unstubAllEnvs();
+    }
+  });
   it("creates a private support thread, replies as staff and hides internal notes from its owner", async () => {
     authCookie = member;
     window.history.replaceState(null, "", "/account?tab=tickets");
