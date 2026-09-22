@@ -17,7 +17,7 @@ export const copperItems: CraftNode[] = [
   { id: "tea-set", name: "چای‌خوری" },
   { id: "sweets-dish", name: "شیرینی‌خوری" },
   { id: "vase", name: "گلدان" },
-  { id: "hyacinth-holder", name: "سنبل‌دان" },
+  { id: "hyacinth-holder", name: "سنبلدان" },
   { id: "laleh", name: "لاله" },
   { id: "samovar-tea-set", name: "ست کامل سماور و چای‌خوری", onlyWith: ["turquoise"] },
   { id: "samovar-set", name: "ست کامل سماور", onlyWith: ["khatam"] },
