@@ -4,7 +4,7 @@ export const imageDimensions: Record<string, readonly [number, number]> = {
   "/assets/licenses/craft-house-permit.jpg": [1280,853],
   "/assets/ai.jpg": [1086, 1448],
   "/assets/beauty.jpg": [1086, 1448],
-  "/assets/brand-mark.png": [90, 87],
+  "/assets/brand-mark.png": [256, 256],
   "/assets/collections/ai-human.webp": [1672, 941],
   "/assets/collections/beauty-care.webp": [1672, 941],
   "/assets/collections/beauty-cream.webp": [1672, 941],
