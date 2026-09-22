@@ -495,20 +495,8 @@ export function Modal({
       className="portal-dialog"
       ref={ref}
       onCancel={onClose}
-      style={{
-        border: "1px solid #d3c7b7",
-        borderRadius: 8,
-        padding: 28,
-        width: "min(760px,calc(100% - 30px))",
-        maxHeight: "90vh",
-        color: "#2a323e",
-        background: "#fff",
-      }}
     >
-      <div
-        className="portal-row"
-        style={{ justifyContent: "space-between", marginBottom: 20 }}
-      >
+      <div className="portal-row portal-dialog-head">
         <h2>{title}</h2>
         <button className="portal-button" onClick={onClose} aria-label="بستن">
           بستن
