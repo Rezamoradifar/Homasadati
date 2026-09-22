@@ -9,8 +9,6 @@ import { useLocale } from "next-intl";
 export const heritageSlides = [
   ["persepolis", "تخت‌جمشید", "Persepolis"],
   ["isfahan", "اصفهان", "Isfahan"],
-  ["lotfollah", "نقش و نور", "Light and pattern"],
-  ["tabriz", "بازار تبریز", "Tabriz"],
   ["yazd", "یزد", "Yazd"],
 ];
 export function CivilizationHero() {
