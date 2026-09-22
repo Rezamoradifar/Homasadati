@@ -291,6 +291,8 @@ export function Orders({
   refresh: number;
   onChange: () => void;
 }) {
+  const { locale } = useSiteLocale();
+
   const [selected, setSelected] = useState<RecordData | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
@@ -338,8 +340,8 @@ export function Orders({
               ["وضعیت", labels[selected.status]],
               ["روش پرداخت", labels[selected.payment_method]],
               ["مرجع پرداخت", selected.payment_ref || "تأیید نشده"],
-              ["تاریخ", date(selected.created_at)],
-              ["پایان مهلت لغو", date(selected.cancel_until)],
+              ["تاریخ", date(selected.created_at, locale)],
+              ["پایان مهلت لغو", date(selected.cancel_until, locale)],
             ].map(([k, v]) => (
               <Localized key={k}><div>
                 <dt>{k}</dt>

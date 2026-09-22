@@ -29,6 +29,9 @@ import { handle } from "./api";
 import { platformDb, run, one, now } from "./schema";
 import { passwordHash, session, SESSION_COOKIE, totp } from "./security";
 import { saveSetting } from "./providers";
+import { SiteLocaleProvider } from "../i18n/SiteLocale";
+import en from "../i18n/en.json";
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 let authCookie = "",
   member: string,
   admin: string,
@@ -111,6 +114,29 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 describe("Panels use actual APIs and SQLite", () => {
+  it("loads the member account and wallet in English while preserving the member name", async () => {
+    authCookie = member;
+    const user = userEvent.setup();
+    render(<SiteLocaleProvider initialLocale="en" initialDictionary={en}><Portal /></SiteLocaleProvider>);
+    await screen.findByText("Withdrawable balance");
+    expect(screen.getByRole("heading", { name: "Welcome, کاربر آزمون" })).toBeTruthy();
+    expect(document.documentElement.dir).toBe("ltr");
+    await user.click(screen.getByRole("button", { name: "Wallet and withdrawals" }));
+    await screen.findByRole("heading", { name: "Withdrawal history" });
+    await screen.findByText("Withdrawals become available after the administrator sets financial limits.");
+    expect(window.location.search).toBe("?tab=wallet");
+  });
+
+  it("loads administrator rules and their API-backed forms in English", async () => {
+    authCookie = admin;
+    window.history.replaceState(null, "", "/admin?tab=binary-rules");
+    render(<SiteLocaleProvider initialLocale="en" initialDictionary={en}><Portal admin /></SiteLocaleProvider>);
+    await screen.findByRole("heading", { name: "Binary rules" });
+    await screen.findByRole("heading", { name: "Binary simulator" });
+    expect(screen.getByLabelText("Reason for change")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Binary rules and simulator" }).getAttribute("aria-current")).toBe("page");
+  });
+
   it("retries an unavailable account connection without presenting a false signed-out state", async () => {
     authCookie = member;
     forceOffline = true;

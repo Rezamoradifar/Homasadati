@@ -1,4 +1,5 @@
 import { validateClient } from "./client-validation";
+import { formatDate } from "../i18n/core";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
   self_payment_review: "نمی‌توانید پرداخت مربوط به حساب خودتان را بررسی کنید.",
@@ -134,10 +135,7 @@ export async function api(path: string, method = "GET", data?: unknown) {
   return result;
 }
 export const amount = (n: unknown) => Number(n ?? 0).toLocaleString("fa-IR");
-export const date = (v: unknown) =>
-  v
-    ? new Date(String(v)).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" })
-    : "—";
+export const date = formatDate;
 export const labels: Record<string, string> = {
   waiting_support: "در انتظار پشتیبانی",
   waiting_user: "در انتظار کاربر",

@@ -1,10 +1,11 @@
+import { translatedMetadata } from "../../../src/i18n/server";
 import {tomanToRial,tierPriceRial} from '../../../src/commerce/club-tiers';
 
 import Localized from "../../../src/i18n/Localized";
 import PrivilegeCard from "../../PrivilegeCard";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import { travelPresets } from "../../../src/platform/travel-presets";
-export const metadata = { title: "هفت رتبه باشگاه و کارت سفر | همای سعادت" };
+export async function generateMetadata() { return translatedMetadata({ title: "هفت رتبه باشگاه و کارت سفر | همای سعادت" }); }
 export default function RanksPage() {
   const ranks = travelPresets();
   const number = (n: number) => n.toLocaleString("fa-IR");

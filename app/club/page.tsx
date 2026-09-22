@@ -1,10 +1,11 @@
+import { translatedMetadata } from "../../src/i18n/server";
 import { CommerceShell } from "../../src/commerce/Shell";
 import Localized from "../../src/i18n/Localized";
 import { loyaltyPolicy } from "../../src/platform/loyalty-engine";
 import { all } from "../../src/platform/schema";
 import "../../src/platform/panel.css";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "باشگاه مشتریان | همای سعادت" };
+export async function generateMetadata() { return translatedMetadata({ title: "باشگاه مشتریان | همای سعادت" }); }
 export default function ClubPage() {
   const policy = loyaltyPolicy(),
     levels = all(
@@ -45,10 +46,9 @@ export default function ClubPage() {
               {policy.enabled ? (
                 <>
                   <p>
-                    برای هر {policy.spendUnit.toLocaleString("fa-IR")} تومان
-                    خرید، {policy.pointsPerUnit.toLocaleString("fa-IR")} امتیاز
-                    به شما تعلق می‌گیرد. امتیاز هر سفارش به عدد صحیح پایین‌تر
-                    گرد می‌شود و پس از پایان مهلت لغو آزاد می‌شود.
+                    {`برای هر ${policy.spendUnit.toLocaleString("fa-IR")} تومان خرید، ${policy.pointsPerUnit.toLocaleString("fa-IR")} امتیاز به شما تعلق می‌گیرد.`}
+                    {" "}
+                    امتیاز هر سفارش به عدد صحیح پایین‌تر گرد می‌شود و پس از پایان مهلت لغو آزاد می‌شود.
                   </p>
                   <p>
                     {policy.expiryDays

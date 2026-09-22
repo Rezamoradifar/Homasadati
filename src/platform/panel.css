@@ -13,6 +13,10 @@
 .portal * {
   box-sizing: border-box;
 }
+html[dir="ltr"] .portal {
+  direction: ltr;
+  font-family: Manrope, sans-serif;
+}
 .portal button,
 .portal input,
 .portal select,

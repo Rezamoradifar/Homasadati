@@ -3,6 +3,7 @@ import { hash, ApiError, limit } from "../server/http";
 import { one, run, now, atomic } from "./schema";
 import { decrypt, encrypt } from "./security";
 import { policySchema, Policy } from "./validation";
+import { loadDictionary, translateText, type SiteLocale } from "../i18n/core";
 export function setting(key: string) {
   const r = one("SELECT * FROM p_settings WHERE key=?", key);
   return r ? (r.secret ? decrypt(r.value) : r.value) : undefined;
@@ -35,7 +36,7 @@ export async function providerFetch(url: string, init: RequestInit) {
   if (!response.ok) throw new ApiError(502, "provider_rejected");
   return response.json();
 }
-export async function sendOtp(target: string, purpose: string) {
+export async function sendOtp(target: string, purpose: string, locale: SiteLocale = "fa") {
   limit("otp-target:" + hash(target), 3, 300);
   limit("otp-cooldown:" + hash(target), 1, 60);
   const code = randomInt(100000, 1000000).toString(),
@@ -62,6 +63,7 @@ export async function sendOtp(target: string, purpose: string) {
       const key = setting("resend_key"),
         from = setting("email_from");
       if (!key || !from) throw new ApiError(503, "email_not_configured");
+      const dictionary = await loadDictionary(locale);
       const result = await providerFetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -72,8 +74,8 @@ export async function sendOtp(target: string, purpose: string) {
         body: JSON.stringify({
           from,
           to: [target],
-          subject: "کد تأیید همای سعادت | HOMA",
-          text: `کد تأیید همای سعادت: ${code}\nاعتبار: ۵ دقیقه. این کد را در اختیار دیگران قرار ندهید.`,
+          subject: translateText("کد تأیید همای سعادت | HOMA", locale, dictionary),
+          text: translateText(`کد تأیید همای سعادت: ${code}\nاعتبار: ۵ دقیقه. این کد را در اختیار دیگران قرار ندهید.`, locale, dictionary),
         }),
       });
       if (!result.id) throw new ApiError(502, "provider_rejected");

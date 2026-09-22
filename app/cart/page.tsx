@@ -1,11 +1,12 @@
+import { translatedMetadata } from "../../src/i18n/server";
 
 import Localized from "../../src/i18n/Localized";
 import Cart from "../../src/commerce/Cart";
 import { CommerceShell } from "../../src/commerce/Shell";
-export const metadata = {
+export async function generateMetadata() { return translatedMetadata({
   title: "سبد خرید | خانواده هما",
   robots: { index: false, follow: true },
-};
+}); }
 export default function CartPage() {
   return (
     <Localized><CommerceShell>

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { MouseEvent } from "react";
 import { amount, RecordData } from "./client";
+import Localized from "../i18n/Localized";
 
 const shortcuts = [
   {
@@ -117,12 +118,12 @@ export function MemberOverview({
     },
   ];
   return (
-    <>
+    <Localized>
       <section className="member-welcome">
         <div>
           <span>همای سعادت · باشگاه همراهان</span>
           <h2>
-            <bdi translate="no">{user.name}</bdi>، خوش آمدید
+            خوش آمدید، <bdi translate="no">{user.name}</bdi>
           </h2>
           <p>خریدها، خدمات، مزایا و وضعیت حساب شما در یک نگاه.</p>
         </div>
@@ -162,6 +163,6 @@ export function MemberOverview({
           ))}
         </div>
       </section>
-    </>
+    </Localized>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import { useSiteLocale } from "../i18n/SiteLocale";
 import { useRef, useState } from "react";
 import Localized from "../i18n/Localized";
 import { api, RecordData, date } from "./client";
@@ -35,6 +36,8 @@ function TicketThread({
   onChange,
   onBack,
 }: { id: string; staff: boolean; onBack: () => void } & Props) {
+  const { locale } = useSiteLocale();
+
   const [page, setPage] = useState(1),
     [replyVersion, setReplyVersion] = useState(0),
     key = useRef("");
@@ -74,7 +77,7 @@ function TicketThread({
                   >
                     <p>
                       <strong translate="no">{m.author}</strong> ·{" "}
-                      <time dateTime={m.created_at}>{date(m.created_at)}</time>
+                      <time dateTime={m.created_at}>{date(m.created_at, locale)}</time>
                       {!!m.internal && <strong> · یادداشت داخلی</strong>}
                     </p>
                     <p className="support-body" translate="no">

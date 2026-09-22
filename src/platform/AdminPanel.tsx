@@ -1,5 +1,6 @@
 "use client";
 
+import { useSiteLocale } from "../i18n/SiteLocale";
 import ServiceHealth from "./ServiceHealth";
 import Localized from "../i18n/Localized";
 import { extendedCatalogFields } from "./catalog-fields";
@@ -919,6 +920,8 @@ export function AdminUsers({
   onChange: () => void;
   role: string;
 }) {
+  const { locale } = useSiteLocale();
+
   const [selected, setSelected] = useState<RecordData | null>(null);
   const detail = useData(
     "admin/users/" + (selected?.id || "00000000-0000-0000-0000-000000000000"),
@@ -981,7 +984,7 @@ export function AdminUsers({
                     {d.consent && (
                       <p>
                         پذیرش قوانین: {d.consent.version} ·{" "}
-                        {date(d.consent.accepted_at)}
+                        {date(d.consent.accepted_at, locale)}
                       </p>
                     )}
                     <p>رتبه: {d.rank.current?.name || "بدون رتبه"}</p>

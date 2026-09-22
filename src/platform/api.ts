@@ -1,4 +1,5 @@
 import { operationsApi } from "./operations-api";
+import { isLocale } from "../i18n/core";
 import { loyaltyPolicy } from "./loyalty-engine";
 import { assertAccess } from "./access";
 import { resourceRoles } from "./access-model";
@@ -451,7 +452,8 @@ async function auth(req: Request, path: string[], data: Row) {
     if (d.purpose === "contact") userOf(req);
     else await verifyCaptcha(data.captchaToken, "otp");
     if (d.purpose === "register") registrationContact.parse(d.target);
-    return json(await sendOtp(d.target, d.purpose));
+    const locale = req.headers.get("cookie")?.match(/(?:^|;\s*)homay-locale=([^;]*)/)?.[1];
+    return json(await sendOtp(d.target, d.purpose, isLocale(locale) ? locale : "fa"));
   }
   if (action === "verify-email" || action === "verify-contact") {
     const d = verifyEmailSchema.parse(data);

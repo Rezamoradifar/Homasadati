@@ -9,6 +9,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest run",
+    "i18n:check": "node --import tsx scripts/check-english.ts",
     "start": "next start",
     "setup": "node scripts/setup.mjs",
     "platform:setup": "tsx scripts/platform-setup.ts",
