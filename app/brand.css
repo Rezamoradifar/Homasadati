@@ -1,0 +1,21 @@
+/* Homa brand tokens: organisational colours and Persian typeface.
+   Change --homa-dark-bg to #0E2C47 for the alternative navy dark theme;
+   every dark surface below is derived from it. */
+:root {
+  --homa-light-bg: #efeae5;
+  --homa-dark-bg: #2f3847;
+  --homa-dark-deep: color-mix(in srgb, var(--homa-dark-bg) 82%, #000);
+  --homa-dark-surface: color-mix(in srgb, var(--homa-dark-bg) 94%, #fff);
+  --homa-dark-raised: color-mix(in srgb, var(--homa-dark-bg) 88%, #fff);
+  --homa-dark-line: color-mix(in srgb, var(--homa-dark-bg) 76%, #fff);
+  --homa-dark-line-strong: color-mix(in srgb, var(--homa-dark-bg) 64%, #fff);
+  /* Vazirmatn (SIL Open Font License) is bundled via @fontsource.
+     To switch to a licensed brand font, see public/fonts/README.md. */
+  --font-fa: "Vazirmatn";
+}
+html[data-theme="light"] body {
+  background: var(--homa-light-bg);
+}
+html[data-theme="dark"] body {
+  background: var(--homa-dark-bg);
+}
