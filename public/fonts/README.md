@@ -1,14 +1,11 @@
-# Brand fonts
+# Persian font
 
-The site uses the Persian brand typeface **Farhang**, then **IRANSharp**, then the bundled **Vazirmatn** fallback (see `app/brand.css`).
+The site uses **Vazirmatn** for all Persian text. It is released under the SIL Open Font License 1.1, so it is free to use on a commercial website, and it is bundled through the `@fontsource/vazirmatn` package. No font files are needed here.
 
-Both brand fonts are licensed commercially, so they are not included in this repository. After buying a web licence, put the files here with exactly these names:
+## Switching to a licensed brand font later
 
-```
-public/fonts/farhang/Farhang-Regular.woff2
-public/fonts/farhang/Farhang-Bold.woff2
-public/fonts/iransharp/IRANSharp-Regular.woff2
-public/fonts/iransharp/IRANSharp-Bold.woff2
-```
+Farhang and IRANSharp are commercial fonts. Use them only after buying a **web licence** from the official seller. Then:
 
-Until then, visitors who have the font installed see it, and everyone else sees Vazirmatn.
+1. Put the licensed `woff2` files in this folder, for example `public/fonts/farhang/Farhang-Regular.woff2` and `Farhang-Bold.woff2`.
+2. In `app/brand.css`, add an `@font-face` rule for each file and set
+   `--font-fa: "Farhang", "Vazirmatn";`
