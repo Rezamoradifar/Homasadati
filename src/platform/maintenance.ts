@@ -8,8 +8,10 @@ import { mature, refundOrder } from "./finance";
 import { providerFetch, setting, saveSetting } from "./providers";
 import { ApiError } from "../server/http";
 import { refreshUsdRate } from "./fx";
+import { runCardSettlement } from "./seven-card-engine";
 export async function maintenance() {
   await refreshUsdRate();
+  runCardSettlement();
   runBinaryCycles();
   atomic(() => {
     mature();

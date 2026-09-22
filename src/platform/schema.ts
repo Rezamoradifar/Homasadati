@@ -137,6 +137,24 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_binary_order_cycles(order_id TEXT NOT NULL REFERENCES p_orders(id),cycle_key TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>=0),matches INTEGER NOT NULL CHECK(matches>=0),created_at TEXT NOT NULL,PRIMARY KEY(order_id,cycle_key));
   INSERT OR IGNORE INTO p_migrations VALUES(11,datetime('now'));
 
+  CREATE TABLE IF NOT EXISTS p_card_orders(order_id TEXT PRIMARY KEY REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),counted_cutoff TEXT NOT NULL,created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_card_orders_user ON p_card_orders(user_id);
+  CREATE TABLE IF NOT EXISTS p_card_members(user_id TEXT PRIMARY KEY REFERENCES p_users(id),total INTEGER NOT NULL CHECK(total>=0),level INTEGER NOT NULL CHECK(level BETWEEN 0 AND 7),desks INTEGER NOT NULL CHECK(desks BETWEEN 0 AND 7),updated_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_card_lots(id TEXT PRIMARY KEY,order_id TEXT NOT NULL REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),leg TEXT NOT NULL CHECK(leg IN ('left','right')),volume INTEGER NOT NULL CHECK(volume>0),remaining INTEGER NOT NULL CHECK(remaining>=0),void INTEGER NOT NULL DEFAULT 0 CHECK(void IN (0,1)),created_at TEXT NOT NULL,UNIQUE(order_id,user_id));
+  CREATE INDEX IF NOT EXISTS p_card_lots_pool ON p_card_lots(user_id,leg,void,remaining);
+  CREATE TABLE IF NOT EXISTS p_card_desks(user_id TEXT NOT NULL REFERENCES p_users(id),desk INTEGER NOT NULL CHECK(desk BETWEEN 1 AND 7),matches INTEGER NOT NULL CHECK(matches>=0),PRIMARY KEY(user_id,desk));
+  CREATE TABLE IF NOT EXISTS p_card_matches(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),desk INTEGER NOT NULL,week TEXT NOT NULL,sequence INTEGER NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('cash','voucher')),amount INTEGER NOT NULL CHECK(amount>0),void INTEGER NOT NULL DEFAULT 0 CHECK(void IN (0,1)),created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_card_matches_user ON p_card_matches(user_id,week);
+  CREATE TABLE IF NOT EXISTS p_card_match_allocations(match_id TEXT NOT NULL REFERENCES p_card_matches(id),lot_id TEXT NOT NULL REFERENCES p_card_lots(id),volume INTEGER NOT NULL CHECK(volume>0),PRIMARY KEY(match_id,lot_id));
+  CREATE INDEX IF NOT EXISTS p_card_allocations_lot ON p_card_match_allocations(lot_id);
+  CREATE TABLE IF NOT EXISTS p_card_weeks(week TEXT PRIMARY KEY,cutoff TEXT NOT NULL,sales INTEGER NOT NULL,budget INTEGER NOT NULL,matches INTEGER NOT NULL,cash INTEGER NOT NULL,voucher INTEGER NOT NULL,settled_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_card_voucher_ledger(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),event_key TEXT NOT NULL UNIQUE,kind TEXT NOT NULL,amount INTEGER NOT NULL,reference TEXT NOT NULL,created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_card_voucher_user ON p_card_voucher_ledger(user_id,created_at);
+  CREATE TRIGGER IF NOT EXISTS p_card_voucher_no_update BEFORE UPDATE ON p_card_voucher_ledger BEGIN SELECT RAISE(ABORT,'immutable voucher ledger'); END;
+  CREATE TRIGGER IF NOT EXISTS p_card_voucher_no_delete BEFORE DELETE ON p_card_voucher_ledger BEGIN SELECT RAISE(ABORT,'immutable voucher ledger'); END;
+  CREATE TABLE IF NOT EXISTS p_card_cashbacks(order_id TEXT PRIMARY KEY REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),reversed INTEGER NOT NULL DEFAULT 0 CHECK(reversed IN (0,1)),created_at TEXT NOT NULL);
+  INSERT OR IGNORE INTO p_migrations VALUES(12,datetime('now'));
+
   `);
   ready = d;
   return d;

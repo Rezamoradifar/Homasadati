@@ -18,8 +18,8 @@ export function cardPlan() {
     : { ...undecidedCardRules };
   return {
     version: CARD_PLAN_VERSION,
-    status: "draft",
-    liveSettlement: false,
+    status: setting("seven_card_live") === "1" ? "live" : "draft",
+    liveSettlement: setting("seven_card_live") === "1",
     revision: stored?.revision ?? 0,
     cards: sevenCards,
     decisions,

@@ -11,21 +11,20 @@ Version: `seven-cards-2026-09`. All financial model amounts are integer toman.
 - Draft decisions saved transactionally in existing settings storage, with audit entries and optimistic revision checks; API permissions, validation and rate limits.
 - English translations. Existing temporary administrator login fix included.
 
-## Deliberately NOT live
+## Live settlement engine (`src/platform/seven-card-engine.ts`)
 
-`liveSettlement` is always false. This release does **not** replace legacy commission settlement, create desks, consume production network volume, issue/redeem vouchers or credit cashback. Saving all decisions does not activate payment. Member UI explicitly shows preparation status, not a fictitious card balance.
+Owner decisions recorded 2026-09: carry the whole match when a desk's cap is reached; eighth-match counter per desk; the voucher counts toward the 15m cap; extra desks are the member's own capacity under their first desk (`own-desks`, filled in order); initial purchase credit is the purchase value itself; weeks start Saturday 00:00 Tehran time. The operator confirmed a network-marketing licence.
 
-The simulator assumes whole-match carry, even if the draft decision selects split rewards. It is explicitly labelled as a whole-match preview for one desk/week, not the eventual configured settlement engine. Its `previousMatches` is an explicit caller-supplied simulation counter, not a persisted financial sequence.
+- **Off by default.** `POST /api/platform/admin/seven-card-live` switches it on only when every decision is recorded, with a funding share (basis points of the week's counted sales) and a reason; the change is audited. While live, the legacy binary engine creates no new lots.
+- **Volume.** A paid order counts once its cancellation window has ended, it is not refunded, and it was paid after activation (history is never paid retroactively). Its amount becomes a lot on the left/right leg of every ancestor in the placement tree.
+- **Cards and desks.** Level = `cardForPurchase(total counted purchases)`; level n gives n desks. Only enrolled, unblocked members earn.
+- **Weekly settlement** (worker, idempotent per week, at most four missed weeks per run): 30m/30m → 5.4m, desks filled in order, 15m cap per desk, whole-match carry, eighth match of a desk becomes a voucher, weekly funding budget with unused budget carried forward. Cash goes to the wallet ledger (settling any debt first); vouchers go to the immutable `p_card_voucher_ledger`.
+- **Simurgh cashback.** 6m to the wallet for a single first counted purchase of 70m or more.
+- **Refunds.** Refunding an order voids its lots, reverses every match that used them (cash beyond the available balance becomes debt; vouchers get a negative entry), restores the other side's volume, lowers the member's total and reverses any cashback.
+- **Preview.** `GET /api/platform/admin/seven-card-preview` runs the current week's settlement in a rolled-back transaction.
+- **Member view.** `GET /api/platform/seven-card-plan` includes the member's level, desks, leg volumes, desk counters, voucher balance and recent matches.
 
-## Decisions required before implementing live settlement
-
-1. Third 5.4m reward would exceed a 15m desk cap: hold the entire match or split its reward across weeks?
-2. Eighth counter belongs to each desk or each member? Does the voucher use weekly capacity?
-3. Exact topology of the member's multiple desks, treatment of existing descendants and later upgrades.
-4. Initial purchase credit: purchase value itself or additional spendable credit?
-5. Week boundary in Tehran time. No reset/boundary has been silently chosen.
-
-Remaining engineering after these rules: versioned purchase enrollment and order-policy snapshots; desk graph and volume attribution excluding own first desk; transactional FIFO matching; funding allocation; weekly scheduling; cash/voucher ledgers; voucher checkout; one-time cashback posting; idempotency and refunds including spent-voucher debt; migration of existing memberships only under an explicit migration policy. Existing p_orders/p_commissions and travel ranks are not retroactively changed.
+Still to build: spending vouchers at checkout (balances accrue and are shown, but cannot yet pay for orders); split-reward and per-member counter variants (only the chosen rules are implemented).
 
 ## API
 
@@ -33,6 +32,8 @@ Remaining engineering after these rules: versioned purchase enrollment and order
 - Member `GET /api/platform/seven-card-plan`
 - Authorized staff `GET/POST /api/platform/admin/seven-card-plan`
 - Authorized staff `POST /api/platform/admin/seven-card-simulate`
+- Authorized staff `GET/POST /api/platform/admin/seven-card-live` (status, weeks; switch on/off)
+- Authorized staff `GET /api/platform/admin/seven-card-preview`
 
 Updates require `decisions`, current `revision`, and a nonempty `reason`. Undecided values are null. Extra fields including `enabled` are rejected. A stale revision returns 409.
 

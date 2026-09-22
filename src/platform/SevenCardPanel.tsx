@@ -38,6 +38,7 @@ const fields: Field[] = [
     required: false,
     options: [
       pending,
+      ["own-desks", "زیر میز اول خود فرد؛ میزها به‌ترتیب پر می‌شوند"],
       ["left-chain", "زنجیره در سمت چپ"],
       ["right-chain", "زنجیره در سمت راست"],
       ["manual", "چیدمان دستی"],
@@ -111,6 +112,158 @@ function DecisionForm({
     />
   );
 }
+function MemberStatus({ status }: { status: RecordData }) {
+  return (
+    <Localized>
+      <div className="portal-card">
+        <h3>وضعیت کارت شما</h3>
+        <dl>
+          <dt>رتبهٔ کارت</dt>
+          <dd>{status.level ? String(status.level) : "هنوز فعال نشده"}</dd>
+          <dt>تعداد میز</dt>
+          <dd>{String(status.desks)}</dd>
+          <dt>مجموع خرید محاسبه‌شده</dt>
+          <dd>{amount(status.totalPurchase)} تومان</dd>
+          <dt>حجم سمت چپ</dt>
+          <dd>{amount(status.leftVolume)} تومان</dd>
+          <dt>حجم سمت راست</dt>
+          <dd>{amount(status.rightVolume)} تومان</dd>
+          <dt>موجودی ووچر</dt>
+          <dd>{amount(status.voucherBalance)} تومان</dd>
+        </dl>
+        {status.recent?.length ? (
+          <table className="portal-table">
+            <thead>
+              <tr><th>هفته</th><th>میز</th><th>نوع</th><th>مبلغ</th></tr>
+            </thead>
+            <tbody>
+              {status.recent.map((r: RecordData, i: number) => (
+                <Localized key={i}>
+                  <tr>
+                    <td>{String(r.week).slice(0, 10)}</td>
+                    <td>{String(r.desk)}</td>
+                    <td>{r.void ? "برگشت‌خورده" : r.kind === "voucher" ? "ووچر" : "نقدی"}</td>
+                    <td>{amount(r.amount)}</td>
+                  </tr>
+                </Localized>
+              ))}
+            </tbody>
+          </table>
+        ) : null}
+      </div>
+    </Localized>
+  );
+}
+
+function LivePanel({ plan, changed }: { plan: RecordData; changed: () => void }) {
+  const [refresh, setRefresh] = useState(0),
+    [preview, setPreview] = useState<RecordData | null>(null),
+    [error, setError] = useState("");
+  const live = useData("admin/seven-card-live", refresh);
+  return (
+    <Localized>
+      <div className="portal-card">
+        <h3>فعال‌سازی تسویهٔ واقعی</h3>
+        <p>
+          با فعال‌سازی، پاداش‌ها هر هفته (شنبه ساعت ۰۰:۰۰ به وقت تهران) واقعاً به
+          کیف پول اعضا واریز می‌شود و موتور باینری قدیمی متوقف می‌شود. فقط
+          خریدهایی حساب می‌شوند که بعد از فعال‌سازی پرداخت شده‌اند. پیش از
+          فعال‌سازی، پیش‌نمایش را بررسی کنید.
+        </p>
+        {plan.unresolved?.length ? (
+          <p role="alert">پیش از فعال‌سازی باید همهٔ تصمیم‌های بالا ثبت شوند.</p>
+        ) : null}
+        <DataState state={live}>
+          {(d) => (
+            <Localized>
+              <>
+                <p role="status">
+                  وضعیت فعلی: {d.live ? "فعال" : "غیرفعال"} · سهم بودجهٔ پاداش:{" "}
+                  {amount(d.fundingBps / 100)}٪ فروش هفته
+                </p>
+                <Form
+                  fields={[
+                    { name: "live", label: "تسویهٔ واقعی فعال باشد", type: "checkbox" },
+                    {
+                      name: "fundingBps",
+                      label: "سهم بودجهٔ پاداش از فروش هفته (واحد: یک‌دهم‌هزارم؛ ۳۰۰۰ یعنی ۳۰٪)",
+                      type: "number",
+                      min: 1,
+                      max: 10000,
+                    },
+                    { name: "reason", label: "دلیل فعال‌سازی یا توقف", required: true },
+                  ]}
+                  initial={{ live: !!d.live, fundingBps: d.fundingBps || 3000, reason: "" }}
+                  submit="ثبت"
+                  onSubmit={async (v) => {
+                    await api("admin/seven-card-live", "POST", {
+                      live: !!v.live,
+                      fundingBps: v.live ? Number(v.fundingBps) : undefined,
+                      reason: v.reason,
+                    });
+                    setRefresh((x) => x + 1);
+                    changed();
+                  }}
+                />
+                <button
+                  className="portal-button"
+                  type="button"
+                  onClick={async () => {
+                    setError("");
+                    setPreview(null);
+                    try {
+                      setPreview(await api("admin/seven-card-preview"));
+                    } catch (e) {
+                      setError(e instanceof Error ? e.message : "خطا");
+                    }
+                  }}
+                >
+                  پیش‌نمایش تسویهٔ این هفته
+                </button>
+                {error && <p role="alert">{error}</p>}
+                {preview && (
+                  <dl aria-live="polite">
+                    <dt>فروش محاسبه‌شده</dt>
+                    <dd>{amount(preview.sales)} تومان</dd>
+                    <dt>بودجهٔ پاداش</dt>
+                    <dd>{amount(preview.budget)} تومان</dd>
+                    <dt>تعداد تعادل</dt>
+                    <dd>{String(preview.matches)}</dd>
+                    <dt>پاداش نقدی</dt>
+                    <dd>{amount(preview.cash)} تومان</dd>
+                    <dt>ووچر</dt>
+                    <dd>{amount(preview.voucher)} تومان</dd>
+                  </dl>
+                )}
+                {d.weeks?.length ? (
+                  <table className="portal-table">
+                    <thead>
+                      <tr><th>هفته</th><th>فروش</th><th>تعادل</th><th>نقدی</th><th>ووچر</th></tr>
+                    </thead>
+                    <tbody>
+                      {d.weeks.map((w: RecordData) => (
+                        <Localized key={w.week}>
+                          <tr>
+                            <td>{String(w.week).slice(0, 10)}</td>
+                            <td>{amount(w.sales)}</td>
+                            <td>{String(w.matches)}</td>
+                            <td>{amount(w.cash)}</td>
+                            <td>{amount(w.voucher)}</td>
+                          </tr>
+                        </Localized>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : null}
+              </>
+            </Localized>
+          )}
+        </DataState>
+      </div>
+    </Localized>
+  );
+}
+
 export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
   const [refresh, setRefresh] = useState(0),
     [result, setResult] = useState<RecordData | null>(null);
@@ -127,10 +280,13 @@ export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
             <Localized>
               <>
                 <p role="status">
-                  این پلن در مرحله آماده‌سازی است؛ پرداخت، فعال‌سازی جایگاه و
-                  صدور ووچر بر اساس آن هنوز فعال نشده است.
+                  {data.liveSettlement
+                    ? "تسویهٔ هفتگی این پلن فعال است؛ پاداش‌ها هر هفته پس از پایان مهلت لغو خریدها محاسبه می‌شوند."
+                    : "این پلن در مرحله آماده‌سازی است؛ پرداخت، فعال‌سازی جایگاه و صدور ووچر بر اساس آن هنوز فعال نشده است."}
                 </p>
+                {!admin && data.member && <MemberStatus status={data.member} />}
                 <SevenCards />
+                {admin && <LivePanel plan={data} changed={() => setRefresh((v) => v + 1)} />}
                 {admin && (
                   <>
                     <h3>تصمیم‌های اجرایی پلن</h3>

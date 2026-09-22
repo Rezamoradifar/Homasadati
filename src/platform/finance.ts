@@ -1,3 +1,4 @@
+import { reverseCardOrder } from "./seven-card-engine";
 import {
   paymentActor,
   approveWithdrawal,
@@ -274,6 +275,8 @@ export function calculateCommissions(order: Row) {
     award(rank.user, order, "rank", bonus, `rank:${order.id}:${rank.user}`);
     budget -= bonus;
   }
+  // While the seven-card plan settles live, its engine owns binary volume.
+  if (setting("seven_card_live") === "1") return;
   const rules = JSON.parse(order.policy).binaryRules || legacyBinaryRules;
   let child = buyer;
   const parents = new Set<string>();
@@ -683,6 +686,7 @@ export function refundOrder(
     );
     reverseOrderPoints(orderId, actor);
     reverseMerchantSale(orderId);
+    reverseCardOrder(orderId);
     if (o.paid_at)
       credit(o.user_id, "refund:" + orderId, "refund", orderId, o.amount);
     run(

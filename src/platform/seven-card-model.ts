@@ -35,7 +35,7 @@ export const cardDecisionsSchema = z
     overflow: z.enum(["carry-whole", "split-reward"]).nullable(),
     counterScope: z.enum(["desk", "member"]).nullable(),
     voucherCountsTowardCap: z.boolean().nullable(),
-    topology: z.enum(["left-chain", "right-chain", "manual"]).nullable(),
+    topology: z.enum(["own-desks", "left-chain", "right-chain", "manual"]).nullable(),
     purchaseCredit: z.enum(["purchase-value", "additional-credit"]).nullable(),
     weekStart: z.number().int().min(0).max(6).nullable(),
   })
