@@ -13,7 +13,7 @@ Version: `seven-cards-2026-09`. All financial model amounts are integer toman.
 
 ## Live settlement engine (`src/platform/seven-card-engine.ts`)
 
-Owner decisions recorded 2026-09: carry the whole match when a desk's cap is reached; eighth-match counter per desk; the voucher counts toward the 15m cap; extra desks are the member's own capacity under their first desk (`own-desks`, filled in order); initial purchase credit is the purchase value itself; weeks start Saturday 00:00 Tehran time. The operator confirmed a network-marketing licence.
+Owner decisions recorded 2026-09: split a match that would pass a desk's 15m cap (pay up to the cap this week, the rest first thing next week, within that week's cap) — the engine also supports whole-match carry; eighth-match counter per desk; the voucher counts toward the 15m cap; extra desks are the member's own capacity under their first desk (`own-desks`, filled in order); initial purchase credit is the purchase value itself; weeks start Saturday 00:00 Tehran time. The operator confirmed a network-marketing licence.
 
 - **Off by default.** `POST /api/platform/admin/seven-card-live` switches it on only when every decision is recorded, with a funding share (basis points of the week's counted sales) and a reason; the change is audited. While live, the legacy binary engine creates no new lots.
 - **Volume.** A paid order counts once its cancellation window has ended, it is not refunded, and it was paid after activation (history is never paid retroactively). Its amount becomes a lot on the left/right leg of every ancestor in the placement tree.
@@ -24,7 +24,10 @@ Owner decisions recorded 2026-09: carry the whole match when a desk's cap is rea
 - **Preview.** `GET /api/platform/admin/seven-card-preview` runs the current week's settlement in a rolled-back transaction.
 - **Member view.** `GET /api/platform/seven-card-plan` includes the member's level, desks, leg volumes, desk counters, voucher balance and recent matches.
 
-Still to build: spending vouchers at checkout (balances accrue and are shown, but cannot yet pay for orders); split-reward and per-member counter variants (only the chosen rules are implemented).
+- **Split payouts.** Every payment of a match is a row in `p_card_payouts`; a refund reverses each of them.
+- **Vouchers at checkout.** With `useVoucher`, voucher credit covers part or all of the basket (allocated order by order in `p_order_vouchers`); the rest is paid by wallet or gateway, and a fully covered basket settles immediately. Refunds, cancellations and late payments return the voucher share to the voucher balance, never to the wallet, so vouchers cannot be cashed out.
+
+Not built: the per-member counter variant and a physical desk tree with n+1 branches (the owner chose to keep desks as the member's own capacity).
 
 ## API
 

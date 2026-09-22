@@ -2569,5 +2569,8 @@
   "تعداد تعادل": "Matches",
   "تعادل": "Matches",
   "تسویهٔ هفتگی این پلن فعال است؛ پاداش‌ها هر هفته پس از پایان مهلت لغو خریدها محاسبه می‌شوند.": "Weekly settlement for this plan is live; rewards are calculated each week once purchases pass their cancellation window.",
-  "دلیل فعال‌سازی یا توقف": "Reason for switching on or off"
+  "دلیل فعال‌سازی یا توقف": "Reason for switching on or off",
+  "استفاده از موجودی ووچر خرید:": "Use purchase voucher balance:",
+  "مبلغ قابل پرداخت با روش انتخابی:": "Amount to pay with the chosen method:",
+  "{0} تومان پاداش در این هفته برای شما ثبت شد.": "{0} toman in rewards was recorded for you this week."
 }

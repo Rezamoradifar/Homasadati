@@ -154,6 +154,10 @@ export function platformDb() {
   CREATE TRIGGER IF NOT EXISTS p_card_voucher_no_delete BEFORE DELETE ON p_card_voucher_ledger BEGIN SELECT RAISE(ABORT,'immutable voucher ledger'); END;
   CREATE TABLE IF NOT EXISTS p_card_cashbacks(order_id TEXT PRIMARY KEY REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),reversed INTEGER NOT NULL DEFAULT 0 CHECK(reversed IN (0,1)),created_at TEXT NOT NULL);
   INSERT OR IGNORE INTO p_migrations VALUES(12,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_card_payouts(id TEXT PRIMARY KEY,match_id TEXT NOT NULL REFERENCES p_card_matches(id),user_id TEXT NOT NULL REFERENCES p_users(id),week TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('cash','voucher')),amount INTEGER NOT NULL CHECK(amount>0),created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_card_payouts_match ON p_card_payouts(match_id);
+  CREATE TABLE IF NOT EXISTS p_order_vouchers(order_id TEXT PRIMARY KEY REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),created_at TEXT NOT NULL);
+  INSERT OR IGNORE INTO p_migrations VALUES(13,datetime('now'));
 
   `);
   ready = d;

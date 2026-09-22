@@ -1,4 +1,4 @@
-import { reverseCardOrder } from "./seven-card-engine";
+import { restoreOrderVoucher, reverseCardOrder } from "./seven-card-engine";
 import {
   paymentActor,
   approveWithdrawal,
@@ -432,13 +432,17 @@ export function settleOrder(orderId: string, reference: string) {
         now(),
         o.id,
       );
-      credit(
-        o.user_id,
-        "late-payment:" + o.id,
-        "late_payment_refund",
-        o.id,
-        o.amount,
-      );
+      // Only the cash share was paid late; any voucher share went back on cancellation.
+      const voucherShare =
+        one("SELECT amount FROM p_order_vouchers WHERE order_id=?", o.id)?.amount || 0;
+      if (o.amount > voucherShare)
+        credit(
+          o.user_id,
+          "late-payment:" + o.id,
+          "late_payment_refund",
+          o.id,
+          o.amount - voucherShare,
+        );
       notify(
         o.user_id,
         "بازگشت پرداخت دیرهنگام",
@@ -517,6 +521,7 @@ export function createOrder(
   quantity: number,
   method: string,
   idem: string,
+  charge = true, // false: the checkout collects payment itself (voucher + wallet)
 ) {
   return atomic(() => {
     const existing = one(
@@ -548,6 +553,7 @@ export function createOrder(
       throw new ApiError(400, "invalid_input");
     mature();
     if (
+      charge &&
       method === "wallet" &&
       (wallet(user).debt > 0 || wallet(user).available < amount)
     )
@@ -591,7 +597,7 @@ export function createOrder(
       now(),
       idem,
     );
-    if (method === "wallet") {
+    if (charge && method === "wallet") {
       ledger(user, "purchase:" + id, "purchase", id, -amount);
       return settleOrder(id, "wallet:" + id);
     }
@@ -687,8 +693,9 @@ export function refundOrder(
     reverseOrderPoints(orderId, actor);
     reverseMerchantSale(orderId);
     reverseCardOrder(orderId);
-    if (o.paid_at)
-      credit(o.user_id, "refund:" + orderId, "refund", orderId, o.amount);
+    const voucherPart = restoreOrderVoucher(orderId);
+    if (o.paid_at && o.amount > voucherPart)
+      credit(o.user_id, "refund:" + orderId, "refund", orderId, o.amount - voucherPart);
     run(
       "UPDATE p_products SET stock=stock+? WHERE id=?",
       o.quantity,

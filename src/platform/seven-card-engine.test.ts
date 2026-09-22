@@ -6,7 +6,8 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { platformDb, run, one, all, now } from "./schema";
 import { saveSetting } from "./providers";
-import { createOrder, settleOrder, refundOrder, wallet } from "./finance";
+import { createOrder, settleOrder, refundOrder, wallet, ledger } from "./finance";
+import { createCheckout } from "./checkout";
 import {
   memberCardStatus,
   previewCardSettlement,
@@ -53,7 +54,7 @@ afterAll(() => {
   rmSync(directory, { recursive: true, force: true });
 });
 beforeEach(() => {
-  for (const t of ["p_card_match_allocations", "p_card_matches", "p_card_lots", "p_card_desks", "p_card_members", "p_card_cashbacks", "p_card_orders", "p_card_weeks"])
+  for (const t of ["p_card_payouts", "p_card_match_allocations", "p_card_matches", "p_card_lots", "p_card_desks", "p_card_members", "p_card_cashbacks", "p_card_orders", "p_card_weeks"])
     run(`DELETE FROM ${t}`);
   run("DELETE FROM p_settings WHERE key LIKE 'seven_card%'");
   saveSetting("commission_policy", JSON.stringify({
@@ -157,6 +158,77 @@ it("previews the coming settlement without saving anything", () => {
   expect(preview.matches).toBe(1);
   expect(wallet(root).available).toBe(0);
   expect(one("SELECT COUNT(*) n FROM p_card_weeks")!.n).toBe(0);
+});
+
+it("in split mode pays up to exactly 15m a week and the rest of the third match next week", () => {
+  saveSetting("seven_card_plan_draft", JSON.stringify({ decisions: { ...decisions, overflow: "split-reward" }, revision: 2 }));
+  buy(root, 10 * M); buy(left, 90 * M); buy(right, 90 * M);
+  const [week] = settleAfter(8);
+  expect(week).toMatchObject({ matches: 3, cash: 15 * M });
+  expect(wallet(root).available).toBe(15 * M);
+  const [next] = settleAfter(15);
+  expect(next.cash).toBe(1_200_000);
+  expect(wallet(root).available).toBe(16_200_000);
+});
+
+it("reverses every split payment of a refunded match", () => {
+  saveSetting("seven_card_plan_draft", JSON.stringify({ decisions: { ...decisions, overflow: "split-reward" }, revision: 2 }));
+  buy(root, 10 * M);
+  const l = buy(left, 90 * M);
+  buy(right, 90 * M);
+  settleAfter(8);
+  settleAfter(15);
+  refundOrder(l.id, admin, true, "customer return");
+  expect(wallet(root).available).toBe(0);
+  expect(one("SELECT COUNT(*) n FROM p_card_matches WHERE user_id=? AND void=0", root)!.n).toBe(0);
+});
+
+function giveVoucher(user: string, amount: number) {
+  run("INSERT INTO p_card_voucher_ledger VALUES(?,?,?,?,?,?,?)", randomUUID(), user, "test:" + randomUUID(), "earn", amount, "test", now());
+}
+function checkout(user: string, price: number, method: "wallet" | "zarinpal") {
+  const item = randomUUID();
+  run(
+    "INSERT INTO p_products(id,title,description,vertical,subtype,price,stock,duration_days,cancel_hours,published,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,1,?,?)",
+    item, "Tour", "Tour", "tourism", "tour", price, 10, 30, 0, now(), now(),
+  );
+  return createCheckout(user, {
+    items: [{ productId: item, quantity: 1 }], method, idempotencyKey: randomUUID(), expectedTotal: price, useVoucher: true,
+  });
+}
+
+it("pays part of a basket with voucher credit and the rest from the wallet", () => {
+  giveVoucher(root, 5_400_000);
+  ledger(root, "test-topup:" + randomUUID(), "test", "test", 10 * M);
+  const c = checkout(root, 10 * M, "wallet");
+  expect(c.status).toBe("paid");
+  expect(voucherBalance(root)).toBe(0);
+  expect(wallet(root).available).toBe(10 * M - 4_600_000);
+  const order = one("SELECT o.* FROM p_orders o JOIN p_checkout_items i ON i.order_id=o.id WHERE i.checkout_id=?", c.id)!;
+  expect(order.paid_at).toBeTruthy();
+  refundOrder(order.id, admin, true, "return");
+  expect(voucherBalance(root)).toBe(5_400_000); // voucher share goes back as voucher, never cash
+  expect(wallet(root).available).toBe(10 * M);
+});
+
+it("settles a basket fully covered by vouchers without a payment gateway", () => {
+  giveVoucher(root, 12 * M);
+  const c = checkout(root, 10 * M, "zarinpal");
+  expect(c.status).toBe("paid");
+  expect(voucherBalance(root)).toBe(2 * M);
+});
+
+it("charges the gateway only the part vouchers do not cover, and returns the voucher if it expires unpaid", () => {
+  giveVoucher(root, 3 * M);
+  const c = checkout(root, 10 * M, "zarinpal");
+  expect(c).toMatchObject({ status: "pending", amount: 7 * M });
+  expect(voucherBalance(root)).toBe(0);
+  const order = one("SELECT order_id FROM p_checkout_items WHERE checkout_id=?", c.id)!;
+  run("UPDATE p_checkouts SET expires_at=? WHERE id=?", "2000-01-01T00:00:00.000Z", c.id);
+  run("UPDATE p_orders SET expires_at=? WHERE id=?", "2000-01-01T00:00:00.000Z", order.order_id);
+  refundOrder(order.order_id, root);
+  expect(voucherBalance(root)).toBe(3 * M);
+  expect(wallet(root).available).toBe(0);
 });
 
 it("starts weeks on Saturday 00:00 Tehran time", () => {

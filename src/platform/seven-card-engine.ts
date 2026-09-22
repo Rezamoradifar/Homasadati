@@ -144,24 +144,54 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
      AND EXISTS(SELECT 1 FROM p_card_lots l WHERE l.user_id=m.user_id AND l.leg='right' AND l.void=0 AND l.remaining>0)
      ORDER BY m.user_id`,
   );
-  for (const m of members) {
+  const split = d.overflow === "split-reward";
+  const capCost = (voucher: boolean, amount: number) =>
+    voucher && !d.voucherCountsTowardCap ? 0 : amount;
+  const payout = (match: Row, amount: number) => {
+    const id = randomUUID();
+    run("INSERT INTO p_card_payouts VALUES(?,?,?,?,?,?,?)", id, match.id, match.user_id, key, match.kind, amount, now());
+    if (match.kind === "voucher") {
+      voucherEntry(match.user_id, "card-payout:" + id, "earn", match.id, amount);
+      result.voucher += amount;
+    } else {
+      const debt = Math.min(wallet(match.user_id).debt, amount);
+      ledger(match.user_id, "card-payout:" + id, "card_reward", match.id, amount - debt, 0, 0, -debt);
+      result.cash += amount;
+    }
+  };
+  for (const m of members.concat(split ? owedMembers(members) : [])) {
     const pool = (leg: string) =>
       one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0", m.user_id, leg)!.n;
     let left = pool("left"), right = pool("right");
     const allowance = Array.from({ length: m.desks }, () => DESK_WEEKLY_CAP);
     const counters = Array.from({ length: m.desks }, (_, i) =>
       one("SELECT matches FROM p_card_desks WHERE user_id=? AND desk=?", m.user_id, i + 1)?.matches || 0);
+    // Split mode: the unpaid rest of earlier matches is paid first, within this week's caps.
+    if (split)
+      for (const owed of all(
+        `SELECT m.*,m.amount-COALESCE((SELECT SUM(p.amount) FROM p_card_payouts p WHERE p.match_id=m.id),0) due
+         FROM p_card_matches m WHERE m.user_id=? AND m.void=0 ORDER BY m.created_at,m.rowid`,
+        m.user_id,
+      )) {
+        const slot = owed.desk - 1;
+        if (owed.due <= 0 || slot >= m.desks) continue;
+        const free = capCost(owed.kind === "voucher", owed.due) ? allowance[slot] : owed.due;
+        const pay = Math.min(owed.due, free);
+        if (pay <= 0) continue;
+        payout(owed, pay);
+        allowance[slot] -= capCost(owed.kind === "voucher", pay);
+      }
     while (left >= MATCH_VOLUME && right >= MATCH_VOLUME && budget >= MATCH_REWARD) {
       let desk = -1, voucher = false;
       for (let i = 0; i < m.desks; i++) {
         const isVoucher = (counters[i] + 1) % 8 === 0;
-        const capCost = !isVoucher || d.voucherCountsTowardCap ? MATCH_REWARD : 0;
-        if (capCost <= allowance[i]) {
-          desk = i; voucher = isVoucher; allowance[i] -= capCost;
+        const cost = capCost(isVoucher, MATCH_REWARD);
+        if (split ? cost === 0 || allowance[i] > 0 : cost <= allowance[i]) {
+          desk = i; voucher = isVoucher;
           break;
         }
       }
-      if (desk < 0) break; // carry-whole: the match waits for next week's capacity
+      if (desk < 0) break; // no desk has room: the match waits (carry-whole)
       counters[desk]++;
       const id = randomUUID();
       run(
@@ -171,14 +201,10 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
       for (const leg of ["left", "right"])
         for (const t of takeVolume(m.user_id, leg, MATCH_VOLUME))
           run("INSERT INTO p_card_match_allocations VALUES(?,?,?)", id, t.lot, t.volume);
-      if (voucher) {
-        voucherEntry(m.user_id, "card-voucher:" + id, "earn", id, MATCH_REWARD);
-        result.voucher += MATCH_REWARD;
-      } else {
-        const debt = Math.min(wallet(m.user_id).debt, MATCH_REWARD);
-        ledger(m.user_id, "card-reward:" + id, "card_reward", id, MATCH_REWARD - debt, 0, 0, -debt);
-        result.cash += MATCH_REWARD;
-      }
+      const cost = capCost(voucher, MATCH_REWARD);
+      const now_ = cost ? Math.min(MATCH_REWARD, allowance[desk]) : MATCH_REWARD;
+      payout({ id, user_id: m.user_id, kind: voucher ? "voucher" : "cash" }, now_);
+      allowance[desk] -= cost ? now_ : 0;
       left -= MATCH_VOLUME; right -= MATCH_VOLUME; budget -= MATCH_REWARD;
       result.matches++;
     }
@@ -187,9 +213,9 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
         "INSERT INTO p_card_desks VALUES(?,?,?) ON CONFLICT(user_id,desk) DO UPDATE SET matches=excluded.matches",
         m.user_id, i + 1, n,
       ));
-    const earned = one("SELECT COUNT(*) n FROM p_card_matches WHERE user_id=? AND week=?", m.user_id, key)!.n;
+    const earned = one("SELECT COALESCE(SUM(amount),0) n FROM p_card_payouts WHERE user_id=? AND week=?", m.user_id, key)!.n;
     if (earned)
-      notify(m.user_id, "تسویهٔ هفتگی باشگاه", `${earned.toLocaleString("fa-IR")} تعادل در این هفته برای شما ثبت شد.`);
+      notify(m.user_id, "تسویهٔ هفتگی باشگاه", `${earned.toLocaleString("fa-IR")} تومان پاداش در این هفته برای شما ثبت شد.`);
   }
   result.carriedBudget = budget;
   saveSetting("seven_card_budget_carry", String(budget));
@@ -200,9 +226,29 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
   return result;
 }
 
+/** Members owed a split remainder who are not already in this week's list. */
+function owedMembers(listed: Row[]) {
+  const seen = new Set(listed.map((m) => m.user_id));
+  return all(
+    `SELECT DISTINCT c.* FROM p_card_members c JOIN p_card_matches m ON m.user_id=c.user_id JOIN p_users u ON u.id=c.user_id
+     WHERE m.void=0 AND u.blocked=0 AND m.amount>COALESCE((SELECT SUM(p.amount) FROM p_card_payouts p WHERE p.match_id=m.id),0)`,
+  ).filter((m) => !seen.has(m.user_id));
+}
+
 function voucherEntry(user: string, key: string, kind: string, reference: string, amount: number) {
   if (one("SELECT id FROM p_card_voucher_ledger WHERE event_key=?", key)) return;
   run("INSERT INTO p_card_voucher_ledger VALUES(?,?,?,?,?,?,?)", randomUUID(), user, key, kind, amount, reference, now());
+}
+/** Spends voucher credit on an order (checkout). */
+export function spendVoucher(user: string, orderId: string, amount: number) {
+  run("INSERT INTO p_order_vouchers VALUES(?,?,?,?)", orderId, user, amount, now());
+  voucherEntry(user, "voucher-spend:" + orderId, "spend", orderId, -amount);
+}
+/** Returns an order's voucher share to the voucher balance (refund/cancel); never to the wallet. */
+export function restoreOrderVoucher(orderId: string) {
+  const v = one("SELECT * FROM p_order_vouchers WHERE order_id=?", orderId);
+  if (v) voucherEntry(v.user_id, "voucher-refund:" + orderId, "refund", orderId, v.amount);
+  return (v?.amount as number) || 0;
 }
 export const voucherBalance = (user: string) =>
   one("SELECT COALESCE(SUM(amount),0) n FROM p_card_voucher_ledger WHERE user_id=?", user)!.n as number;
@@ -249,10 +295,12 @@ export function reverseCardOrder(orderId: string) {
   );
   for (const m of matches) {
     run("UPDATE p_card_matches SET void=1 WHERE id=?", m.id);
-    if (m.kind === "voucher") voucherEntry(m.user_id, "card-voucher-reverse:" + m.id, "reverse", m.id, -m.amount);
-    else {
-      const available = Math.min(wallet(m.user_id).available, m.amount);
-      ledger(m.user_id, "card-reward-reverse:" + m.id, "card_reward_reversal", m.id, -available, 0, 0, m.amount - available);
+    for (const p of all("SELECT * FROM p_card_payouts WHERE match_id=?", m.id)) {
+      if (p.kind === "voucher") voucherEntry(p.user_id, "card-payout-reverse:" + p.id, "reverse", m.id, -p.amount);
+      else {
+        const available = Math.min(wallet(p.user_id).available, p.amount);
+        ledger(p.user_id, "card-payout-reverse:" + p.id, "card_reward_reversal", m.id, -available, 0, 0, p.amount - available);
+      }
     }
     for (const a of all("SELECT * FROM p_card_match_allocations WHERE match_id=?", m.id))
       run("UPDATE p_card_lots SET remaining=remaining+? WHERE id=? AND void=0", a.volume, a.lot_id);

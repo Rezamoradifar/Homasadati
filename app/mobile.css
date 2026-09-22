@@ -517,3 +517,5 @@ html body .store-drawer .store-drawer-club {display:flex;align-items:center;gap:
 @media (max-width:600px){ html body .store-actions > .site-language-picker {display:none;} html body .store-account {padding:8px;} }
 html body .store-drawer .site-language-picker {display:block;margin:10px 0 0;}
 html body .store-drawer .site-language-picker select {width:100%;padding:10px;border:1px solid #e0e0e2;border-radius:8px;background:transparent;color:inherit;font:inherit;}
+html body .cart-voucher {display:flex;align-items:center;gap:8px;flex-direction:row;padding:10px 12px;border:1px dashed var(--homa-orange);border-radius:8px;font-weight:600;}
+html body .cart-voucher-note {font-size:13px;color:var(--homa-blue);}
