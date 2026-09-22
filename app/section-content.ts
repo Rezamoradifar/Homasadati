@@ -3,7 +3,7 @@ export const sectionContent={
  en:{
  content:'Stories from the intersection of Iranian culture, travel, beauty and craftsmanship. Explore the gallery for a visual introduction, or contact us with an editorial collaboration proposal.',
  api:'The site accepts enquiries at POST /api/requests, newsletter requests at POST /api/newsletter, and private tracking lookups at POST /api/status. Public writes require same-origin JSON requests. Administrative records require an authenticated administrator session. See API.md in the source package for payloads and responses.',
- careers:'Interested in working with Homay Saadat? Tell us about your skills in travel, beauty, design, craftsmanship or technology. Use the contact form to submit an expression of interest. Submitting does not imply an open vacancy or an employment offer.',
+ careers:'Interested in working with Homanet? Tell us about your skills in travel, beauty, design, craftsmanship or technology. Use the contact form to submit an expression of interest. Submitting does not imply an open vacancy or an employment offer.',
  press:'For editorial questions, brand information or interview enquiries, submit a press request through the contact form. Include the publication, topic and deadline so the team can review it.',
  sustainability:'Our aim is to highlight lasting craftsmanship and thoughtful cultural experiences. Ask about a particular item, material or journey before booking. No independent environmental certification is claimed on this site.',
  help:'Select a category, choose an experience, and complete the request form. Once saved, you receive a private tracking code. Use “Track a request” to see whether it has been received, is being reviewed, or has been closed.',
@@ -15,7 +15,7 @@ export const sectionContent={
  fa:{
  content:'داستان‌هایی از پیوند فرهنگ ایرانی، سفر، زیبایی و صنایع‌دستی. برای آشنایی تصویری گالری را ببینید؛ برای همکاری محتوایی نیز می‌توانید پیشنهادتان را از فرم تماس بفرستید.',
  api:'ثبت درخواست با POST /api/requests، درخواست خبرنامه با POST /api/newsletter و پیگیری خصوصی با POST /api/status انجام می‌شود. ارسال داده باید به‌صورت JSON و از مبدا همین سایت باشد. مشاهدهٔ سوابق مدیریت نیازمند ورود مدیر است. جزئیات ورودی و پاسخ‌ها در فایل API.md بستهٔ کد آمده است.',
- careers:'به همکاری با همای سعادت علاقه‌مندید؟ مهارت‌ها و زمینهٔ فعالیتتان در گردشگری، زیبایی، طراحی، صنایع‌دستی یا فناوری را از فرم تماس معرفی کنید. ثبت این درخواست به معنی وجود موقعیت شغلی باز یا پیشنهاد استخدام نیست.',
+ careers:'به همکاری با هما نت علاقه‌مندید؟ مهارت‌ها و زمینهٔ فعالیتتان در گردشگری، زیبایی، طراحی، صنایع‌دستی یا فناوری را از فرم تماس معرفی کنید. ثبت این درخواست به معنی وجود موقعیت شغلی باز یا پیشنهاد استخدام نیست.',
  press:'برای پرسش‌های رسانه‌ای، اطلاعات برند یا درخواست گفت‌وگو، از فرم تماس استفاده کنید. نام رسانه، موضوع و مهلت موردنظرتان را بنویسید تا تیم درخواست را بررسی کند.',
  sustainability:'هدف ما توجه به هنر ماندگار و تجربه‌های فرهنگی آگاهانه است. پیش از سفارش، دربارهٔ مواد اولیه یا جزئیات هر سفر سؤال کنید. در این سایت ادعای دریافت گواهی مستقل محیط‌زیستی نداریم.',
  help:'یک حوزه و سپس تجربهٔ دلخواه را انتخاب کنید و فرم درخواست را بفرستید. پس از ذخیره، کد خصوصی پیگیری دریافت می‌کنید. از بخش «پیگیری درخواست» وضعیت دریافت، بررسی یا بسته‌شدن را ببینید.',
@@ -27,7 +27,7 @@ export const sectionContent={
  ar:{
  content:'قصص تجمع الثقافة الإيرانية والسفر والجمال والحرف. استكشف المعرض أو أرسل اقتراح تعاون تحريري عبر نموذج التواصل.',
  api:'تُرسل الطلبات إلى POST /api/requests وطلبات النشرة إلى POST /api/newsletter، والتتبع الخاص إلى POST /api/status. الكتابة تتطلب JSON من نفس مصدر الموقع. سجلات الإدارة تتطلب جلسة مدير موثقة. راجع API.md في حزمة المصدر.',
- careers:'مهتم بالعمل مع هماي سعادت؟ عرّفنا بمهاراتك عبر نموذج التواصل. إرسال الاهتمام لا يعني وجود وظيفة شاغرة أو عرض توظيف.',
+ careers:'مهتم بالعمل مع هما نت؟ عرّفنا بمهاراتك عبر نموذج التواصل. إرسال الاهتمام لا يعني وجود وظيفة شاغرة أو عرض توظيف.',
  press:'للأسئلة الصحفية أو طلبات المقابلات، أرسل اسم المنشور والموضوع والموعد المطلوب عبر نموذج التواصل.',
  sustainability:'نهدف إلى إبراز الحرف طويلة الأمد والتجارب الثقافية الواعية. استفسر عن المواد أو تفاصيل الرحلة قبل الطلب. لا يدعي هذا الموقع الحصول على شهادة بيئية مستقلة.',
  help:'اختر مجالاً وتجربة ثم أكمل النموذج. بعد الحفظ تتلقى رمز تتبع خاصاً. استخدم قسم تتبع الطلب لعرض حالة الاستلام أو المراجعة أو الإغلاق.',

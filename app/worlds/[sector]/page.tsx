@@ -24,7 +24,7 @@ export async function generateMetadata({
   if (!isSector(params.sector)) return {};
   const b = brands[params.sector];
   return translatedMetadata({
-    title: `${b.name} | ${b.label} — همای سعادت`,
+    title: `${b.name} | ${b.label} — هما نت`,
     description: stories[params.sector].intro,
   });
 }

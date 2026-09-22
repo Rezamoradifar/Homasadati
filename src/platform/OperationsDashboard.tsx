@@ -19,7 +19,7 @@ export function OperationsDashboard({
   return (
     <Localized><>
       <div className="portal-command-banner">
-        <small>HOMAY SAADAT / BUSINESS OPERATIONS</small>
+        <small>HOMANET / BUSINESS OPERATIONS</small>
         <h2>
           {vertical ? `مرکز مدیریت ${labels[vertical]}` : "نمای جامع کسب‌وکار"}
         </h2>

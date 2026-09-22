@@ -510,3 +510,10 @@ html body .store-search input,html[data-theme=dark] body .store-search input {ba
  html body .craft-nav-row::-webkit-scrollbar {display:none;}
  html body .craft-nav-row a {flex-shrink:0;}
 }
+html body .store-club {display:flex;align-items:center;gap:6px;border:1.5px solid var(--homa-orange);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:800;color:var(--homa-orange);text-decoration:none;white-space:nowrap;background:#ed6a4d0f;}
+html body .store-club:hover {background:var(--homa-orange);color:#fff;}
+html body .store-drawer .store-drawer-club {display:flex;align-items:center;gap:8px;margin:6px 0 8px;padding:12px;border-radius:10px;background:var(--homa-orange);color:#fff;font-weight:800;border:0;}
+@media (max-width:900px){ html body .store-club {padding:7px 10px;} }
+@media (max-width:600px){ html body .store-actions > .site-language-picker {display:none;} html body .store-account {padding:8px;} }
+html body .store-drawer .site-language-picker {display:block;margin:10px 0 0;}
+html body .store-drawer .site-language-picker select {width:100%;padding:10px;border:1px solid #e0e0e2;border-radius:8px;background:transparent;color:inherit;font:inherit;}

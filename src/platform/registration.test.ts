@@ -406,8 +406,8 @@ it("sends English verification email for the website locale without changing the
     expect(response.status).toBe(200);
     const result = await response.json();
     expect(result).not.toHaveProperty("code");
-    expect(email!.subject).toBe("Homay Saadat verification code | HOMA");
-    expect(email!.text).toMatch(/^Your Homay Saadat verification code: \d{6}\. Valid for 5 minutes\. Do not share this code\.$/);
+    expect(email!.subject).toBe("Homanet verification code | HOMA");
+    expect(email!.text).toMatch(/^Your Homanet verification code: \d{6}\. Valid for 5 minutes\. Do not share this code\.$/);
     expect(one("SELECT code_hash FROM p_otp WHERE id=?", result.challenge)!.code_hash).toBe(hash(result.challenge + ":" + email!.text.match(/\d{6}/)![0]));
   } finally {
     vi.unstubAllGlobals();

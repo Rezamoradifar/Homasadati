@@ -121,7 +121,7 @@ export function MemberOverview({
     <Localized>
       <section className="member-welcome">
         <div>
-          <span>همای سعادت · باشگاه همراهان</span>
+          <span>هما نت · باشگاه همراهان</span>
           <h2>
             خوش آمدید، <bdi translate="no">{user.name}</bdi>
           </h2>

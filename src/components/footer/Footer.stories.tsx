@@ -18,7 +18,7 @@ function StoryFooter({initialLocale = 'en', ...props}: FooterProps & {initialLoc
   </NextIntlClientProvider>;
 }
 const meta = {
-  title: 'Homay Saadat/Footer', component: Footer, subcomponents: {FooterColumn, FooterLink}, tags: ['autodocs'],
+  title: 'Homanet/Footer', component: Footer, subcomponents: {FooterColumn, FooterLink}, tags: ['autodocs'],
   args: {year: 2026, socials: demoSocials, paymentMethods: demoPayments, certifications: demoCertifications,
     onSubscribe: async () => {await new Promise(resolve => setTimeout(resolve, 600));}},
   argTypes: {direction: {control: 'inline-radio', options: ['ltr', 'rtl']}, onSubscribe: {control: false},

@@ -47,7 +47,7 @@ export function memberNavigation(merchant = false) {
   return merchant
     ? [
         ...memberGroups,
-        { title: "همکاری با همای سعادت", tabs: [["merchant", "پنل پذیرنده"]] },
+        { title: "همکاری با هما نت", tabs: [["merchant", "پنل پذیرنده"]] },
       ]
     : memberGroups;
 }

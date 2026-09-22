@@ -65,7 +65,7 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
  const submit=async(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();if(locked.current)return;locked.current=true;setBusy(true);setError('');try{key.current ||= requestKey();const response=await fetch('/api/requests',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':key.current},body:JSON.stringify({...request,kind:modal==='club'?'club':'enquiry',interest,locale,currency,consent:true})});if(!response.ok)throw new Error(u(response.status===429?'rate':'error'));const data=await response.json();setCode(data.trackingCode);setSubmitted(true);}catch(e){setError(e instanceof Error&&[u('notFound'),u('rate'),u('error')].includes(e.message)?e.message:u('error'));}finally{setBusy(false);locked.current=false;}};
  const enquire=(topic:string)=>{setInterest(topic);open('contact');};
  const allChoices=[c.tourismItems,c.beautyItems,c.craftItems,c.aiItems];
- const translatedName=locale==='ar'?'هماي سعادت':'همای سعادت';
+ const translatedName=locale==='ar'?'هما نت':'هما نت';
  const worldCards=[...c.titles.map((title,i)=>({title,image:images[i],id:sections[i],description:c.descriptions[i],href:'/worlds/'+['tourism','beauty','craft','ai'][i]}))];
  const navItems=c.nav.map((label,i)=>({label,key:String(i),action:()=>goTo(i)}));
  return <Localized><>

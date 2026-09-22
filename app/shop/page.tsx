@@ -6,7 +6,7 @@ import Storefront from "../../src/commerce/Storefront";
 import { isSector } from "../../src/commerce/brands";
 import { validCraftPath } from "../../src/commerce/craft-taxonomy";
 export async function generateMetadata() { return translatedMetadata({
-  title: "فروشگاه خانواده همای | همای سعادت",
+  title: "فروشگاه خانواده همای | هما نت",
   description:
     "محصولات ایرانی، چرم، صنایع‌دستی، مراقبت، تور و اشتراک با مشخصات کامل و سبد خرید.",
 }); }

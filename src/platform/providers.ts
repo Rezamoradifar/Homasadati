@@ -74,8 +74,8 @@ export async function sendOtp(target: string, purpose: string, locale: SiteLocal
         body: JSON.stringify({
           from,
           to: [target],
-          subject: translateText("کد تأیید همای سعادت | HOMA", locale, dictionary),
-          text: translateText(`کد تأیید همای سعادت: ${code}\nاعتبار: ۵ دقیقه. این کد را در اختیار دیگران قرار ندهید.`, locale, dictionary),
+          subject: translateText("کد تأیید هما نت | HOMA", locale, dictionary),
+          text: translateText(`کد تأیید هما نت: ${code}\nاعتبار: ۵ دقیقه. این کد را در اختیار دیگران قرار ندهید.`, locale, dictionary),
         }),
       });
       if (!result.id) throw new ApiError(502, "provider_rejected");
@@ -117,7 +117,7 @@ export async function paymentRequest(orderId: string, amount: number) {
       body: JSON.stringify({
         merchant_id: merchant,
         amount: amount * 10,
-        description: `Homay Saadat ${orderId}`,
+        description: `Homanet ${orderId}`,
         callback_url: `${origin}/api/platform/payment/callback`,
       }),
     },

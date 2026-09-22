@@ -53,7 +53,7 @@ export default function PrivilegeCard({
                 ? "مجموعه کارت‌های سفر"
                 : "TRAVEL COLLECTION"}
           </span>
-          <strong translate={holder ? "no" : undefined}>{holder || (fa ? "همای سعادت" : "HOMAY SAADAT")}</strong>
+          <strong translate={holder ? "no" : undefined}>{holder || (fa ? "هما نت" : "HOMANET")}</strong>
         </div>
         <span className="privilege-level" dir="ltr">
           {level ? (

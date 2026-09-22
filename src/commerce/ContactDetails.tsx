@@ -14,7 +14,7 @@ export default function ContactDetails({
     <Localized>
       <div className={compact ? "company-contact compact" : "company-contact"}>
         <p className="company-identity">
-          همای سعادت، برند شرکت میراث جاویدان ایرانیان
+          هما نت، برند شرکت میراث جاویدان ایرانیان
         </p>
         <a className="contact-phone" href="tel:+989051838200">
           <span>تماس با مجموعه</span>

@@ -16,13 +16,13 @@ export function CommerceShell({ children }: { children: ReactNode }) {
       {children}
       <footer
         className="commerce-footer"
-        aria-label="پیوندها و خدمات همای سعادت"
+        aria-label="پیوندها و خدمات هما نت"
       >
         <div>
           <img
             className="footer-brand-mark"
             src="/assets/brand-mark.png"
-            alt="همای سعادت"
+            alt="هما نت"
           />
           <h2>ریشه در ایران، رو به جهان.</h2><ContactDetails compact/>
           <p>
@@ -58,7 +58,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           </nav>
         </details>
         <div className="commerce-footer-bottom">
-          <p>© {new Date().getFullYear()} همای سعادت · از ایران، برای جهان</p>
+          <p>© {new Date().getFullYear()} هما نت · از ایران، برای جهان</p>
           <a href="#page-top">بازگشت به بالا ↑</a>
         </div>
       </footer>

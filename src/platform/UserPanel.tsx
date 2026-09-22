@@ -540,7 +540,7 @@ export function Network({
   return (
     <Localized><>
       <div className="portal-card">
-        <h2>{admin ? "مشاهدهٔ شبکه" : "دعوت به همای سعادت"}</h2>
+        <h2>{admin ? "مشاهدهٔ شبکه" : "دعوت به هما نت"}</h2>
         {admin ? (
           <Form
             fields={[{ name: "user", label: "شناسهٔ کاربر" }]}

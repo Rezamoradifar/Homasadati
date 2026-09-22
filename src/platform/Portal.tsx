@@ -206,8 +206,8 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
       >
         <header className="portal-header">
           <a href="/">
-            <strong>{site.site_name || "همای سعادت"}</strong>
-            <small>HOMAY SAADAT / {admin ? "MANAGEMENT" : "MEMBERS"}</small>
+            <strong>{site.site_name || "هما نت"}</strong>
+            <small>HOMANET / {admin ? "MANAGEMENT" : "MEMBERS"}</small>
           </a>
           <div className="portal-toplinks">
             <LanguagePicker />
@@ -359,7 +359,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
             <main className="portal-main">
               <div className="portal-title">
                 <div>
-                  <h1>{current?.[1] || "پنل همای سعادت"}</h1>
+                  <h1>{current?.[1] || "پنل هما نت"}</h1>
                   <p>
                     {connectionError
                       ? "ارتباط قطع است؛ اطلاعات ممکن است قدیمی باشد."

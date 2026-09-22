@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { List, MagnifyingGlass, ShoppingCart, User, X } from "@phosphor-icons/react";
+import { Gift, List, MagnifyingGlass, ShoppingCart, User, X } from "@phosphor-icons/react";
 import Localized from "../i18n/Localized";
 import { LanguagePicker } from "../i18n/SiteLocale";
 import ThemeToggle from "./ThemeToggle";
@@ -54,7 +54,7 @@ export default function StoreHeader({ onJoin }: { onJoin?: () => void }) {
           <a className="store-logo" href="/">
             <img src="/assets/brand-mark.png" alt="" width={44} height={44} />
             <span>
-              <strong>همای سعادت</strong>
+              <strong>هما نت</strong>
               <small>باشگاه مشتریان</small>
             </span>
           </a>
@@ -65,6 +65,10 @@ export default function StoreHeader({ onJoin }: { onJoin?: () => void }) {
           <div className="store-actions">
             <LanguagePicker />
             <ThemeToggle />
+            <a className="store-club" href="/club">
+              <Gift size={20} weight="duotone" aria-hidden="true" />
+              <span>باشگاه مشتریان</span>
+            </a>
             <a className="store-account" href="/account">
               <User size={20} aria-hidden="true" />
               <span>حساب کاربری</span>
@@ -171,6 +175,9 @@ export default function StoreHeader({ onJoin }: { onJoin?: () => void }) {
         </nav>
         {drawer && (
           <nav id="store-drawer" className="store-drawer" aria-label="منوی سایت">
+            <a className="store-drawer-club" href="/club">
+              <Gift size={20} weight="duotone" aria-hidden="true" /> باشگاه مشتریان
+            </a>
             {menuSectors.map((k) => (
               <Localized key={k}>
                 <details open={k === "craft"}>
@@ -193,6 +200,7 @@ export default function StoreHeader({ onJoin }: { onJoin?: () => void }) {
             ))}
             <a href="/help">راهنمای خرید</a>
             <a href="/contact">ارتباط با ما</a>
+            <LanguagePicker />
             {onJoin && (
               <button className="store-join" onClick={onJoin}>
                 عضویت در باشگاه

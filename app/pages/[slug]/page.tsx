@@ -26,7 +26,7 @@ export default async function ContentPage({
         color: "#232a34",
       }}
     >
-      <a href="/">همای سعادت</a>
+      <a href="/">هما نت</a>
       <h1 style={{ fontSize: 36, marginBlock: 30 }}>{p.title}</h1>
       {p.image && (
         <img

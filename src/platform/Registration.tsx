@@ -266,7 +266,7 @@ export default function Registration({
   return (
     <Localized><div className="registration-shell" dir="rtl">
       <aside className="registration-story">
-        <a href="/" aria-label="صفحه اصلی همای سعادت">
+        <a href="/" aria-label="صفحه اصلی هما نت">
           <img src="/assets/brand-mark.png" alt="همای" />
         </a>
         <p className="auth-eyebrow">HOMA · MEMBERS CLUB</p>
@@ -286,7 +286,7 @@ export default function Registration({
       </aside>
       <div className="portal-card registration">
         <div className="registration-preferences"><LanguagePicker/><ThemeToggle/></div><div className="auth-topline">
-          <span>باشگاه مشتریان همای سعادت</span>
+          <span>باشگاه مشتریان هما نت</span>
           <button type="button" onClick={onBack} disabled={busy}>
             حساب دارید؟ ورود <ArrowLeft size={15} />
           </button>
