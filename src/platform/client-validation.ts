@@ -78,6 +78,7 @@ export function validateClient(path: string, method: string, data: unknown) {
       schema = z
         .object({
           target: contact,
+          adminPasswordLogin: z.boolean().optional(),
           password: z.string().min(1).max(128).optional(),
           challenge: id.optional(),
           code: otp.optional(),

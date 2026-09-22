@@ -1,4 +1,5 @@
 import { operationsApi } from "./operations-api";
+import { temporaryAdminPasswordLogin } from "./admin-login-window";
 import { loyaltyPolicy } from "./loyalty-engine";
 import { assertAccess } from "./access";
 import { resourceRoles } from "./access-model";
@@ -533,12 +534,14 @@ async function auth(req: Request, path: string[], data: Row) {
   }
   if (action === "login") {
     const d = loginSchema.parse(data);
-    await verifyCaptcha(data.captchaToken, "login");
+    const temporaryAdminLogin = data.adminPasswordLogin === true &&
+      !!d.password && d.target.includes("@") && temporaryAdminPasswordLogin();
+    if (!temporaryAdminLogin) await verifyCaptcha(data.captchaToken, "login");
     limit("login:" + hash(d.target), 8, 300);
     const u = activeUser(d.target);
     if (d.password) {
       const valid = checkPassword(d.password, u?.password || dummyPassword);
-      if (!valid || !u || u.blocked)
+      if (!valid || !u || u.blocked || (temporaryAdminLogin && u.role !== "superadmin"))
         throw new ApiError(401, "invalid_credentials");
     } else {
       if (!d.challenge || !d.code) throw new ApiError(400, "invalid_input");
@@ -1290,6 +1293,9 @@ export async function handle(req: Request, path: string[]) {
     if (path.join("/") === "auth/config" && get)
       return json({
         ...captchaConfig(),
+        ...(url.searchParams.get("action") === "admin-password-login" && temporaryAdminPasswordLogin()
+          ? { required: false, ready: true, siteKey: "" }
+          : {}),
         smsRegistration: !!(
           setting("kavenegar_key") && setting("sms_template")
         ),

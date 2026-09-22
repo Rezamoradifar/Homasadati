@@ -111,6 +111,27 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 describe("Panels use actual APIs and SQLite", () => {
+  it("lets the configured temporary administrator sign in without a captcha widget", async () => {
+    authCookie = "";
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("TURNSTILE_SITE_KEY", "");
+    vi.stubEnv("TURNSTILE_SECRET_KEY", "");
+    vi.stubEnv("TEMP_ADMIN_PASSWORD_LOGIN_UNTIL", new Date(Date.now() + 7200000).toISOString());
+    try {
+      const user = userEvent.setup();
+      render(<Portal admin />);
+      await user.type(await screen.findByLabelText(/ایمیل یا شماره موبایل/), "superadmin@test.example");
+      await user.type(screen.getByLabelText("رمز عبور"), password);
+      const button = screen.getByRole("button", { name: "ورود به حساب" });
+      await waitFor(() => expect((button as HTMLButtonElement).disabled).toBe(false));
+      await user.click(button);
+      await screen.findByRole("button", { name: "خروج" });
+      expect(screen.queryByRole("button", { name: "ورود به حساب" })).toBeNull();
+    } finally {
+      cleanup();
+      vi.unstubAllEnvs();
+    }
+  });
   it("creates a private support thread, replies as staff and hides internal notes from its owner", async () => {
     authCookie = member;
     window.history.replaceState(null, "", "/account?tab=tickets");
