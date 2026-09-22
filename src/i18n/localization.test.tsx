@@ -29,7 +29,7 @@ describe("site language rendering", () => {
     expect(translateText("متن جدید فروشنده", "en", en)).toBe(
       "متن جدید فروشنده",
     );
-    expect(translateText("فروشگاه هما چرم", "en", en)).toBe(
+    expect(translateText("فروشگاه همای چرم", "en", en)).toBe(
       "Homa Leather shop",
     );
     expect(translateText("constructor", "en", en)).toBe("constructor");

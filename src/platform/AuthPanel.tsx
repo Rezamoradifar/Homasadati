@@ -111,7 +111,7 @@ export default function AuthPanel({
             ? "ورود مدیران"
             : "خوش آمدید"}
       </h1>
-      <p>با حساب خود وارد دنیای همراهان هما شوید.</p>
+      <p>با حساب خود وارد دنیای همراهان همای شوید.</p>
       <div className="portal-tabs" role="tablist" aria-label="روش دسترسی">
         {[
           ["login", "ورود"],

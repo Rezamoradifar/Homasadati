@@ -5,7 +5,7 @@ import { CommerceShell } from "../../src/commerce/Shell";
 import Storefront from "../../src/commerce/Storefront";
 import { isSector } from "../../src/commerce/brands";
 export async function generateMetadata() { return translatedMetadata({
-  title: "فروشگاه خانواده هما | همای سعادت",
+  title: "فروشگاه خانواده همای | همای سعادت",
   description:
     "محصولات ایرانی، چرم، صنایع‌دستی، مراقبت، تور و اشتراک با مشخصات کامل و سبد خرید.",
 }); }

@@ -267,7 +267,7 @@ export default function Registration({
     <Localized><div className="registration-shell" dir="rtl">
       <aside className="registration-story">
         <a href="/" aria-label="صفحه اصلی همای سعادت">
-          <img src="/assets/brand-mark.png" alt="هما" />
+          <img src="/assets/brand-mark.png" alt="همای" />
         </a>
         <p className="auth-eyebrow">HOMA · MEMBERS CLUB</p>
         <h2>
@@ -275,7 +275,7 @@ export default function Registration({
           <br />{" "}
           آغاز یک داستان.
         </h2>
-        <p>یک حساب برای تجربه‌های سفر، هنر و مجموعه‌های هما.</p>
+        <p>یک حساب برای تجربه‌های سفر، هنر و مجموعه‌های همای.</p>
         <div className="registration-story-foot">
           <ShieldCheck size={28} />
           <div>
@@ -331,7 +331,7 @@ export default function Registration({
               {
                 [
                   "راه تماس خود را تأیید کنید و عضویت را در سه مرحله تکمیل کنید.",
-                  "با کد دعوت یا بدون آن، به جمع همراهان هما بپیوندید.",
+                  "با کد دعوت یا بدون آن، به جمع همراهان همای بپیوندید.",
                   "رمزساز را متصل کنید تا فقط با رمز عبور نتوان وارد حسابتان شد.",
                 ][step]
               }
@@ -595,7 +595,7 @@ export default function Registration({
                         set("marketingConsent", e.target.checked)
                       }
                     />
-                    پیشنهادها و خبرهای هما را دریافت می‌کنم (اختیاری).
+                    پیشنهادها و خبرهای همای را دریافت می‌کنم (اختیاری).
                   </label>
                 </div>
                 <div className="auth-actions">

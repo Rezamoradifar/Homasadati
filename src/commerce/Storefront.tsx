@@ -29,11 +29,11 @@ export default function Storefront({
   return (
     <Localized><div className="shop-wrap">
       <div className="shop-heading">
-        <span className="commerce-eyebrow">انتخاب از خانواده هما</span>
+        <span className="commerce-eyebrow">انتخاب از خانواده همای</span>
         <h1>
           {isSector(vertical)
             ? `فروشگاه ${brands[vertical].name}`
-            : "فروشگاه هما"}
+            : "فروشگاه همای"}
         </h1>
         <p>
           کالا، تجربه و اشتراک با مشخصات روشن؛ قیمت و موجودی از کاتالوگ واقعی

@@ -8,7 +8,7 @@ export const brands = {
     tagline: "ایران را زندگی کن؛ آرام، عمیق، به‌یادماندنی.",
   },
   craft: {
-    name: "هما تمدن",
+    name: "همای تمدن",
     latin: "Homa Tamaddon",
     label: "صنایع‌دستی ایران",
     image: "/assets/craft.jpg",
@@ -16,7 +16,7 @@ export const brands = {
     tagline: "هنری که از دست‌ها می‌گذرد و در خانه می‌ماند.",
   },
   beauty: {
-    name: "هما زیبا",
+    name: "همای زیبا",
     latin: "Homa Ziba",
     label: "زیبایی و مراقبت",
     image: "/assets/collections/beauty-cream.webp",
@@ -24,7 +24,7 @@ export const brands = {
     tagline: "مراقبت آگاهانه؛ زیبایی در اندازه زندگی.",
   },
   ai: {
-    name: "هما هوشمند",
+    name: "همای هوشمند",
     latin: "Homa Intelligence",
     label: "هوش مصنوعی و رشد",
     image: "/assets/collections/ai-human.webp",
@@ -32,7 +32,7 @@ export const brands = {
     tagline: "فناوری در خدمت انسان، خلاقیت و کسب‌وکار.",
   },
   leather: {
-    name: "هما چرم",
+    name: "همای چرم",
     latin: "Homa Leather",
     label: "چرم و طراحی ایرانی",
     image: "/assets/collections/leather-bag.webp",

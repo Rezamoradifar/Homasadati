@@ -20,7 +20,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
             همای سعادت<small>باشگاه مشتریان</small>
           </span>
         </a>
-        <nav aria-label="بخش‌های خانواده هما">
+        <nav aria-label="بخش‌های خانواده همای">
           {sectorKeys.map((k) => (
             <Localized key={k}><a href={`/worlds/${k}`}>
               {brands[k].name}
@@ -56,7 +56,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           </p>
         </div>
         <details open>
-          <summary>جهان‌های هما</summary>
+          <summary>جهان‌های همای</summary>
           <nav aria-label="برندها">
             {sectorKeys.map((k) => (
               <Localized key={k}><a href={`/worlds/${k}`}>

@@ -129,19 +129,19 @@ export function CivilizationHero() {
 }
 const collections = {
   leather: [
-    ["leather-bag", "هما چرم؛ اصالت در جزئیات"],
+    ["leather-bag", "همای چرم؛ اصالت در جزئیات"],
     ["leather-wallet", "طراحی برای همراهی هر روز"],
     ["leather-craft", "هنر دست، دقت در دوخت"],
     ["leather-belt", "کمربند چرم؛ جزئیاتی برای هر روز"],
-    ["leather-women", "کیف زنانه؛ ظرافت با امضای هما"],
+    ["leather-women", "کیف زنانه؛ ظرافت با امضای همای"],
     ["leather-men", "کیف اداری و دوشی مردانه"],
   ],
   beauty: [
-    ["beauty-cream", "هما زیبا؛ آیین مراقبت روزانه"],
-    ["beauty-care", "مراقبت پوست و مو با هویت هما"],
+    ["beauty-cream", "همای زیبا؛ آیین مراقبت روزانه"],
+    ["beauty-care", "مراقبت پوست و مو با هویت همای"],
     ["beauty-portrait", "زیبایی آرام، انتخاب آگاهانه"],
   ],
-  ai: [["ai-human", "هما هوشمند؛ انسان، خلاقیت و فناوری"]],
+  ai: [["ai-human", "همای هوشمند؛ انسان، خلاقیت و فناوری"]],
 };
 export function BrandCollection({ sector }: { sector: string }) {
   const rail = useRef<HTMLDivElement>(null);
@@ -186,17 +186,17 @@ export function BrandCollection({ sector }: { sector: string }) {
       <p className="commerce-eyebrow">THE HOMA COLLECTION</p>
       <h2>
         {sector === "leather"
-          ? "چرم اصیل ایرانی؛ امضای هما"
+          ? "چرم اصیل ایرانی؛ امضای همای"
           : sector === "beauty"
-            ? "زیبایی با امضای هما"
+            ? "زیبایی با امضای همای"
             : "هوش در خدمت انسان"}
       </h2>
       <p>
         {sector === "leather"
-          ? "کیف، اکسسوری و مصنوعات چرمی با هویت هما؛ نوع چرم، محل تولید، شرایط ضمانت‌نامه و خدمات پس از فروش را برای هر محصول در مشخصات فروشگاه بررسی کنید."
+          ? "کیف، اکسسوری و مصنوعات چرمی با هویت همای؛ نوع چرم، محل تولید، شرایط ضمانت‌نامه و خدمات پس از فروش را برای هر محصول در مشخصات فروشگاه بررسی کنید."
           : sector === "beauty"
-            ? "جهان مراقبت هما: کرم‌ها، مراقبت پوست و مو و محصولات بهداشتی. ترکیبات، مجوز، تولیدکننده، تاریخ مصرف و روش استفاده باید در صفحه هر محصول درج شود."
-            : "ابزارهای هوشمند برای محتوای بهتر، ارتباط با مشتری و رشد فروش در تمام جهان‌های هما."}
+            ? "جهان مراقبت همای: کرم‌ها، مراقبت پوست و مو و محصولات بهداشتی. ترکیبات، مجوز، تولیدکننده، تاریخ مصرف و روش استفاده باید در صفحه هر محصول درج شود."
+            : "ابزارهای هوشمند برای محتوای بهتر، ارتباط با مشتری و رشد فروش در تمام جهان‌های همای."}
       </p>
       <div className="collection-nav">
         <button type="button" onClick={auto.toggle} aria-pressed={!auto.paused}>
@@ -233,7 +233,7 @@ export function BrandCollection({ sector }: { sector: string }) {
         ref={rail}
         tabIndex={0}
         role="region"
-        aria-label="گالری محصولات هما؛ برای تصاویر بیشتر ورق بزنید"
+        aria-label="گالری محصولات همای؛ برای تصاویر بیشتر ورق بزنید"
         onScroll={() => setSlide(nearestSlide())}
         onKeyDown={(event) => {
           if (event.key === "ArrowLeft" || event.key === "ArrowRight") {

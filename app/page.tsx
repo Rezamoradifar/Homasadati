@@ -65,7 +65,7 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
  const enquire=(topic:string)=>{setInterest(topic);open('contact');};
  const allChoices=[c.tourismItems,c.beautyItems,c.craftItems,c.aiItems];
  const translatedName=locale==='ar'?'هماي سعادت':'همای سعادت';
- const leatherTitle=locale==='en'?'Homa Leather':locale==='ar'?'جلود هما':'چرم هما';
+ const leatherTitle=locale==='en'?'Homa Leather':locale==='ar'?'جلود هماي':'همای چرم';
  const worldCards=[...c.titles.map((title,i)=>({title,image:images[i],id:sections[i],description:c.descriptions[i],href:'/worlds/'+['tourism','beauty','craft','ai'][i]}))];
  worldCards.splice(3,0,{title:leatherTitle,image:'collections/leather-bag.webp',id:'leather',description:locale==='en'?'Bags, belts and everyday leather essentials.':locale==='ar'?'حقائب وأحزمة وإكسسوارات جلدية.':'کیف زنانه و مردانه، کمربند و اکسسوری‌های چرمی.',href:'/worlds/leather'});
  const navItems=c.nav.map((label,i)=>({label,key:String(i),action:()=>goTo(i)}));
@@ -87,7 +87,7 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
   <p className="hero-quote">{c.quote}</p>
  </section>
  <div className="values-strip">{c.values.map((value,i)=>{const Icon=ValueIcons[i];return <Localized key={value}><div><Icon weight="thin"/><span>{value}</span></div></Localized>;})}</div>
- <nav className="brand-home-links" aria-label="خانواده برندهای هما" lang="fa" dir="rtl">{sectorKeys.map(k=><Localized key={k}><a href={'/worlds/'+k}><strong>{brands[k].name}</strong><span>{brands[k].label} ←</span></a></Localized>)}<a className="store-home-link" href="/shop">فروشگاه خانواده هما · انتخاب محصول و سبد خرید</a></nav><PublicContent/><BrandIntroduction onStory={()=>open('story')}/>
+ <nav className="brand-home-links" aria-label="خانواده برندهای همای" lang="fa" dir="rtl">{sectorKeys.filter(k=>k!=='leather').map(k=><Localized key={k}><a href={'/worlds/'+k}><strong>{brands[k].name}</strong><span>{brands[k].label} ←</span></a></Localized>)}<a className="store-home-link" href="/shop">فروشگاه خانواده همای · انتخاب محصول و سبد خرید</a></nav><PublicContent/><BrandIntroduction onStory={()=>open('story')}/>
  <section className="worlds content-section" id="worlds" aria-labelledby="worlds-title">
   <div className="section-heading"><div><p className="eyebrow">{e('collection')}</p><h2 id="worlds-title">{c.worlds}</h2></div><p>{c.worldsSub}</p></div>
   <div className="world-grid">{worldCards.map((card,i)=><Localized key={card.id}><a id={card.id} className="world-card" href={card.href}><ResponsiveImage src={`/assets/${card.image}`} sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 28vw" alt={card.title} loading="lazy"/><div className="card-shade"/><div className="world-copy"><span className="world-number">0{i+1}</span><h3>{card.title}</h3><p>{card.description}</p><span className="round-arrow"><Arrow size={21}/></span></div></a></Localized>)}</div>
