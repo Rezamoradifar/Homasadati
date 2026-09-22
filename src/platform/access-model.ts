@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { id, text } from "./validation";
 export const resourceRoles: Record<string, string[]> = {
+  "seven-card-plan": ["finance"],
+  "seven-card-simulate": ["finance"],
   binary: ["finance"],
   tickets: ["support"],
   "binary-schedule": ["finance"],

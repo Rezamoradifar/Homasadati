@@ -29,7 +29,7 @@ export default function AuthPanel({
     [notice, setNotice] = useState(""),
     [cooldown, setCooldown] = useState(0);
   const sendCaptcha = useCaptcha("otp"),
-    submitCaptcha = useCaptcha(mode === "reset" ? "reset" : "login");
+    submitCaptcha = useCaptcha(mode === "reset" ? "reset" : admin && !otp ? "admin-password-login" : "login");
   const needsCode = mode === "reset" || otp;
   useEffect(() => {
     if (!cooldown) return;
@@ -76,6 +76,7 @@ export default function AuthPanel({
     try {
       const payload = {
         target,
+        ...(admin && mode === "login" && !otp ? { adminPasswordLogin: true } : {}),
         ...(!otp || mode === "reset" ? { password } : {}),
         ...(needsCode ? { challenge, code } : {}),
         ...(!recovery && totp ? { totp } : {}),

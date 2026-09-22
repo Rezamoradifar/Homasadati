@@ -1,4 +1,5 @@
 "use client";
+import SevenCardPanel from "./SevenCardPanel";
 import { TicketsPanel, BinarySchedulePanel } from "./SupportPanels";
 import {
   BinaryRulesPanel,
@@ -388,6 +389,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                 <Security onReauth={() => setUser(null)} />
               ) : admin ? (
                 <>
+                  {tab === "seven-card-plan" && <SevenCardPanel admin />}
                   {tab === "binary" && (
                     <BinaryPanel user={user} admin refresh={refresh} />
                   )}
@@ -542,6 +544,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   {tab === "merchant" && (
                     <MerchantPanel refresh={refresh} onChange={update} />
                   )}
+                  {tab === "seven-card-plan" && <SevenCardPanel />}
                   {tab === "binary" && (
                     <BinaryPanel user={user} refresh={refresh} />
                   )}

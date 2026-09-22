@@ -1,15 +1,8 @@
 
 import Localized from "../src/i18n/Localized";
 import PrivilegeCard from "./PrivilegeCard";
-const ranks = [
-  ["جوانه", "Javaneh", "jade"],
-  ["سرو", "Sarv", "forest"],
-  ["فیروزه", "Turquoise", "turquoise"],
-  ["یاقوت", "Ruby", "ruby"],
-  ["زمرد", "Emerald", "emerald"],
-  ["پارسه", "Parseh", "gold"],
-  ["سیمرغ", "Simurgh", "obsidian"],
-];
+import { sevenCards } from "../src/platform/seven-card-model";
+const ranks = sevenCards.map(card => [card.name, card.english, card.tone]);
 export default function ClubCards({ locale = "fa" }: { locale?: string }) {
   const fa = locale !== "en";
   return (
@@ -36,7 +29,7 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
       <div className="club-preview-grid">
         {ranks.map(([name, en, tone], i) => (
           <Localized key={tone}><a
-            href={"/club/ranks#rank-" + (i + 1)}
+            href="/income-plan"
             className={"rank-card rank-" + tone}
             aria-label={fa ? "رتبه " + name : en + " rank"}
           >
@@ -51,8 +44,8 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
       </div>
       <p className="club-preview-note">
         {fa
-          ? "قیمت‌های روی کارت، پیشنهاد عضویت به ریال هستند؛ خرید مستقیم کارت هنوز فعال نیست. اعتبار سفر و شرایط احراز هر رتبه را در جزئیات باشگاه ببینید."
-          : "Card prices are membership proposals in Iranian rials; direct card purchase is not yet enabled. See the club for travel credit and qualification details."}
+          ? "مبالغ روی کارت، حداقل خرید به ریال در پلن جدید هستند؛ فعال‌سازی این پلن هنوز انجام نشده است."
+          : "Card amounts are minimum purchases in Iranian rials under the new plan; this plan is not yet active."}
       </p>
     </section></Localized>
   );

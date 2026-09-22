@@ -1,5 +1,6 @@
 import { hasPermission } from "./access-model";
 export const adminTabs: [string, string, string[]][] = [
+  ["seven-card-plan", "پلن هفت کارت", ["superadmin", "finance"]],
   ["tickets", "پشتیبانی و تیکت‌ها", ["superadmin", "support"]],
   ["binary-schedule", "زمان‌بندی تسویه باینری", ["superadmin", "finance"]],
   ["binary-rules", "قواعد و شبیه‌ساز باینری", ["superadmin", "finance"]],
@@ -48,6 +49,7 @@ export const adminGroups = [
   {
     title: "شبکه و باشگاه مشتریان",
     keys: [
+      "seven-card-plan",
       "binary",
       "binary-rules",
       "binary-schedule",

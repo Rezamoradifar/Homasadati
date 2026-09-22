@@ -8,6 +8,7 @@ type Props = {
   locale?: string;
   holder?: string;
   creditToman?: number;
+  showPurchaseMinimum?: boolean;
 };
 export default function PrivilegeCard({
   name,
@@ -16,9 +17,10 @@ export default function PrivilegeCard({
   locale = "fa",
   holder,
   creditToman,
+  showPurchaseMinimum = true,
 }: Props) {
   const fa = locale !== "en";
-  const amountRial=creditToman!==undefined?tomanToRial(creditToman):holder?undefined:tierPriceRial(level);
+  const amountRial=creditToman!==undefined?tomanToRial(creditToman):holder || !showPurchaseMinimum ?undefined:tierPriceRial(level);
   return (
     <Localized><div className={"privilege-card rank-" + tone}>
       <div className="privilege-card-lines" aria-hidden="true" />
@@ -38,7 +40,7 @@ export default function PrivilegeCard({
         <small>{fa ? "باشگاه مشتریان" : "CUSTOMERS CLUB"}</small>
         <h3>{name}</h3>
       </div>
-      {amountRial!==undefined&&<div className="privilege-price"><small>{creditToman!==undefined?"اعتبار اولیه کارت":"قیمت پیشنهادی کارت"}</small><strong><bdi>{amountRial.toLocaleString("fa-IR")}</bdi> <span>ریال</span></strong></div>}
+      {amountRial!==undefined&&<div className="privilege-price"><small>{creditToman!==undefined?"اعتبار اولیه کارت":"حداقل مبلغ خرید کارت"}</small><strong><bdi>{amountRial.toLocaleString("fa-IR")}</bdi> <span>ریال</span></strong></div>}
       <div className="privilege-bottom">
         <div>
           <span>
