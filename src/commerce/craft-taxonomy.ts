@@ -52,7 +52,18 @@ export const craftCategories: CraftCategory[] = [
   },
   { id: "backgammon", name: "محصولات تخته‌نرد", vertical: "craft" },
   { id: "carpet", name: "تابلوفرش و گلیم", vertical: "craft" },
-  { id: "enamel", name: "محصولات میناکاری‌شده", vertical: "craft" },
+  {
+    id: "enamel",
+    name: "محصولات میناکاری‌شده",
+    vertical: "craft",
+    items: [
+      { id: "sugar-bowl", name: "قندان" },
+      { id: "vase", name: "گلدان" },
+      { id: "rosewater-sprinkler", name: "گلاب‌پاش" },
+      { id: "fruit-bowl", name: "میوه‌خوری" },
+      { id: "tea-set", name: "چای‌خوری" },
+    ],
+  },
 ];
 
 export const craftCategory = (id: string) => craftCategories.find((c) => c.id === id);

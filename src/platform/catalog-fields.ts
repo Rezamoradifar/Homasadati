@@ -1,5 +1,5 @@
 import type { Field } from "./Widgets";
-import { craftCategories, copperItems } from "../commerce/craft-taxonomy";
+import { craftCategories } from "../commerce/craft-taxonomy";
 const section = (name: string, label: string, sectors?: string[]): Field => ({
   name,
   label,
@@ -74,8 +74,7 @@ export const extendedCatalogFields: Field[] = [
     ...field("craftItem", "کاربری محصول", "select", ["craft", "leather"]),
     options: [
       ["", "—"],
-      ...copperItems.map((i): [string, string] => [i.id, i.name]),
-      ...(craftCategories[1].items || []).map((i): [string, string] => [i.id, i.name]),
+      ...[...new Map(craftCategories.flatMap((c) => c.items || []).map((i) => [i.id, i.name])).entries()],
     ],
   },
   section("craftsmanship", "شناسنامه صنایع‌دستی", ["craft", "leather"]),
