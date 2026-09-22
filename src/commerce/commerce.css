@@ -1,7 +1,7 @@
 .commerce {
-  background: #f7f3eb;
+  background: var(--homa-light-bg);
   color: #243c34;
-  font-family: Vazirmatn, sans-serif;
+  font-family: var(--font-fa), sans-serif;
   line-height: 1.9;
 }
 .commerce * {

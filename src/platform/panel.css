@@ -3,9 +3,9 @@
   --p-gold: #b48b4d;
   --p-line: #dce3dc;
   min-height: 100vh;
-  background: #f4f5ef;
+  background: var(--homa-light-bg);
   color: #183c34;
-  font-family: Vazirmatn, sans-serif;
+  font-family: var(--font-fa), sans-serif;
   font-size: 14px;
   line-height: 1.8;
   direction: rtl;
@@ -1270,11 +1270,11 @@
 html[data-theme="dark"] .registration-shell,
 html[data-theme="dark"] .auth-login,
 html[data-theme="dark"] .security-panel {
-  --auth-bg: #182e2b;
+  --auth-bg: var(--homa-dark-surface);
   --auth-ink: #edf0e7;
   --auth-muted: #b9c9c0;
-  --auth-line: #3c5650;
-  --auth-soft: #203b34;
+  --auth-line: var(--homa-dark-line);
+  --auth-soft: var(--homa-dark-raised);
   color: var(--auth-ink);
 }
 html[data-theme="dark"] .portal .registration {
@@ -1463,7 +1463,7 @@ html[data-theme="dark"] .portal .registration a {
 html[data-theme="dark"] .portal .registration .portal-button:not(.secondary),
 html[data-theme="dark"] .portal .auth-login .portal-button:not(.secondary) {
   background: #ddc392;
-  color: #152d25;
+  color: var(--homa-dark-surface);
   border-color: #ddc392;
 }
 .registration-story img {

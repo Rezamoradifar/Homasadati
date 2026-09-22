@@ -1,16 +1,16 @@
 /* Shared editorial typography, comfortable Persian reading and robust small screens. */
 html body {
-  font-family: "Manrope", "Vazirmatn", sans-serif;
+  font-family: "Manrope", var(--font-fa), sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 html [dir="rtl"] {
-  font-family: "Vazirmatn", "Manrope", sans-serif;
+  font-family: var(--font-fa), "Manrope", sans-serif;
   letter-spacing: normal;
 }
 html [dir="rtl"] :is(h1, h2, h3) {
-  font-family: "Vazirmatn", sans-serif;
+  font-family: var(--font-fa), sans-serif;
   letter-spacing: normal;
   line-height: 1.65;
   font-weight: 600;
@@ -592,7 +592,7 @@ html .rank-description strong {
 }
 html[dir="rtl"] body,
 html[dir="rtl"] :is(h1, h2, h3) {
-  font-family: "Vazirmatn", sans-serif;
+  font-family: var(--font-fa), sans-serif;
   letter-spacing: normal;
 }
 html .skip-link:not(:focus) {
@@ -678,10 +678,10 @@ html .tourism-video-controls [role="status"] {
 }
 html .commerce .club-preview {
   padding: 64px max(6vw, 20px);
-  background: #f7f5ef;
+  background: var(--homa-light-bg);
 }
 html[data-theme="dark"] .commerce .club-preview {
-  background: #101c1d;
+  background: var(--homa-dark-bg);
 }
 html .commerce .club-preview .section-heading {
   display: flex;
@@ -882,7 +882,7 @@ html .privilege-card .privilege-watermark {
 }
 .privilege-card .privilege-title h3 {
   font:
-    500 clamp(28px, 2.4vw, 36px)/1.4 Vazirmatn,
+    500 clamp(28px, 2.4vw, 36px)/1.4 var(--font-fa),
     sans-serif !important;
   margin: 3px 0 0 !important;
   color: var(--card-foil) !important;
@@ -973,7 +973,7 @@ html .travel-credit-card {
   margin-top: 15px;
 }
 html[data-theme="dark"] .travel-credit-card {
-  background: #182e2b;
+  background: var(--homa-dark-surface);
   color: #edf0e7;
 }
 @media (min-width: 1001px) {
