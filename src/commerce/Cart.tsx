@@ -1,5 +1,6 @@
 "use client";
 
+import { Money, UsdNote } from "./currency";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
@@ -207,7 +208,7 @@ export default function Cart() {
                     </a>
                     <p>
                       {p
-                        ? `${amount(p.price)} تومان`
+                        ? <Money toman={p.price}/>
                         : "قیمت نیازمند بررسی است"}
                     </p>
                     <button
@@ -235,7 +236,7 @@ export default function Cart() {
                         }}
                       />
                     </label>
-                    {p && <p>{amount(p.lineTotal)} تومان</p>}
+                    {p && <p><Money toman={p.lineTotal}/></p>}
                   </div>
                 </article></Localized>
               );
@@ -245,7 +246,7 @@ export default function Cart() {
           <aside className="cart-summary">
             <h2>جمع سفارش</h2>
             <strong>
-              {quote ? amount(quote.total) + " تومان" : "در انتظار بررسی"}
+              {quote ? <><Money toman={quote.total}/><UsdNote/></> : "در انتظار بررسی"}
             </strong>
             <p>
               هزینه جداگانه ارسال در این نسخه محاسبه نمی‌شود. مالیات یا هزینه‌ای

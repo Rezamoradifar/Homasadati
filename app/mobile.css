@@ -408,3 +408,5 @@ html body .landing-footer,html body .landing-footer[data-variant=editorial] {bac
 html body .eyebrow {color:var(--homa-blue);}
 html[data-theme=dark] body .eyebrow {color:var(--homa-sky);}
 html body :is(.hero,.landing-footer,.values-strip) .eyebrow {color:var(--homa-sand);}
+html body .usd-note {font-size:12px;line-height:1.9;color:var(--homa-blue);margin:10px 0;}
+html[data-theme=dark] body .usd-note {color:var(--homa-sky);}

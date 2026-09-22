@@ -1,3 +1,4 @@
+import { parseAmount, validRate } from "./fx";
 import { cardPlan } from "./seven-card";
 import { operationsApi } from "./operations-api";
 import { isLocale } from "../i18n/core";
@@ -838,6 +839,10 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "site_contact",
           "site_email",
           "site_ceo_name",
+          "fx_source_url",
+          "fx_source_path",
+          "fx_source_unit",
+          "fx_usd_manual",
         ]),
         value: z.string().trim().min(1).max(2000),
         reason: text,
@@ -852,11 +857,16 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     if (d.key === "site_ceo_name")
       z.string().trim().min(2).max(120).parse(d.value);
     if (d.key === "site_logo") httpsImage.parse(d.value);
+    if (d.key === "fx_source_url") z.string().url().startsWith("https://").parse(d.value);
+    if (d.key === "fx_source_unit") z.enum(["rial", "toman"]).parse(d.value);
+    if (d.key === "fx_usd_manual" && !validRate(parseAmount(d.value)))
+      throw new ApiError(400, "invalid_rate");
     const secret = [
       "resend_key",
       "turnstile_secret_key",
       "kavenegar_key",
       "zarinpal_merchant",
+      "fx_source_url",
     ].includes(d.key);
     atomic(() => {
       const before = one("SELECT key FROM p_settings WHERE key=?", d.key);

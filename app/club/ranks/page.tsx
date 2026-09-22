@@ -1,6 +1,6 @@
+import {Money,UsdNote} from '../../../src/commerce/currency';
 import SevenCardPublic from "../../../src/platform/SevenCardPublic";
 import { translatedMetadata } from "../../../src/i18n/server";
-import {tomanToRial,tierPriceRial} from '../../../src/commerce/club-tiers';
 
 import Localized from "../../../src/i18n/Localized";
 import PrivilegeCard from "../../PrivilegeCard";
@@ -27,7 +27,8 @@ export default function RanksPage() {
           </p>
         </header>
         <SevenCardPublic />
-        <section className="rank-comparison" aria-labelledby="compare-title"><h2 id="compare-title">مقایسه هفت کارت</h2><p>اعتبار سفر با سقف پاداش هفتگی پلن جدید متفاوت است.</p><div className="comparison-scroll" role="region" aria-label="جدول مقایسه کارت‌ها" tabIndex={0}><table><thead><tr><th scope="col">کارت</th><th scope="col">اعتبار سفر (ریال)</th><th scope="col">حداقل فروش شخصی (ریال)</th><th scope="col">اعتبار (روز)</th><th scope="col">وضعیت صدور</th></tr></thead><tbody>{ranks.map(r=><Localized key={r.level}><tr><th scope="row"><a href={"#rank-"+r.level}>{r.display_name}</a></th><td>{number(tomanToRial(r.amount))}</td><td>{number(tomanToRial(r.threshold))}</td><td>{number(r.duration)}</td><td>{r.active?"صدور فعال":"پیشنهاد؛ صدور غیرفعال"}</td></tr></Localized>)}</tbody></table></div><p>خرید کارت به‌تنهایی رتبه ایجاد نمی‌کند؛ شرایط فروش شخصی و گروهی و خرید واجد شرایط هر رتبه ملاک است.</p></section>
+        <section className="rank-comparison" aria-labelledby="compare-title"><h2 id="compare-title">مقایسه هفت کارت</h2><p>اعتبار سفر با سقف پاداش هفتگی پلن جدید متفاوت است.</p><div className="comparison-scroll" role="region" aria-label="جدول مقایسه کارت‌ها" tabIndex={0}><table><thead><tr><th scope="col">کارت</th><th scope="col">اعتبار سفر</th><th scope="col">حداقل فروش شخصی</th><th scope="col">اعتبار (روز)</th><th scope="col">وضعیت صدور</th></tr></thead><tbody>{ranks.map(r=><Localized key={r.level}><tr><th scope="row"><a href={"#rank-"+r.level}>{r.display_name}</a></th><td><Money toman={r.amount}/></td><td><Money toman={r.threshold}/></td><td>{number(r.duration)}</td><td>{r.active?"صدور فعال":"پیشنهاد؛ صدور غیرفعال"}</td></tr></Localized>)}</tbody></table></div><p>خرید کارت به‌تنهایی رتبه ایجاد نمی‌کند؛ شرایط فروش شخصی و گروهی و خرید واجد شرایط هر رتبه ملاک است.</p></section>
+        <UsdNote/>
         <div className="rank-grid">
           {ranks.map((r) => (
             <Localized key={r.level}><article
@@ -46,15 +47,15 @@ export default function RanksPage() {
                 </strong>
                 <dl>
                   <dt>حداقل فروش شخصی تجمعی</dt>
-                  <dd>{number(tomanToRial(r.threshold))} ریال</dd>
+                  <dd><Money toman={r.threshold}/></dd>
                   {r.group_threshold > 0 && (
                     <>
                       <dt>حداقل فروش گروهی تجمعی</dt>
-                      <dd>{number(tomanToRial(r.group_threshold))} ریال</dd>
+                      <dd><Money toman={r.group_threshold}/></dd>
                     </>
                   )}
                   <dt>{r.active ? "اعتبار کارت" : "اعتبار پیشنهادی کارت"}</dt>
-                  <dd>{number(tomanToRial(r.amount))} ریال</dd>
+                  <dd><Money toman={r.amount}/></dd>
                   <dt>مدت اعتبار پس از صدور</dt>
                   <dd>{number(r.duration)} روز</dd>
                 </dl>

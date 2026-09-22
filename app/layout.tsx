@@ -3,6 +3,8 @@ import {siteLocale} from '../src/i18n/server';
 import {direction,loadDictionary} from '../src/i18n/core';
 import {all} from '../src/platform/schema';
 import {SiteSettingsProvider} from '../src/platform/SiteSettings';
+import {CurrencyProvider} from '../src/commerce/currency';
+import {currentUsdRate} from '../src/platform/fx';
 export const dynamic='force-dynamic';
 import './brand.css';
 import './globals.css';
@@ -18,4 +20,4 @@ import '@fontsource/vazirmatn/700.css';
 import type {Metadata} from 'next';
 import type {ReactNode} from 'react';
 export async function generateMetadata():Promise<Metadata>{const locale=await siteLocale();return {title:locale==='en'?'Homay Saadat Club':locale==='ar'?'نادي عملاء هماي سعادت':'باشگاه مشتریان همای سعادت',description:locale==='en'?'The Homay Saadat club: travel, handicrafts, leather, beauty and technology.':locale==='ar'?'نادي عملاء هما؛ السفر والحرف اليدوية والجلود والجمال والتكنولوجيا.':'باشگاه مشتریان هما؛ گردشگری، صنایع‌دستی، چرم، زیبایی و فناوری.'};}
-export default async function Layout({children}: {children:ReactNode}){const locale=await siteLocale(),dictionary=await loadDictionary(locale);const settings=Object.fromEntries(all("SELECT key,value FROM p_settings WHERE secret=0 AND key IN ('site_name','site_logo','site_contact','site_email')").map(r=>[r.key,r.value]));return <html lang={locale} dir={direction(locale)} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html: "try{var t=localStorage.getItem('homa-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch(e){}"}}/></head><body><SiteLocaleProvider initialLocale={locale} initialDictionary={dictionary}><SiteSettingsProvider value={settings}>{children}</SiteSettingsProvider></SiteLocaleProvider></body></html>;}
+export default async function Layout({children}: {children:ReactNode}){const locale=await siteLocale(),dictionary=await loadDictionary(locale);const settings=Object.fromEntries(all("SELECT key,value FROM p_settings WHERE secret=0 AND key IN ('site_name','site_logo','site_contact','site_email')").map(r=>[r.key,r.value]));return <html lang={locale} dir={direction(locale)} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html: "try{var t=localStorage.getItem('homa-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch(e){}"}}/></head><body><SiteLocaleProvider initialLocale={locale} initialDictionary={dictionary}><SiteSettingsProvider value={settings}><CurrencyProvider usd={currentUsdRate()}>{children}</CurrencyProvider></SiteSettingsProvider></SiteLocaleProvider></body></html>;}

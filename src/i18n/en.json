@@ -2479,5 +2479,14 @@
   "حداقل مبلغ خرید کارت": "Minimum card purchase amount",
   "مبالغ روی کارت، حداقل خرید به ریال در پلن جدید هستند؛ فعال‌سازی این پلن هنوز انجام نشده است.": "Card amounts are minimum purchases in Iranian rials under the new plan; this plan is not yet active.",
   "کارت سفر تابع مقررات جداگانه است؛ جدول پلن جدید در ادامه آمده است.": "Travel cards follow separate rules. The new plan’s table appears below.",
-  "اعتبار سفر با سقف پاداش هفتگی پلن جدید متفاوت است.": "Travel credit is separate from the new plan’s weekly reward cap."
+  "اعتبار سفر با سقف پاداش هفتگی پلن جدید متفاوت است.": "Travel credit is separate from the new plan’s weekly reward cap.",
+  "اعتبار سفر": "Travel credit",
+  "حداقل فروش شخصی": "Minimum personal sales",
+  "ريال": "IRR",
+  "أسعار تقريبية بالدولار على أساس {0} ريال للدولار (تحديث {1}). يتم الدفع بالريال.": "Approximate USD prices at {0} IRR per dollar (updated {1}). Payment is made in rial.",
+  "قیمت‌های دلاری تقریبی و بر پایهٔ نرخ {0} ریال برای هر دلار است (به‌روزرسانی {1}). پرداخت به ریال انجام می‌شود.": "Approximate USD prices at {0} IRR per dollar (updated {1}). Payment is made in rial.",
+  "نشانی سرویس نرخ ارز (همراه کلید API)": "Exchange-rate service URL (with API key)",
+  "مسیر نرخ دلار در پاسخ سرویس، مثل usd_sell.value": "Path of the USD rate in the service response, e.g. usd_sell.value",
+  "واحد نرخ سرویس: rial یا toman": "Rate unit of the service: rial or toman",
+  "نرخ دستی دلار به ریال (پشتیبان)": "Manual USD rate in rial (fallback)"
 }

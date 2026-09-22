@@ -1,3 +1,4 @@
+import {Money} from '../src/commerce/currency';
 import {tierPriceRial,tomanToRial} from '../src/commerce/club-tiers';
 
 import Localized from "../src/i18n/Localized";
@@ -40,7 +41,7 @@ export default function PrivilegeCard({
         <small>{fa ? "باشگاه مشتریان" : "CUSTOMERS CLUB"}</small>
         <h3>{name}</h3>
       </div>
-      {amountRial!==undefined&&<div className="privilege-price"><small>{creditToman!==undefined?"اعتبار اولیه کارت":"حداقل مبلغ خرید کارت"}</small><strong><bdi>{amountRial.toLocaleString("fa-IR")}</bdi> <span>ریال</span></strong></div>}
+      {amountRial!==undefined&&<div className="privilege-price"><small>{creditToman!==undefined?"اعتبار اولیه کارت":"حداقل مبلغ خرید کارت"}</small><strong><Money rial={amountRial}/></strong></div>}
       <div className="privilege-bottom">
         <div>
           <span>

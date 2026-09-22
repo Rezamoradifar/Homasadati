@@ -1,3 +1,4 @@
+import {Money,UsdNote} from '../../../src/commerce/currency';
 import ProductGallery from "../../../src/commerce/ProductGallery";
 import {siteLocale} from "../../../src/i18n/server";
 import {catalogCopy,isPublicSpecification} from "../../../src/i18n/catalog";
@@ -58,9 +59,10 @@ export default async function ProductPage({
             </span>
             <h1>{copy.title}</h1>
             <p>{copy.description}</p>
-            <h2>{Number(p.price).toLocaleString("fa-IR")} تومان</h2>
+            <h2><Money toman={Number(p.price)}/></h2>
+            <UsdNote/>
             {d.comparePrice > p.price && (
-              <del>{Number(d.comparePrice).toLocaleString("fa-IR")} تومان</del>
+              <del><Money toman={Number(d.comparePrice)}/></del>
             )}
             <p>
               موجودی / ظرفیت: {p.stock.toLocaleString("fa-IR")} · مهلت لغو پس از

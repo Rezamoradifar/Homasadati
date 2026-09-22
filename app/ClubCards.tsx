@@ -1,4 +1,5 @@
 
+import { UsdNote } from "../src/commerce/currency";
 import Localized from "../src/i18n/Localized";
 import PrivilegeCard from "./PrivilegeCard";
 import { sevenCards } from "../src/platform/seven-card-model";
@@ -42,6 +43,7 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
           </a></Localized>
         ))}
       </div>
+      <UsdNote/>
       <p className="club-preview-note">
         {fa
           ? "مبالغ روی کارت، حداقل خرید به ریال در پلن جدید هستند؛ فعال‌سازی این پلن هنوز انجام نشده است."

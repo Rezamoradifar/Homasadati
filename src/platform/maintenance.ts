@@ -7,7 +7,9 @@ import { atomic, all, one, run, now } from "./schema";
 import { mature, refundOrder } from "./finance";
 import { providerFetch, setting, saveSetting } from "./providers";
 import { ApiError } from "../server/http";
+import { refreshUsdRate } from "./fx";
 export async function maintenance() {
+  await refreshUsdRate();
   runBinaryCycles();
   atomic(() => {
     mature();

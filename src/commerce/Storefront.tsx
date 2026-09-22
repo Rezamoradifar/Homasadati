@@ -1,5 +1,6 @@
 "use client";
 
+import { Money } from "./currency";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
@@ -111,7 +112,7 @@ export default function Storefront({
                         {copy.description.slice(0, 180)}
                         {copy.description.length > 180 ? "…" : ""}
                       </p>
-                      <strong>{amount(p.price)} تومان</strong>
+                      <strong><Money toman={p.price}/></strong>
                       <a href={`/shop/${p.id}`}>مشخصات کامل و شرایط خرید ←</a>
                       <AddToCart id={p.id} stock={p.stock} />
                     </article></Localized>

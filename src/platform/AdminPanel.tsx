@@ -1148,6 +1148,10 @@ export function Settings({
                   ["site_contact", "اطلاعات تماس"],
                   ["site_email", "ایمیل رسمی ارتباط با ما"],
                   ["site_ceo_name", "نام مدیرعامل"],
+                  ["fx_source_url", "نشانی سرویس نرخ ارز (همراه کلید API)"],
+                  ["fx_source_path", "مسیر نرخ دلار در پاسخ سرویس، مثل usd_sell.value"],
+                  ["fx_source_unit", "واحد نرخ سرویس: rial یا toman"],
+                  ["fx_usd_manual", "نرخ دستی دلار به ریال (پشتیبان)"],
                 ],
               },
               {
