@@ -1,0 +1,44 @@
+/* Homa brand tokens: organisational colours and Persian typeface.
+   Change --homa-dark-bg to #0E2C47 for the alternative navy dark theme;
+   every dark surface below is derived from it. */
+:root {
+  --homa-light-bg: #efeae5;
+  --homa-dark-bg: #2f3847;
+  --homa-dark-deep: color-mix(in srgb, var(--homa-dark-bg) 82%, #000);
+  --homa-dark-surface: color-mix(in srgb, var(--homa-dark-bg) 94%, #fff);
+  --homa-dark-raised: color-mix(in srgb, var(--homa-dark-bg) 88%, #fff);
+  --homa-dark-line: color-mix(in srgb, var(--homa-dark-bg) 76%, #fff);
+  --homa-dark-line-strong: color-mix(in srgb, var(--homa-dark-bg) 64%, #fff);
+  /* Licensed brand fonts first; Vazirmatn remains the bundled fallback. */
+  --font-fa: "Farhang", "IRANSharp", "Vazirmatn";
+}
+@font-face {
+  font-family: "Farhang";
+  src: local("Farhang"), url("/fonts/farhang/Farhang-Regular.woff2") format("woff2");
+  font-weight: 100 450;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Farhang";
+  src: local("Farhang Bold"), url("/fonts/farhang/Farhang-Bold.woff2") format("woff2");
+  font-weight: 451 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IRANSharp";
+  src: local("IRANSharp"), url("/fonts/iransharp/IRANSharp-Regular.woff2") format("woff2");
+  font-weight: 100 450;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IRANSharp";
+  src: local("IRANSharp Bold"), url("/fonts/iransharp/IRANSharp-Bold.woff2") format("woff2");
+  font-weight: 451 900;
+  font-display: swap;
+}
+html[data-theme="light"] body {
+  background: var(--homa-light-bg);
+}
+html[data-theme="dark"] body {
+  background: var(--homa-dark-bg);
+}

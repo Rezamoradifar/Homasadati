@@ -4,6 +4,7 @@ import {direction,loadDictionary} from '../src/i18n/core';
 import {all} from '../src/platform/schema';
 import {SiteSettingsProvider} from '../src/platform/SiteSettings';
 export const dynamic='force-dynamic';
+import './brand.css';
 import './globals.css';
 import './collections.css';
 import './theme.css';

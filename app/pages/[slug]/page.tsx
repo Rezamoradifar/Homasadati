@@ -18,7 +18,7 @@ export default async function ContentPage({
     <Localized><main
       dir="rtl"
       style={{
-        fontFamily: "Vazirmatn",
+        fontFamily: "var(--font-fa)",
         maxWidth: 900,
         margin: "50px auto",
         padding: 25,

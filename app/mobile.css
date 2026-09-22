@@ -110,7 +110,7 @@ html .shop-product h1 {
 html[data-theme="dark"] .collection-rail img,
 html[data-theme="dark"] .shop-card img,
 html[data-theme="dark"] .shop-product > div > img {
-  background: #253632;
+  background: var(--homa-dark-raised);
 }
 @media (max-width: 1000px) {
   html .world-grid {
@@ -271,8 +271,8 @@ html .theme-thumb {
 }
 html .theme-toggle[aria-pressed="true"] .theme-thumb {transform: translateX(20px);background:#cfb57b;}
 html .theme-label {font-size:12px;line-height:1;}
-html[data-theme="dark"] .theme-toggle {background:#193b34;color:#f3ead3;}
-html[data-theme="dark"] .theme-track {background:#102722;}
+html[data-theme="dark"] .theme-toggle {background:var(--homa-dark-raised);color:#f3ead3;}
+html[data-theme="dark"] .theme-track {background:var(--homa-dark-bg);}
 html .site-language-picker select {min-height:44px;max-width:110px;border:1px solid #a9905c70;border-radius:8px;background:transparent;color:inherit;padding:6px;font:inherit;font-size:14px;}
 html .registration-preferences {display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:20px;}
 html .privilege-card, html .travel-credit-card .privilege-card {grid-template-rows:auto 1fr auto auto;aspect-ratio:auto;min-height:250px;gap:9px;}
@@ -280,10 +280,10 @@ html .privilege-card.rank-jade {--card-base:#6a3427;--card-glow:#b8784e;--card-f
 html .privilege-card.rank-forest {--card-base:#102e22;--card-glow:#315d42;--card-foil:#f3e6c5;}
 html .privilege-price {display:grid;gap:3px;border-top:1px solid #e4cfa533;padding-top:9px;}
 html .privilege-price small {font-size:9px;opacity:.85;}
-html .privilege-price strong {font-family:Vazirmatn,Manrope,sans-serif;font-size:clamp(17px,1.6vw,24px);line-height:1.35;white-space:nowrap;}
+html .privilege-price strong {font-family:var(--font-fa),Manrope,sans-serif;font-size:clamp(17px,1.6vw,24px);line-height:1.35;white-space:nowrap;}
 html .privilege-price strong > span {font-size:11px;font-weight:400;}
 html .privilege-bottom {gap:8px;}
-html .site-header .brand small {font-family:Vazirmatn,Manrope,sans-serif;letter-spacing:0;font-size:12px;}
+html .site-header .brand small {font-family:var(--font-fa),Manrope,sans-serif;letter-spacing:0;font-size:12px;}
 html[dir="ltr"] .registration-shell,html[dir="ltr"] .portal {direction:ltr;}
 html[dir="ltr"] .registration-story {text-align:left;}
 html .commerce-header > div {display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
@@ -348,7 +348,7 @@ html .portal-toplinks {flex-wrap:wrap;max-width:100%;}
 html .portal-toplinks .site-language-picker {color:#173d34;}
 html .portal-toplinks .site-language-picker select {color:#173d34;}
 @media(max-width:700px){html .portal-header {align-items:flex-start;gap:16px;}html .portal-toplinks {width:100%;gap:12px;}html .portal-toplinks>a,html .portal-toplinks>button {min-height:44px;display:inline-flex;align-items:center;}}
-html[data-theme=dark] .portal .portal-notice {background:#233c38;color:#e3e9df;border-color:#c8a95e;}
+html[data-theme=dark] .portal .portal-notice {background:var(--homa-dark-raised);color:#e3e9df;border-color:#c8a95e;}
 
 /* Company information and source documents retain readable, uncropped frames. */
 html .company-page {max-width:1200px;padding-block:48px 72px;line-height:2;}
@@ -377,7 +377,7 @@ html .license-copy dl {display:grid;gap:6px;margin-block:22px;}
 html .license-copy dt {font-weight:700;}
 html .license-copy dd {margin:0 0 12px;overflow-wrap:anywhere;}
 html .license-number {display:block;font-size:42px;line-height:1.4;color:#a9905c;font-family:Manrope,sans-serif;}
-html[data-theme=dark] :is(.company-contact-panel,.management-panel,.license-card){background:#192e2e;color:#e9ede5;border-color:#52665b;}
+html[data-theme=dark] :is(.company-contact-panel,.management-panel,.license-card){background:var(--homa-dark-surface);color:#e9ede5;border-color:var(--homa-dark-line-strong);}
 html[data-theme=dark] .company-brand {color:#e6c67f;}
 html .craft-editorial {grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);}
 html .craft-visual,html .craft-story {min-width:0;}

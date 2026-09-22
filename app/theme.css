@@ -8,7 +8,7 @@
   border-radius: 24px;
   padding: 8px 12px;
   font:
-    500 12px "Vazirmatn",
+    500 12px var(--font-fa),
     sans-serif;
   white-space: nowrap;
   cursor: pointer;
@@ -20,14 +20,14 @@
 html[data-theme="dark"] {
   color-scheme: dark;
   --ink: #eee7d7;
-  --paper: #101c1d;
-  --line: #344443;
+  --paper: var(--homa-dark-bg);
+  --line: var(--homa-dark-line);
   --muted: #b6c6bf;
 }
 html[data-theme="dark"] body,
 html[data-theme="dark"] .commerce,
 html[data-theme="dark"] .portal {
-  background: #101c1d;
+  background: var(--homa-dark-bg);
   color: #eee7d7;
 }
 html[data-theme="dark"]
@@ -43,9 +43,9 @@ html[data-theme="dark"]
     .heritage-grid article,
     .experience-dialog
   ) {
-  background: #172728;
+  background: var(--homa-dark-surface);
   color: #eee7d7;
-  border-color: #40514b;
+  border-color: var(--homa-dark-line);
 }
 html[data-theme="dark"]
   :is(
@@ -62,7 +62,7 @@ html[data-theme="dark"]
     .shop-main,
     .cart-main
   ) {
-  background: #101c1d;
+  background: var(--homa-dark-bg);
   color: #eee7d7;
 }
 html[data-theme="dark"]
@@ -96,9 +96,9 @@ html[data-theme="dark"]
     .registration input:not([type="checkbox"]),
     .registration select
   ) {
-  background: #112022;
+  background: var(--homa-dark-deep);
   color: #f3ead9;
-  border-color: #5f746b;
+  border-color: var(--homa-dark-line-strong);
 }
 html[data-theme="dark"]
   :is(
@@ -109,7 +109,7 @@ html[data-theme="dark"]
     .shop-card,
     .cart-item
   ) {
-  background: #1b3031;
+  background: var(--homa-dark-surface);
   color: #eee7d7;
 }
 html[data-theme="dark"] .registration a,
@@ -117,14 +117,14 @@ html[data-theme="dark"] .commerce .brand-chapter a:not(.commerce-button) {
   color: #e6c687;
 }
 html[data-theme="dark"] .commerce-footer {
-  background: #071617;
+  background: var(--homa-dark-deep);
 }
 html[data-theme="dark"] .portal-table th,
 html[data-theme="dark"] .portal-table td {
-  border-color: #3b5147;
+  border-color: var(--homa-dark-line);
 }
 html[data-theme="dark"] .portal-card fieldset {
-  border-color: #4b6156;
+  border-color: var(--homa-dark-line-strong);
 }
 html[data-theme="dark"] .registration legend {
   color: #dabe82;
@@ -156,7 +156,7 @@ html[data-theme="dark"]
     .commerce-form,
     .commerce-empty
   ) {
-  background: #182b2b;
+  background: var(--homa-dark-surface);
   color: #eee7d7;
 }
 html[data-theme="dark"]
@@ -168,26 +168,26 @@ html[data-theme="dark"] .commerce .story-source {
   color: #dec18b !important;
 }
 /* Surfaces and their text must switch together; avoid pale text on light panels. */
-html[data-theme=dark] :is(.journey-detail,.club-banner,.destination-picker button,.mobile-nav,.request-review,.experience-options button,.shop-empty,.shop-error,.shop-notice,.cart-row,.product-specs>div,.portal-dialog,.portal-auth,.portal-empty,.portal-table th,.portal-table tr,.portal-tree-node,.registration,.rank-description){background:#192e2e;color:#e9ede5;border-color:#405956}
+html[data-theme=dark] :is(.journey-detail,.club-banner,.destination-picker button,.mobile-nav,.request-review,.experience-options button,.shop-empty,.shop-error,.shop-notice,.cart-row,.product-specs>div,.portal-dialog,.portal-auth,.portal-empty,.portal-table th,.portal-table tr,.portal-tree-node,.registration,.rank-description){background:var(--homa-dark-surface);color:#e9ede5;border-color:var(--homa-dark-line-strong)}
 html[data-theme=dark] :is(.journey-detail h3,.journey-detail p,.club-heading h2,.club-description,.club-perks p,.destination-picker button,.business-partnership>div:last-child,.editorial-link,.studio-services button,.gallery-heading button,.faq-items p,.portal-muted,.product-specs dt,.income-rates dd,.registration legend){color:#d1dcd4}
-html[data-theme=dark] :is(.destination-picker button[aria-pressed=true],.portal-nav button.active){background:#2c514a;color:#fff1ca}
+html[data-theme=dark] :is(.destination-picker button[aria-pressed=true],.portal-nav button.active){background:var(--homa-dark-line);color:#fff1ca}
 html[data-theme=dark] :is(.eyebrow,.heritage-card-copy small,.chapter-number,.commerce-eyebrow,.journal-edition){color:#d9bb80}
 html[data-theme=dark] :is(.shop-error,.portal-error){color:#ffc6bd;background:#422d2c;border-color:#995c55}
-html[data-theme=dark] :is(.portal-success,.shop-notice){color:#ccefd5;background:#203e32}
-html[data-theme=dark] .shop-card .no-image{background:#293d3b;color:#cad7cf}
+html[data-theme=dark] :is(.portal-success,.shop-notice){color:#ccefd5;background:var(--homa-dark-raised)}
+html[data-theme=dark] .shop-card .no-image{background:var(--homa-dark-raised);color:#cad7cf}
 html[data-theme=light]{color-scheme:light}
-html[data-theme=dark] :is(.portal-heading,.portal-stat,.portal-tabs,.portal-profile,.portal-report,.portal-tree,.portal-nav,.portal-toolbar,.portal-pagination,.portal-form fieldset){background-color:#192e2e;color:#e9ede5;border-color:#425e56}
-html[data-theme=dark] :is(.portal-button:not(.gold):not(.danger),.portal-table button){background:#294940;color:#edf2e9;border-color:#5f776b}
+html[data-theme=dark] :is(.portal-heading,.portal-stat,.portal-tabs,.portal-profile,.portal-report,.portal-tree,.portal-nav,.portal-toolbar,.portal-pagination,.portal-form fieldset){background-color:var(--homa-dark-surface);color:#e9ede5;border-color:var(--homa-dark-line-strong)}
+html[data-theme=dark] :is(.portal-button:not(.gold):not(.danger),.portal-table button){background:var(--homa-dark-line);color:#edf2e9;border-color:var(--homa-dark-line-strong)}
 html[data-theme=dark] :is(.portal-card small,.portal-stat span,.portal-heading p,.portal-form label,.portal-form legend){color:#c9d8cd}
 html[data-theme=dark] .portal-table :is(th,td){color:#e4eae3}
 
 /* Complete light/dark surface pairs, including editorial panels and nested labels. */
-html[data-theme=dark] :is(.brand-introduction,.travel-collection,.club-preview,.international-section,.enquiry-process,.gallery-section){background:#101c1d;color:#eee7d7}
-html[data-theme=dark] :is(.beauty-editorial,.business-partnership,.journey-detail,.destination-picker){background:#192e2e;color:#eee7d7}
+html[data-theme=dark] :is(.brand-introduction,.travel-collection,.club-preview,.international-section,.enquiry-process,.gallery-section){background:var(--homa-dark-bg);color:#eee7d7}
+html[data-theme=dark] :is(.beauty-editorial,.business-partnership,.journey-detail,.destination-picker){background:var(--homa-dark-surface);color:#eee7d7}
 html[data-theme=dark] :is(.world-copy,.world-copy h3,.world-number,.section-heading>p,.gallery-heading h2,.gallery-heading p,.international-section p,.journal-grid h3,.section-index,.intro-narrative>p,.craft-story>p,.beauty-editorial p,.business-partnership p,.enquiry-process p,.journey-detail>small,.mobile-nav button,.text-button,.faq-items summary){color:#d3ded5}
 html[data-theme=dark] :is(.world-copy .round-arrow,.destination-picker button){border-color:#789083;color:#e6ce9e}
-html[data-theme=dark] .brand-home-links .store-home-link{background:#294940;color:#f0ddaf}
+html[data-theme=dark] .brand-home-links .store-home-link{background:var(--homa-dark-deep);color:#f0ddaf}
 html[data-theme=dark] .commerce :is(.shop-heading p,.shop-card p,.product-detail p,.cart-summary p){color:#d3ded5}
-html[data-theme=dark] :is(.faq-items details,.enquiry-process article,.studio-services button){border-color:#536b61}
-html[data-theme=dark] :is(.collection-nav button,.gallery-play){background:#294940;color:#fff2d7}
-html[data-theme=dark] .landing-footer[data-variant=editorial] :is(input,select){background:#203c32;color:#f3ead9;border-color:#718474}
+html[data-theme=dark] :is(.faq-items details,.enquiry-process article,.studio-services button){border-color:var(--homa-dark-line-strong)}
+html[data-theme=dark] :is(.collection-nav button,.gallery-play){background:var(--homa-dark-line);color:#fff2d7}
+html[data-theme=dark] .landing-footer[data-variant=editorial] :is(input,select){background:var(--homa-dark-raised);color:#f3ead9;border-color:#718474}
