@@ -69,7 +69,6 @@ export default function Registration({
     [cooldown, setCooldown] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   const sendCaptcha = useCaptcha("otp"),
-    verifyCaptcha = useCaptcha("verify_email"),
     registerCaptcha = useCaptcha("register");
   useEffect(() => {
     const ref = new URLSearchParams(window.location.search).get("ref");
@@ -155,7 +154,7 @@ export default function Registration({
   }
   async function verifyEmail(e: FormEvent) {
     e.preventDefault();
-    if (busy || !verifyCaptcha.ready) return;
+    if (busy) return;
     setBusy(true);
     setError("");
     try {
@@ -163,7 +162,6 @@ export default function Registration({
         target: form.target,
         challenge,
         code: form.code,
-        captchaToken: verifyCaptcha.token,
       });
       setEnrollment(r);
       setStep(1);
@@ -173,7 +171,6 @@ export default function Registration({
     } catch (e) {
       fail(e);
     } finally {
-      verifyCaptcha.reset();
       setBusy(false);
     }
   }
@@ -355,12 +352,11 @@ export default function Registration({
                         }
                       />
                     </label>
-                    {verifyCaptcha.element}
                     <div className="auth-actions">
                       <button
                         className="portal-button"
                         disabled={
-                          busy || !verifyCaptcha.ready || form.code.length !== 6
+                          busy || form.code.length !== 6
                         }
                       >
                         {method === "sms" ? "تأیید موبایل و ادامه" : "تأیید ایمیل و ادامه"}

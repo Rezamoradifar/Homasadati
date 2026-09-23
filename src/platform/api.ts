@@ -475,7 +475,9 @@ async function auth(req: Request, path: string[], data: Row) {
   if (action === "verify-email" || action === "verify-contact") {
     const d = verifyEmailSchema.parse(data);
     if (action === "verify-email") registrationEmail.parse(d.target);
-    await verifyCaptcha(d.captchaToken, "verify_email");
+    // No captcha here: the code itself was sent behind one, allows five tries
+    // and expires in five minutes; the IP limit stops wide guessing.
+    limit("verify-email:" + ipOf(req), 20, 300);
     consumeOtp(d.challenge, d.target, "register", d.code);
     if (activeUser(d.target)) throw new ApiError(409, "account_exists");
     return json(beginEnrollment(d.target));
