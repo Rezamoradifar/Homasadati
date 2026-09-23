@@ -58,7 +58,7 @@ export async function verifyCaptcha(token: unknown, action: string) {
     if (!response.ok) throw new Error("provider");
     result = await response.json();
   } catch {
-    throw new ApiError(502, "captcha_unavailable");
+    throw new ApiError(503, "captcha_unavailable");
   }
   const age = Date.now() - Date.parse(result.challenge_ts);
   if (

@@ -103,7 +103,7 @@ export async function maintenance() {
             text: job.body,
           }),
         });
-        if (!response.id) throw new ApiError(502, "provider_rejected");
+        if (!response.id) throw new ApiError(503, "provider_rejected");
       } else {
         const key = setting("kavenegar_key"),
           sender = setting("sms_sender");
@@ -121,7 +121,7 @@ export async function maintenance() {
           },
         );
         if (response.return?.status !== 200)
-          throw new ApiError(502, "provider_rejected");
+          throw new ApiError(503, "provider_rejected");
       }
       run(
         "UPDATE p_outbox SET status='sent',last_error=NULL WHERE id=?",

@@ -31,9 +31,9 @@ export async function providerFetch(url: string, init: RequestInit) {
       redirect: "error",
     });
   } catch {
-    throw new ApiError(502, "provider_unavailable");
+    throw new ApiError(503, "provider_unavailable");
   }
-  if (!response.ok) throw new ApiError(502, "provider_rejected");
+  if (!response.ok) throw new ApiError(503, "provider_rejected");
   return response.json();
 }
 export async function sendOtp(target: string, purpose: string, locale: SiteLocale = "fa") {
@@ -78,7 +78,7 @@ export async function sendOtp(target: string, purpose: string, locale: SiteLocal
           text: translateText(`کد تأیید هما نت: ${code}\nاعتبار: ۵ دقیقه. این کد را در اختیار دیگران قرار ندهید.`, locale, dictionary),
         }),
       });
-      if (!result.id) throw new ApiError(502, "provider_rejected");
+      if (!result.id) throw new ApiError(503, "provider_rejected");
     } else {
       const key = setting("kavenegar_key"),
         template = setting("sms_template");
@@ -96,7 +96,7 @@ export async function sendOtp(target: string, purpose: string, locale: SiteLocal
         },
       );
       if (result.return?.status !== 200)
-        throw new ApiError(502, "provider_rejected");
+        throw new ApiError(503, "provider_rejected");
     }
   } catch (e) {
     run("UPDATE p_otp SET used=1 WHERE id=?", id);
@@ -123,7 +123,7 @@ export async function paymentRequest(orderId: string, amount: number) {
     },
   );
   if (r.data?.code !== 100 || typeof r.data?.authority !== "string")
-    throw new ApiError(502, "provider_rejected");
+    throw new ApiError(503, "provider_rejected");
   return r.data.authority as string;
 }
 export async function verifyPayment(authority: string, amount: number) {
