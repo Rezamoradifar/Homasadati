@@ -533,3 +533,20 @@ html .commerce-menu-toggle, html .commerce-menu-button {display:none;}
  html body .utility-bar {flex-wrap:nowrap;overflow-x:auto;gap:14px;white-space:nowrap;scrollbar-width:none;}
  html body .utility-bar > div {flex-wrap:nowrap;gap:14px;}
 }
+
+/* Phones: calmer image heights and swipeable card rows */
+@media (max-width:700px){
+ html body .hero {height:560px;}
+ html body .craft-visual>img, html body .brand-hero.craft>img {height:280px;max-height:none;object-fit:cover;}
+ html body .craft-story>img {height:150px;}
+ html body .beauty-editorial>img {height:240px;}
+ html body .journey-image, html body .journey-image>img {height:220px;min-height:0;}
+ html body .journal-image {height:200px;}
+ html body .international-photo {height:200px;}
+ html body .world-card>img {height:170px;}
+ html body .club-banner, html body [dir=rtl] .club-banner {padding-top:230px;}
+ html body .club-photo {height:210px;}
+ html body .brand-hero.tourism {min-height:440px;padding-bottom:70px;}
+ html body .club-preview-grid, html body .rank-grid {display:flex!important;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding-bottom:10px;scrollbar-width:thin;}
+ html body .club-preview-grid > *, html body .rank-grid > * {flex:0 0 84%;min-width:0;scroll-snap-align:center;}
+}
