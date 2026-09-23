@@ -104,26 +104,66 @@ export async function sendOtp(target: string, purpose: string, locale: SiteLocal
   }
   return { challenge: id, expiresIn: 300, retryAfter: 60 };
 }
-export async function paymentRequest(orderId: string, amount: number) {
+/** Every gateway call is written to p_gateway_transactions: requests,
+ * verified payments (bank reference, masked card, fee), failures and
+ * cancellations, so finance can reconcile against the gateway report. */
+function logGateway(fields: Record<string, unknown> & { id?: string; authority?: string }) {
+  const at = now();
+  if (fields.authority && one("SELECT id FROM p_gateway_transactions WHERE authority=?", fields.authority)) {
+    const keys = Object.keys(fields).filter((k) => k !== "authority" && k !== "id");
+    run(
+      `UPDATE p_gateway_transactions SET ${keys.map((k) => k + "=?").join(",")},updated_at=? WHERE authority=?`,
+      ...keys.map((k) => fields[k] as never),
+      at,
+      fields.authority,
+    );
+    return;
+  }
+  const row = { id: randomUUID(), gateway: "zarinpal", ...fields, created_at: at, updated_at: at };
+  const keys = Object.keys(row);
+  run(
+    `INSERT INTO p_gateway_transactions(${keys.join(",")}) VALUES(${keys.map(() => "?").join(",")})`,
+    ...keys.map((k) => (row as Record<string, unknown>)[k] as never),
+  );
+}
+export function logGatewayCancel(authority: string, code: string) {
+  if (one("SELECT status FROM p_gateway_transactions WHERE authority=?", authority)?.status === "requested")
+    logGateway({ authority, status: "cancelled", code });
+}
+export async function paymentRequest(
+  orderId: string,
+  amount: number,
+  ref: { kind: "order" | "checkout"; userId: string } = { kind: "order", userId: "" },
+) {
   const merchant = setting("zarinpal_merchant");
   const origin = process.env.APP_ORIGIN;
   if (!merchant || !origin || !origin.startsWith("https://"))
     throw new ApiError(503, "payment_not_configured");
-  const r = await providerFetch(
-    "https://payment.zarinpal.com/pg/v4/payment/request.json",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        merchant_id: merchant,
-        amount: amount * 10,
-        description: `Homanet ${orderId}`,
-        callback_url: `${origin}/api/platform/payment/callback`,
-      }),
-    },
-  );
-  if (r.data?.code !== 100 || typeof r.data?.authority !== "string")
+  const base = { ref_kind: ref.kind, ref_id: orderId, user_id: ref.userId || null, amount };
+  let r;
+  try {
+    r = await providerFetch(
+      "https://payment.zarinpal.com/pg/v4/payment/request.json",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant_id: merchant,
+          amount: amount * 10,
+          description: `Homanet ${orderId}`,
+          callback_url: `${origin}/api/platform/payment/callback`,
+        }),
+      },
+    );
+  } catch (e) {
+    logGateway({ ...base, status: "request_failed", code: e instanceof ApiError ? e.code : "error" });
+    throw e;
+  }
+  if (r.data?.code !== 100 || typeof r.data?.authority !== "string") {
+    logGateway({ ...base, status: "request_failed", code: String(r.data?.code ?? r.errors?.code ?? "invalid") });
     throw new ApiError(503, "provider_rejected");
+  }
+  logGateway({ ...base, authority: r.data.authority, status: "requested", code: "100" });
   return r.data.authority as string;
 }
 export async function verifyPayment(authority: string, amount: number) {
@@ -141,7 +181,17 @@ export async function verifyPayment(authority: string, amount: number) {
       }),
     },
   );
-  if (![100, 101].includes(r.data?.code) || !r.data?.ref_id)
+  if (![100, 101].includes(r.data?.code) || !r.data?.ref_id) {
+    logGateway({ authority, status: "failed", code: String(r.data?.code ?? r.errors?.code ?? "invalid") });
     throw new ApiError(409, "payment_unverified");
+  }
+  logGateway({
+    authority,
+    status: "paid",
+    bank_reference: String(r.data.ref_id),
+    card_pan: typeof r.data.card_pan === "string" ? r.data.card_pan.slice(0, 19) : null,
+    fee: Number.isFinite(Number(r.data.fee)) ? Math.round(Number(r.data.fee) / 10) : null,
+    code: String(r.data.code),
+  });
   return String(r.data.ref_id);
 }

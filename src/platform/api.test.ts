@@ -116,7 +116,7 @@ beforeAll(() => {
       }
       if (url.includes("verify.json")) {
         expect(payload.amount).toBe(1000000);
-        return Response.json({ data: { code: 100, ref_id: 123456789 } });
+        return Response.json({ data: { code: 100, ref_id: 123456789, card_pan: "502229******5995", fee: 25000 } });
       }
       throw new Error("Unexpected provider endpoint");
     }),
@@ -214,11 +214,18 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
       buyer,
     );
     expect(payment.status).toBe(200);
-    const callback = await request("payment/callback?Authority=" + authority);
-    expect(callback.status).toBe(303);
     expect(
-      (await request("payment/callback?Authority=" + authority)).status,
+      one("SELECT status,ref_kind,user_id FROM p_gateway_transactions WHERE authority=?", authority),
+    ).toMatchObject({ status: "requested", ref_kind: "order" });
+    const callback = await request("payment/callback?Authority=" + authority + "&Status=OK");
+    expect(callback.status).toBe(303);
+    expect(callback.headers.get("location")).toContain("payment=paid");
+    expect(
+      (await request("payment/callback?Authority=" + authority + "&Status=OK")).status,
     ).toBe(303);
+    expect(
+      one("SELECT status,bank_reference,card_pan,fee FROM p_gateway_transactions WHERE authority=?", authority),
+    ).toEqual({ status: "paid", bank_reference: "123456789", card_pan: "502229******5995", fee: 2500 });
     expect(
       one("SELECT COUNT(*) n FROM p_commissions WHERE order_id=?", orderId)!.n,
     ).toBe(1);

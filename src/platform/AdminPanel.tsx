@@ -836,6 +836,28 @@ export function AdminWithdrawals({
     <Localized>
       <>
         <AdminPayoutProfiles refresh={refresh} onChange={onChange} />
+        <div className="portal-card">
+          <h2>تراکنش‌های درگاه بانکی</h2>
+          <p>
+            همهٔ درخواست‌های پرداخت، پرداخت‌های تأییدشده، ناموفق و لغوشده؛ برای
+            تطبیق با گزارش درگاه از شمارهٔ پیگیری بانکی استفاده کنید.
+          </p>
+          <Listing
+            endpoint="admin/gateway-transactions"
+            refresh={refresh}
+            filters={{ dates: true, statuses: ["requested", "paid", "failed", "cancelled", "request_failed"] }}
+            columns={[
+              ["name", "کاربر"],
+              ["amount", "مبلغ", "money"],
+              ["status", "وضعیت", "status"],
+              ["bank_reference", "شمارهٔ پیگیری بانکی"],
+              ["card_pan", "کارت پرداخت‌کننده"],
+              ["fee", "کارمزد", "money"],
+              ["ref_kind", "بابت", "status"],
+              ["created_at", "تاریخ", "date"],
+            ]}
+          />
+        </div>
         <Listing
           endpoint="admin/withdrawals"
           refresh={refresh}

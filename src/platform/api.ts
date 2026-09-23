@@ -109,6 +109,7 @@ import {
   policy,
   paymentRequest,
   verifyPayment,
+  logGatewayCancel,
 } from "./providers";
 import {
   createOrder,
@@ -1057,6 +1058,14 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     });
     return json({ ok: true });
   }
+  if (resource === "gateway-transactions" && get)
+    return json(
+      paged(
+        "SELECT g.id,g.gateway,g.authority,g.ref_kind,g.ref_id,g.amount,g.status,g.bank_reference,g.card_pan,g.fee,g.code,g.created_at,g.updated_at,u.name FROM p_gateway_transactions g LEFT JOIN p_users u ON u.id=g.user_id WHERE (?='' OR g.status=?) AND (?='' OR u.name LIKE ? OR g.bank_reference=? OR g.authority=?) AND g.created_at>=? AND g.created_at<=? ORDER BY g.created_at DESC",
+        [q.status, q.status, q.q, "%" + q.q + "%", q.q, q.q, q.from, q.to],
+        q.page,
+      ),
+    );
   if (resource === "payout-profiles") {
     if (get) return json({ rows: payoutProfiles(q.status || "") });
     const d = z
@@ -1390,30 +1399,35 @@ export async function handle(req: Request, path: string[]) {
         .min(10)
         .max(100)
         .parse(url.searchParams.get("Authority"));
+      const back = (result: string) =>
+        Response.redirect(
+          new URL("/account?tab=orders&payment=" + result, process.env.APP_ORIGIN!),
+          303,
+        );
       const checkout = one(
         "SELECT * FROM p_checkouts WHERE authority=?",
         authority,
       );
-      if (checkout) {
-        if (checkout.status !== "paid") {
-          const ref = await verifyPayment(authority, checkout.amount);
-          settleCheckout(checkout.id, ref);
-        }
-        return Response.redirect(
-          new URL("/account?tab=orders", process.env.APP_ORIGIN!),
-          303,
-        );
+      const order = checkout
+        ? undefined
+        : one("SELECT * FROM p_orders WHERE authority=?", authority);
+      if (!checkout && !order) throw new ApiError(404, "not_found");
+      const alreadyPaid = checkout ? checkout.status === "paid" : !!order!.paid_at;
+      if (alreadyPaid) return back("paid");
+      // The member pressed cancel at the bank, or the bank declined the card.
+      if (url.searchParams.get("Status") !== "OK") {
+        logGatewayCancel(authority, String(url.searchParams.get("Status") || "NOK").slice(0, 20));
+        return back("cancelled");
       }
-      const order = one("SELECT * FROM p_orders WHERE authority=?", authority);
-      if (!order) throw new ApiError(404, "not_found");
-      if (!order.paid_at) {
-        const ref = await verifyPayment(authority, order.amount);
-        settleOrder(order.id, ref);
+      try {
+        const ref = await verifyPayment(authority, checkout ? checkout.amount : order!.amount);
+        if (checkout) settleCheckout(checkout.id, ref);
+        else settleOrder(order!.id, ref);
+      } catch (e) {
+        if (e instanceof ApiError && e.code === "payment_unverified") return back("failed");
+        throw e;
       }
-      return Response.redirect(
-        new URL("/account?tab=orders", process.env.APP_ORIGIN!),
-        303,
-      );
+      return back("paid");
     }
     if (path.join("/") === "cart/quote" && method === "POST") {
       limit("cart-quote:" + ipOf(req), 100, 300);
@@ -1883,7 +1897,7 @@ export async function handle(req: Request, path: string[]) {
         )
           throw new ApiError(409, "payment_request_in_progress");
         try {
-          const authority = await paymentRequest(order.id, order.amount);
+          const authority = await paymentRequest(order.id, order.amount, { kind: "order", userId: order.user_id });
           if (
             !run(
               "UPDATE p_orders SET authority=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
@@ -1956,6 +1970,14 @@ export async function handle(req: Request, path: string[]) {
         201,
       );
     }
+    if (path[0] === "payments" && get)
+      return json(
+        paged(
+          "SELECT id,ref_kind,amount,status,bank_reference,card_pan,created_at FROM p_gateway_transactions WHERE user_id=? ORDER BY created_at DESC",
+          [u.id],
+          q.page,
+        ),
+      );
     if (path[0] === "payout-profile") {
       if (get) return json({ profile: payoutProfileView(u.id) });
       const d = payoutProfileSchema.parse(data);

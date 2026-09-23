@@ -143,6 +143,10 @@ export async function api(path: string, method = "GET", data?: unknown) {
 export const amount = (n: unknown) => Number(n ?? 0).toLocaleString("fa-IR");
 export const date = formatDate;
 export const labels: Record<string, string> = {
+  failed: "ناموفق",
+  request_failed: "خطا در اتصال به درگاه",
+  order: "سفارش",
+  checkout: "سبد خرید",
   waiting_support: "در انتظار پشتیبانی",
   waiting_user: "در انتظار کاربر",
   closed: "بسته‌شده",

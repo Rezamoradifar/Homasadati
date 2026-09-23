@@ -2661,5 +2661,17 @@
   "موجود": "In stock",
   "· افزوده‌شده در": "· Added on",
   "خرید": "Buy",
-  "هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌اید. در بخش خرید، روی «افزودن به علاقه‌مندی‌ها» بزنید.": "You haven't added anything to your wishlist yet. In the shop, tap “Add to wishlist”."
+  "هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌اید. در بخش خرید، روی «افزودن به علاقه‌مندی‌ها» بزنید.": "You haven't added anything to your wishlist yet. In the shop, tap “Add to wishlist”.",
+  "تراکنش‌های درگاه بانکی": "Payment gateway transactions",
+  "همهٔ درخواست‌های پرداخت، پرداخت‌های تأییدشده، ناموفق و لغوشده؛ برای تطبیق با گزارش درگاه از شمارهٔ پیگیری بانکی استفاده کنید.": "Every payment request plus verified, failed and cancelled payments; use the bank reference number to reconcile with the gateway report.",
+  "شمارهٔ پیگیری بانکی": "Bank reference number",
+  "کارت پرداخت‌کننده": "Paying card",
+  "کارمزد": "Fee",
+  "بابت": "For",
+  "پرداخت با موفقیت تأیید شد و سفارش ثبت شد.": "Payment verified and your order is placed.",
+  "پرداخت لغو شد یا از سوی بانک انجام نشد و سفارش پرداخت‌نشده باقی ماند. اگر مبلغی کسر شده باشد، بانک آن را حداکثر ظرف ۷۲ ساعت برمی‌گرداند. می‌توانید دوباره پرداخت کنید.": "The payment was cancelled or not completed by the bank, and the order stays unpaid. If any amount was deducted, the bank returns it within 72 hours. You can pay again.",
+  "تأیید پرداخت از سوی درگاه انجام نشد. اگر مبلغ از حساب شما کسر شده، طبق قوانین بانکی حداکثر ظرف ۷۲ ساعت برگشت داده می‌شود؛ در غیر این صورت با پشتیبانی تماس بگیرید.": "The gateway did not verify the payment. If the amount was deducted, it is returned within 72 hours under banking rules; otherwise contact support.",
+  "پرداخت‌های بانکی من": "My bank payments",
+  "ناموفق": "Failed",
+  "خطا در اتصال به درگاه": "Gateway connection error"
 }

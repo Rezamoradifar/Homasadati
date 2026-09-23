@@ -166,6 +166,10 @@ export function platformDb() {
   INSERT OR IGNORE INTO p_migrations VALUES(15,datetime('now'));
   CREATE TABLE IF NOT EXISTS p_wishlist(user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),created_at TEXT NOT NULL,PRIMARY KEY(user_id,product_id));
   INSERT OR IGNORE INTO p_migrations VALUES(16,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_gateway_transactions(id TEXT PRIMARY KEY,gateway TEXT NOT NULL,authority TEXT UNIQUE,ref_kind TEXT NOT NULL CHECK(ref_kind IN ('order','checkout')),ref_id TEXT NOT NULL,user_id TEXT REFERENCES p_users(id),amount INTEGER NOT NULL,status TEXT NOT NULL CHECK(status IN ('requested','request_failed','paid','failed','cancelled')),bank_reference TEXT,card_pan TEXT,fee INTEGER,code TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_gateway_transactions_user ON p_gateway_transactions(user_id,created_at);
+  CREATE INDEX IF NOT EXISTS p_gateway_transactions_status ON p_gateway_transactions(status,created_at);
+  INSERT OR IGNORE INTO p_migrations VALUES(17,datetime('now'));
 
   `);
   ready = d;

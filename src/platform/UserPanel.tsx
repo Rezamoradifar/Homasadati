@@ -328,8 +328,18 @@ export function Orders({
   const [selected, setSelected] = useState<RecordData | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  const [payment] = useState(() =>
+    typeof window === "undefined" ? "" : new URLSearchParams(location.search).get("payment") || "",
+  );
   return (
     <Localized><>
+      {payment === "paid" && <Notice success="پرداخت با موفقیت تأیید شد و سفارش ثبت شد." />}
+      {payment === "cancelled" && (
+        <Notice error="پرداخت لغو شد یا از سوی بانک انجام نشد و سفارش پرداخت‌نشده باقی ماند. اگر مبلغی کسر شده باشد، بانک آن را حداکثر ظرف ۷۲ ساعت برمی‌گرداند. می‌توانید دوباره پرداخت کنید." />
+      )}
+      {payment === "failed" && (
+        <Notice error="تأیید پرداخت از سوی درگاه انجام نشد. اگر مبلغ از حساب شما کسر شده، طبق قوانین بانکی حداکثر ظرف ۷۲ ساعت برگشت داده می‌شود؛ در غیر این صورت با پشتیبانی تماس بگیرید." />
+      )}
       <Listing
         endpoint="orders"
         refresh={refresh}
@@ -524,6 +534,20 @@ export function Wallet({
                 برداشت پس از تعیین حدود مالی توسط مدیر فعال می‌شود.
               </p>
             )}
+          </div>
+          <div className="portal-card">
+            <h2>پرداخت‌های بانکی من</h2>
+            <Listing
+              endpoint="payments"
+              refresh={refresh}
+              columns={[
+                ["amount", "مبلغ", "money"],
+                ["status", "وضعیت", "status"],
+                ["bank_reference", "شمارهٔ پیگیری بانکی"],
+                ["card_pan", "کارت"],
+                ["created_at", "تاریخ", "date"],
+              ]}
+            />
           </div>
           <div className="portal-card">
             <h2>تاریخچهٔ برداشت</h2>

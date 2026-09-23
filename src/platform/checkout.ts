@@ -171,7 +171,7 @@ export async function payCheckout(checkoutId: string, user: string) {
   )
     throw new ApiError(409, "payment_request_in_progress");
   try {
-    const authority = await paymentRequest(c.id, c.amount);
+    const authority = await paymentRequest(c.id, c.amount, { kind: "checkout", userId: c.user_id });
     if (
       !run(
         "UPDATE p_checkouts SET authority=?,claim=NULL WHERE id=? AND claim=? AND status='pending' AND expires_at>?",
