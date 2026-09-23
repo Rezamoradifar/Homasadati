@@ -6,6 +6,7 @@ import Localized from "../i18n/Localized";
 import { MemberDetails } from "./MemberDetails";
 import { MemberOverview } from "./MemberOverview";
 import { PayoutProfileCard } from "./PayoutProfileCard";
+import { ReferralCard } from "./ReferralCard";
 import { extendedCatalogFields } from "./catalog-fields";
 import { useRef, useState } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
@@ -538,8 +539,7 @@ export function Network({
   refresh: number;
 }) {
   const [root, setRootValue] = useState(user.id),
-    [page, setPage] = useState(1),
-    [copy, setCopy] = useState("");
+    [page, setPage] = useState(1);
   const setRoot = (id: string) => {
     setRootValue(id);
     setPage(1);
@@ -548,43 +548,20 @@ export function Network({
     (admin ? "admin/" : "") + "network?user=" + root + "&page=" + page,
     refresh,
   );
-  const link =
-    typeof window !== "undefined"
-      ? window.location.origin + "/account?ref=" + user.referral_code
-      : "";
   return (
     <Localized><>
-      <div className="portal-card">
-        <h2>{admin ? "مشاهدهٔ شبکه" : "دعوت به هما نت"}</h2>
-        {admin ? (
+      {admin ? (
+        <div className="portal-card">
+          <h2>مشاهدهٔ شبکه</h2>
           <Form
             fields={[{ name: "user", label: "شناسهٔ کاربر" }]}
             submit="نمایش شبکه"
             onSubmit={async (d) => setRoot(d.user)}
           />
-        ) : (
-          <>
-            <p>
-              کد معرف: <strong>{user.referral_code}</strong>
-            </p>
-            <div className="portal-code">{link}</div>
-            <button
-              className="portal-button"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(link);
-                  setCopy("لینک کپی شد.");
-                } catch {
-                  setCopy("کپی خودکار ممکن نشد؛ لینک را انتخاب و کپی کنید.");
-                }
-              }}
-            >
-              کپی لینک دعوت
-            </button>
-            <p role="status">{copy}</p>
-          </>
-        )}
-      </div>
+        </div>
+      ) : (
+        <ReferralCard refresh={refresh} />
+      )}
       <DataState state={s}>
         {(d) => (
           <Localized><div className="portal-card">

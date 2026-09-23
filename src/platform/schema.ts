@@ -161,6 +161,9 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_payout_profiles(user_id TEXT PRIMARY KEY REFERENCES p_users(id),data TEXT NOT NULL,national_hash TEXT NOT NULL UNIQUE,iban_last4 TEXT NOT NULL,card_last4 TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','verified','rejected')),reason TEXT NOT NULL DEFAULT '',reviewed_by TEXT REFERENCES p_users(id),reviewed_at TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
   CREATE INDEX IF NOT EXISTS p_payout_profiles_status ON p_payout_profiles(status,updated_at);
   INSERT OR IGNORE INTO p_migrations VALUES(14,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_referral_aliases(code TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),retired_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_referral_aliases_user ON p_referral_aliases(user_id,retired_at);
+  INSERT OR IGNORE INTO p_migrations VALUES(15,datetime('now'));
 
   `);
   ready = d;

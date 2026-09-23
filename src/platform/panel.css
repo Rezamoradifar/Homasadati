@@ -2088,3 +2088,13 @@ html[data-theme="dark"] .member-shortcuts svg {
   .network-tree-summary { grid-template-columns: 1fr; }
   .tree-node { width: 112px; }
 }
+.referral-code-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.referral-code-row span { display: block; font-size: 12px; opacity: .75; }
+.referral-code-row strong { font-size: 22px; letter-spacing: .5px; }
+.referral-state { border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; opacity: 1 !important; }
+.referral-state.on { background: var(--homa-green, #1e6444); color: #fff; }
+.referral-state.off { background: var(--homa-sand, #d7c7b0); color: var(--homa-navy, #293241); }
+.referral-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 12px 0 18px; }
+.referral-stats div { border: 1px solid color-mix(in srgb, var(--homa-sky, #98c0d9) 60%, transparent); border-radius: 10px; padding: 10px 12px; }
+.referral-stats dt { font-size: 12px; opacity: .75; }
+.referral-stats dd { margin: 4px 0 0; font-size: 18px; font-weight: 700; }

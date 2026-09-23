@@ -50,6 +50,7 @@ import { operations } from "./operations";
 import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID, randomBytes } from "node:crypto";
 import { placementTree, searchTree } from "./network-tree";
+import { referralStatus, setReferralCode, sponsorByCode } from "./referral";
 import {
   payoutProfileSchema,
   payoutProfileView,
@@ -190,10 +191,7 @@ function signup(data: Row, ip: string) {
       parent: Row | undefined,
       leg: string | null = null;
     if (data.referral) {
-      sponsor = one(
-        "SELECT * FROM p_users WHERE referral_code=? AND blocked=0",
-        data.referral,
-      );
+      sponsor = sponsorByCode(data.referral);
       if (!sponsor) throw new ApiError(400, "invalid_referral");
       const queue = [sponsor];
       for (let i = 0; i < queue.length && i < 10000; i++) {
@@ -486,10 +484,7 @@ async function auth(req: Request, path: string[], data: Row) {
     await verifyCaptcha(d.captchaToken, "register");
     if (
       d.referral &&
-      !one(
-        "SELECT id FROM p_users WHERE referral_code=? AND blocked=0",
-        d.referral,
-      )
+      !sponsorByCode(d.referral)
     )
       throw new ApiError(400, "invalid_referral");
     // Reserve each attempt atomically across workers. A wrong TOTP must not
@@ -847,6 +842,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "email_from",
           "turnstile_site_key",
           "turnstile_secret_key",
+          "referral_requires_purchase",
           "kavenegar_key",
           "sms_template",
           "sms_sender",
@@ -869,6 +865,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       z.string()
         .regex(/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/)
         .parse(d.value);
+    if (d.key === "referral_requires_purchase") z.enum(["0", "1"]).parse(d.value);
     if (d.key === "email_from" || d.key === "site_email")
       z.string().email().parse(d.value);
     if (d.key === "site_ceo_name")
@@ -1355,10 +1352,7 @@ export async function handle(req: Request, path: string[]) {
       limit("referral-check:" + ipOf(req), 15, 300);
       const code = referralCode.parse(data.code);
       return json({
-        valid: !!one(
-          "SELECT id FROM p_users WHERE referral_code=? AND blocked=0",
-          code,
-        ),
+        valid: !!sponsorByCode(code),
       });
     }
     if (path.join("/") === "card-plan" && get) return json(cardPlan());
@@ -1962,6 +1956,10 @@ export async function handle(req: Request, path: string[]) {
       if (!u.otp_secret) throw new ApiError(403, "two_factor_required");
       verifyTotp(u, d.totp || "");
       return json({ profile: savePayoutProfile(u.id, d) });
+    }
+    if (path[0] === "referral") {
+      if (get) return json(referralStatus(u));
+      return json(setReferralCode(u, z.object({ code: z.string() }).parse(data).code));
     }
     if (path[0] === "network-tree" && get)
       return json(placementTree(u.id, q.root || u.id, Number(q.depth) || 3));

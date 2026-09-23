@@ -6,6 +6,9 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { platformDb, run, now } from "./schema";
 import { placementTree, searchTree } from "./network-tree";
+import { referralStatus, setReferralCode, sponsorByCode } from "./referral";
+import { saveSetting } from "./providers";
+import { one } from "./schema";
 
 const directory = mkdtempSync(join(tmpdir(), "homay-tree-"));
 let product = "";
@@ -64,4 +67,26 @@ it("counts members and paid volume per leg of the placement subtree", () => {
   expect(() => placementTree(a, b, 2)).toThrow();
   expect(searchTree(a, "cyr").map((r) => r.name)).toEqual(["Cyrus"]);
   expect(searchTree(a, "bita")).toEqual([]);
+});
+
+it("lets a member pick a personal code, keeps old links and gates on first purchase", () => {
+  const owner = member("Owner", null, null);
+  const u = () => one("SELECT * FROM p_users WHERE id=?", owner)!;
+  expect(sponsorByCode("code-owner")!.id).toBe(owner);
+  setReferralCode(u(), "leila-2026");
+  expect(u().referral_code).toBe("leila-2026");
+  expect(sponsorByCode("LEILA-2026")!.id).toBe(owner);
+  expect(sponsorByCode("code-owner")!.id).toBe(owner); // old link still works
+  expect(() => setReferralCode(u(), "another-code")).toThrow(); // once per 30 days
+  run("UPDATE p_referral_aliases SET retired_at='2000-01-01T00:00:00.000Z' WHERE user_id=?", owner);
+  const other = member("Other", null, null);
+  expect(() => setReferralCode(one("SELECT * FROM p_users WHERE id=?", other)!, "code-owner")).toThrow();
+  expect(() => setReferralCode(u(), "admin")).toThrow();
+  saveSetting("referral_requires_purchase", "1");
+  expect(sponsorByCode("leila-2026")).toBeUndefined();
+  expect(referralStatus(u())).toMatchObject({ active: false, requiresPurchase: true });
+  order(owner, 1000);
+  expect(sponsorByCode("leila-2026")!.id).toBe(owner);
+  expect(referralStatus(u()).active).toBe(true);
+  saveSetting("referral_requires_purchase", "0");
 });

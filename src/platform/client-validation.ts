@@ -120,6 +120,7 @@ export function validateClient(path: string, method: string, data: unknown) {
       totp: otp.optional(),
     });
   if (p[0] === "payout-profile") schema = payoutProfileSchema;
+  if (p[0] === "referral") schema = z.object({ code: referralCode });
   if (p[0] === "referrals") schema = z.object({ code: referralCode });
   if (p[0] === "member-details") schema = memberDetailsSchema;
   if (p[0] === "profile")
@@ -280,6 +281,7 @@ export function validateClient(path: string, method: string, data: unknown) {
                 "resend_key",
                 "turnstile_site_key",
                 "turnstile_secret_key",
+                "referral_requires_purchase",
                 "email_from",
                 "kavenegar_key",
                 "sms_template",

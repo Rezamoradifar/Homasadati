@@ -2635,5 +2635,19 @@
   "عضویت از": "Member since",
   "شاخهٔ راست": "Right leg",
   "عضو «فعال» در": "An “active” member has a paid purchase in the past",
-  "روز گذشته خرید پرداخت‌شده دارد. حجم هر شاخه جمع خریدهای پرداخت‌شده و برگشت‌نخوردهٔ همهٔ اعضای آن شاخه است.": "days. Each leg's volume is the sum of paid, non-refunded purchases by every member of that leg."
+  "روز گذشته خرید پرداخت‌شده دارد. حجم هر شاخه جمع خریدهای پرداخت‌شده و برگشت‌نخوردهٔ همهٔ اعضای آن شاخه است.": "days. Each leg's volume is the sum of paid, non-refunded purchases by every member of that leg.",
+  "فعال‌شدن کد معرف پس از اولین خرید (۱ = بله، ۰ = خیر)": "Referral code activates after the first purchase (1 = yes, 0 = no)",
+  "کد معرف و لینک دعوت": "Referral code and invitation link",
+  "کد معرف شما": "Your referral code",
+  "کد معرف شما پس از اولین خرید پرداخت‌شده فعال می‌شود و از آن پس افراد می‌توانند با آن عضو شوند.": "Your referral code activates after your first paid purchase; from then on people can join with it.",
+  "معرفی‌های دارای خرید": "Referrals who have purchased",
+  "انتخاب کد معرف اختصاصی": "Choose a personal referral code",
+  "کد دلخواه": "Preferred code",
+  "۴ تا ۴۰ نویسه؛ حروف کوچک انگلیسی، عدد و خط تیره. لینک‌های قبلی همچنان کار می‌کنند.": "4 to 40 characters: lowercase English letters, digits and hyphens. Earlier links keep working.",
+  "ثبت کد معرف": "Save referral code",
+  "کد معرف را هر ۳۰ روز یک بار می‌توانید تغییر دهید؛ تغییر بعدی از": "You can change your referral code once every 30 days; next change from",
+  "این کد معرف قبلاً انتخاب شده است؛ کد دیگری امتحان کنید.": "This referral code is already taken; try another.",
+  "کد معرف را هر ۳۰ روز یک بار می‌توانید تغییر دهید.": "You can change your referral code once every 30 days.",
+  "این کد ملی برای حساب دیگری ثبت شده است.": "This national code is registered to another account.",
+  "برداشت پس از ثبت و تأیید اطلاعات بانکی ممکن است.": "Withdrawals are possible after your bank details are registered and verified."
 }

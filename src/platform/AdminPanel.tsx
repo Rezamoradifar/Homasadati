@@ -1141,6 +1141,7 @@ export function Settings({
                   ["email_from", "ایمیل فرستندهٔ تأییدشده"],
                   ["turnstile_site_key", "کلید عمومی کپچا Turnstile"],
                   ["turnstile_secret_key", "کلید محرمانه کپچا Turnstile"],
+                  ["referral_requires_purchase", "فعال‌شدن کد معرف پس از اولین خرید (۱ = بله، ۰ = خیر)"],
                   ["kavenegar_key", "کلید API پیامک کاوه‌نگار"],
                   ["sms_template", "نام الگوی OTP پیامک"],
                   ["sms_sender", "شماره فرستنده پیامک اعلان"],
