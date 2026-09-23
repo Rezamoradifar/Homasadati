@@ -673,6 +673,8 @@ it("signs up with only the email code, invitation and profile; no password or au
     ["نام خانوادگی", "آزمون"],
     ["کشور محل سکونت", "ایران"],
     ["شهر محل سکونت", "تهران"],
+    ["کد ملی (۱۰ رقم)", "0012345679"],
+    ["شماره موبایل به نام خودتان (مثلاً ۰۹۱۲…)", "09121234567"],
   ])
     await user.type(screen.getByLabelText(label, { exact: true }), value);
   await user.click(screen.getByLabelText(/قوانین عضویت و خرید/));

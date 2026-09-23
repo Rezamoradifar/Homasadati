@@ -20,6 +20,9 @@ export function savePayoutProfile(userId: string, input: PayoutDetails) {
   return atomic(() => {
     const owner = one("SELECT user_id FROM p_payout_profiles WHERE national_hash=?", nationalHash);
     if (owner && owner.user_id !== userId) throw new ApiError(409, "national_id_in_use");
+    // Bank details must belong to the person who signed up.
+    const registered = one("SELECT national_hash FROM p_identities WHERE user_id=?", userId);
+    if (registered && registered.national_hash !== nationalHash) throw new ApiError(409, "national_id_mismatch");
     const before = one("SELECT status,iban_last4,card_last4 FROM p_payout_profiles WHERE user_id=?", userId);
     run(
       `INSERT INTO p_payout_profiles(user_id,data,national_hash,iban_last4,card_last4,status,reason,reviewed_by,reviewed_at,created_at,updated_at)

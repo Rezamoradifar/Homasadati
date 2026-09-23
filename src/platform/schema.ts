@@ -170,6 +170,8 @@ export function platformDb() {
   CREATE INDEX IF NOT EXISTS p_gateway_transactions_user ON p_gateway_transactions(user_id,created_at);
   CREATE INDEX IF NOT EXISTS p_gateway_transactions_status ON p_gateway_transactions(status,created_at);
   INSERT OR IGNORE INTO p_migrations VALUES(17,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_identities(user_id TEXT PRIMARY KEY REFERENCES p_users(id),national_hash TEXT NOT NULL UNIQUE,national_enc TEXT NOT NULL,created_at TEXT NOT NULL);
+  INSERT OR IGNORE INTO p_migrations VALUES(18,datetime('now'));
 
   `);
   ready = d;

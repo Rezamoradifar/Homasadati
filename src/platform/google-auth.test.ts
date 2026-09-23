@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { beforeAll, beforeEach, afterAll, it, expect, vi } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
+import { testIdentity } from "./test-identity";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID, generateKeyPairSync, sign } from "node:crypto";
@@ -188,6 +189,7 @@ it("requires consent and authenticator enrollment, then requires second factor o
       interests: [],
     },
     invitationMode: "without-code",
+    ...testIdentity(),
     termsAccepted: true,
     privacyAccepted: true,
     adultConfirmed: true,

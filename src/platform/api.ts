@@ -30,6 +30,7 @@ import {
 } from "./travel";
 import {
   registrationSchema,
+  identityLookup,
   referralCode,
   memberDetailsSchema,
   registrationEmail,
@@ -182,12 +183,28 @@ function revokeSessions(userId: string) {
   run("DELETE FROM p_google_logins WHERE user_id=?", userId);
   run("DELETE FROM p_google_challenges WHERE user_id=?", userId);
 }
+/** The contact (email, else mobile) of the account that owns this national
+ * code and mobile pair, or null. */
+function identityTarget(d: { nationalId: string; mobile: string }) {
+  const u = one(
+    "SELECT u.email,u.phone FROM p_users u JOIN p_identities i ON i.user_id=u.id WHERE i.national_hash=? AND u.phone=? AND u.blocked=0",
+    hash("national:" + d.nationalId),
+    d.mobile,
+  );
+  return u ? (u.email || u.phone) as string : null;
+}
 function activeUser(target: string) {
   return one("SELECT * FROM p_users WHERE email=? OR phone=?", target, target);
 }
 function signup(data: Row, ip: string) {
   return atomic(() => {
     if (activeUser(data.target)) throw new ApiError(409, "account_exists");
+    const nationalHash = hash("national:" + data.nationalId);
+    if (one("SELECT user_id FROM p_identities WHERE national_hash=?", nationalHash))
+      throw new ApiError(409, "national_id_in_use");
+    if (!data.target.includes("@") && data.target !== data.mobile)
+      throw new ApiError(400, "invalid_input");
+    if (one("SELECT id FROM p_users WHERE phone=?", data.mobile)) throw new ApiError(409, "phone_in_use");
     let sponsor: Row | undefined,
       parent: Row | undefined,
       leg: string | null = null;
@@ -215,7 +232,7 @@ function signup(data: Row, ip: string) {
       "INSERT INTO p_users(id,email,phone,name,password,referral_code,sponsor_id,parent_id,leg,created_at,last_seen,signup_ip) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
       user,
       data.target.includes("@") ? data.target : null,
-      data.target.includes("@") ? null : data.target,
+      data.mobile,
       data.details.firstName + " " + data.details.lastName,
       // Without a chosen password the account signs in by email code only.
       passwordHash(data.password || randomBytes(32).toString("hex")),
@@ -228,6 +245,13 @@ function signup(data: Row, ip: string) {
       ip,
     );
     run("INSERT INTO p_wallets(user_id) VALUES(?)", user);
+    run(
+      "INSERT INTO p_identities VALUES(?,?,?,?)",
+      user,
+      nationalHash,
+      encrypt(data.nationalId),
+      now(),
+    );
     run(
       "INSERT INTO p_member_details VALUES(?,?,?,?)",
       user,
@@ -459,6 +483,18 @@ async function auth(req: Request, path: string[], data: Row) {
       return respondSession(u, req);
     });
   }
+  // Recovery by national code + mobile: the code goes to the account's own
+  // email (or mobile). Unknown pairs get a decoy reply so accounts cannot be
+  // discovered this way.
+  if (action === "otp" && data.purpose === "reset" && data.nationalId) {
+    const lookup = identityLookup.parse({ nationalId: data.nationalId, mobile: data.mobile });
+    await verifyCaptcha(data.captchaToken, "otp");
+    limit("recover:" + hash(lookup.nationalId), 5, 3600);
+    const target = identityTarget(lookup);
+    if (!target) return json({ challenge: randomUUID(), expiresIn: 300, retryAfter: 60 });
+    const locale = req.headers.get("cookie")?.match(/(?:^|;\s*)homay-locale=([^;]*)/)?.[1];
+    return json(await sendOtp(target, "reset", isLocale(locale) ? locale : "fa"));
+  }
   if (action === "otp") {
     const d = z
       .object({
@@ -585,19 +621,25 @@ async function auth(req: Request, path: string[], data: Row) {
     return respondSession(u, req);
   }
   if (action === "reset") {
+    const byIdentity = !data.target && !!data.nationalId;
     const d = z
       .object({
-        target: contact,
+        target: byIdentity ? z.string().optional() : contact,
         password,
         challenge: id,
         code: z.string().regex(/^\d{6}$/),
         totp: z.string().optional(),
         recoveryCode: z.string().max(30).optional(),
       })
-      .parse(data);
+      .parse(byIdentity ? { ...data, nationalId: undefined, mobile: undefined } : data);
     limit("reset:" + ipOf(req), 20, 300);
-    consumeOtp(d.challenge, d.target, "reset", d.code);
-    const u = activeUser(d.target);
+    if (byIdentity) {
+      const target = identityTarget(identityLookup.parse({ nationalId: data.nationalId, mobile: data.mobile }));
+      if (!target) throw new ApiError(401, "invalid_otp");
+      d.target = target;
+    }
+    consumeOtp(d.challenge, d.target!, "reset", d.code);
+    const u = activeUser(d.target!);
     if (!u || u.blocked) throw new ApiError(401, "invalid_credentials");
     verifySecondFactor(u, d.totp || "", d.recoveryCode);
     atomic(() => {

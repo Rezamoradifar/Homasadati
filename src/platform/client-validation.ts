@@ -38,6 +38,7 @@ import {
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { z } from "zod";
 import { payoutProfileSchema } from "./payout-model";
+import { nationalId, iranMobile } from "./validation";
 import {
   id,
   text,
@@ -68,11 +69,14 @@ export function validateClient(path: string, method: string, data: unknown) {
   if (path === "travel-cards/cancel") schema = z.object({ id, reason: text });
   if (p[0] === "auth") {
     if (p[1] === "otp")
-      schema = z.object({
-        target: contact,
-        purpose: z.enum(["register", "login", "reset", "contact"]),
-        captchaToken,
-      });
+      schema = z.union([
+        z.object({
+          target: contact,
+          purpose: z.enum(["register", "login", "reset", "contact"]),
+          captchaToken,
+        }),
+        z.object({ purpose: z.literal("reset"), nationalId, mobile: iranMobile, captchaToken }),
+      ]);
     if (p[1] === "verify-email") schema = verifyEmailSchema;
     if (p[1] === "register") schema = registrationSchema;
     if (p[1] === "login")
@@ -90,7 +94,9 @@ export function validateClient(path: string, method: string, data: unknown) {
         .refine((v) => v.password || (v.challenge && v.code));
     if (p[1] === "reset")
       schema = z.object({
-        target: contact,
+        target: contact.optional(),
+        nationalId: nationalId.optional(),
+        mobile: iranMobile.optional(),
         password,
         challenge: id,
         code: otp,

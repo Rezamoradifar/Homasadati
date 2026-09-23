@@ -111,3 +111,9 @@ export const bankCard = z
     }
     return sum % 10 === 0;
   }, "شماره کارت معتبر نیست");
+/** Iranian mobile number, stored as +989xxxxxxxxx. Accepts 09…, 9…, +98…, 0098… and Persian digits. */
+export const iranMobile = z
+  .string()
+  .transform((v) => latinDigits(v).replace(/^(\+98|0098|98|0)/, ""))
+  .refine((v) => /^9\d{9}$/.test(v), "شماره موبایل معتبر نیست")
+  .transform((v) => "+98" + v);

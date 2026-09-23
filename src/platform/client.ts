@@ -61,6 +61,8 @@ export const errors: Record<string, string> = {
     "پرداخت‌های جدید موقتاً متوقف شده‌اند؛ با پشتیبانی تماس بگیرید.",
   referral_code_taken: "این کد معرف قبلاً انتخاب شده است؛ کد دیگری امتحان کنید.",
   referral_change_too_soon: "کد معرف را هر ۳۰ روز یک بار می‌توانید تغییر دهید.",
+  national_id_mismatch: "کد ملی حساب بانکی باید با کد ملی ثبت‌شده در عضویت یکی باشد.",
+  phone_in_use: "این شماره موبایل برای حساب دیگری ثبت شده است.",
   national_id_in_use: "این کد ملی برای حساب دیگری ثبت شده است.",
   payout_profile_required: "برداشت پس از ثبت و تأیید اطلاعات بانکی ممکن است.",
   two_factor_required:

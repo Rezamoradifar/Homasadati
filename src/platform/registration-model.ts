@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { id, password, text, contact } from "./validation";
+import { id, password, text, contact, nationalId, iranMobile } from "./validation";
 export const registrationEmail = z
   .string()
   .trim()
@@ -47,6 +47,9 @@ export const registrationSchema = z
     // the authenticator is required before the first withdrawal.
     password: password.optional(),
     verificationToken: z.string().regex(/^[a-f0-9]{64}$/),
+    // Identity: one account per national code and per mobile number.
+    nationalId,
+    mobile: iranMobile,
     totp: z.string().regex(/^\d{6}$/).optional(),
     captchaToken,
     invitationMode: z.enum(["with-code", "without-code"]),
@@ -73,3 +76,6 @@ export const registrationSchema = z
         message: "مسیر ثبت‌نام و کد دعوت هماهنگ نیست.",
       });
   });
+
+/** Account recovery by identity instead of email: national code + mobile. */
+export const identityLookup = z.object({ nationalId, mobile: iranMobile }).strict();

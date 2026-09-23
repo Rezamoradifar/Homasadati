@@ -41,6 +41,8 @@ export default function Registration({
   const [form, setForm] = useState({
     target: "",
     firstName: "",
+    nationalId: "",
+    mobile: "",
     lastName: "",
     country: "",
     city: "",
@@ -87,12 +89,12 @@ export default function Registration({
   }, [step]);
   const set = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
-  const fail = (e: unknown) =>
-    setError(
-      (e as Error).name === "ZodError"
-        ? "اطلاعات الزامی و قالب فیلدها را بررسی کنید."
-        : (e as Error).message,
-    );
+  const fail = (e: unknown) => {
+    if ((e as Error).name !== "ZodError") return setError((e as Error).message);
+    // Show the specific message when a field has one (e.g. invalid national code).
+    const issue = (e as { issues?: { message: string }[] }).issues?.find((i) => /[\u0600-\u06FF]/.test(i.message));
+    setError(issue?.message || "اطلاعات الزامی و قالب فیلدها را بررسی کنید.");
+  };
   const details = () => ({
     firstName: form.firstName,
     lastName: form.lastName,
@@ -108,7 +110,9 @@ export default function Registration({
       | "lastName"
       | "country"
       | "city"
-      | "occupation",
+      | "occupation"
+      | "nationalId"
+      | "mobile",
     label: string,
     autoComplete = "off",
     required = true,
@@ -117,7 +121,9 @@ export default function Registration({
       {label}
       <input
         name={key}
-        type="text"
+        type={key === "mobile" ? "tel" : "text"}
+        inputMode={key === "nationalId" || key === "mobile" ? "numeric" : undefined}
+        dir={key === "nationalId" || key === "mobile" ? "ltr" : undefined}
         required={required}
         autoComplete={autoComplete}
         value={form[key]}
@@ -195,6 +201,8 @@ export default function Registration({
       const payload = registrationSchema.parse({
         target: form.target,
         verificationToken: enrollment.verificationToken,
+        nationalId: form.nationalId,
+        mobile: form.mobile,
         captchaToken: registerCaptcha.token,
         invitationMode,
         referral: invitationMode === "with-code" ? form.referral : "",
@@ -439,6 +447,8 @@ export default function Registration({
                   <div className="registration-grid">
                     {field("firstName", "نام", "given-name")}
                     {field("lastName", "نام خانوادگی", "family-name")}
+                    {field("nationalId", "کد ملی (۱۰ رقم)")}
+                    {field("mobile", "شماره موبایل به نام خودتان (مثلاً ۰۹۱۲…)", "tel")}
                     {field("country", "کشور محل سکونت", "country-name")}
                     {field("city", "شهر محل سکونت", "address-level2")}
                     {field(

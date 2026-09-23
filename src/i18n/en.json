@@ -2847,5 +2847,13 @@
   "تأیید با کد ایمیل (بدون رمز عبور)": "Confirm with an email code (no password)",
   "کد شش‌رقمی به ایمیل شما فرستاده شد؛ ۵ دقیقه اعتبار دارد.": "A six-digit code was sent to your email; it is valid for 5 minutes.",
   "کد تأیید تغییر امنیتی حساب هما نت": "Homanet account security confirmation code",
-  "برای تأیید تغییر در تنظیمات امنیتی حساب هما نت (مانند فعال‌سازی رمزساز یا تعیین رمز عبور)، کد زیر را وارد کنید. اگر این درخواست از طرف شما نیست، رمز حساب را تغییر دهید و با پشتیبانی تماس بگیرید.": "To confirm a change to your Homanet account security (such as turning on an authenticator or setting a password), enter the code below. If you did not make this request, change your account password and contact support."
+  "برای تأیید تغییر در تنظیمات امنیتی حساب هما نت (مانند فعال‌سازی رمزساز یا تعیین رمز عبور)، کد زیر را وارد کنید. اگر این درخواست از طرف شما نیست، رمز حساب را تغییر دهید و با پشتیبانی تماس بگیرید.": "To confirm a change to your Homanet account security (such as turning on an authenticator or setting a password), enter the code below. If you did not make this request, change your account password and contact support.",
+  "اگر کد ملی و موبایل با یک حساب مطابقت داشته باشد، کد به ایمیل ثبت‌شدهٔ آن حساب ارسال شد؛ ۵ دقیقه اعتبار دارد.": "If the national code and mobile match an account, a code was sent to that account's registered email; it is valid for 5 minutes.",
+  "ایمیل را به خاطر ندارم؛ بازیابی با کد ملی و شماره موبایل": "I don't remember my email; recover with national code and mobile number",
+  "شماره موبایل ثبت‌شده در حساب": "Mobile number registered on the account",
+  "کد ملی (۱۰ رقم)": "National code (10 digits)",
+  "شماره موبایل به نام خودتان (مثلاً ۰۹۱۲…)": "Mobile number in your own name (e.g. 0912…)",
+  "کد ملی حساب بانکی باید با کد ملی ثبت‌شده در عضویت یکی باشد.": "The national code on the bank account must match the one registered at sign-up.",
+  "این شماره موبایل برای حساب دیگری ثبت شده است.": "This mobile number is registered to another account.",
+  "شماره موبایل معتبر نیست": "The mobile number is not valid"
 }

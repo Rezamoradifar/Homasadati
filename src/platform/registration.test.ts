@@ -8,6 +8,7 @@ import { handle } from "./api";
 import { run, one, now, platformDb } from "./schema";
 import { hash } from "../server/http";
 import { TERMS_VERSION, registrationSchema } from "./registration-model";
+import { testIdentity } from "./test-identity";
 import { saveSetting, sendOtp } from "./providers";
 import { totp, decrypt, checkPassword } from "./security";
 const dir = mkdtempSync(join(tmpdir(), "homay-registration-"));
@@ -59,6 +60,8 @@ async function payload(
   const e = await verification.json();
   return {
     target,
+    ...testIdentity(),
+    ...(target.includes("@") ? {} : { mobile: target }),
     password: pw,
     verificationToken: e.verificationToken,
     totp: totp(e.secret),
@@ -508,7 +511,7 @@ it("expires authenticator setup and enables a replacement only after proving the
 it("registers a verified phone using the same invitation, consent and mandatory authenticator flow", async()=>{
  const d=await payload();const target="+989131112233";
  const r=await request("auth/verify-contact","POST",emailOtp(target));expect(r.status).toBe(200);const e=await r.json();
- const input={...d,target,verificationToken:e.verificationToken,totp:totp(e.secret)};
+ const input={...d,target,mobile:target,verificationToken:e.verificationToken,totp:totp(e.secret)};
  const result=await request("auth/register","POST",input);expect(result.status).toBe(200);
  const member=one("SELECT email,phone,otp_secret FROM p_users WHERE phone=?",target)!;expect(member.email).toBeNull();expect(member.phone).toBe(target);expect(member.otp_secret).toBeTruthy();
  expect((await request("auth/register","POST",input)).status).toBe(401);

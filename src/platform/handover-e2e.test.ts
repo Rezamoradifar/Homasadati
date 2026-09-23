@@ -10,6 +10,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { handle } from "./api";
+import { testIdentity } from "./test-identity";
 import { platformDb, run, one, now } from "./schema";
 import { saveSetting } from "./providers";
 import { passwordHash, session, SESSION_COOKIE, totp } from "./security";
@@ -49,7 +50,9 @@ function staff(role: string) {
   return SESSION_COOKIE + "=" + session(id, "test");
 }
 /** Sign-up exactly as a member does it: email code and details only. */
+const identities: Record<string, { nationalId: string; mobile: string }> = {};
 async function signUp(email: string, referral?: string) {
+  const identity = (identities[email] = testIdentity());
   const sent = await ok(request("auth/otp", "POST", { target: email, purpose: "register" }));
   const verified = await ok(request("auth/verify-email", "POST", { target: email, challenge: sent.challenge, code: lastCode }));
   const r = await request("auth/register", "POST", {
@@ -62,6 +65,7 @@ async function signUp(email: string, referral?: string) {
     privacyAccepted: true,
     adultConfirmed: true,
     termsVersion: "2026-09-20-v1",
+    ...identity,
   });
   const body = await r.json();
   if (r.status !== 200) throw new Error("register " + JSON.stringify(body));
@@ -178,7 +182,7 @@ it("runs the business end to end: setup, sign-ups, purchases, settlement, withdr
   const cookie = signedIn.headers.get("set-cookie")!.split(";")[0];
   run("UPDATE p_users SET otp_last=? WHERE id=?", step - 2, company.user.id);
   await ok(request("payout-profile", "POST", {
-    holderName: "شرکت هما نت", nationalId: "0012345679", cardNumber: "6037991234567893", iban: "IR062960000000100324200001",
+    holderName: "شرکت هما نت", nationalId: identities["company@homay.test"].nationalId, cardNumber: "6037991234567893", iban: "IR062960000000100324200001",
     totp: totp(setup.secret, step - 1),
   }, cookie));
   await ok(request("admin/payout-profiles", "PATCH", { userId: company.user.id, status: "verified", reason: "" }, admin));
@@ -189,7 +193,29 @@ it("runs the business end to end: setup, sign-ups, purchases, settlement, withdr
   await ok(request("admin/withdrawals", "PATCH", { id: w.id, status: "paid", reason: "transferred", reference: "PAYA-" + Date.now() }, payer));
   expect(wallet(company.user.id)).toMatchObject({ available: 400_000, held: 0 });
 
-  // 7. Refund of B's order reverses the match behind the paid reward: the rest becomes debt.
+  // 7. Identity rules and recovery by national code + mobile.
+  db().prepare("DELETE FROM limits").run();
+  const dup = await request("auth/otp", "POST", { target: "copy@homay.test", purpose: "register" });
+  expect(dup.status).toBe(200);
+  const dupVerified = await ok(request("auth/verify-email", "POST", { target: "copy@homay.test", challenge: (await dup.json()).challenge, code: lastCode }));
+  const clash = await request("auth/register", "POST", {
+    target: "copy@homay.test", verificationToken: dupVerified.verificationToken, invitationMode: "without-code", referral: "",
+    details: { firstName: "کپی", lastName: "آزمون", country: "ایران", city: "تهران" },
+    termsAccepted: true, privacyAccepted: true, adultConfirmed: true, termsVersion: "2026-09-20-v1",
+    nationalId: identities["ali@homay.test"].nationalId, mobile: "09129998877",
+  });
+  expect((await clash.json()).error).toBe("national_id_in_use");
+  const ali = identities["ali@homay.test"];
+  const decoy = await ok(request("auth/otp", "POST", { purpose: "reset", nationalId: ali.nationalId, mobile: "09120000000" }));
+  expect(decoy.challenge).toBeTruthy(); // same reply, but nothing is sent
+  lastCode = "";
+  const rec = await ok(request("auth/otp", "POST", { purpose: "reset", nationalId: ali.nationalId, mobile: ali.mobile }));
+  expect(lastCode).toMatch(/^\d{6}$/); // sent to Ali's email
+  await ok(request("auth/reset", "POST", { nationalId: ali.nationalId, mobile: ali.mobile, challenge: rec.challenge, code: lastCode, password: "ali-new-strong-password" }));
+  db().prepare("DELETE FROM limits").run();
+  await ok(request("auth/login", "POST", { target: "ali@homay.test", password: "ali-new-strong-password" }));
+
+  // 8. Refund of B's order reverses the match behind the paid reward: the rest becomes debt.
   await ok(request("admin/orders", "PATCH", { id: bOrder, action: "refund", reason: "customer returned the item" }, admin));
   expect(wallet(company.user.id)).toMatchObject({ available: 0, debt: 5_000_000 });
   expect(memberCardStatus(company.user.id)).toMatchObject({ rightVolume: 0 });

@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { handle } from "./api";
+import { hash } from "../server/http";
+import { testIdentity } from "./test-identity";
 import { platformDb, run, one, now } from "./schema";
 import { saveSetting } from "./providers";
 import {
@@ -69,6 +71,7 @@ async function register(target: string, referral?: string) {
     privacyAccepted: true,
     adultConfirmed: true,
     termsVersion: "2026-09-20-v1",
+    ...testIdentity(),
     verificationToken: verification.verificationToken,
     totp: totp(verification.secret),
     invitationMode: referral ? "with-code" : "without-code",
@@ -262,6 +265,8 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
       cardNumber: "6037-9912-3456-7893",
       iban: "IR062960000000100324200001",
     };
+    // The bank details belong to the member who signed up with this national code.
+    run("UPDATE p_identities SET national_hash=? WHERE user_id=?", hash("national:0012345679"), sponsorId);
     const saved = await request(
       "payout-profile",
       "POST",

@@ -207,6 +207,11 @@ export function useData(path: string, refresh = 0) {
       previous.current = path;
     }
     setError("");
+    // An empty path means "nothing to load yet" (e.g. no row selected).
+    if (!path) {
+      setLoading(false);
+      return;
+    }
     api(path)
       .then((d) => {
         if (current) setData(d);

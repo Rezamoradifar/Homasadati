@@ -948,7 +948,7 @@ export function AdminUsers({
 
   const [selected, setSelected] = useState<RecordData | null>(null);
   const detail = useData(
-    "admin/users/" + (selected?.id || "00000000-0000-0000-0000-000000000000"),
+    selected?.id ? "admin/users/" + selected.id : "",
     refresh,
   );
   return (
