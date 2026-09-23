@@ -2192,3 +2192,4 @@ html[data-theme="dark"] .portal-member .member-activity svg,
 html[data-theme="dark"] .portal-member .member-shortcuts svg { background: var(--homa-dark-line); color: var(--homa-sky, #98c0d9); }
 html[data-theme="dark"] .tree-node { background: var(--homa-dark-surface); }
 html[data-theme="dark"] .tree-legs span { background: var(--homa-dark-line); color: #e8e2da; }
+.security-confirm { display: grid; gap: 6px; margin: 8px 0 12px; justify-items: start; }

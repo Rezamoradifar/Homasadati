@@ -161,7 +161,7 @@ export function validateClient(path: string, method: string, data: unknown) {
     schema = z
       .object({ id: id.optional(), all: z.boolean().optional() })
       .refine((v) => v.id || v.all === true);
-  if (p[0] === "security")
+  if (p[0] === "security" && !p[1])
     schema = z
       .object({
         action: z.enum([
@@ -170,9 +170,12 @@ export function validateClient(path: string, method: string, data: unknown) {
           "totp-setup",
           "totp-enable",
           "totp-disable",
+          "google-unlink",
           "recovery-regenerate",
         ]),
-        currentPassword: password,
+        currentPassword: z.string().max(128).optional(),
+        emailChallenge: id.optional(),
+        emailCode: otp.optional(),
         newPassword: password.optional(),
         code: z.string().max(6).optional(),
         recoveryCode: z.string().max(30).optional(),

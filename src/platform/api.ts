@@ -1711,6 +1711,13 @@ export async function handle(req: Request, path: string[]) {
           u.id,
         )!.n,
       });
+    // Members who signed up with an email code have no password; they confirm
+    // security changes with a code sent to their own contact instead.
+    if (path.join("/") === "security/code" && !get) {
+      const target = u.email || u.phone;
+      if (!target) throw new ApiError(409, "invalid_state");
+      return json(await sendOtp(target, "security"));
+    }
     if (path[0] === "security" && !get) {
       limit("security:" + u.id, 8, 300);
       const d = z
@@ -1724,14 +1731,24 @@ export async function handle(req: Request, path: string[]) {
             "google-unlink",
             "recovery-regenerate",
           ]),
-          currentPassword: z.string().max(128),
+          currentPassword: z.string().max(128).default(""),
+          emailChallenge: id.optional(),
+          emailCode: z.string().regex(/^\d{6}$/).optional(),
           newPassword: password.optional(),
           code: z.string().max(10).optional(),
           recoveryCode: z.string().max(30).optional(),
         })
         .parse(data);
-      if (!checkPassword(d.currentPassword, u.password))
-        throw new ApiError(401, "invalid_credentials");
+      // Enabling the authenticator follows a setup that was itself confirmed
+      // (within ten minutes) and proves the new code, so it needs no re-check.
+      if (d.action !== "totp-enable") {
+        if (d.currentPassword) {
+          if (!checkPassword(d.currentPassword, u.password))
+            throw new ApiError(401, "invalid_credentials");
+        } else if (d.emailChallenge && d.emailCode)
+          consumeOtp(d.emailChallenge, u.email || u.phone, "security", d.emailCode);
+        else throw new ApiError(400, "invalid_input");
+      }
       if (d.action === "totp-setup") {
         verifySecondFactor(u, d.code || "", d.recoveryCode);
         const secret = newTotpSecret();

@@ -2841,5 +2841,11 @@
   "بدون سقف (طبق متن طرح)": "No cap (as in the plan text)",
   "{0}٪ فروش هفته": "{0}% of the week's sales",
   "بدون سقف بودجه؛ هر تعادل طبق متن طرح پرداخت شود (ریسک پرداخت بیش از فروش با شرکت است)": "No budget cap; pay every balance as the plan text says (the risk of paying more than sales is the company's)",
-  "۷۰ میلیون تومان به بالا": "70 million toman or more"
+  "۷۰ میلیون تومان به بالا": "70 million toman or more",
+  "برای تغییر تنظیمات امنیتی، با رمز عبور فعلی یا کد تأییدی که به ایمیل شما فرستاده می‌شود هویت خود را تأیید کنید؛ در صورت فعال‌بودن رمزساز، کد آن هم لازم است. پس از تأیید، همه دستگاه‌ها از حساب خارج می‌شوند.": "To change security settings, confirm it is you with your current password or a code sent to your email; if an authenticator is on, its code is needed too. After confirming, every device is signed out.",
+  "ارسال دوبارهٔ کد به ایمیل من": "Send the code to my email again",
+  "تأیید با کد ایمیل (بدون رمز عبور)": "Confirm with an email code (no password)",
+  "کد شش‌رقمی به ایمیل شما فرستاده شد؛ ۵ دقیقه اعتبار دارد.": "A six-digit code was sent to your email; it is valid for 5 minutes.",
+  "کد تأیید تغییر امنیتی حساب هما نت": "Homanet account security confirmation code",
+  "برای تأیید تغییر در تنظیمات امنیتی حساب هما نت (مانند فعال‌سازی رمزساز یا تعیین رمز عبور)، کد زیر را وارد کنید. اگر این درخواست از طرف شما نیست، رمز حساب را تغییر دهید و با پشتیبانی تماس بگیرید.": "To confirm a change to your Homanet account security (such as turning on an authenticator or setting a password), enter the code below. If you did not make this request, change your account password and contact support."
 }
