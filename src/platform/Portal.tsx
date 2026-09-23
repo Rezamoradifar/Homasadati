@@ -1,6 +1,7 @@
 "use client";
 import { NetworkTree } from "./NetworkTree";
 import { Wishlist } from "./Wishlist";
+import { memberTabIcons } from "./member-icons";
 import SevenCardPanel from "./SevenCardPanel";
 import { TicketsPanel, BinarySchedulePanel } from "./SupportPanels";
 import {
@@ -207,9 +208,12 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
         lang="fa"
       >
         <header className="portal-header">
-          <a href="/">
-            <strong>{site.site_name || "هما نت"}</strong>
-            <small>HOMANET / {admin ? "MANAGEMENT" : "MEMBERS"}</small>
+          <a href="/" className="portal-brand">
+            <img src="/assets/brand-mark.png" alt="" width={40} height={40} />
+            <span>
+              <strong>{site.site_name || "هما نت"}</strong>
+              <small>HOMANET / {admin ? "MANAGEMENT" : "MEMBERS"}</small>
+            </span>
           </a>
           <div className="portal-toplinks">
             <LanguagePicker />
@@ -355,16 +359,20 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     {userGroups.map((group) => (
                       <section key={group.title}>
                         <h2>{group.title}</h2>
-                        {group.tabs.map(([key, label]) => (
-                          <button
-                            key={key}
-                            type="button"
-                            aria-current={tab === key ? "page" : undefined}
-                            onClick={() => selectTab(key)}
-                          >
-                            {label}
-                          </button>
-                        ))}
+                        {group.tabs.map(([key, label]) => {
+                          const Icon = memberTabIcons[key];
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              aria-current={tab === key ? "page" : undefined}
+                              onClick={() => selectTab(key)}
+                            >
+                              {Icon && <Icon size={18} aria-hidden="true" />}
+                              <span>{label}</span>
+                            </button>
+                          );
+                        })}
                       </section>
                     ))}
                   </nav>

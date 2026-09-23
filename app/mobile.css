@@ -345,8 +345,9 @@ html .media-edit-thumb button {min-height:44px;padding:4px 8px;font:inherit;font
 
 html .portal-header {height:auto;min-height:90px;padding-block:16px;}
 html .portal-toplinks {flex-wrap:wrap;max-width:100%;}
-html .portal-toplinks .site-language-picker {color:#222832;}
-html .portal-toplinks .site-language-picker select {color:#222832;}
+html .portal-toplinks .site-language-picker {color:#f5f0ea;}
+html .portal-toplinks .site-language-picker select {color:#f5f0ea;min-height:38px;border-color:rgba(255,255,255,.3);}
+html .portal-toplinks .site-language-picker option {color:#222832;background:#fff;}
 @media(max-width:700px){html .portal-header {align-items:flex-start;gap:16px;}html .portal-toplinks {width:100%;gap:12px;}html .portal-toplinks>a,html .portal-toplinks>button {min-height:44px;display:inline-flex;align-items:center;}}
 html[data-theme=dark] .portal .portal-notice {background:var(--homa-dark-raised);color:#eae5de;border-color:#b9996d;}
 
