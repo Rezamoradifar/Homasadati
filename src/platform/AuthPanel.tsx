@@ -70,7 +70,7 @@ export default function AuthPanel({
   }
   async function submit(e: FormEvent) {
     e.preventDefault();
-    if (busy || !submitCaptcha.ready) return;
+    if (busy || (!needsCode && !submitCaptcha.ready)) return;
     setBusy(true);
     setError("");
     try {
@@ -81,7 +81,7 @@ export default function AuthPanel({
         ...(needsCode ? { challenge, code } : {}),
         ...(!recovery && totp ? { totp } : {}),
         ...(recovery && recoveryCode ? { recoveryCode } : {}),
-        captchaToken: submitCaptcha.token,
+        ...(needsCode ? {} : { captchaToken: submitCaptcha.token }),
       };
       const r = await api("auth/" + mode, "POST", payload);
       if (mode === "reset") {
@@ -263,10 +263,10 @@ export default function AuthPanel({
                 : "به رمزساز دسترسی ندارم؛ استفاده از کد بازیابی"}
             </button>
           </details>
-          {submitCaptcha.element}
+          {!needsCode && submitCaptcha.element}
           <button
             className="portal-button"
-            disabled={busy || !submitCaptcha.ready || (needsCode && !challenge)}
+            disabled={busy || (!needsCode && !submitCaptcha.ready) || (needsCode && !challenge)}
           >
             {busy
               ? "در حال بررسی…"

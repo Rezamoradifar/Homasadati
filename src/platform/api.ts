@@ -560,7 +560,9 @@ async function auth(req: Request, path: string[], data: Row) {
     const d = loginSchema.parse(data);
     const temporaryAdminLogin = data.adminPasswordLogin === true &&
       !!d.password && d.target.includes("@") && temporaryAdminPasswordLogin();
-    if (!temporaryAdminLogin) await verifyCaptcha(data.captchaToken, "login");
+    // A password sign-in needs the captcha. A code sign-in does not: the code
+    // was sent behind one, allows five tries and expires in five minutes.
+    if (d.password && !temporaryAdminLogin) await verifyCaptcha(data.captchaToken, "login");
     limit("login:" + hash(d.target), 8, 300);
     const u = activeUser(d.target);
     if (d.password) {
@@ -593,7 +595,7 @@ async function auth(req: Request, path: string[], data: Row) {
         recoveryCode: z.string().max(30).optional(),
       })
       .parse(data);
-    await verifyCaptcha(data.captchaToken, "reset");
+    limit("reset:" + ipOf(req), 20, 300);
     consumeOtp(d.challenge, d.target, "reset", d.code);
     const u = activeUser(d.target);
     if (!u || u.blocked) throw new ApiError(401, "invalid_credentials");
