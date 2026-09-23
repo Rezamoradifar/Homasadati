@@ -37,6 +37,7 @@ import {
 } from "./registration-model";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { z } from "zod";
+import { payoutProfileSchema } from "./payout-model";
 import {
   id,
   text,
@@ -115,10 +116,10 @@ export function validateClient(path: string, method: string, data: unknown) {
   if (p[0] === "withdrawals")
     schema = z.object({
       amount: money,
-      iban,
       idempotencyKey: id,
       totp: otp.optional(),
     });
+  if (p[0] === "payout-profile") schema = payoutProfileSchema;
   if (p[0] === "referrals") schema = z.object({ code: referralCode });
   if (p[0] === "member-details") schema = memberDetailsSchema;
   if (p[0] === "profile")
@@ -183,6 +184,13 @@ export function validateClient(path: string, method: string, data: unknown) {
           break;
         case "policy":
           schema = z.object({ policy: policySchema, reason: text });
+          break;
+        case "payout-profiles":
+          schema = z.object({
+            userId: id,
+            status: z.enum(["verified", "rejected"]),
+            reason: z.string().trim().max(500).default(""),
+          });
           break;
         case "withdrawals":
           schema = z

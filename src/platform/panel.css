@@ -1317,6 +1317,7 @@ html[data-theme="dark"] .portal-dialog-head {
   border-radius: 10px;
 }
 .login-second-factor > strong,
+.login-second-factor > summary,
 .security-panel h2 {
   display: flex;
   align-items: center;
@@ -2018,3 +2019,25 @@ html[data-theme="dark"] .member-shortcuts svg {
     grid-template-columns: 1fr;
   }
 }
+.login-second-factor > summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.payout-profile-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.payout-profile-summary dt {
+  font-size: 12px;
+  opacity: 0.7;
+}
+.payout-profile-summary dd {
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+.payout-status.pending { color: var(--homa-orange, #ed6a4d); }
+.payout-status.verified { color: var(--homa-green, #1e6444); }
+.payout-status.rejected { color: #b42318; }
+.payout-filter { display: inline-flex; gap: 8px; align-items: center; margin-bottom: 12px; }

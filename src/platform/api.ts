@@ -49,6 +49,14 @@ import { media } from "./media";
 import { operations } from "./operations";
 import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID, randomBytes } from "node:crypto";
+import {
+  payoutProfileSchema,
+  payoutProfileView,
+  payoutProfiles,
+  reviewPayoutProfile,
+  savePayoutProfile,
+  verifiedIban,
+} from "./payout-profile";
 import { z } from "zod";
 import {
   ApiError,
@@ -207,7 +215,8 @@ function signup(data: Row, ip: string) {
       data.target.includes("@") ? data.target : null,
       data.target.includes("@") ? null : data.target,
       data.details.firstName + " " + data.details.lastName,
-      passwordHash(data.password),
+      // Without a chosen password the account signs in by email code only.
+      passwordHash(data.password || randomBytes(32).toString("hex")),
       randomUUID().replaceAll("-", "").slice(0, 12),
       sponsor?.id || null,
       parent?.id || null,
@@ -501,7 +510,7 @@ async function auth(req: Request, path: string[], data: Row) {
       );
       return pending;
     });
-    const step = matchingTotp(decrypt(enrollment.secret), d.totp);
+    const step = d.totp ? matchingTotp(decrypt(enrollment.secret), d.totp) : null;
     if (step === undefined) throw new ApiError(401, "invalid_otp");
     const result = atomic(() => {
       const claimed = run(
@@ -522,20 +531,22 @@ async function auth(req: Request, path: string[], data: Row) {
           u.id,
           now(),
         );
-      run(
-        "UPDATE p_users SET otp_secret=?,otp_last=? WHERE id=?",
-        enrollment.secret,
-        step,
-        u.id,
-      );
-      u.otp_secret = enrollment.secret;
+      if (step !== null) {
+        run(
+          "UPDATE p_users SET otp_secret=?,otp_last=? WHERE id=?",
+          enrollment.secret,
+          step,
+          u.id,
+        );
+        u.otp_secret = enrollment.secret;
+      }
       audit(u.id, "security.enrolled", u.id, null, {
         emailVerified: d.target.includes("@"),
         phoneVerified: !d.target.includes("@"),
-        twoFactor: true,
+        twoFactor: step !== null,
         invitationMode: d.invitationMode,
       });
-      return { u, codes: recoveryCodes(u.id) };
+      return { u, codes: step !== null ? recoveryCodes(u.id) : [] };
     });
     return respondSession(result.u, req, { recoveryCodes: result.codes });
   }
@@ -1045,6 +1056,17 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       notify(o.user_id, "وضعیت سفارش تغییر کرد", d.action);
     });
     return json({ ok: true });
+  }
+  if (resource === "payout-profiles") {
+    if (get) return json({ rows: payoutProfiles(q.status || "") });
+    const d = z
+      .object({
+        userId: id,
+        status: z.enum(["verified", "rejected"]),
+        reason: z.string().trim().max(500).default(""),
+      })
+      .parse(data);
+    return json(reviewPayoutProfile(u.id, d.userId, d.status, d.reason));
   }
   if (resource === "withdrawals") {
     if (get)
@@ -1913,16 +1935,25 @@ export async function handle(req: Request, path: string[]) {
       const d = z
         .object({
           amount: money,
-          iban,
           idempotencyKey: id,
           totp: z.string().optional(),
         })
         .parse(data);
+      if (!u.otp_secret) throw new ApiError(403, "two_factor_required");
+      const destination = verifiedIban(u.id);
       verifyTotp(u, d.totp || "");
       return json(
-        requestWithdrawal(u.id, d.amount, d.iban, d.idempotencyKey),
+        requestWithdrawal(u.id, d.amount, destination, d.idempotencyKey),
         201,
       );
+    }
+    if (path[0] === "payout-profile") {
+      if (get) return json({ profile: payoutProfileView(u.id) });
+      const d = payoutProfileSchema.parse(data);
+      // Changing where money goes needs the second factor, like a withdrawal.
+      if (!u.otp_secret) throw new ApiError(403, "two_factor_required");
+      verifyTotp(u, d.totp || "");
+      return json({ profile: savePayoutProfile(u.id, d) });
     }
     if (path[0] === "network" && get)
       return json(network(u, q.user || u.id, false, q.page));

@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminPayoutProfiles } from "./AdminPayoutProfiles";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import ServiceHealth from "./ServiceHealth";
 import Localized from "../i18n/Localized";
@@ -834,6 +835,7 @@ export function AdminWithdrawals({
   return (
     <Localized>
       <>
+        <AdminPayoutProfiles refresh={refresh} onChange={onChange} />
         <Listing
           endpoint="admin/withdrawals"
           refresh={refresh}

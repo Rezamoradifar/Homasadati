@@ -645,7 +645,7 @@ describe("Panels use actual APIs and SQLite", () => {
   });
 });
 
-it("completes email, invitation, profile and authenticator steps before showing one-time recovery codes", async () => {
+it("signs up with only the email code, invitation and profile; no password or authenticator", async () => {
   authCookie = "";
   saveSetting("resend_key", "test-provider", true);
   saveSetting("email_from", "test@homay.test");
@@ -673,32 +673,21 @@ it("completes email, invitation, profile and authenticator steps before showing 
     ["نام خانوادگی", "آزمون"],
     ["کشور محل سکونت", "ایران"],
     ["شهر محل سکونت", "تهران"],
-    ["رمز عبور؛ حداقل ۱۲ نویسه", "ui-registration-pass"],
-    ["تکرار رمز عبور", "ui-registration-pass"],
   ])
     await user.type(screen.getByLabelText(label, { exact: true }), value);
   await user.click(screen.getByLabelText(/قوانین عضویت و خرید/));
   await user.click(screen.getByLabelText(/سیاست حریم خصوصی/));
   await user.click(screen.getByLabelText(/حداقل ۱۸ سال دارم/));
-  await user.click(
-    screen.getByRole("button", { name: "ادامه و فعال‌سازی دومرحله‌ای" }),
-  );
-  await screen.findByRole("heading", { name: "اتصال برنامه رمزساز" });
-  const secret = document.querySelector(".auth-secret")!.textContent!;
-  await user.type(screen.getByLabelText("کد شش‌رقمی رمزساز"), totp(secret));
-  await user.click(
-    screen.getByRole("button", { name: "تأیید و ساخت حساب امن" }),
-  );
-  await screen.findByRole("heading", { name: "کدهای بازیابی را نگه دارید" });
-  expect(done).not.toHaveBeenCalled();
-  expect(document.querySelectorAll(".recovery-grid code")).toHaveLength(10);
-  await user.click(screen.getByLabelText(/کدها را در محل امنی/));
-  await user.click(screen.getByRole("button", { name: "ادامه" }));
+  const create = screen.getByRole("button", { name: "ساخت حساب" });
+  await waitFor(() => expect((create as HTMLButtonElement).disabled).toBe(false));
+  await user.click(create);
   await waitFor(() => expect(done).toHaveBeenCalledOnce());
+  expect(screen.queryByRole("heading", { name: "کدهای بازیابی را نگه دارید" })).toBeNull();
   const u = one(
-    "SELECT id,sponsor_id FROM p_users WHERE email='registration-ui@example.test'",
+    "SELECT id,sponsor_id,otp_secret FROM p_users WHERE email='registration-ui@example.test'",
   )!;
   expect(u.sponsor_id).toBeTruthy();
+  expect(u.otp_secret).toBeNull();
   expect(
     JSON.parse(
       one("SELECT details FROM p_member_details WHERE user_id=?", u.id)!

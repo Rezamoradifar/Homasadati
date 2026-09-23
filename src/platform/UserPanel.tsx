@@ -5,6 +5,7 @@ import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
 import { MemberDetails } from "./MemberDetails";
 import { MemberOverview } from "./MemberOverview";
+import { PayoutProfileCard } from "./PayoutProfileCard";
 import { extendedCatalogFields } from "./catalog-fields";
 import { useRef, useState } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
@@ -425,7 +426,9 @@ export function Wallet({
   user: RecordData;
 }) {
   const s = useData("wallet", refresh),
+    payout = useData("payout-profile", refresh),
     key = useRef(crypto.randomUUID());
+  const profile = payout.data?.profile ?? null;
   return (
     <Localized><DataState state={s}>
       {(d) => (
@@ -436,13 +439,32 @@ export function Wallet({
             <Stat label="رزروشده برای برداشت" value={d.wallet.held} />
             <Stat label="بدهی برگشت پورسانت" value={d.wallet.debt} />
           </div>
+          {!payout.loading && (
+            <PayoutProfileCard
+              key={profile?.updatedAt || "new"}
+              profile={profile}
+              twoFactor={!!user.twoFactor}
+              onSaved={onChange}
+            />
+          )}
           <div className="portal-card">
             <h2>درخواست برداشت</h2>
-            {d.limits ? (
+            {d.limits && user.twoFactor && profile?.status !== "verified" ? (
+              <p className="portal-notice">
+                برداشت پس از تأیید اطلاعات بانکی شما فعال می‌شود.
+              </p>
+            ) : d.limits && !user.twoFactor ? (
+              <p className="portal-notice">
+                برای امنیت دارایی شما، برداشت فقط با تأیید دومرحله‌ای ممکن است.
+                ابتدا رمزساز را در بخش{" "}
+                <a href="?tab=security">امنیت حساب</a> فعال کنید.
+              </p>
+            ) : d.limits ? (
               <>
                 <p>
                   حداقل {amount(d.limits.min)} و حداکثر {amount(d.limits.max)}{" "}
-                  تومان برای هر درخواست
+                  تومان برای هر درخواست؛ واریز به شبای{" "}
+                  <span dir="ltr">{profile?.iban}</span>
                 </p>
                 <Form
                   fields={[
@@ -453,14 +475,7 @@ export function Wallet({
                       min: d.limits.min,
                       max: Math.min(d.limits.max, d.wallet.available),
                     },
-                    {
-                      name: "iban",
-                      label: "شماره شبا",
-                      hint: "IR به همراه ۲۴ رقم؛ متعلق به صاحب حساب",
-                    },
-                    ...(user.twoFactor
-                      ? [{ name: "totp", label: "کد دومرحله‌ای", max: 6 }]
-                      : []),
+                    { name: "totp", label: "کد دومرحله‌ای", max: 6 },
                   ]}
                   submit="ثبت درخواست برداشت"
                   onSubmit={async (v) => {

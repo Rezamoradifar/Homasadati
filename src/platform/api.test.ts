@@ -236,19 +236,56 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     ).toBe("%PDF");
   });
   it("requests withdrawal and admin approval debits the held wallet atomically", async () => {
+    const secret = decrypt(
+      one("SELECT otp_secret FROM p_users WHERE id=?", sponsorId)!.otp_secret,
+    );
+    const step = Math.floor(Date.now() / 30000);
+    run("UPDATE p_users SET otp_last=? WHERE id=?", step - 2, sponsorId);
+    const blocked = await request(
+      "withdrawals",
+      "POST",
+      { totp: totp(secret, step - 1), amount: 9000, idempotencyKey: randomUUID() },
+      sponsor,
+    );
+    expect(blocked.status).toBe(403);
+    expect((await blocked.json()).error).toBe("payout_profile_required");
+    const bank = {
+      holderName: "Sponsor Member",
+      nationalId: "۰۰۱۲۳۴۵۶۷۹",
+      cardNumber: "6037-9912-3456-7893",
+      iban: "IR062960000000100324200001",
+    };
+    const saved = await request(
+      "payout-profile",
+      "POST",
+      { ...bank, totp: totp(secret, step) },
+      sponsor,
+    );
+    expect(saved.status).toBe(200);
+    const view = (await saved.json()).profile;
+    expect(view).toMatchObject({ status: "pending", nationalId: "•••••••679" });
+    expect(JSON.stringify(view)).not.toContain("6037991234567893");
+    expect(
+      one("SELECT data FROM p_payout_profiles WHERE user_id=?", sponsorId)!.data,
+    ).not.toContain("0012345679");
+    const listed = await (await request("admin/payout-profiles", "GET", undefined, admin)).json();
+    expect(listed.rows[0]).toMatchObject({ nationalId: "0012345679", cardNumber: "6037991234567893" });
+    expect(
+      (
+        await request(
+          "admin/payout-profiles",
+          "PATCH",
+          { userId: sponsorId, status: "verified", reason: "" },
+          admin,
+        )
+      ).status,
+    ).toBe(200);
     const r = await request(
       "withdrawals",
       "POST",
       {
-        totp: totp(
-          decrypt(
-            one("SELECT otp_secret FROM p_users WHERE id=?", sponsorId)!
-              .otp_secret,
-          ),
-          Math.floor(Date.now() / 30000) + 1,
-        ),
+        totp: totp(secret, step + 1),
         amount: 9000,
-        iban: "IR062960000000100324200001",
         idempotencyKey: randomUUID(),
       },
       sponsor,
@@ -269,8 +306,8 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
       one("SELECT available,held FROM p_wallets WHERE user_id=?", sponsorId),
     ).toEqual({ available: 1000, held: 0 });
     expect(
-      one("SELECT status FROM p_withdrawals WHERE id=?", w.id)!.status,
-    ).toBe("approved");
+      one("SELECT status,iban FROM p_withdrawals WHERE id=?", w.id),
+    ).toEqual({ status: "approved", iban: "IR062960000000100324200001" });
     expect(
       one(
         "SELECT COUNT(*) n FROM p_audit WHERE action='withdrawal.approved' AND actor_id=?",

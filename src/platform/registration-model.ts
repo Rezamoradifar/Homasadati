@@ -42,9 +42,12 @@ export const memberDetailsSchema = z
 export const registrationSchema = z
   .object({
     target: registrationContact,
-    password,
+    // Both optional: the verified email code is enough to open an account.
+    // A password or an authenticator can be added later from the account;
+    // the authenticator is required before the first withdrawal.
+    password: password.optional(),
     verificationToken: z.string().regex(/^[a-f0-9]{64}$/),
-    totp: z.string().regex(/^\d{6}$/),
+    totp: z.string().regex(/^\d{6}$/).optional(),
     captchaToken,
     invitationMode: z.enum(["with-code", "without-code"]),
     referral: z.union([z.literal(""), referralCode]).optional(),

@@ -16,7 +16,7 @@ export default function AuthPanel({
   admin?: boolean;
 }) {
   const [mode, setMode] = useState("login"),
-    [otp, setOtp] = useState(false),
+    [otp, setOtp] = useState(!admin),
     [recovery, setRecovery] = useState(false),
     [challenge, setChallenge] = useState("");
   const [target, setTarget] = useState(""),
@@ -156,14 +156,14 @@ export default function AuthPanel({
             <label className="auth-check">
               <input
                 type="checkbox"
-                checked={otp}
+                checked={!otp}
                 onChange={(e) => {
-                  setOtp(e.target.checked);
+                  setOtp(!e.target.checked);
                   setChallenge("");
                   setCode("");
                 }}
               />
-              ورود با کد ایمیل یا پیامک
+              ورود با رمز عبور
             </label>
           )}
           {(!otp || mode === "reset") && (
@@ -217,11 +217,11 @@ export default function AuthPanel({
               </label>
             </div>
           )}
-          <div className="login-second-factor">
-            <strong>
-              <ShieldCheck size={18} /> تأیید دومرحله‌ای
-            </strong>
-            <p>اگر رمزساز حساب شما فعال است، کد آن را وارد کنید.</p>
+          <details className="login-second-factor" open={!!totp || recovery || !!error || undefined}>
+            <summary>
+              <ShieldCheck size={18} /> رمزساز را فعال کرده‌اید؟
+            </summary>
+            <p>اگر تأیید دومرحله‌ای حساب شما فعال است، کد آن را وارد کنید.</p>
             {recovery ? (
               <label>
                 کد بازیابی یک‌بارمصرف
@@ -262,7 +262,7 @@ export default function AuthPanel({
                 ? "استفاده از برنامه رمزساز"
                 : "به رمزساز دسترسی ندارم؛ استفاده از کد بازیابی"}
             </button>
-          </div>
+          </details>
           {submitCaptcha.element}
           <button
             className="portal-button"

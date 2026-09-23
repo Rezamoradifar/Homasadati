@@ -82,3 +82,32 @@ export const iban = z
     for (const c of s) n = (n * 10 + Number(c)) % 97;
     return n === 1;
   }, "شماره شبای ایران معتبر نیست");
+
+const latinDigits = (v: string) =>
+  v
+    .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+    .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))
+    .replace(/[\s-]/g, "");
+/** Iranian national code: ten digits with the official check digit. */
+export const nationalId = z
+  .string()
+  .transform(latinDigits)
+  .refine((v) => {
+    if (!/^\d{10}$/.test(v) || /^(\d)\1{9}$/.test(v)) return false;
+    const sum = [...v.slice(0, 9)].reduce((t, d, i) => t + Number(d) * (10 - i), 0) % 11;
+    return Number(v[9]) === (sum < 2 ? sum : 11 - sum);
+  }, "کد ملی معتبر نیست");
+/** Shetab bank card: sixteen digits passing the Luhn check. */
+export const bankCard = z
+  .string()
+  .transform(latinDigits)
+  .refine((v) => {
+    if (!/^\d{16}$/.test(v)) return false;
+    let sum = 0;
+    for (let i = 0; i < 16; i++) {
+      let d = Number(v[i]);
+      if (i % 2 === 0) d = d * 2 > 9 ? d * 2 - 9 : d * 2;
+      sum += d;
+    }
+    return sum % 10 === 0;
+  }, "شماره کارت معتبر نیست");
