@@ -1,7 +1,6 @@
 'use client';
 
 import {useCurrency,UsdNote} from '../src/commerce/currency';
-import StoreHeader from '../src/commerce/StoreHeader';
 import ContactDetails from "../src/commerce/ContactDetails";
 import Localized from "../src/i18n/Localized";
 import ResponsiveImage from "../src/components/media/ResponsiveImage";
@@ -70,7 +69,13 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
  const navItems=c.nav.map((label,i)=>({label,key:String(i),action:()=>goTo(i)}));
  return <Localized><>
  <a href="#worlds" className="skip-link">{c.explore}</a>
- <StoreHeader onJoin={()=>open('club')}/>
+ <div className="utility-bar"><a href="/help">راهنمای خرید</a><span>{e('utility')}</span><div><a className="account-entry" href="/cart">{locale==='fa'?'سبد خرید':locale==='ar'?'السلة':'Cart'}</a><a className="account-entry" href="/account">{e('account')}</a><a href="#partnership">{e('partnership')}</a><button onClick={()=>open('tracking')}>{u('tracking')}</button></div></div>
+ <header className="site-header">
+  <a href="#home" className="brand" aria-label="Homanet"><ResponsiveImage src={siteSettings.site_logo||'/assets/brand-mark.png'} alt=""/><span><strong>{siteSettings.site_name||(locale==='en'?'Homanet':translatedName)}</strong><small>{locale==='fa'?'باشگاه مشتریان':locale==='ar'?'نادي العملاء':'CUSTOMERS CLUB'}</small></span></a>
+  <nav aria-label={c.nav[0]} className="desktop-nav">{navItems.map(item=><Localized key={item.key}><button onClick={item.action} className={item.key==='0'?'active':''}><span>{item.label}</span></button></Localized>)}<IncomeMenuLink/></nav>
+  <div className="header-actions"><ThemeToggle/><label className="sr-only" htmlFor="site-language">{u('language')}</label><select id="site-language" value={locale} onChange={e=>setLocale(e.target.value as Locale)}><option value="en">EN</option><option value="fa">FA</option><option value="ar">AR</option></select><button className="gold-button join-header" onClick={()=>open('club')}>{c.join}<Arrow size={17}/></button><button className="mobile-menu icon-button" onClick={()=>setMenu(!menu)} aria-label={menu?c.close:c.menu} aria-expanded={menu} aria-controls="mobile-navigation">{menu?<X/>:<List/>}</button></div>
+ </header>
+ {menu&&<nav id="mobile-navigation" className="mobile-nav" onKeyDown={event=>{if(event.key==='Escape'){setMenu(false);document.querySelector<HTMLButtonElement>('.mobile-menu')?.focus();}}} aria-label={c.menu}>{navItems.map(item=><Localized key={item.key}><button onClick={item.action}>{item.label}<Arrow size={18}/></button></Localized>)}<IncomeMenuLink/><button onClick={()=>open('club')}>{c.join}<Gift size={18}/></button></nav>}
  <main id="main" tabIndex={-1}>
  <section className="hero" id="home" aria-labelledby="hero-title">
   <CivilizationHero/>

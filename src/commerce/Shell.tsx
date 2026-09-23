@@ -1,7 +1,8 @@
 import ContactDetails from "./ContactDetails";
 
+import {LanguagePicker} from '../i18n/SiteLocale';
 import Localized from "../i18n/Localized";
-import StoreHeader from "./StoreHeader";
+import ThemeToggle from "./ThemeToggle";
 import type { ReactNode } from "react";
 import { brands, menuSectors } from "./brands";
 import "./commerce.css";
@@ -12,7 +13,39 @@ export function CommerceShell({ children }: { children: ReactNode }) {
       <a className="commerce-skip" href="#commerce-main">
         رفتن به محتوا
       </a>
-      <StoreHeader />
+      <header className="commerce-header">
+        <a className="commerce-logo" href="/">
+          <img src="/assets/brand-mark.png" alt="" />
+          <span>
+            هما نت<small>باشگاه مشتریان</small>
+          </span>
+        </a>
+        {/* Phones: the links fold behind this button (CSS only, no script). */}
+        <input type="checkbox" id="commerce-menu-toggle" className="commerce-menu-toggle" aria-label="منو" />
+        <label htmlFor="commerce-menu-toggle" className="commerce-menu-button" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </label>
+        <nav aria-label="بخش‌های خانواده همای">
+          {menuSectors.map((k) => (
+            <Localized key={k}><a href={`/worlds/${k}`}>
+              {brands[k].name}
+            </a></Localized>
+          ))}
+        </nav>
+        <div>
+          <LanguagePicker/><ThemeToggle />
+          <a href="/club">باشگاه مشتریان</a>
+          <a href="/club/ranks">هفت رتبه باشگاه</a>
+          <a href="/merchants">پذیرندگان</a>
+          <a href="/income-plan">طرح درآمد</a>
+          <a href="/shop">فروشگاه</a>
+          <a href="/cart">سبد خرید</a>
+          <a href="/account">حساب من</a>
+          <a href="/help">راهنمای خرید</a><a href="/contact">ارتباط با ما</a>
+        </div>
+      </header>
       {children}
       <footer
         className="commerce-footer"
