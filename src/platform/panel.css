@@ -2041,3 +2041,50 @@ html[data-theme="dark"] .member-shortcuts svg {
 .payout-status.verified { color: var(--homa-green, #1e6444); }
 .payout-status.rejected { color: #b42318; }
 .payout-filter { display: inline-flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+/* Binary network tree */
+.network-tree-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.network-tree-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.network-tree-tools label { display: inline-flex; gap: 8px; align-items: center; }
+.network-tree-search { display: flex; gap: 8px; margin: 14px 0; }
+.network-tree-search input { flex: 1; min-width: 0; }
+.network-tree-matches { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.network-tree-matches button { border: 1px solid var(--homa-sky, #98c0d9); background: transparent; color: inherit; border-radius: 999px; padding: 6px 12px; cursor: pointer; font: inherit; }
+.network-tree-path { font-size: 13px; margin-bottom: 12px; }
+.network-tree-path button { background: none; border: 0; color: var(--homa-blue, #3c5b81); cursor: pointer; font: inherit; text-decoration: underline; padding: 0; }
+.network-tree-summary { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; margin-bottom: 18px; }
+.tree-leg-summary, .tree-root-stats { border: 1px solid color-mix(in srgb, var(--homa-sky, #98c0d9) 60%, transparent); border-radius: 12px; padding: 12px 14px; }
+.tree-leg-summary h3 { margin: 0 0 8px; font-size: 15px; }
+.tree-leg-summary dl { margin: 0; display: grid; gap: 6px; }
+.tree-leg-summary dl div { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.tree-leg-summary dd { margin: 0; font-weight: 700; }
+.tree-root-stats { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; min-width: 140px; }
+.tree-root-stats strong { font-size: 17px; }
+.tree-root-stats small, .tree-root-stats span { font-size: 12px; opacity: .75; }
+.network-tree-canvas { overflow-x: auto; padding: 8px 0 16px; }
+.network-tree-canvas .tree, .network-tree-canvas .tree ul { display: flex; justify-content: center; padding: 20px 0 0; margin: 0; position: relative; list-style: none; }
+.network-tree-canvas > .tree { padding-top: 0; min-width: max-content; }
+.network-tree-canvas li { position: relative; padding: 20px 6px 0; display: flex; flex-direction: column; align-items: center; }
+.network-tree-canvas > .tree > li { padding-top: 0; }
+.network-tree-canvas li::before, .network-tree-canvas li::after { content: ""; position: absolute; top: 0; width: 50%; height: 20px; border-top: 2px solid var(--homa-sky, #98c0d9); }
+.network-tree-canvas li::before { right: 50%; }
+.network-tree-canvas li::after { left: 50%; border-left: 2px solid var(--homa-sky, #98c0d9); }
+.network-tree-canvas li:first-child::before, .network-tree-canvas li:last-child::after { border-top: 0; }
+.network-tree-canvas li:only-child::before, .network-tree-canvas li:only-child::after, .network-tree-canvas > .tree > li::before, .network-tree-canvas > .tree > li::after { display: none; }
+.network-tree-canvas li:last-child::before { border-right: 2px solid var(--homa-sky, #98c0d9); border-top-right-radius: 6px; }
+.network-tree-canvas li:first-child::after { border-top-left-radius: 6px; }
+.network-tree-canvas ul::before { content: ""; position: absolute; top: 0; left: 50%; height: 20px; border-left: 2px solid var(--homa-sky, #98c0d9); }
+.tree-node { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 132px; padding: 10px 8px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--homa-sky, #98c0d9) 70%, transparent); background: var(--portal-surface, #fff); color: inherit; font: inherit; cursor: pointer; text-align: center; transition: transform .15s, box-shadow .15s; }
+.tree-node:hover, .tree-node:focus-visible { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(41, 50, 65, .14); }
+.tree-node.root { border: 2px solid var(--homa-orange, #ed6a4d); cursor: default; }
+.tree-node strong { font-size: 13px; line-height: 1.4; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-node small { font-size: 11px; opacity: .75; }
+.tree-avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--homa-ice, #e4f4f7); color: var(--homa-navy, #293241); }
+.tree-node.active .tree-avatar { background: var(--homa-green, #1e6444); color: #fff; }
+.tree-legs { display: flex; gap: 6px; font-size: 11px; }
+.tree-legs span { background: var(--homa-ice, #e4f4f7); color: var(--homa-navy, #293241); border-radius: 999px; padding: 2px 8px; }
+.tree-node.empty { border-style: dashed; opacity: .6; cursor: default; min-height: 60px; justify-content: center; font-size: 12px; }
+.network-tree-note { font-size: 12px; opacity: .75; margin: 8px 0 0; }
+@media (max-width: 640px) {
+  .network-tree-summary { grid-template-columns: 1fr; }
+  .tree-node { width: 112px; }
+}

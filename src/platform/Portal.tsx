@@ -1,4 +1,5 @@
 "use client";
+import { NetworkTree } from "./NetworkTree";
 import SevenCardPanel from "./SevenCardPanel";
 import { TicketsPanel, BinarySchedulePanel } from "./SupportPanels";
 import {
@@ -494,11 +495,14 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     />
                   )}{" "}
                   {tab === "network" && (
-                    <AdminNetwork
-                      refresh={refresh}
-                      onChange={update}
-                      user={user}
-                    />
+                    <>
+                      <NetworkTree user={user} refresh={refresh} admin />
+                      <AdminNetwork
+                        refresh={refresh}
+                        onChange={update}
+                        user={user}
+                      />
+                    </>
                   )}{" "}
                   {tab === "commissions" && (
                     <Listing
@@ -571,7 +575,10 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     <Wallet refresh={refresh} onChange={update} user={user} />
                   )}{" "}
                   {tab === "network" && (
-                    <Network user={user} refresh={refresh} />
+                    <>
+                      <NetworkTree user={user} refresh={refresh} />
+                      <Network user={user} refresh={refresh} />
+                    </>
                   )}{" "}
                   {tab === "missions" && <Missions refresh={refresh} />}{" "}
                   {tab === "commissions" && (

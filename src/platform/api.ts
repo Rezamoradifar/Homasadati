@@ -49,6 +49,7 @@ import { media } from "./media";
 import { operations } from "./operations";
 import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID, randomBytes } from "node:crypto";
+import { placementTree, searchTree } from "./network-tree";
 import {
   payoutProfileSchema,
   payoutProfileView,
@@ -149,6 +150,8 @@ const querySchema = z.object({
   cat: z.string().regex(/^[a-z-]{0,40}$/).default(""),
   tech: z.string().regex(/^[a-z-]{0,40}$/).default(""),
   item: z.string().regex(/^[a-z-]{0,40}$/).default(""),
+  root: z.string().uuid().optional(),
+  depth: z.coerce.number().int().min(1).max(5).optional(),
 });
 function query(url: URL) {
   const q = querySchema.parse(Object.fromEntries(url.searchParams));
@@ -1164,6 +1167,11 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     });
     return json({ ok: true });
   }
+  if (resource === "network-tree" && get)
+    return json({
+      ...placementTree(u.id, q.root || u.id, Number(q.depth) || 3, true),
+      matches: q.q ? searchTree(u.id, q.q, true) : [],
+    });
   if (resource === "network") {
     if (get) return json(network(u, q.user || u.id, true, q.page));
     const d = z
@@ -1955,6 +1963,10 @@ export async function handle(req: Request, path: string[]) {
       verifyTotp(u, d.totp || "");
       return json({ profile: savePayoutProfile(u.id, d) });
     }
+    if (path[0] === "network-tree" && get)
+      return json(placementTree(u.id, q.root || u.id, Number(q.depth) || 3));
+    if (path[0] === "network-search" && get)
+      return json({ rows: searchTree(u.id, q.q || "") });
     if (path[0] === "network" && get)
       return json(network(u, q.user || u.id, false, q.page));
     if (path[0] === "commissions" && get)
