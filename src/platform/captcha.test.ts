@@ -11,7 +11,7 @@ import {
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { captchaConfig, verifyCaptcha } from "./captcha";
+import { allowedHostnames, captchaConfig, verifyCaptcha } from "./captcha";
 import { platformDb, run } from "./schema";
 import { handle } from "./api";
 const dir = mkdtempSync(join(tmpdir(), "homay-captcha-"));
@@ -147,4 +147,9 @@ it("rejects provider testing keys on production instead of silently weakening th
   await expect(verifyCaptcha("token", "register")).rejects.toMatchObject({
     code: "captcha_not_configured",
   });
+});
+
+it("accepts the site host and its www twin only", () => {
+  expect(allowedHostnames("https://homanets.com")).toEqual(["homanets.com", "www.homanets.com"]);
+  expect(allowedHostnames("https://www.homanets.com")).toEqual(["www.homanets.com", "homanets.com"]);
 });
