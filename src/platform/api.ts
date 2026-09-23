@@ -1595,14 +1595,21 @@ export async function handle(req: Request, path: string[]) {
             (SELECT COUNT(*) FROM p_orders WHERE user_id=? AND status IN ('pending','processing','shipped')) AS activeOrders,
             (SELECT COUNT(*) FROM p_notifications WHERE user_id=? AND read_at IS NULL) AS unreadNotifications,
             (SELECT COUNT(*) FROM p_tickets WHERE user_id=? AND status!='closed') AS openTickets,
-            (SELECT COUNT(*) FROM p_subscriptions WHERE user_id=? AND cancelled=0 AND starts_at<=? AND expires_at>?) AS activeSubscriptions`,
+            (SELECT COUNT(*) FROM p_subscriptions WHERE user_id=? AND cancelled=0 AND starts_at<=? AND expires_at>?) AS activeSubscriptions,
+            (SELECT COUNT(*) FROM p_wishlist WHERE user_id=?) AS wishlist`,
           u.id,
           u.id,
           u.id,
           u.id,
           now(),
           now(),
+          u.id,
         ),
+        latestNotice:
+          one(
+            "SELECT id,title,body,created_at,read_at FROM p_notifications WHERE user_id=? ORDER BY created_at DESC,rowid DESC LIMIT 1",
+            u.id,
+          ) || null,
         wallet: wallet(u.id),
         sales: sales(u.id, start),
         rank: rankProgress(u.id),
@@ -1995,6 +2002,30 @@ export async function handle(req: Request, path: string[]) {
           progress: counts[m.metric as keyof typeof counts],
         })),
       });
+    }
+    if (path[0] === "wishlist") {
+      if (get && path[1] === "ids")
+        return json({
+          ids: all("SELECT product_id FROM p_wishlist WHERE user_id=?", u.id).map((r) => r.product_id),
+        });
+      if (get)
+        return json({
+          rows: all(
+            "SELECT p.id,p.title,p.vertical,p.price,p.stock,p.images,w.created_at FROM p_wishlist w JOIN p_products p ON p.id=w.product_id WHERE w.user_id=? AND p.published=1 ORDER BY w.created_at DESC LIMIT 200",
+            u.id,
+          ),
+        });
+      if (method === "DELETE") {
+        run("DELETE FROM p_wishlist WHERE user_id=? AND product_id=?", u.id, id.parse(path[1]));
+        return json({ ok: true });
+      }
+      const productId = z.object({ productId: id }).parse(data).productId;
+      if (!one("SELECT id FROM p_products WHERE id=? AND published=1", productId))
+        throw new ApiError(404, "not_found");
+      if (one("SELECT COUNT(*) n FROM p_wishlist WHERE user_id=?", u.id)!.n >= 200)
+        throw new ApiError(409, "invalid_state");
+      run("INSERT OR IGNORE INTO p_wishlist VALUES(?,?,?)", u.id, productId, now());
+      return json({ ok: true }, 201);
     }
     if (path[0] === "addresses") {
       if (get)

@@ -140,6 +140,10 @@ export function validateClient(path: string, method: string, data: unknown) {
       password,
       totp: otp.optional(),
     });
+  if (p[0] === "wishlist") {
+    if (method === "DELETE") id.parse(p[1]);
+    else schema = z.object({ productId: id });
+  }
   if (p[0] === "addresses") {
     if (method === "DELETE") id.parse(p[1]);
     else

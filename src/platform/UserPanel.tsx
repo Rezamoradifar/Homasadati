@@ -7,6 +7,8 @@ import { MemberDetails } from "./MemberDetails";
 import { MemberOverview } from "./MemberOverview";
 import { PayoutProfileCard } from "./PayoutProfileCard";
 import { ReferralCard } from "./ReferralCard";
+import { WishButton } from "./Wishlist";
+import { Bell } from "lucide-react";
 import { extendedCatalogFields } from "./catalog-fields";
 import { useRef, useState } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
@@ -48,7 +50,30 @@ export function Dashboard({ refresh, user, onNavigate }: {
     <Localized><DataState state={s}>
       {(d) => (
         <Localized><>
-          <MemberOverview user={user} activity={d.activity} onNavigate={onNavigate} />
+          <MemberOverview
+            user={user}
+            activity={d.activity}
+            onNavigate={onNavigate}
+            notice={
+              d.latestNotice && (
+            <section className="portal-card member-notice" aria-label="جدیدترین اطلاعیه">
+              <span className="member-notice-icon" aria-hidden="true"><Bell size={22} /></span>
+              <div>
+                <h2>جدیدترین اطلاعیه</h2>
+                <strong>{d.latestNotice.title}</strong>
+                <p>{d.latestNotice.body}</p>
+                <small>
+                  {date(d.latestNotice.created_at)}
+                  {!d.latestNotice.read_at && " · خوانده‌نشده"}
+                </small>
+              </div>
+              <button className="portal-button secondary" onClick={() => onNavigate("notifications")}>
+                همهٔ اعلان‌ها
+              </button>
+            </section>
+          )
+            }
+          />
           <div className="portal-stats">
             <Stat label="موجودی قابل برداشت" value={d.wallet.available} />
             <Stat label="در انتظار تسویه" value={d.wallet.pending} />
@@ -110,7 +135,8 @@ export function Catalog({
     [page, setPage] = useState(1),
     [error, setError] = useState(""),
     [success, setSuccess] = useState("");
-  const s = useData("catalog?" + q + "&page=" + page, refresh);
+  const s = useData("catalog?" + q + "&page=" + page, refresh),
+    wished = useData("wishlist/ids", refresh);
   return (
     <Localized><>
       <p className="portal-notice">
@@ -133,6 +159,7 @@ export function Catalog({
                 {d.rows.map((p: RecordData) => (
                   <Localized key={p.id}><Product
                     product={p}
+                    wished={wished.loading ? null : (wished.data?.ids || []).includes(p.id)}
                     onFamily={(family: string) => {
                       setQ("family=" + encodeURIComponent(family));
                       setPage(1);
@@ -161,10 +188,12 @@ export function Catalog({
 }
 function Product({
   product: p,
+  wished,
   onDone,
   onError,
   onFamily,
 }: {
+  wished: boolean | null;
   onFamily: (family: string) => void;
   product: RecordData;
   onDone: () => void;
@@ -179,6 +208,7 @@ function Product({
       <div>
         <small>{labels[p.vertical]}</small>
         <h2>{copy.title}</h2>
+        {wished !== null && <WishButton productId={p.id} initial={wished} />}
         <p>{copy.description}</p>
         <strong>{amount(p.price)} تومان</strong>
         {p.details?.comparePrice > p.price && (

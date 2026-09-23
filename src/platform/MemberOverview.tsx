@@ -7,6 +7,7 @@ import {
   CreditCard,
   Gift,
   GitBranch,
+  Heart,
   LifeBuoy,
   Package,
   Plane,
@@ -15,7 +16,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { MouseEvent } from "react";
+import { MouseEvent, ReactNode } from "react";
 import { amount, RecordData } from "./client";
 import Localized from "../i18n/Localized";
 
@@ -74,7 +75,9 @@ export function MemberOverview({
   user,
   activity = {},
   onNavigate,
+  notice,
 }: {
+  notice?: ReactNode;
   user: RecordData;
   activity: RecordData;
   onNavigate: (tab: string) => void;
@@ -111,6 +114,12 @@ export function MemberOverview({
       icon: LifeBuoy,
     },
     {
+      tab: "wishlist",
+      label: "محصول در علاقه‌مندی‌ها",
+      value: activity.wishlist,
+      icon: Heart,
+    },
+    {
       tab: "subscriptions",
       label: "اشتراک فعال",
       value: activity.activeSubscriptions,
@@ -144,6 +153,7 @@ export function MemberOverview({
           </a>
         ))}
       </section>
+      {notice}
       <section
         className="member-services"
         aria-labelledby="member-services-heading"

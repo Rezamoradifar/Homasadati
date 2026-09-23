@@ -3,6 +3,7 @@ export const memberGroups = [
     title: "حساب من",
     tabs: [
       ["dashboard", "نمای کلی"],
+      ["wishlist", "علاقه‌مندی‌ها"],
       ["notifications", "اعلان‌ها"],
       ["tickets", "پشتیبانی"],
     ],

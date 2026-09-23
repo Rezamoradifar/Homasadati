@@ -315,6 +315,16 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
       )!.n,
     ).toBe(1);
   });
+  it("saves, lists and removes wishlist items for the signed-in member only", async () => {
+    expect((await request("wishlist", "POST", { productId }, sponsor)).status).toBe(201);
+    expect((await request("wishlist", "POST", { productId }, sponsor)).status).toBe(201);
+    expect((await (await request("wishlist/ids", "GET", undefined, sponsor)).json()).ids).toEqual([productId]);
+    expect((await (await request("wishlist", "GET", undefined, sponsor)).json()).rows[0].id).toBe(productId);
+    expect((await (await request("wishlist/ids", "GET", undefined, admin)).json()).ids).toEqual([]);
+    expect((await request("wishlist", "POST", { productId: randomUUID() }, sponsor)).status).toBe(404);
+    expect((await request("wishlist/" + productId, "DELETE", undefined, sponsor)).status).toBe(200);
+    expect((await (await request("wishlist/ids", "GET", undefined, sponsor)).json()).ids).toEqual([]);
+  });
   it("blocks IDOR, malicious amounts, insufficient roles, invalid input and cross-origin mutation", async () => {
     expect(
       (await request("orders/" + orderId, "GET", undefined, sponsor)).status,

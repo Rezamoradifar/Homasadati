@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"src/i18n/core.ts -> ./ar.json\":{\"id\":\"src/i18n/core.ts -> ./ar.json\",\"files\":[\"static/chunks/_app-pages-browser_src_i18n_ar_json.js\"]},\"src/i18n/core.ts -> ./en.json\":{\"id\":\"src/i18n/core.ts -> ./en.json\",\"files\":[\"static/chunks/_app-pages-browser_src_i18n_en_json.js\"]}}"

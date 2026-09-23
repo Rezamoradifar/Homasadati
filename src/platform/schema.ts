@@ -164,6 +164,8 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_referral_aliases(code TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),retired_at TEXT NOT NULL);
   CREATE INDEX IF NOT EXISTS p_referral_aliases_user ON p_referral_aliases(user_id,retired_at);
   INSERT OR IGNORE INTO p_migrations VALUES(15,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_wishlist(user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),created_at TEXT NOT NULL,PRIMARY KEY(user_id,product_id));
+  INSERT OR IGNORE INTO p_migrations VALUES(16,datetime('now'));
 
   `);
   ready = d;

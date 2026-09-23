@@ -74,7 +74,7 @@ function Branch({ n, onOpen, root = false }: { n: TreeNode | null; onOpen: (id: 
 
 function LegSummary({ label, leg }: { label: string; leg: Leg }) {
   return (
-    <div className="tree-leg-summary">
+    <div className="tree-leg-summary" dir="rtl">
       <h3>{label}</h3>
       <dl>
         <div>
@@ -191,9 +191,9 @@ export function NetworkTree({ user, refresh, admin = false }: { user: RecordData
                   ))}
                 </nav>
               )}
-              <div className="network-tree-summary">
+              <div className="network-tree-summary" dir="ltr">
                 <LegSummary label="شاخهٔ چپ" leg={d.tree.left} />
-                <div className="tree-root-stats">
+                <div className="tree-root-stats" dir="rtl">
                   <span>خرید شخصی</span>
                   <strong>{amount(d.tree.personalVolume)}</strong>
                   <small>عضویت از {date(d.tree.joinedAt)}</small>

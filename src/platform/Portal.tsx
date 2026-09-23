@@ -1,5 +1,6 @@
 "use client";
 import { NetworkTree } from "./NetworkTree";
+import { Wishlist } from "./Wishlist";
 import SevenCardPanel from "./SevenCardPanel";
 import { TicketsPanel, BinarySchedulePanel } from "./SupportPanels";
 import {
@@ -270,10 +271,12 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
         ) : (
           <div className="portal-layout" key={user.id}>
             <aside className="portal-sidebar">
-              <div className="portal-user">
-                <strong translate="no">{user.name}</strong>
-                <span>{labels[user.role]}</span>
-              </div>
+              {admin && (
+                <div className="portal-user">
+                  <strong translate="no">{user.name}</strong>
+                  <span>{labels[user.role]}</span>
+                </div>
+              )}
               {admin ? (
                 <>
                   <button
@@ -323,6 +326,17 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                 </>
               ) : (
                 <>
+                  <div className="member-profile-card">
+                    <span className="member-avatar" aria-hidden="true">
+                      {String(user.name || "").trim().slice(0, 1)}
+                    </span>
+                    <strong>
+                      سلام <bdi translate="no">{user.name}</bdi> عزیز!
+                    </strong>
+                    <small>
+                      کد معرف: <bdi dir="ltr">{user.referral_code}</bdi>
+                    </small>
+                  </div>
                   <button
                     className="member-menu-toggle"
                     type="button"
@@ -551,6 +565,9 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   {tab === "seven-card-plan" && <SevenCardPanel />}
                   {tab === "binary" && (
                     <BinaryPanel user={user} refresh={refresh} />
+                  )}
+                  {tab === "wishlist" && (
+                    <Wishlist refresh={refresh} onNavigate={selectTab} />
                   )}
                   {tab === "loyalty" && (
                     <LoyaltyPanel refresh={refresh} onChange={update} />
