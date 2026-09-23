@@ -7,6 +7,17 @@ const nextConfig = {
     formats: ["image/webp"],
   },
   serverExternalPackages: ["better-sqlite3", "pdfkit", "exceljs", "sharp"],
+  // www.<domain> → <domain>, whatever nginx does in front.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www\\.(?<domain>.+)" }],
+        destination: "https://:domain/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
