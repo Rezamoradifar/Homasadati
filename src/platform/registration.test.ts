@@ -396,7 +396,7 @@ it("rate limits OTP delivery, invalidates old codes on resend, and never returns
 it("sends English verification email for the website locale without changing the secret code", async () => {
   saveSetting("resend_key", "test-key", true);
   saveSetting("email_from", "test@homay.test");
-  let email: { subject: string; text: string } | undefined;
+  let email: { subject: string; text: string; html: string; from: string } | undefined;
   vi.stubGlobal("fetch", vi.fn(async (_url, init) => {
     email = JSON.parse(init.body);
     return Response.json({ id: randomUUID() });
@@ -406,9 +406,14 @@ it("sends English verification email for the website locale without changing the
     expect(response.status).toBe(200);
     const result = await response.json();
     expect(result).not.toHaveProperty("code");
-    expect(email!.subject).toBe("Homanet verification code | HOMA");
-    expect(email!.text).toMatch(/^Your Homanet verification code: \d{6}\. Valid for 5 minutes\. Do not share this code\.$/);
-    expect(one("SELECT code_hash FROM p_otp WHERE id=?", result.challenge)!.code_hash).toBe(hash(result.challenge + ":" + email!.text.match(/\d{6}/)![0]));
+    expect(email!.subject).toBe("Homanet sign-up verification code");
+    expect(email!.from).toBe('"Homanet" <test@homay.test>');
+    expect(email!.html).toContain('dir="ltr"');
+    expect(email!.text).toContain("Welcome to the Homanet family");
+    expect(email!.text).toContain("This code is valid for only 5 minutes.");
+    const code = email!.text.match(/^\d{6}$/m)![0];
+    expect(email!.html).toContain(code);
+    expect(one("SELECT code_hash FROM p_otp WHERE id=?", result.challenge)!.code_hash).toBe(hash(result.challenge + ":" + code));
   } finally {
     vi.unstubAllGlobals();
   }

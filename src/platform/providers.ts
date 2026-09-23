@@ -4,6 +4,7 @@ import { one, run, now, atomic } from "./schema";
 import { decrypt, encrypt } from "./security";
 import { policySchema, Policy } from "./validation";
 import { loadDictionary, translateText, type SiteLocale } from "../i18n/core";
+import { renderEmail, senderAddress, type EmailBrand } from "./email-template";
 export function setting(key: string) {
   const r = one("SELECT * FROM p_settings WHERE key=?", key);
   return r ? (r.secret ? decrypt(r.value) : r.value) : undefined;
@@ -36,6 +37,45 @@ export async function providerFetch(url: string, init: RequestInit) {
   if (!response.ok) throw new ApiError(503, "provider_rejected");
   return response.json();
 }
+const otpCopy: Record<string, { subject: string; heading: string; intro: string }> = {
+  register: {
+    subject: "کد تأیید عضویت در هما نت",
+    heading: "به خانوادهٔ هما نت خوش آمدید",
+    intro: "برای تکمیل عضویت در باشگاه مشتریان هما نت، کد زیر را در صفحهٔ ثبت‌نام وارد کنید.",
+  },
+  login: {
+    subject: "کد ورود به حساب هما نت",
+    heading: "کد ورود به حساب شما",
+    intro: "برای ورود به حساب کاربری خود در هما نت، کد زیر را وارد کنید.",
+  },
+  reset: {
+    subject: "کد بازیابی رمز عبور هما نت",
+    heading: "بازیابی رمز عبور",
+    intro: "درخواستی برای تغییر رمز عبور حساب شما ثبت شده است. برای ادامه، کد زیر را وارد کنید.",
+  },
+  contact: {
+    subject: "کد تأیید راه تماس جدید",
+    heading: "تأیید راه تماس",
+    intro: "برای ثبت این ایمیل به‌عنوان راه تماس حساب هما نت، کد زیر را وارد کنید.",
+  },
+};
+export const brandName = (locale: SiteLocale = "fa") =>
+  setting("site_name") || (locale === "fa" ? "هما نت" : "Homanet");
+/** Brand details shared by every email the platform sends. */
+export async function emailBrand(locale: SiteLocale = "fa"): Promise<EmailBrand> {
+  const dictionary = await loadDictionary(locale);
+  const t = (text: string) => translateText(text, locale, dictionary);
+  return {
+    name: brandName(locale),
+    origin: process.env.APP_ORIGIN || "https://homanets.com",
+    supportEmail: setting("site_email") || undefined,
+    direction: locale === "en" ? "ltr" : "rtl",
+    footer: [
+      t("هما نت · باشگاه مشتریان"),
+      t("این ایمیل به‌صورت خودکار ارسال شده است؛ لطفاً به آن پاسخ ندهید."),
+    ],
+  };
+}
 export async function sendOtp(target: string, purpose: string, locale: SiteLocale = "fa") {
   limit("otp-target:" + hash(target), 3, 300);
   limit("otp-cooldown:" + hash(target), 1, 60);
@@ -64,6 +104,21 @@ export async function sendOtp(target: string, purpose: string, locale: SiteLocal
         from = setting("email_from");
       if (!key || !from) throw new ApiError(503, "email_not_configured");
       const dictionary = await loadDictionary(locale);
+      const t = (text: string) => translateText(text, locale, dictionary);
+      const copy = otpCopy[purpose] || otpCopy.login;
+      const mail = renderEmail(
+        {
+          subject: t(copy.subject),
+          preheader: t("کد شش‌رقمی شما آماده است؛ تا ۵ دقیقه معتبر است."),
+          heading: t(copy.heading),
+          paragraphs: [t("سلام،"), t(copy.intro)],
+          code,
+          note: t(
+            "این کد فقط ۵ دقیقه معتبر است. کارکنان هما نت هرگز این کد را از شما نمی‌خواهند؛ آن را در اختیار هیچ‌کس قرار ندهید. اگر این درخواست از طرف شما نبوده، این ایمیل را نادیده بگیرید؛ حساب شما امن است.",
+          ),
+        },
+        await emailBrand(locale),
+      );
       const result = await providerFetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -72,10 +127,11 @@ export async function sendOtp(target: string, purpose: string, locale: SiteLocal
           "Idempotency-Key": id,
         },
         body: JSON.stringify({
-          from,
+          from: senderAddress(brandName(locale), from),
           to: [target],
-          subject: translateText("کد تأیید هما نت | HOMA", locale, dictionary),
-          text: translateText(`کد تأیید هما نت: ${code}\nاعتبار: ۵ دقیقه. این کد را در اختیار دیگران قرار ندهید.`, locale, dictionary),
+          subject: mail.subject,
+          html: mail.html,
+          text: mail.text,
         }),
       });
       if (!result.id) throw new ApiError(503, "provider_rejected");

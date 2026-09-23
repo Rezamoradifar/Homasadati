@@ -547,6 +547,11 @@ async function auth(req: Request, path: string[], data: Row) {
       });
       return { u, codes: step !== null ? recoveryCodes(u.id) : [] };
     });
+    notify(
+      result.u.id,
+      "به هما نت خوش آمدید",
+      "عضویت شما در باشگاه مشتریان هما نت با موفقیت انجام شد. از این پس می‌توانید محصولات و خدمات مجموعه را خریداری کنید، کد معرف اختصاصی خود را بسازید و دوستانتان را دعوت کنید.\nبرای امنیت بیشتر، پیشنهاد می‌کنیم از بخش امنیت حساب، تأیید دومرحله‌ای را فعال کنید؛ این کار برای برداشت از کیف پول الزامی است.\nتیم پشتیبانی هما نت همیشه در کنار شماست.",
+    );
     return respondSession(result.u, req, { recoveryCodes: result.codes });
   }
   if (action === "login") {
