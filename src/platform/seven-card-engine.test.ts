@@ -127,6 +127,28 @@ it("makes every eighth match of a desk a voucher that counts toward the cap", ()
   expect(memberCardStatus(root).deskCounters).toEqual([{ desk: 1, matches: 8 }]);
 });
 
+it("counts every eighth match across all of a member's desks when the counter is per member", () => {
+  saveSetting("seven_card_plan_draft", JSON.stringify({ decisions: { ...decisions, counterScope: "member" }, revision: 2 }));
+  buy(root, 20 * M); buy(left, 30 * M); buy(right, 30 * M);
+  run("INSERT INTO p_card_members VALUES(?,?,?,?,?) ON CONFLICT(user_id) DO NOTHING", root, 0, 0, 0, now());
+  run("INSERT INTO p_card_desks VALUES(?,1,4)", root);
+  run("INSERT INTO p_card_desks VALUES(?,2,3)", root);
+  settleAfter(8);
+  // desk counters are 4 and 3; per desk this would be cash, per member it is the 8th
+  expect(voucherBalance(root)).toBe(5_400_000);
+  expect(wallet(root).available).toBe(0);
+  expect(one("SELECT sequence,kind FROM p_card_matches WHERE user_id=?", root)).toEqual({ sequence: 8, kind: "voucher" });
+});
+
+it("pays every match with no weekly budget when the budget is unlimited", () => {
+  setCardLive(admin, { live: true, fundingBps: 1, reason: "tiny budget" });
+  buy(root, 10 * M); buy(left, 30 * M); buy(right, 30 * M);
+  expect(previewCardSettlement()).toMatchObject({ matches: 0 });
+  setCardLive(admin, { live: true, unlimitedBudget: true, reason: "plan text: no budget" });
+  const [week] = settleAfter(8);
+  expect(week).toMatchObject({ matches: 1, cash: 5_400_000, unlimited: true, carriedBudget: 0 });
+});
+
 it("reverses a paid match when an order behind it is refunded", () => {
   buy(root, 10 * M);
   const l = buy(left, 30 * M);

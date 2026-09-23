@@ -44,6 +44,11 @@ export class DryRun extends Error {
 export function cardLive() {
   return setting("seven_card_live") === "1";
 }
+/** When on, every match is paid as the plan text says, with no weekly budget
+ * drawn from sales (the owner's choice; the risk is the company's). */
+export function unlimitedBudget() {
+  return setting("seven_card_budget_unlimited") === "1";
+}
 export function fundingBps() {
   const v = Number(setting("seven_card_funding_bps") || 0);
   return Number.isInteger(v) && v >= 0 && v <= 10000 ? v : 0;
@@ -135,9 +140,13 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
   const key = weekKey(startMs), cutoff = new Date(startMs + WEEK_MS).toISOString();
   if (one("SELECT week FROM p_card_weeks WHERE week=?", key)) return null;
   const sales = countOrders(cutoff);
-  let budget = Number((BigInt(sales) * BigInt(fundingBps())) / 10000n) +
-    Number(setting("seven_card_budget_carry") || 0);
-  const result = { week: key, sales, budget, matches: 0, cash: 0, voucher: 0, carriedBudget: 0 };
+  const unlimited = unlimitedBudget();
+  let budget = unlimited
+    ? Number.MAX_SAFE_INTEGER
+    : Number((BigInt(sales) * BigInt(fundingBps())) / 10000n) + Number(setting("seven_card_budget_carry") || 0);
+  const result = { week: key, sales, budget: unlimited ? 0 : budget, unlimited, matches: 0, cash: 0, voucher: 0, carriedBudget: 0 };
+  // "Of every eight matches": per desk, or across all of the member's desks.
+  const perMember = d.counterScope === "member";
   const members = all(
     `SELECT m.* FROM p_card_members m JOIN p_users u ON u.id=m.user_id WHERE m.level>=1 AND u.blocked=0
      AND EXISTS(SELECT 1 FROM p_card_lots l WHERE l.user_id=m.user_id AND l.leg='left' AND l.void=0 AND l.remaining>0)
@@ -183,8 +192,9 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
       }
     while (left >= MATCH_VOLUME && right >= MATCH_VOLUME && budget >= MATCH_REWARD) {
       let desk = -1, voucher = false;
+      const memberTotal = counters.reduce((a, b) => a + b, 0);
       for (let i = 0; i < m.desks; i++) {
-        const isVoucher = (counters[i] + 1) % 8 === 0;
+        const isVoucher = ((perMember ? memberTotal : counters[i]) + 1) % 8 === 0;
         const cost = capCost(isVoucher, MATCH_REWARD);
         if (split ? cost === 0 || allowance[i] > 0 : cost <= allowance[i]) {
           desk = i; voucher = isVoucher;
@@ -196,7 +206,7 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
       const id = randomUUID();
       run(
         "INSERT INTO p_card_matches VALUES(?,?,?,?,?,?,?,0,?)",
-        id, m.user_id, desk + 1, key, counters[desk], voucher ? "voucher" : "cash", MATCH_REWARD, now(),
+        id, m.user_id, desk + 1, key, perMember ? memberTotal + 1 : counters[desk], voucher ? "voucher" : "cash", MATCH_REWARD, now(),
       );
       for (const leg of ["left", "right"])
         for (const t of takeVolume(m.user_id, leg, MATCH_VOLUME))
@@ -217,8 +227,8 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
     if (earned)
       notify(m.user_id, "تسویهٔ هفتگی باشگاه", `${earned.toLocaleString("fa-IR")} تومان پاداش در این هفته برای شما ثبت شد.`);
   }
-  result.carriedBudget = budget;
-  saveSetting("seven_card_budget_carry", String(budget));
+  result.carriedBudget = unlimited ? 0 : budget;
+  saveSetting("seven_card_budget_carry", String(result.carriedBudget));
   run(
     "INSERT INTO p_card_weeks VALUES(?,?,?,?,?,?,?,?)",
     key, cutoff, result.sales, result.budget, result.matches, result.cash, result.voucher, now(),
@@ -343,19 +353,27 @@ export function memberCardStatus(user: string) {
 
 /** Turns live settlement on or off. On requires every rule decided and a
  * funding share; switching on also stops the legacy binary engine. */
-export function setCardLive(actor: string, input: { live: boolean; fundingBps?: number; reason: string }) {
+export function setCardLive(
+  actor: string,
+  input: { live: boolean; fundingBps?: number; unlimitedBudget?: boolean; reason: string },
+) {
   return atomic(() => {
     if (input.live) {
       if (!decisions()) throw new ApiError(409, "plan_rules_incomplete");
-      const bps = input.fundingBps;
-      if (!Number.isInteger(bps) || bps! < 1 || bps! > 10000) throw new ApiError(400, "invalid_input");
-      saveSetting("seven_card_funding_bps", String(bps));
+      if (input.unlimitedBudget) saveSetting("seven_card_budget_unlimited", "1");
+      else {
+        const bps = input.fundingBps;
+        if (!Number.isInteger(bps) || bps! < 1 || bps! > 10000) throw new ApiError(400, "invalid_input");
+        saveSetting("seven_card_funding_bps", String(bps));
+        saveSetting("seven_card_budget_unlimited", "0");
+      }
       if (!setting("seven_card_live_since")) saveSetting("seven_card_live_since", String(Date.now()));
     }
-    const before = { live: cardLive(), fundingBps: fundingBps() };
+    const before = { live: cardLive(), fundingBps: fundingBps(), unlimitedBudget: unlimitedBudget() };
     saveSetting("seven_card_live", input.live ? "1" : "0");
-    audit(actor, "seven-card.live", "seven_card_live", before, { live: input.live, fundingBps: fundingBps() }, input.reason);
-    return { live: cardLive(), fundingBps: fundingBps() };
+    const after = { live: cardLive(), fundingBps: fundingBps(), unlimitedBudget: unlimitedBudget() };
+    audit(actor, "seven-card.live", "seven_card_live", before, after, input.reason);
+    return after;
   });
 }
 

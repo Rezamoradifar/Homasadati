@@ -1,4 +1,4 @@
-import { cardLive, cardWeeks, fundingBps, memberCardStatus, previewCardSettlement, setCardLive } from "./seven-card-engine";
+import { cardLive, cardWeeks, fundingBps, unlimitedBudget, memberCardStatus, previewCardSettlement, setCardLive } from "./seven-card-engine";
 import { cardPlan, saveCardPlan } from "./seven-card";
 import { previewCardMatches } from "./seven-card-model";
 import { setting } from "./providers";
@@ -94,9 +94,14 @@ export async function extensionAdmin(
   if (resource === "seven-card-plan")
     return json(get ? cardPlan() : saveCardPlan(u.id, data));
   if (resource === "seven-card-live") {
-    if (get) return json({ live: cardLive(), fundingBps: fundingBps(), weeks: cardWeeks() });
+    if (get) return json({ live: cardLive(), fundingBps: fundingBps(), unlimitedBudget: unlimitedBudget(), weeks: cardWeeks() });
     const d = z
-      .object({ live: z.boolean(), fundingBps: z.number().int().min(1).max(10000).optional(), reason: text })
+      .object({
+        live: z.boolean(),
+        fundingBps: z.number().int().min(1).max(10000).optional(),
+        unlimitedBudget: z.boolean().optional(),
+        reason: text,
+      })
       .strict()
       .parse(data);
     return json(setCardLive(u.id, d));

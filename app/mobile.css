@@ -588,3 +588,12 @@ html body .cart-voucher-note {font-size:13px;color:var(--homa-blue);}
 .plan-card dd { white-space: nowrap; }
 .plan-nav { position: sticky; bottom: 0; background: linear-gradient(to top, #1d2430 70%, rgba(29,36,48,0)); z-index: 2; }
 .plan-cta .commerce-button { display: inline-flex; align-items: center; padding: 12px 28px; border-radius: 999px; background: var(--homa-orange, #ed6a4d); color: #fff; text-decoration: none; font-weight: 700; }
+.plan-text-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 16px 0 28px; }
+.plan-text-cards article { border: 1px solid color-mix(in srgb, var(--homa-sky, #98c0d9) 60%, transparent); border-radius: 14px; padding: 18px; }
+.plan-text-cards h3 { margin: 0 0 10px; color: var(--homa-blue, #3c5b81); }
+.plan-text-cards dl { display: grid; gap: 6px; margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: var(--homa-ice, #e4f4f7); color: var(--homa-navy, #293241); }
+.plan-text-cards dl div { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
+.plan-text-cards dd { margin: 0; font-weight: 700; }
+.plan-text-cards p, .plan-text-note p, .plan-text-note li { line-height: 2; }
+.plan-text-note { margin-bottom: 18px; }
+.plan-text-note h3 { color: var(--homa-blue, #3c5b81); margin-bottom: 6px; }

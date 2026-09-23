@@ -21,7 +21,6 @@ export default function SevenCards() {
                 <th>حداقل خرید</th>
                 <th>کمتر از</th>
                 <th>میز کار فعال</th>
-                <th>حداکثر شاخه</th>
                 <th>سقف هفتگی</th>
               </tr>
             </thead>
@@ -34,7 +33,6 @@ export default function SevenCards() {
                     {card.maxExclusiveToman ? n(card.maxExclusiveToman) : "—"}
                   </td>
                   <td>{n(card.desks)}</td>
-                  <td>{n(card.branches)}</td>
                   <td>{n(card.weeklyCapToman)}</td>
                 </tr>
               ))}

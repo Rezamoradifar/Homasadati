@@ -178,12 +178,17 @@ function LivePanel({ plan, changed }: { plan: RecordData; changed: () => void })
             <Localized>
               <>
                 <p role="status">
-                  وضعیت فعلی: {d.live ? "فعال" : "غیرفعال"} · سهم بودجهٔ پاداش:{" "}
-                  {amount(d.fundingBps / 100)}٪ فروش هفته
+                  وضعیت فعلی: {d.live ? "فعال" : "غیرفعال"} · بودجهٔ پاداش:{" "}
+                  {d.unlimitedBudget ? "بدون سقف (طبق متن طرح)" : amount(d.fundingBps / 100) + "٪ فروش هفته"}
                 </p>
                 <Form
                   fields={[
                     { name: "live", label: "تسویهٔ واقعی فعال باشد", type: "checkbox" },
+                    {
+                      name: "unlimitedBudget",
+                      label: "بدون سقف بودجه؛ هر تعادل طبق متن طرح پرداخت شود (ریسک پرداخت بیش از فروش با شرکت است)",
+                      type: "checkbox",
+                    },
                     {
                       name: "fundingBps",
                       label: "سهم بودجهٔ پاداش از فروش هفته (واحد: یک‌دهم‌هزارم؛ ۳۰۰۰ یعنی ۳۰٪)",
@@ -193,12 +198,13 @@ function LivePanel({ plan, changed }: { plan: RecordData; changed: () => void })
                     },
                     { name: "reason", label: "دلیل فعال‌سازی یا توقف", required: true },
                   ]}
-                  initial={{ live: !!d.live, fundingBps: d.fundingBps || 3000, reason: "" }}
+                  initial={{ live: !!d.live, unlimitedBudget: !!d.unlimitedBudget, fundingBps: d.fundingBps || 3000, reason: "" }}
                   submit="ثبت"
                   onSubmit={async (v) => {
                     await api("admin/seven-card-live", "POST", {
                       live: !!v.live,
-                      fundingBps: v.live ? Number(v.fundingBps) : undefined,
+                      unlimitedBudget: v.live ? !!v.unlimitedBudget : undefined,
+                      fundingBps: v.live && !v.unlimitedBudget ? Number(v.fundingBps) : undefined,
                       reason: v.reason,
                     });
                     setRefresh((x) => x + 1);

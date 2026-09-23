@@ -27,7 +27,10 @@ Owner decisions recorded 2026-09: split a match that would pass a desk's 15m cap
 - **Split payouts.** Every payment of a match is a row in `p_card_payouts`; a refund reverses each of them.
 - **Vouchers at checkout.** With `useVoucher`, voucher credit covers part or all of the basket (allocated order by order in `p_order_vouchers`); the rest is paid by wallet or gateway, and a fully covered basket settles immediately. Refunds, cancellations and late payments return the voucher share to the voucher balance, never to the wallet, so vouchers cannot be cashed out.
 
-Not built: the per-member counter variant and a physical desk tree with n+1 branches (the owner chose to keep desks as the member's own capacity).
+- **Counter scope.** With `counterScope: "member"` every eighth match across all of a member's desks is the voucher (as the plan text reads); `"desk"` counts each desk separately.
+- **Unlimited budget.** Activating with `unlimitedBudget: true` pays every match as the plan text says, with no weekly funding share (owner decision; the risk of paying more than sales is the company's).
+
+Not built: a physical desk tree with n+1 branches (the owner chose to keep desks as the member's own capacity; site text no longer mentions branch counts).
 
 ## API
 
