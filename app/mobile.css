@@ -587,3 +587,4 @@ html body .cart-voucher-note {font-size:13px;color:var(--homa-blue);}
 .plan-card dl div { flex-wrap: wrap; align-items: baseline; }
 .plan-card dd { white-space: nowrap; }
 .plan-nav { position: sticky; bottom: 0; background: linear-gradient(to top, #1d2430 70%, rgba(29,36,48,0)); z-index: 2; }
+.plan-cta .commerce-button { display: inline-flex; align-items: center; padding: 12px 28px; border-radius: 999px; background: var(--homa-orange, #ed6a4d); color: #fff; text-decoration: none; font-weight: 700; }
