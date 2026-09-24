@@ -144,6 +144,12 @@
   color: inherit !important;
   border-color: currentColor;
   margin-inline-start: 12px;
+  /* Tailwind's `.outline` utility would otherwise draw a 3px ring. */
+  outline-style: none;
+}
+.commerce-button.outline:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
 .commerce-button:disabled {
   opacity: 0.45;
