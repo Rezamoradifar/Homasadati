@@ -43,6 +43,8 @@ async function main() {
   // Resized copies of uploads were made from the unstamped files.
   if (uploads && stamped) fs.rmSync(path.join(root, "variants"), { recursive: true, force: true });
   console.log(stamped, "file(s) stamped");
+  // Next's image optimizer keeps serving resized copies of the old files.
+  if (stamped && !uploads) console.log("then clear the resized copies: rm -rf .next/cache/images && restart the site");
 }
 
 main().catch((e) => {
