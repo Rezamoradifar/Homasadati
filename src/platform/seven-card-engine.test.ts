@@ -44,7 +44,11 @@ function buy(user: string, amount: number) {
   const o = createOrder(user, product, 1, "zarinpal", randomUUID());
   return settleOrder(o.id, "bank-" + randomUUID());
 }
-const settleAfter = (days: number) => runCardSettlement(Date.now() + days * DAY);
+/** Settles as of an hour into the week after the given number of days, so
+ * "8" closes exactly this week and "15" exactly the next, whatever the
+ * weekday the suite runs on. */
+const settleAfter = (days: number) =>
+  runCardSettlement(weekStartAt(Date.now(), decisions.weekStart) + Math.floor(days / 7) * 7 * DAY + 3600_000);
 
 beforeAll(() => {
   process.env.DATABASE_PATH = join(directory, "cards.sqlite");

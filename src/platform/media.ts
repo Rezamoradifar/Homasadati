@@ -5,6 +5,7 @@ import { dirname, resolve, join } from "node:path";
 import { mkdir, readFile, writeFile, unlink, rename } from "node:fs/promises";
 import { ApiError, json, sameOrigin, limit } from "../server/http";
 import { userOf, audit } from "./security";
+import { stampLogo } from "./watermark";
 const maxBytes = 8 * 1024 * 1024;
 export const mediaDirectory = () =>
   join(
@@ -97,7 +98,7 @@ export async function media(req: Request, path: string[]) {
       (metadata.pages || 1) > 1
     )
       throw new Error("format");
-    image = await input
+    const resized = await input
       .rotate()
       .resize({
         width: 2400,
@@ -105,8 +106,9 @@ export async function media(req: Request, path: string[]) {
         fit: "inside",
         withoutEnlargement: true,
       })
-      .webp({ quality: 88 })
       .toBuffer();
+    // Every uploaded picture carries the site logo.
+    image = await (await stampLogo(resized)).webp({ quality: 88 }).toBuffer();
   } catch {
     throw new ApiError(400, "invalid_image");
   }
