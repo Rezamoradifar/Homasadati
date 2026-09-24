@@ -9,7 +9,7 @@ import ResponsiveImage from "../components/media/ResponsiveImage";
 import { useState } from "react";
 import { DataState, useData } from "../platform/Widgets";
 import { amount, RecordData } from "../platform/client";
-import { brands, menuSectors, isSector } from "./brands";
+import { brands, menuLine, menuName, menuSectors, isSector } from "./brands";
 import AddToCart from "./AddToCart";
 import CraftNav from "./CraftNav";
 export default function Storefront({
@@ -79,7 +79,7 @@ export default function Storefront({
           <option value="">همه حوزه‌ها</option>
           {menuSectors.map((k) => (
             <Localized key={k}><option value={k}>
-              {brands[k].name} · {brands[k].label}
+              {menuLine(k)}
             </option></Localized>
           ))}
         </select>
@@ -115,7 +115,7 @@ export default function Storefront({
                       </a>
                       <small>
                         {isSector(p.vertical)
-                          ? brands[p.vertical].name
+                          ? menuName(p.vertical)
                           : p.vertical}
                       </small>
                       <h2>

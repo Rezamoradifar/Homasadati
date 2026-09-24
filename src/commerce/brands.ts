@@ -45,3 +45,9 @@ export const sectorKeys: Sector[] = ["tourism", "craft", "leather", "beauty", "a
 /** Sectors shown in menus; leather is presented inside handicrafts. */
 export const menuSectors: Sector[] = sectorKeys.filter((k) => k !== "leather");
 export const isSector = (s: string): s is Sector => Object.prototype.hasOwnProperty.call(brands, s);
+
+/** The Homay Saadat name belongs to the tourism pages only; menus and lists
+ * elsewhere call that world by what it offers. */
+export const menuName = (k: Sector) => (k === "tourism" ? brands.tourism.label : brands[k].name);
+export const menuLabel = (k: Sector) => (k === "tourism" ? "سفرهای فرهنگی و طبیعت‌گردی" : brands[k].label);
+export const menuLine = (k: Sector) => (k === "tourism" ? brands.tourism.label : `${brands[k].name} · ${brands[k].label}`);

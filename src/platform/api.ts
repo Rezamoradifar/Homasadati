@@ -1806,7 +1806,7 @@ export async function handle(req: Request, path: string[]) {
         );
         return json({
           secret,
-          uri: `otpauth://totp/HomaySaadat:${encodeURIComponent(u.email || u.phone)}?secret=${secret}&issuer=HomaySaadat`,
+          uri: `otpauth://totp/Homanet:${encodeURIComponent(u.email || u.phone)}?secret=${secret}&issuer=Homanet`,
         });
       }
       if (d.action === "totp-enable") {

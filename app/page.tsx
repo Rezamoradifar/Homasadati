@@ -11,7 +11,7 @@ import {CivilizationHero,BrandCollection} from './VisualCollections';
 import ThemeToggle from '../src/commerce/ThemeToggle';
 import {HeritageSections,IncomeMenuLink} from './HeritageSections';
 import './heritage.css';
-import {brands,menuSectors} from '../src/commerce/brands';
+import {menuLabel,menuName,menuSectors} from '../src/commerce/brands';
 import '../src/commerce/commerce.css';
 import PublicContent from '../src/platform/PublicContent';
 import {useSiteSettings} from '../src/platform/SiteSettings';
@@ -84,7 +84,7 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
   <p className="hero-quote">{c.quote}</p>
  </section>
  <div className="values-strip">{c.values.map((value,i)=>{const Icon=ValueIcons[i];return <Localized key={value}><div><Icon weight="thin"/><span>{value}</span></div></Localized>;})}</div>
- <nav className="brand-home-links" aria-label="خانواده برندهای همای" lang="fa" dir="rtl">{menuSectors.map(k=><Localized key={k}><a href={'/worlds/'+k}><strong>{brands[k].name}</strong><span>{brands[k].label} ←</span></a></Localized>)}<a className="store-home-link" href="/shop">فروشگاه خانواده همای · انتخاب محصول و سبد خرید</a></nav><PublicContent/><BrandIntroduction onStory={()=>open('story')}/>
+ <nav className="brand-home-links" aria-label="خانواده برندهای همای" lang="fa" dir="rtl">{menuSectors.map(k=><Localized key={k}><a href={'/worlds/'+k}><strong>{menuName(k)}</strong><span>{menuLabel(k)} ←</span></a></Localized>)}<a className="store-home-link" href="/shop">فروشگاه خانواده همای · انتخاب محصول و سبد خرید</a></nav><PublicContent/><BrandIntroduction onStory={()=>open('story')}/>
  <section className="worlds content-section" id="worlds" aria-labelledby="worlds-title">
   <div className="section-heading"><div><p className="eyebrow">{e('collection')}</p><h2 id="worlds-title">{c.worlds}</h2></div><p>{c.worldsSub}</p></div>
   <div className="world-grid">{worldCards.map((card,i)=><Localized key={card.id}><a id={card.id} className="world-card" href={card.href}><ResponsiveImage src={`/assets/${card.image}`} sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 28vw" alt={card.title} loading="lazy"/><div className="card-shade"/><div className="world-copy"><span className="world-number">0{i+1}</span><h3>{card.title}</h3><p>{card.description}</p><span className="round-arrow"><Arrow size={21}/></span></div></a></Localized>)}</div>

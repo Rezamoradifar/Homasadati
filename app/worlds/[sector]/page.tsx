@@ -9,7 +9,7 @@ import TourismHeroVideo from "../../TourismHeroVideo";
 import ClubCards from "../../ClubCards";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { brands, isSector, menuSectors } from "../../../src/commerce/brands";
+import { brands, isSector, menuLabel, menuName, menuSectors } from "../../../src/commerce/brands";
 import { craftShopHref } from "../../../src/commerce/craft-taxonomy";
 import { stories } from "../../../src/commerce/content";
 import { CommerceShell } from "../../../src/commerce/Shell";
@@ -196,8 +196,8 @@ export default async function BrandPage({
               .filter((x) => x !== k)
               .map((x) => (
                 <Localized key={x}><a href={`/worlds/${x}`}>
-                  <strong>{brands[x].name}</strong>
-                  <span>{brands[x].label} ←</span>
+                  <strong>{menuName(x)}</strong>
+                  <span>{menuLabel(x)} ←</span>
                 </a></Localized>
               ))}
           </div>
