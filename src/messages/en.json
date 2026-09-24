@@ -10,9 +10,9 @@
       "socials": "Follow Homay Saadat"
     },
     "columns": {
-      "verticals": "Explore",
+      "verticals": "The world of Homay Saadat",
       "services": "Services",
-      "company": "Company",
+      "company": "About us",
       "support": "Support"
     },
     "links": {
@@ -21,23 +21,23 @@
       "handicrafts": "Handicrafts",
       "content": "Content",
       "club": "Club",
-      "ai": "AI",
+      "ai": "Artificial intelligence",
       "booking": "Booking",
       "concierge": "Concierge",
       "global-shipping": "Global Shipping",
       "dalarit": "Dalarit",
       "api": "API",
       "partners": "Partners",
-      "about": "About",
+      "about": "About Homay Saadat",
       "careers": "Careers",
       "press": "Press",
       "sustainability": "Sustainability",
-      "contact": "Contact",
+      "contact": "Contact us",
       "help": "Help",
       "faq": "FAQ",
-      "terms": "Terms",
-      "privacy": "Privacy",
-      "refund": "Refund",
+      "terms": "Terms of use",
+      "privacy": "Privacy policy",
+      "refund": "Refunds",
       "leather": "Iranian leather"
     },
     "newsletter": {
@@ -49,7 +49,7 @@
       "submit": "Join our newsletter",
       "notice": "By subscribing, you agree to receive our newsletter. Unsubscribe anytime.",
       "unavailable": "Newsletter subscriptions are currently unavailable.",
-      "pending": "Subscribing…",
+      "pending": "Submitting…",
       "success": "Thank you. Your subscription request has been received.",
       "error": "We couldn’t subscribe you. Please try again.",
       "invalid": "Enter a valid email address."
@@ -67,8 +67,8 @@
     },
     "languages": {
       "en": "English",
-      "fa": "فارسی",
-      "ar": "العربية"
+      "fa": "Persian",
+      "ar": "Arabic"
     },
     "currencies": {
       "USD": "USD · US dollar",

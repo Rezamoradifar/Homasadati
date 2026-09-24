@@ -1,5 +1,5 @@
 
-import {siteLocale} from "../../../src/i18n/server";
+import {siteLocale, translatedMetadata} from "../../../src/i18n/server";
 import {loadDictionary,translateText} from "../../../src/i18n/core";
 import Localized from "../../../src/i18n/Localized";
 import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
@@ -21,10 +21,10 @@ export async function generateMetadata({
   const params = await pendingParams;
   if (!isSector(params.sector)) return {};
   const b = brands[params.sector];
-  return {
+  return translatedMetadata({
     title: `${b.name} | ${b.label} — همای سعادت`,
     description: stories[params.sector].intro,
-  };
+  });
 }
 export default async function BrandPage({
   params: pendingParams,

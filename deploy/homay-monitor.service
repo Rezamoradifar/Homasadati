@@ -1,0 +1,16 @@
+[Unit]
+Description=Check Homay Saadat runtime and report operational alerts
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=homay
+Group=homay
+WorkingDirectory=/opt/homay/app
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/homay/operations.env
+ExecStart=/usr/bin/node --import tsx scripts/platform-monitor.ts --notify
+TimeoutStartSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true

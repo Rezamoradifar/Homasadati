@@ -1,8 +1,11 @@
 "use client";
+import { useSiteLocale } from "../i18n/SiteLocale";
 import Localized from "../i18n/Localized";
 import { useData, DataState } from "./Widgets";
 import { date } from "./client";
 export default function ServiceHealth({ refresh }: { refresh: number }) {
+  const { locale } = useSiteLocale();
+
   const state = useData("admin/readiness", refresh);
   return (
     <Localized>
@@ -40,14 +43,36 @@ export default function ServiceHealth({ refresh }: { refresh: number }) {
                     <strong>
                       {d.worker.healthy ? "فعال" : "نیازمند بررسی"}
                     </strong>
-                    <p>{date(d.worker.lastSuccess)}</p>
+                    <p>{date(d.worker.lastSuccess, locale)}</p>
                   </article>
                   <article>
                     <h3>پشتیبان‌گیری روزانه</h3>
                     <strong>
                       {d.backup.healthy ? "نسخه تازه ثبت شده" : "نیازمند بررسی"}
                     </strong>
-                    <p>{date(d.backup.lastSuccess)}</p>
+                    <p>{date(d.backup.lastSuccess, locale)}</p>
+                  </article>
+                  <article>
+                    <h3>پشتیبان خارج از سرور</h3>
+                    <strong>
+                      {d.offsite.healthy
+                        ? "نسخه تازه ثبت شده"
+                        : "نیازمند بررسی"}
+                    </strong>
+                    <p>{date(d.offsite.lastSuccess, locale)}</p>
+                  </article>
+                  <article>
+                    <h3>پایش و هشدار</h3>
+                    <strong>
+                      {d.monitoring.configured
+                        ? "تنظیم‌شده؛ نیازمند آزمون واقعی"
+                        : "نیازمند تنظیم"}
+                    </strong>
+                    <p>{date(d.monitoring.lastAlert, locale)}</p>
+                  </article>
+                  <article>
+                    <h3>پردازش دوره‌ای باینری</h3>
+                    <p>{date(d.binaryCycle.lastSuccess, locale)}</p>
                   </article>
                 </div>
                 <dl className="readiness-tasks">
@@ -57,6 +82,10 @@ export default function ServiceHealth({ refresh }: { refresh: number }) {
                   <dd>{d.unpublished}</dd>
                   <dt>محصول با ترجمه ناقص</dt>
                   <dd>{d.missingTranslations}</dd>
+                  <dt>درخواست در انتظار پشتیبانی</dt>
+                  <dd>{d.openTickets}</dd>
+                  <dt>تسویه پذیرنده در انتظار تأیید دوم</dt>
+                  <dd>{d.pendingMerchantReviews}</dd>
                   <dt>اعلان ناموفق پس از چند تلاش</dt>
                   <dd>{d.failedNotifications}</dd>
                 </dl>
@@ -73,7 +102,7 @@ export default function ServiceHealth({ refresh }: { refresh: number }) {
                             <code>
                               {e.area} · {e.code}
                             </code>
-                            <time>{date(e.created_at)}</time>
+                            <time>{date(e.created_at, locale)}</time>
                           </li>
                         ),
                       )}

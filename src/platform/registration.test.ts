@@ -393,6 +393,27 @@ it("rate limits OTP delivery, invalidates old codes on resend, and never returns
   ).not.toBe(delivered[1]);
   vi.unstubAllGlobals();
 });
+it("sends English verification email for the website locale without changing the secret code", async () => {
+  saveSetting("resend_key", "test-key", true);
+  saveSetting("email_from", "test@homay.test");
+  let email: { subject: string; text: string } | undefined;
+  vi.stubGlobal("fetch", vi.fn(async (_url, init) => {
+    email = JSON.parse(init.body);
+    return Response.json({ id: randomUUID() });
+  }));
+  try {
+    const response = await request("auth/otp", "POST", { target: "english@example.test", purpose: "register" }, "other=value; homay-locale=en");
+    expect(response.status).toBe(200);
+    const result = await response.json();
+    expect(result).not.toHaveProperty("code");
+    expect(email!.subject).toBe("Homay Saadat verification code | HOMA");
+    expect(email!.text).toMatch(/^Your Homay Saadat verification code: \d{6}\. Valid for 5 minutes\. Do not share this code\.$/);
+    expect(one("SELECT code_hash FROM p_otp WHERE id=?", result.challenge)!.code_hash).toBe(hash(result.challenge + ":" + email!.text.match(/\d{6}/)![0]));
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
 it("rejects cross-origin signup and does not expose financial health internals", async () => {
   const evil = new Request("https://homay.test/api/platform/auth/register", {
     method: "POST",

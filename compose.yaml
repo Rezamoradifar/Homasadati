@@ -1,0 +1,54 @@
+x-runtime: &runtime
+  image: homa-club:${IMAGE_TAG:-local}
+  restart: unless-stopped
+  init: true
+  environment:
+    NODE_ENV: production
+    DATABASE_PATH: /app/data/homay.sqlite
+    APP_ORIGIN: ${APP_ORIGIN:?Set the exact HTTPS origin}
+    PLATFORM_MASTER_KEY: ${PLATFORM_MASTER_KEY:?Restore or generate the server encryption key}
+    TRUST_PROXY: "0"
+  volumes:
+    - club-data:/app/data
+    - club-backups:/app/backups
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  web:
+    <<: *runtime
+    build: .
+    ports:
+      - "127.0.0.1:${HTTP_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health',{signal:AbortSignal.timeout(4000)}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 3
+  worker:
+    <<: *runtime
+    command: ["npm", "run", "platform:worker"]
+    depends_on:
+      web:
+        condition: service_healthy
+  backup:
+    <<: *runtime
+    profiles: ["maintenance"]
+    restart: "no"
+    command: ["npm", "run", "platform:backup", "--", "/app/backups"]
+
+volumes:
+  club-data:
+  club-backups:

@@ -11,6 +11,10 @@ function templates(dictionary: Dictionary) {
   if (!list) {
     list = Object.entries(dictionary)
       .filter(([key]) => key.includes("{0}"))
+      .sort(
+        ([a], [b]) =>
+          b.replace(/\{\d+\}/g, "").length - a.replace(/\{\d+\}/g, "").length,
+      )
       .map(([key, value]) => {
         const expression = key
           .split(/\{\d+\}/g)
@@ -21,6 +25,26 @@ function templates(dictionary: Dictionary) {
     templateCache.set(dictionary, list);
   }
   return list;
+}
+export function hasTranslation(text: string, dictionary: Dictionary) {
+  const key = normalizeText(text);
+  return (
+    Object.hasOwn(dictionary, key) ||
+    (key.length < 2000 &&
+      templates(dictionary).some(([pattern]) => pattern.test(key)))
+  );
+}
+
+export function formatDate(value: unknown, locale: SiteLocale = "fa") {
+  if (!value) return "—";
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString(
+    locale === "en" ? "en-GB" : locale === "ar" ? "ar" : "fa-IR",
+    {
+      timeZone: "Asia/Tehran",
+    },
+  );
 }
 export function translateText(
   text: string,
@@ -46,7 +70,9 @@ export function translateText(
   // Numbers in UI copy follow the selected language. Input values and identifiers
   // are not passed through this renderer.
   const result =
-    translated === undefined ? text : text.replace(text.trim(), () => translated!);
+    translated === undefined
+      ? text
+      : text.replace(text.trim(), () => translated!);
   const numeric = result.replace(/[۰-۹٠-٩]/g, (digit) => {
     const value = "۰۱۲۳۴۵۶۷۸۹".indexOf(digit);
     const n = value < 0 ? "٠١٢٣٤٥٦٧٨٩".indexOf(digit) : value;

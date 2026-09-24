@@ -1,12 +1,13 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { useState } from "react";
 import { localizeNode } from "./Localized";
-import { translateText, isLocale, direction } from "./core";
+import { translateText, isLocale, direction, formatDate } from "./core";
 import en from "./en.json";
 import ar from "./ar.json";
 import { catalogCopy } from "./catalog";
 import { clubTiers, tomanToRial, tierPriceRial } from "../commerce/club-tiers";
+afterEach(cleanup);
 
 describe("site language rendering", () => {
   it("keeps Persian as the default and restricts locale choices", () => {
@@ -75,16 +76,60 @@ describe("site language rendering", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(submit).toHaveBeenCalledWith("نام شخصی");
   });
-  it("has matching complete dictionaries with intact template placeholders", () => {
-    expect(Object.keys(en).sort()).toEqual(Object.keys(ar).sort());
-    for (const [key, value] of Object.entries(en)) {
-      const placeholders = (s: string) => (s.match(/\{\d+\}/g) || []).sort();
-      expect(value.trim(), key).not.toBe("");
-      expect(placeholders(value), key).toEqual(placeholders(key));
-      expect(placeholders(ar[key as keyof typeof ar]), key).toEqual(
-        placeholders(key),
-      );
-    }
+  it("retains existing Arabic coverage and validates placeholders in both dictionaries", () => {
+    for (const key of Object.keys(ar))
+      expect(Object.hasOwn(en, key), key).toBe(true);
+    for (const dictionary of [en, ar])
+      for (const [key, value] of Object.entries(dictionary)) {
+        const placeholders = (s: string) => (s.match(/\{\d+\}/g) || []).sort();
+        expect(value.trim(), key).not.toBe("");
+        expect(placeholders(value), key).toEqual(placeholders(key));
+      }
+    for (const value of Object.values(en))
+      expect(value).not.toMatch(/[\u0621-\u063a\u0641-\u064a\u0671-\u06d3]/);
+  });
+  it("translates complete point sentences in English word order", () => {
+    expect(
+      translateText(
+        "برای هر ۱۰۰٬۰۰۰ تومان خرید، ۳ امتیاز به شما تعلق می‌گیرد.",
+        "en",
+        en,
+      ),
+    ).toBe("Earn 3 points for every 100,000 tomans spent.");
+    render(localizeNode(<p>· {5} کد بازیابی باقی مانده</p>, "en", en));
+    expect(screen.getByText("· Recovery codes remaining: 5")).toBeTruthy();
+  });
+  it("preserves option values and uncontrolled input state when switching language", () => {
+    const form = (
+      <div>
+        <label>
+          ایمیل <input defaultValue="" />
+        </label>
+        <select defaultValue="گردشگری">
+          <option>گردشگری</option>
+          <option>زیبایی</option>
+        </select>
+      </div>
+    );
+    const view = render(localizeNode(form, "fa", {}));
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "private@example.test" } });
+    view.rerender(localizeNode(form, "en", en));
+    expect((screen.getByRole("textbox") as HTMLInputElement).value).toBe(
+      "private@example.test",
+    );
+    expect((screen.getByRole("combobox") as HTMLSelectElement).value).toBe(
+      "گردشگری",
+    );
+    expect(
+      screen.getByRole("option", { name: "Tourism" }).getAttribute("value"),
+    ).toBe("گردشگری");
+  });
+  it("uses Gregorian English dates while retaining Persian dates and Tehran time", () => {
+    expect(formatDate("2026-09-21T10:00:00Z", "en")).toContain("21/09/2026");
+    expect(formatDate("2026-09-21T10:00:00Z", "en")).toContain("13:30");
+    expect(formatDate("2026-09-21T10:00:00Z", "fa")).toContain("۱۴۰۵");
+    expect(formatDate("invalid", "en")).toBe("—");
   });
   it("uses authored catalogue translations with a truthful source-language fallback", () => {
     const product = {

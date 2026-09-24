@@ -9,6 +9,7 @@ import {
 import { useSiteLocale } from "./SiteLocale";
 import {
   direction,
+  hasTranslation,
   translateText,
   type Dictionary,
   type SiteLocale,
@@ -22,10 +23,33 @@ export function localizeNode(
   dictionary: Dictionary,
 ): ReactNode {
   if (typeof node === "string") return translateText(node, locale, dictionary);
-  if (Array.isArray(node))
-    return Children.map(node, (child) =>
-      localizeNode(child, locale, dictionary),
-    );
+  if (Array.isArray(node)) {
+    // React splits sentences around interpolated numbers. Translate a known
+    // complete sentence before falling back to its individual fragments.
+    const result: ReactNode[] = [];
+    let text: (string | number)[] = [];
+    const flush = () => {
+      if (!text.length) return;
+      const sentence = text.join("");
+      if (locale !== "fa" && hasTranslation(sentence, dictionary))
+        result.push(translateText(sentence, locale, dictionary));
+      else
+        result.push(
+          ...text.map((part) => localizeNode(part, locale, dictionary)),
+        );
+      text = [];
+    };
+    Children.forEach(Children.toArray(node), (child) => {
+      if (typeof child === "string" || typeof child === "number")
+        text.push(child);
+      else {
+        flush();
+        result.push(localizeNode(child, locale, dictionary));
+      }
+    });
+    flush();
+    return result;
+  }
   if (!isValidElement(node) || node.type === Localized) return node;
   const element = node as ReactElement<Record<string, any>>,
     props = element.props;
@@ -36,10 +60,16 @@ export function localizeNode(
   )
     return node;
   const next: Record<string, unknown> = {};
+  for (const attr of attributes)
+    if (typeof props[attr] === "string")
+      next[attr] = translateText(props[attr], locale, dictionary);
   if (typeof element.type === "string") {
-    for (const attr of attributes)
-      if (typeof props[attr] === "string")
-        next[attr] = translateText(props[attr], locale, dictionary);
+    if (
+      element.type === "option" &&
+      props.value === undefined &&
+      (typeof props.children === "string" || typeof props.children === "number")
+    )
+      next.value = props.children;
     if (
       props.dir === "rtl" &&
       !["input", "textarea", "bdi"].includes(element.type)

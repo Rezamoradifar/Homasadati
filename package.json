@@ -9,12 +9,19 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest run",
+    "i18n:check": "node --import tsx scripts/check-english.ts",
     "start": "next start",
     "setup": "node scripts/setup.mjs",
     "platform:setup": "tsx scripts/platform-setup.ts",
     "platform:worker": "tsx scripts/platform-worker.ts",
     "platform:backup": "tsx scripts/platform-backup.ts",
-    "auth:preflight": "NODE_ENV=production tsx scripts/auth-preflight.ts"
+    "auth:preflight": "NODE_ENV=production tsx scripts/auth-preflight.ts",
+    "api:spec": "node --import tsx scripts/generate-openapi.ts",
+    "platform:verify-backup": "node --import tsx scripts/platform-verify-backup.ts",
+    "platform:restore-drill": "node --import tsx scripts/platform-restore-drill.ts",
+    "platform:benchmark": "node scripts/platform-read-benchmark.mjs",
+    "platform:offsite-backup": "node --import tsx scripts/platform-offsite-backup.ts",
+    "platform:monitor": "node --import tsx scripts/platform-monitor.ts"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",

@@ -1,3 +1,4 @@
+import {assertAccess} from "./access";
 import sharp from "sharp";
 import { randomUUID } from "node:crypto";
 import { dirname, resolve, join } from "node:path";
@@ -57,7 +58,8 @@ export async function media(req: Request, path: string[]) {
   if (req.method !== "POST" || path.length !== 1)
     throw new ApiError(405, "invalid_input");
   sameOrigin(req);
-  const user = userOf(req, ["superadmin", "content"]);
+  const user = userOf(req);
+  assertAccess(user,"media",true);
   limit("upload:" + user.id, 30, 300);
   if (
     !["image/jpeg", "image/png", "image/webp"].includes(

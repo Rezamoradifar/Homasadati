@@ -1,11 +1,27 @@
 import { validateClient } from "./client-validation";
+import { formatDate } from "../i18n/core";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
-  google_not_configured:"ورود گوگل هنوز تنظیم نشده است.",
-  google_verification_failed:"تأیید گوگل نامعتبر یا منقضی است؛ دوباره تلاش کنید.",
-  google_already_linked:"این حساب قبلاً به گوگل متصل شده است.",
-  google_link_required:"ابتدا وارد حساب قبلی شوید و گوگل را از بخش امنیت متصل کنید؛ برای حساب جدید ثبت‌نام را انتخاب کنید.",
-  google_email_check_required:"برای این نشانی، ثبت‌نام با کد تأیید ایمیل را انجام دهید.",
+  self_payment_review: "نمی‌توانید پرداخت مربوط به حساب خودتان را بررسی کنید.",
+  second_approver_required: "این پرداخت باید توسط مدیر مجاز دیگری تأیید شود.",
+  first_approval_required: "ابتدا یک مدیر مجاز باید تأیید نخست را ثبت کند.",
+  ticket_limit:
+    "ابتدا درخواست‌های باز قبلی را پیگیری یا ببندید؛ حداکثر ۲۰ درخواست باز مجاز است.",
+  record_changed:
+    "اطلاعات تغییر کرده است؛ فهرست را تازه‌سازی کنید و دوباره اقدام کنید.",
+  merchant_unavailable: "پذیرنده یا قرارداد این محصول فعال نیست.",
+  merchant_terms_invalid:
+    "سهم پذیرنده و سقف پورسانت شبکه نیاز به اصلاح مدیر مالی دارند.",
+  insufficient_points: "امتیاز کافی برای این عملیات ندارید.",
+  method_not_allowed: "این عملیات در این مسیر مجاز نیست.",
+  google_not_configured: "ورود گوگل هنوز تنظیم نشده است.",
+  google_verification_failed:
+    "تأیید گوگل نامعتبر یا منقضی است؛ دوباره تلاش کنید.",
+  google_already_linked: "این حساب قبلاً به گوگل متصل شده است.",
+  google_link_required:
+    "ابتدا وارد حساب قبلی شوید و گوگل را از بخش امنیت متصل کنید؛ برای حساب جدید ثبت‌نام را انتخاب کنید.",
+  google_email_check_required:
+    "برای این نشانی، ثبت‌نام با کد تأیید ایمیل را انجام دهید.",
   captcha_not_configured:
     "ورود امن هنوز آماده نیست؛ لطفاً با پشتیبانی تماس بگیرید.",
   captcha_required: "ابتدا بررسی امنیتی کپچا را کامل کنید.",
@@ -71,6 +87,15 @@ export const errors: Record<string, string> = {
   origin_denied: "نشانی سایت با تنظیمات سرور هماهنگ نیست.",
   origin_required: "درخواست معتبر نیست.",
 };
+export class PlatformApiError extends Error {
+  constructor(
+    public code: string,
+    public status: number,
+  ) {
+    super(errors[code] || "عملیات انجام نشد؛ دوباره تلاش کنید.");
+    this.name = "PlatformApiError";
+  }
+}
 export async function api(path: string, method = "GET", data?: unknown) {
   if (method !== "GET") {
     try {
@@ -99,18 +124,30 @@ export async function api(path: string, method = "GET", data?: unknown) {
   } catch {
     throw new Error("پاسخ قابل خواندن از سرور دریافت نشد.");
   }
-  if (!response.ok)
-    throw new Error(
-      errors[result.error] || "عملیات انجام نشد؛ دوباره تلاش کنید.",
+  if (!response.ok) {
+    if (result.error === "unauthorized" && typeof window !== "undefined")
+      window.dispatchEvent(new Event("platform-session-expired"));
+    throw new PlatformApiError(
+      String(result.error || "server_error"),
+      response.status,
     );
+  }
   return result;
 }
 export const amount = (n: unknown) => Number(n ?? 0).toLocaleString("fa-IR");
-export const date = (v: unknown) =>
-  v
-    ? new Date(String(v)).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" })
-    : "—";
+export const date = formatDate;
 export const labels: Record<string, string> = {
+  waiting_support: "در انتظار پشتیبانی",
+  waiting_user: "در انتظار کاربر",
+  closed: "بسته‌شده",
+  normal: "عادی",
+  high: "زیاد",
+  urgent: "فوری",
+  confirmed: "تأیید نهایی",
+  account: "حساب کاربری",
+  other: "سایر",
+  fulfilled: "تحویل‌شده",
+  requested: "در انتظار بررسی",
   tourism: "گردشگری",
   beauty: "زیبایی",
   craft: "صنایع‌دستی",

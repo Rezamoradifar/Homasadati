@@ -17,3 +17,7 @@ backups/
 .next-dev/
 
 .next-qa/
+.env.staging
+.env.development.local
+.env.*.local
+.env

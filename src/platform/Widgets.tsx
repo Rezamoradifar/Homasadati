@@ -1,6 +1,7 @@
 "use client";
 
 import Localized from "../i18n/Localized";
+import { useSiteLocale } from "../i18n/SiteLocale";
 import { MediaInput } from "./MediaInput";
 import { useEffect, useRef, useState, ReactNode } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
@@ -261,6 +262,7 @@ export function Table({
   columns: [string, string, string?][];
   actions?: (r: RecordData) => ReactNode;
 }) {
+  const { locale } = useSiteLocale();
   if (!rows.length)
     return <Localized><p className="portal-empty">هنوز موردی ثبت نشده است.</p></Localized>;
   return (
@@ -282,7 +284,7 @@ export function Table({
                   {type === "money"
                     ? amount(r[k])
                     : type === "date"
-                      ? date(r[k])
+                      ? date(r[k], locale)
                       : type === "status"
                         ? status(r[k])
                         : type === "bool"

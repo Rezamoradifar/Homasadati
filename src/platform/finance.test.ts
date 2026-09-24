@@ -19,7 +19,12 @@ import {
   health,
 } from "./finance";
 const directory = mkdtempSync(join(tmpdir(), "homay-finance-"));
-let root: string, left: string, right: string, product: string;
+let root: string,
+  left: string,
+  right: string,
+  product: string,
+  financeA: string,
+  financeB: string;
 const config = {
   directBps: 1000,
   levels: [500],
@@ -68,6 +73,13 @@ afterAll(() => {
 beforeEach(() => {
   run("DELETE FROM p_ranks");
   saveSetting("commission_policy", JSON.stringify(config));
+  financeA = member();
+  financeB = member();
+  run(
+    "UPDATE p_users SET role='finance' WHERE id IN (?,?)",
+    financeA,
+    financeB,
+  );
   root = member();
   left = member(root, root, "left");
   right = member(root, root, "right");
@@ -151,12 +163,12 @@ describe("Financial invariants", () => {
     expect(() =>
       requestWithdrawal(root, 9000, "test-iban", randomUUID()),
     ).toThrow("insufficient_balance");
-    reviewWithdrawal(w.id, root, "approved", "reviewed");
+    reviewWithdrawal(w.id, financeA, "approved", "reviewed");
     expect(wallet(root).held).toBe(0);
     expect(
       one("SELECT status FROM p_withdrawals WHERE id=?", w.id)!.status,
     ).toBe("approved");
-    reviewWithdrawal(w.id, root, "approved", "retry");
+    reviewWithdrawal(w.id, financeA, "approved", "retry");
     expect(wallet(root).held).toBe(0);
   });
   it("serializes competing processes sharing the same SQLite file", async () => {
@@ -228,13 +240,18 @@ describe("Financial invariants", () => {
     const order = buy(left);
     atomic(mature);
     const request = requestWithdrawal(root, 10000, "test", randomUUID());
-    reviewWithdrawal(request.id, root, "approved", "verified");
+    reviewWithdrawal(request.id, financeA, "approved", "verified");
     refundOrder(order.id, root, true, "return after approval");
     expect(wallet(root).debt).toBe(10000);
     expect(() =>
-      reviewWithdrawal(request.id, root, "paid", "bank", "bank-ref"),
+      reviewWithdrawal(request.id, financeB, "paid", "bank", "bank-ref"),
     ).toThrow();
-    reviewWithdrawal(request.id, root, "rejected", "returned before transfer");
+    reviewWithdrawal(
+      request.id,
+      financeA,
+      "rejected",
+      "returned before transfer",
+    );
     expect(wallet(root).debt).toBe(0);
     expect(wallet(root).available).toBe(0);
   });
@@ -242,10 +259,10 @@ describe("Financial invariants", () => {
     const order = buy(left);
     atomic(mature);
     const request = requestWithdrawal(root, 10000, "test", randomUUID());
-    reviewWithdrawal(request.id, root, "approved", "checked");
+    reviewWithdrawal(request.id, financeA, "approved", "checked");
     reviewWithdrawal(
       request.id,
-      root,
+      financeB,
       "paid",
       "bank transfer",
       "paid-" + request.id,

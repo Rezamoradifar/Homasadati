@@ -1,4 +1,28 @@
 import {
+  ticketCreateSchema,
+  ticketReplySchema,
+  ticketReviewSchema,
+  ticketCloseSchema,
+  binaryScheduleUpdateSchema,
+  merchantReviewSchema,
+} from "./operations-model";
+import { binaryRulesSchema, simulationSchema } from "./network-rules-model";
+import { loyaltyPolicySchema, loyaltyLevelSchema } from "./loyalty-model";
+import { accessRoleSchema, accessAssignmentSchema } from "./access-model";
+import {
+  merchantContractSchema,
+  merchantProductSchema,
+  merchantPaymentSchema,
+  merchantFulfillmentSchema,
+} from "./merchant-model";
+import {
+  merchantSchema,
+  pointsAdjustmentSchema,
+  rewardSchema,
+  redeemSchema,
+  redemptionReviewSchema,
+} from "./club-model";
+import {
   travelRuleSchema,
   travelCalendarSchema,
   travelRequestSchema,
@@ -279,6 +303,36 @@ export function validateClient(path: string, method: string, data: unknown) {
             });
           break;
       }
+  }
+  if (path === "admin/merchants") schema = merchantSchema;
+  if (path === "admin/loyalty") schema = pointsAdjustmentSchema;
+  if (path === "admin/rewards") schema = rewardSchema;
+  if (path === "admin/redemptions") schema = redemptionReviewSchema;
+  if (path === "loyalty/redeem") schema = redeemSchema;
+  if (path === "admin/binary-rules")
+    schema = z.object({ rules: binaryRulesSchema, reason: text });
+  if (path === "admin/binary-simulate") schema = simulationSchema;
+  if (path === "admin/loyalty-policy")
+    schema = z.object({ policy: loyaltyPolicySchema, reason: text });
+  if (path === "admin/loyalty-levels") schema = loyaltyLevelSchema;
+  if (path === "admin/access") schema = accessRoleSchema;
+  if (path === "admin/access/assign") schema = accessAssignmentSchema;
+  if (path === "admin/merchant-operations") schema = merchantContractSchema;
+  if (path === "admin/merchant-operations/products")
+    schema = merchantProductSchema;
+  if (path === "admin/merchant-settlements") schema = merchantPaymentSchema;
+  if (path === "merchant/orders") schema = merchantFulfillmentSchema;
+  if (path === "loyalty/cancel") schema = z.object({ id, reason: text });
+  if (path === "admin/binary-schedule") schema = binaryScheduleUpdateSchema;
+  if (path === "admin/merchant-settlements/review")
+    schema = merchantReviewSchema;
+  if (p[0] === "tickets" || (p[0] === "admin" && p[1] === "tickets")) {
+    const staff = p[0] === "admin",
+      rest = p.slice(staff ? 2 : 1);
+    if (!rest.length && !staff) schema = ticketCreateSchema;
+    if (rest.length === 1 && method === "PATCH")
+      schema = staff ? ticketReviewSchema : ticketCloseSchema;
+    if (rest.length === 2 && rest[1] === "replies") schema = ticketReplySchema;
   }
   if (!schema) return data;
   return schema.parse(data);

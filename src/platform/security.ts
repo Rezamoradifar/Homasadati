@@ -1,3 +1,4 @@
+import {effectivePermissions} from "./access";
 import {
   createCipheriv,
   createDecipheriv,
@@ -105,6 +106,8 @@ export function publicUser(u: Row) {
     email: u.email,
     phone: u.phone,
     role: u.role,
+    permissions: effectivePermissions(u),
+    merchant:!!one("SELECT merchant_id FROM p_merchant_contracts WHERE owner_id=?",u.id),
     referral_code: u.referral_code,
     preferences: JSON.parse(u.preferences),
     twoFactor: !!u.otp_secret,
