@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef } from "react";
 import Localized from "../i18n/Localized";
 import { craftCategories, craftCategory, craftShopHref, itemsFor } from "./craft-taxonomy";
 
@@ -16,9 +17,21 @@ export default function CraftNav({
   heading?: string;
 }) {
   const current = craftCategory(cat);
+  const nav = useRef<HTMLElement>(null);
+  // Rows scroll sideways on phones; bring each row's chosen chip into view.
+  useEffect(() => {
+    nav.current?.querySelectorAll<HTMLElement>(".craft-nav-row").forEach((row) => {
+      const chosen = row.querySelector<HTMLElement>("[aria-current=page]");
+      if (!chosen) return;
+      const rowBox = row.getBoundingClientRect(),
+        box = chosen.getBoundingClientRect();
+      if (box.left < rowBox.left || box.right > rowBox.right)
+        row.scrollLeft += box.left + box.width / 2 - (rowBox.left + rowBox.width / 2);
+    });
+  }, [cat, tech, item]);
   return (
     <Localized>
-      <nav className="craft-nav" aria-label="دسته‌بندی صنایع‌دستی">
+      <nav ref={nav} className="craft-nav" aria-label="دسته‌بندی صنایع‌دستی">
         {heading && <h2>{heading}</h2>}
         <div className="craft-nav-row">
           {craftCategories.map((c) => (

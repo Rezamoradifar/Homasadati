@@ -38,6 +38,7 @@ export const craftCategories: CraftCategory[] = [
       { id: "khatam", name: "خاتم‌کاری" },
       { id: "diamond-cut", name: "الماس‌تراش" },
       { id: "pardaz", name: "پرداز" },
+      { id: "silver-inlay", name: "نقره‌کوب" },
     ],
     items: copperItems,
   },
