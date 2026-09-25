@@ -173,6 +173,16 @@ it("pays the Simurgh cashback once for a single 70m first purchase", () => {
   expect(memberCardStatus(buyer)).toMatchObject({ level: 7, desks: 7 });
 });
 
+it("gives the 100m Aria card eight desks and a 120m weekly cap", () => {
+  buy(root, 100 * M); buy(left, 600 * M); buy(right, 600 * M);
+  settleAfter(8);
+  expect(memberCardStatus(root)).toMatchObject({ level: 8, desks: 8 });
+  // two 5.4m matches fit under each desk's 15m cap: 16 matches, plus the
+  // one-time cashback for a single first purchase of 70m or more
+  expect(wallet(root).available).toBe(16 * 5_400_000 + 6 * M);
+  expect(memberCardStatus(root).deskCounters).toHaveLength(8);
+});
+
 it("stops the legacy binary engine while the card plan is live", () => {
   const o = buy(left, 30 * M);
   expect(one("SELECT COUNT(*) n FROM p_binary_lots WHERE order_id=?", o.id)!.n).toBe(0);

@@ -604,3 +604,10 @@ html[data-theme=dark] body .shop-card p {color:#cfc7bc;}
   html body .shop-card .store-cta .commerce-button {width:100%;}
   html body .shop-card .store-cta {flex:1;}
 }
+/* Club cards sit on one horizontal line at every width, swiped or scrolled
+ * sideways, like cards laid out in a wallet. */
+html body .club-preview-grid, html body .rank-grid {display:flex!important;grid-template-columns:none!important;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;gap:18px;padding:4px 2px 14px;scrollbar-width:thin;}
+html body .club-preview-grid > *, html body .rank-grid > * {flex:0 0 clamp(270px,30%,380px);min-width:0;scroll-snap-align:start;}
+@media (max-width:700px) {
+  html body .club-preview-grid > *, html body .rank-grid > * {flex-basis:84%;scroll-snap-align:center;}
+}

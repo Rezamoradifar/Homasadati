@@ -23,7 +23,7 @@ export default function PlanPresentation() {
     <section key="cover" className="plan-slide plan-cover">
       <img src="/assets/brand-mark.png" alt="" width={96} height={96} />
       <p className="plan-kicker">باشگاه همراهان هما نت</p>
-      <h1>طرح هفت کارت</h1>
+      <h1>طرح هشت کارت</h1>
       <p className="plan-lead">خرید واقعی، پاداش شفاف، محاسبهٔ دقیق هفتگی</p>
       <p className="plan-hint">برای رفتن به اسلاید بعد، روی دکمهٔ «بعدی» بزنید یا صفحه را بکشید.</p>
     </section>,
@@ -51,7 +51,7 @@ export default function PlanPresentation() {
     </section>,
 
     <section key="cards" className="plan-slide">
-      <h2>هفت کارت باشگاه</h2>
+      <h2>هشت کارت باشگاه</h2>
       <p className="plan-lead">هر کارت با جمع خریدهای شما مشخص می‌شود و تعداد میزهای کار و سقف هفتگی را تعیین می‌کند.</p>
       <div className="plan-cards">
         {sevenCards.map((c) => (

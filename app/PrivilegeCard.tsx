@@ -1,5 +1,6 @@
 import {Money} from '../src/commerce/currency';
 import {tierPriceRial,tomanToRial} from '../src/commerce/club-tiers';
+import {TOP_CARD_LEVEL} from '../src/platform/seven-card-model';
 
 import Localized from "../src/i18n/Localized";
 type Props = {
@@ -59,7 +60,7 @@ export default function PrivilegeCard({
           {level ? (
             <>
               <b>{String(level).padStart(2, "0")}</b>
-              <i>/ 07</i>
+              <i>/ {String(TOP_CARD_LEVEL).padStart(2, "0")}</i>
             </>
           ) : (
             <b>HOMAY</b>

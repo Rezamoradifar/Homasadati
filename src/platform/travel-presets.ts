@@ -39,7 +39,7 @@ export function installTravelPresets(actor: string) {
           credit: p.credit,
           active: false,
         },
-        "ایجاد ساختار پیشنهادی هفت رتبه؛ صدور غیرفعال",
+        "ایجاد ساختار پیشنهادی هشت رتبه؛ صدور غیرفعال",
       );
     }
     return travelPresets();

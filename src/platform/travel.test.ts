@@ -235,4 +235,4 @@ it("enforces travel administration roles at API boundary", async () => {
     ).status,
   ).toBe(403);
 });
-it('installs seven draft ranks atomically without enabling credit or duplicating on retry',async()=>{const {travelPresets,installTravelPresets}=await import('./travel-presets');expect(travelPresets()).toHaveLength(7);const p=installTravelPresets(admin);expect(p.every(r=>r.rank_id&&r.active===0)).toBe(true);const before=p.map(r=>r.rank_id);expect(installTravelPresets(admin).map(r=>r.rank_id)).toEqual(before);expect(issueTravelCards(user).filter(c=>before.includes(c.rank_id))).toHaveLength(0);});
+it('installs eight draft ranks atomically without enabling credit or duplicating on retry',async()=>{const {travelPresets,installTravelPresets}=await import('./travel-presets');expect(travelPresets()).toHaveLength(8);const p=installTravelPresets(admin);expect(p.every(r=>r.rank_id&&r.active===0)).toBe(true);const before=p.map(r=>r.rank_id);expect(installTravelPresets(admin).map(r=>r.rank_id)).toEqual(before);expect(issueTravelCards(user).filter(c=>before.includes(c.rank_id))).toHaveLength(0);});

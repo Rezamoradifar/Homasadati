@@ -280,7 +280,7 @@ export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
   return (
     <Localized>
       <section className="portal-card">
-        <h2>پلن هفت کارت</h2>
+        <h2>پلن هشت کارت</h2>
         <DataState state={state}>
           {(data) => (
             <Localized>

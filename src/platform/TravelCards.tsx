@@ -267,11 +267,11 @@ export function AdminTravel({
               <section className="portal-card">
                 <h2>اعتبار سفر هر رتبه</h2>
                 <a href="/club/ranks" target="_blank" rel="noreferrer">
-                  مشاهده هفت رتبه و طراحی کارت‌ها
+                  مشاهده هشت رتبه و طراحی کارت‌ها
                 </a>
                 <Form
                   fields={[]}
-                  submit="ایجاد هفت رتبه پیشنهادی با صدور غیرفعال"
+                  submit="ایجاد هشت رتبه پیشنهادی با صدور غیرفعال"
                   onSubmit={async () => {
                     await api("admin/travel/presets", "POST", {});
                     onChange();

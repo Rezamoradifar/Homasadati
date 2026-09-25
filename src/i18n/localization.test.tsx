@@ -149,8 +149,8 @@ describe("site language rendering", () => {
   });
 });
 describe("card prices in Iranian rials", () => {
-  it("starts at ten million tomans and uses seven increasing proposals", () => {
-    expect(clubTiers).toHaveLength(7);
+  it("starts at ten million tomans and uses eight increasing proposals", () => {
+    expect(clubTiers).toHaveLength(8);
     expect(tierPriceRial(1)).toBe(tomanToRial(10_000_000));
     expect(
       clubTiers.every(
@@ -158,7 +158,8 @@ describe("card prices in Iranian rials", () => {
       ),
     ).toBe(true);
     expect(tierPriceRial(0)).toBeUndefined();
-    expect(tierPriceRial(8)).toBeUndefined();
+    expect(tierPriceRial(8)).toBe(tomanToRial(100_000_000));
+    expect(tierPriceRial(9)).toBeUndefined();
   });
   it("converts actual card credit without accepting invalid financial values", () => {
     expect(tomanToRial(2_500_000)).toBe(25_000_000);

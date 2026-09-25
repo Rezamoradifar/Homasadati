@@ -16,8 +16,8 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
           <p className="eyebrow">کارت‌های باشگاه همای</p>
           <h2 id="ranks-title">
             {fa
-              ? "هفت رتبه، هفت رنگ همراهی"
-              : "Seven ranks. Your next chapter."}
+              ? "هشت رتبه، هشت رنگ همراهی"
+              : "Eight ranks. Your next chapter."}
           </h2>
         </div>
         <a className="editorial-link" href="/club/ranks">

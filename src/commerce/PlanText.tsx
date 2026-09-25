@@ -1,7 +1,8 @@
 "use client";
 import Localized from "../i18n/Localized";
 
-/** The owner's own wording of the seven-card plan, shown as written. Branch
+/** The owner's own wording of the card plan (the Aria card was added later
+ * by the owner in the same pattern), shown as written. Branch
  * counts are left out on purpose: desks are reward capacity on the member's
  * two legs, not separate physical branches (owner decision). */
 const cards = [
@@ -72,13 +73,24 @@ const cards = [
   },
   {
     title: "۷. خرید کارت سیمرغ",
-    range: "۷۰ میلیون تومان به بالا",
+    range: "۷۰ الی ۱۰۰ میلیون تومان",
     desks: "۷ میز کار فعال",
     cap: "۱۰۵ میلیون تومان",
     body: [
-      "در طرح هفتم با نام خرید کارت سیمرغ، بن‌کارت خرید محصول یا خدمات از فروشگاه باشگاه اینترنتی شرکت، به ازای خرید به مبلغ ۷۰ میلیون تومان به بالا دریافت خواهید کرد.",
+      "در طرح هفتم با نام خرید کارت سیمرغ، بن‌کارت خرید محصول یا خدمات از فروشگاه باشگاه اینترنتی شرکت، به ازای خرید به مبلغ ۷۰ الی ۱۰۰ میلیون تومان دریافت خواهید کرد.",
       "با فعال‌سازی کارت سیمرغ، شما دارای هفت جایگاه یا میز کار فعال خواهید بود.",
       "سقف مجموع پاداش هفتگی این جایگاه‌ها ۱۰۵ میلیون تومان خواهد بود.",
+    ],
+  },
+  {
+    title: "۸. خرید کارت آریا",
+    range: "۱۰۰ میلیون تومان به بالا",
+    desks: "۸ میز کار فعال",
+    cap: "۱۲۰ میلیون تومان",
+    body: [
+      "در طرح هشتم با نام خرید کارت آریا، بن‌کارت خرید محصول یا خدمات از فروشگاه باشگاه اینترنتی شرکت، به ازای خرید به مبلغ ۱۰۰ میلیون تومان به بالا دریافت خواهید کرد.",
+      "با فعال‌سازی کارت آریا، شما دارای هشت جایگاه یا میز کار فعال خواهید بود.",
+      "سقف مجموع پاداش هفتگی این جایگاه‌ها ۱۲۰ میلیون تومان خواهد بود.",
     ],
   },
 ];
@@ -144,7 +156,7 @@ export default function PlanText() {
   return (
     <Localized>
       <section className="brand-chapter plan-text">
-        <h2>طرح هفت کارت باشگاه</h2>
+        <h2>طرح هشت کارت باشگاه</h2>
         <div className="plan-text-cards">
           {cards.map((c) => (
             <article key={c.title}>

@@ -247,6 +247,9 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 .rank-obsidian {
   --card-tone: #353949;
 }
+.rank-lapis {
+  --card-tone: #1f3f7a;
+}
 .rank-description {
   padding: 24px;
   background: #fdfcfa;
@@ -807,6 +810,11 @@ html .rank-card {
   --card-base: #151923;
   --card-glow: #3c4559;
   --card-foil: #e9c58d;
+}
+.privilege-card.rank-lapis {
+  --card-base: #0e1d3d;
+  --card-glow: #3b64b8;
+  --card-foil: #f3dca0;
 }
 .privilege-card:after {
   content: "";
