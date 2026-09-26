@@ -30,11 +30,7 @@ export default function ContactDetails({
               {email}
             </bdi>
           </a>
-        ) : (
-          !compact && (
-            <p className="contact-pending">ایمیل رسمی هنوز اعلام نشده است.</p>
-          )
-        )}
+        ) : null}
         {landline && /^0\d{10}$/.test(landline) && (
           <a className="contact-phone" href={"tel:+98" + landline.slice(1)}>
             <span>تلفن ثابت</span>
