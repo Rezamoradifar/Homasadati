@@ -98,48 +98,44 @@ export function CraftCategoryGrid() {
         <span className="commerce-eyebrow">دسته‌بندی محصولات</span>
         <h2>صنایع‌دستی همای</h2>
         <div className="craft-category-grid">
-          {craftCategories.map((c) => (
-            <Localized key={c.id}>
-              <article>
-                <h3>
-                  <a href={craftShopHref(c.id)}>{c.name}</a>
-                </h3>
-                {c.techniques ? (
-                  <ul>
-                    {c.techniques.map((t) => (
-                      <Localized key={t.id}>
-                        <li>
+          {craftCategories.map((c) => {
+            const Icon = categoryIcons[c.id];
+            return (
+              <Localized key={c.id}>
+                <article>
+                  <a className="craft-category-head" href={craftShopHref(c.id)}>
+                    <span className="craft-cat-icon" aria-hidden="true">
+                      {Icon && <Icon weight="light" />}
+                    </span>
+                    <h3>{c.name}</h3>
+                  </a>
+                  {c.techniques && (
+                    <div className="craft-category-chips">
+                      <small>تکنیک</small>
+                      {c.techniques.map((t) => (
+                        <Localized key={t.id}>
                           <a href={craftShopHref(c.id, t.id)}>{t.name}</a>
-                        </li>
-                      </Localized>
-                    ))}
-                  </ul>
-                ) : c.items ? (
-                  <ul>
-                    {c.items.map((i) => (
-                      <Localized key={i.id}>
-                        <li>
+                        </Localized>
+                      ))}
+                    </div>
+                  )}
+                  {c.items && (
+                    <div className="craft-category-chips craft-category-items">
+                      <small>کاربری</small>
+                      {c.items.map((i) => (
+                        <Localized key={i.id}>
                           <a href={craftShopHref(c.id, "", i.id)}>{i.name}</a>
-                        </li>
-                      </Localized>
-                    ))}
-                  </ul>
-                ) : null}
-                {c.techniques && c.items && (
-                  <p className="craft-item-tags">
-                    {c.items.map((i) => (
-                      <Localized key={i.id}>
-                        <span>{i.name}</span>
-                      </Localized>
-                    ))}
-                  </p>
-                )}
-                <a className="craft-category-link" href={craftShopHref(c.id)}>
-                  مشاهدهٔ محصولات ←
-                </a>
-              </article>
-            </Localized>
-          ))}
+                        </Localized>
+                      ))}
+                    </div>
+                  )}
+                  <a className="craft-category-link" href={craftShopHref(c.id)}>
+                    مشاهدهٔ محصولات ←
+                  </a>
+                </article>
+              </Localized>
+            );
+          })}
         </div>
       </section>
     </Localized>
