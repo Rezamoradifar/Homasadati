@@ -2,6 +2,7 @@
 import { UsdNote } from "../src/commerce/currency";
 import Localized from "../src/i18n/Localized";
 import PrivilegeCard from "./PrivilegeCard";
+import PlanStatusNote from "./PlanStatusNote";
 import { sevenCards } from "../src/platform/seven-card-model";
 const ranks = sevenCards.map(card => [card.name, card.english, card.tone]);
 export default function ClubCards({ locale = "fa" }: { locale?: string }) {
@@ -44,11 +45,7 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
         ))}
       </div>
       <UsdNote/>
-      <p className="club-preview-note">
-        {fa
-          ? "مبالغ روی کارت، حداقل خرید به ریال در پلن جدید هستند؛ فعال‌سازی این پلن هنوز انجام نشده است."
-          : "Card amounts are minimum purchases in Iranian rials under the new plan; this plan is not yet active."}
-      </p>
+      <PlanStatusNote fa={fa} />
     </section></Localized>
   );
 }
