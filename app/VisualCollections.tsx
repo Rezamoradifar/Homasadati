@@ -47,7 +47,7 @@ export function CivilizationHero() {
       <ResponsiveImage
         ref={hero}
         className="hero-photo"
-        src={"/assets/heritage/" + heritageSlides[index][0] + ".webp"}
+        src={"/assets/backdrop/" + heritageSlides[index][0] + ".webp"}
         alt={heritageSlides[index][fa ? 1 : 2]}
         fetchPriority="high"
       />

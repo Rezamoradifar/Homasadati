@@ -57,9 +57,9 @@ export default function TourismHeroVideo() {
   }
 
   return <Localized><>
-    <img className="tourism-video-poster" src="/assets/heritage/persepolis.webp" alt="بازآفرینی هنری تخت‌جمشید" fetchPriority="high" />
+    <img className="tourism-video-poster" src="/assets/backdrop/persepolis.webp" alt="بازآفرینی هنری تخت‌جمشید" fetchPriority="high" />
     <video ref={video} className="tourism-hero-video" muted loop playsInline
-      src={source} preload="none" poster="/assets/heritage/persepolis.webp"
+      src={source} preload="none" poster="/assets/backdrop/persepolis.webp"
       aria-label="ویدیوی پس‌زمینه گردشگری؛ بازسازی تخت‌جمشید"
       onPlaying={() => {setPlaying(true);setNotice("");}}
       onPause={() => setPlaying(false)}

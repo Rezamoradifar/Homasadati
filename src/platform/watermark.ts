@@ -11,12 +11,13 @@ const logoFile = (name: string) => {
   return logos.get(name)!;
 };
 
-/** Pages crop photos with object-fit: cover (landscape down to 2:1, portrait
- * down to 4:3), so the logo sits just above what a crop removes. */
+/** Phone layouts crop photos with object-fit: cover — landscape photos down to
+ * wide 2.4:1 banners, portrait ones down to 16:9 — so the logo sits just above
+ * what such a crop removes and shows in thumbnails without opening the photo. */
 function bottomOffset(width: number, height: number) {
-  const narrowest = width >= height ? 2 : 4 / 3;
+  const narrowest = width >= height ? 2.4 : 16 / 9;
   const cropped = Math.max(0, (height - width / narrowest) / 2);
-  return Math.round(cropped + height * 0.05);
+  return Math.round(cropped + height * 0.04);
 }
 
 /** A cream label with rounded ends that the orange logo sits on, so the

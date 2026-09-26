@@ -14,7 +14,8 @@ import { mediaDirectory } from "../src/platform/media";
 
 const uploads = process.argv.includes("--uploads");
 const restamp = process.argv.includes("--restamp");
-const skipDirs = new Set(["brand", "licenses", "variants", "originals"]);
+// backdrop/: full-bleed banners behind text, under the header logo.
+const skipDirs = new Set(["brand", "licenses", "variants", "originals", "backdrop"]);
 
 const walk = (dir: string): string[] =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
