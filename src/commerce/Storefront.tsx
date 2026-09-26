@@ -109,7 +109,7 @@ export default function Storefront({
                           <ResponsiveImage src={images[0]} sizes="(max-width: 700px) 90vw, (max-width: 1050px) 44vw, 400px" alt={copy.title} loading="lazy" />
                         ) : (
                           <div className="no-image">
-                            تصویر محصول هنوز ثبت نشده
+                            <img src="/assets/brand/homanet-horizontal-orange.png" alt="هما نت" loading="lazy" />
                           </div>
                         )}
                       </a>

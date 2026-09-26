@@ -86,7 +86,7 @@ export async function media(req: Request, path: string[]) {
   } finally {
     reader.releaseLock();
   }
-  let image: Buffer;
+  let image: Buffer, original: Buffer;
   try {
     const input = sharp(Buffer.concat(chunks), {
       limitInputPixels: 25_000_000,
@@ -108,12 +108,18 @@ export async function media(req: Request, path: string[]) {
       })
       .toBuffer();
     // Every uploaded picture carries the site logo.
+    original = resized;
     image = await (await stampLogo(resized)).webp({ quality: 88 }).toBuffer();
   } catch {
     throw new ApiError(400, "invalid_image");
   }
   const file = randomUUID() + ".webp";
-  await mkdir(mediaDirectory(), { recursive: true, mode: 0o700 });
+  await mkdir(join(mediaDirectory(), "originals"), { recursive: true, mode: 0o700 });
+  // The unstamped copy is never served; it lets the logo be re-applied later.
+  await writeFile(join(mediaDirectory(), "originals", file), await sharp(original).webp({ quality: 88 }).toBuffer(), {
+    flag: "wx",
+    mode: 0o600,
+  });
   await writeFile(join(mediaDirectory(), file), image, {
     flag: "wx",
     mode: 0o600,
@@ -125,6 +131,7 @@ export async function media(req: Request, path: string[]) {
     });
   } catch (e) {
     await unlink(join(mediaDirectory(), file));
+    await unlink(join(mediaDirectory(), "originals", file)).catch(() => {});
     throw e;
   }
   return json({ url: "/api/platform/media/" + file, bytes: image.length }, 201);

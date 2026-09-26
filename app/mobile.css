@@ -611,3 +611,46 @@ html body .club-preview-grid > *, html body .rank-grid > * {flex:0 0 clamp(270px
 @media (max-width:700px) {
   html body .club-preview-grid > *, html body .rank-grid > * {flex-basis:84%;scroll-snap-align:center;}
 }
+/* Products without a photo still show the brand: the orange logo on cream. */
+html body .no-image {display:flex!important;align-items:center;justify-content:center;background:#fffaf3!important;color:transparent;}
+html body .no-image img {width:62%!important;max-width:240px;height:auto!important;min-height:0!important;aspect-ratio:auto!important;object-fit:contain!important;background:none!important;border-radius:0!important;}
+html body .product-no-image {aspect-ratio:4/3;border-radius:14px;}
+html[data-theme=dark] body .no-image {background:#2b3342!important;}
+/* Club cards are landscape, in bank-card proportions (85.6 × 54 mm), at every
+ * width. Sizes follow the card's own width so the layout holds when small.
+ *   top:   HOMAY PRIVILEGE ............ bird
+ *   title: club label and card name
+ *   foot:  minimum purchase ........... level 01 / 08 */
+html body .privilege-card, html body .travel-credit-card .privilege-card {
+  container-type: inline-size;
+  aspect-ratio: 1.586;
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: "top top" "title title" "price level";
+  gap: 0;
+}
+html body .privilege-card > .privilege-top {grid-area: top; padding: 6cqw 7cqw 0; margin: 0;}
+html body .privilege-card > .privilege-title {grid-area: title; align-self: center; padding: 0 7cqw; margin: 0;}
+html body .privilege-card > .privilege-price {grid-area: price; align-self: end; padding: 0 7cqw 6cqw; border: 0; margin: 0; gap: .6cqw;}
+html body .privilege-card > .privilege-bottom {grid-area: level; align-self: end; padding: 0 0 6cqw; padding-inline-end: 7cqw; margin: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 1cqw;}
+/* No price on the card: let the level sit alone at the foot. */
+html body .privilege-card:not(:has(.privilege-price)) {grid-template-areas: "top top" "title title" ". level";}
+html body .privilege-card:not(.has-holder) > .privilege-bottom > div {display: none;}
+html body .privilege-card .privilege-top > span {font-size: 3.6cqw;}
+html body .privilege-card .privilege-top b {font-size: 2.6cqw;}
+html body .privilege-card .privilege-top > img {width: 11cqw; height: 11cqw; margin: -2cqw -1.5cqw;}
+html body .privilege-card .privilege-title small {font-size: 3cqw;}
+html body .privilege-card .privilege-title h3 {font-size: 10cqw !important; line-height: 1.3 !important; margin: .5cqw 0 0 !important;}
+html body .privilege-card .privilege-price small {font-size: 2.8cqw;}
+html body .privilege-card .privilege-price strong {font-size: 6.4cqw; line-height: 1.2;}
+html body .privilege-card .privilege-price strong > span {font-size: 3.2cqw;}
+html body .privilege-card .privilege-bottom > div > span {font-size: 2.6cqw;}
+html body .privilege-card .privilege-bottom strong {font-size: 3.2cqw;}
+html body .privilege-card .privilege-level b {font-size: 8cqw;}
+html body .privilege-card .privilege-level i {font-size: 2.8cqw;}
+html body .privilege-card:after {inset: 2.6cqw; border-radius: 3cqw;}
+html body .privilege-card .privilege-card-lines {width: 70cqw; height: 70cqw; left: -26cqw; bottom: -42cqw;}

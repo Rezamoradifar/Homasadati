@@ -25,6 +25,15 @@ export const httpsImage = z
       /^\/api\/platform\/media\/[a-f0-9-]{36}\.webp$/.test(v) ||
       /^https:\/\//.test(v),
   );
+/** Product photos must be site files or uploads, which carry the logo; an
+ * outside link would show the photo without it. */
+export const productImage = z
+  .string()
+  .max(1000)
+  .refine(
+    (v) => v.startsWith("/assets/") || /^\/api\/platform\/media\/[a-f0-9-]{36}\.webp$/.test(v),
+    "تصویر محصول باید از طریق آپلود در سایت ثبت شود تا لوگوی هما نت روی آن قرار گیرد",
+  );
 export const productSchema = z
   .object({
     id: id.optional(),
@@ -37,7 +46,7 @@ export const productSchema = z
     subtype: text,
     price: money,
     stock: z.number().int().min(0).max(1000000),
-    images: z.array(httpsImage).max(12),
+    images: z.array(productImage).max(12),
     taxonomy: z.array(id).max(30),
     published: z.boolean(),
     duration_days: z.number().int().min(1).max(3650),
