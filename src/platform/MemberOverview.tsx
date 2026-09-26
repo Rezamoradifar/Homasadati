@@ -76,8 +76,11 @@ export function MemberOverview({
   activity = {},
   onNavigate,
   notice,
+  summary,
 }: {
   notice?: ReactNode;
+  /** Money figures and the live chart, shown right under the welcome. */
+  summary?: ReactNode;
   user: RecordData;
   activity: RecordData;
   onNavigate: (tab: string) => void;
@@ -135,11 +138,18 @@ export function MemberOverview({
             خوش آمدید، <bdi translate="no">{user.name}</bdi>
           </h2>
           <p>خریدها، خدمات، مزایا و وضعیت حساب شما در یک نگاه.</p>
+          <div className="member-welcome-chips">
+            <span translate="no" dir="ltr">
+              {user.referral_code}
+            </span>
+            <span>{new Date().toLocaleDateString("fa-IR-u-ca-persian", { weekday: "long", day: "numeric", month: "long" })}</span>
+          </div>
         </div>
         <a href="/account?tab=profile" onClick={(e) => follow(e, "profile")}>
           مشاهده پروفایل <ArrowUpLeft size={18} aria-hidden="true" />
         </a>
       </section>
+      {summary}
       <section className="member-activity" aria-label="وضعیت خدمات من">
         {counters.map(({ tab, label, value, icon: Icon }) => (
           <a

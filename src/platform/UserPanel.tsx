@@ -74,14 +74,19 @@ export function Dashboard({ refresh, user, onNavigate }: {
             </section>
           )
             }
+            summary={
+              <>
+                <div className="portal-stats">
+                  <Stat label="موجودی قابل برداشت" value={d.wallet.available} />
+                  <Stat label="در انتظار تسویه" value={d.wallet.pending} />
+                  <Stat label="فروش شخصی این ماه" value={d.sales.personal} />
+                  <Stat label="فروش گروهی این ماه" value={d.sales.group} />
+                </div>
+                <LiveChart />
+              </>
+            }
           />
-          <div className="portal-stats">
-            <Stat label="موجودی قابل برداشت" value={d.wallet.available} />
-            <Stat label="در انتظار تسویه" value={d.wallet.pending} />
-            <Stat label="فروش شخصی این ماه" value={d.sales.personal} />
-            <Stat label="فروش گروهی این ماه" value={d.sales.group} />
-          </div>
-          <LiveChart />
+
           {d.wallet.debt > 0 && (
             <Notice
               error={`بدهی ناشی از برگشت پورسانت: ${amount(d.wallet.debt)} تومان؛ برداشت تا تسویه ممکن نیست.`}
