@@ -12,6 +12,9 @@ import './collections.css';
 import './theme.css';
 import './refinements.css';
 import './mobile.css';
+import './design-system.css';
+import '@fontsource/vazirmatn/800.css';
+import ScrollState from './ScrollState';
 import '@fontsource/vazirmatn/300.css';
 import '@fontsource/vazirmatn/400.css';
 import '@fontsource/vazirmatn/500.css';
@@ -20,4 +23,4 @@ import '@fontsource/vazirmatn/700.css';
 import type {Metadata} from 'next';
 import type {ReactNode} from 'react';
 export async function generateMetadata():Promise<Metadata>{const locale=await siteLocale();return {title:locale==='en'?'Homanet Club':locale==='ar'?'نادي عملاء هما نت':'باشگاه مشتریان هما نت',description:locale==='en'?'The Homanet club: travel, handicrafts, leather, beauty and technology.':locale==='ar'?'نادي عملاء هماي؛ السفر والحرف اليدوية والجلود والجمال والتكنولوجيا.':'باشگاه مشتریان همای؛ گردشگری، صنایع‌دستی، چرم، زیبایی و فناوری.'};}
-export default async function Layout({children}: {children:ReactNode}){const locale=await siteLocale(),dictionary=await loadDictionary(locale);const settings=Object.fromEntries(all("SELECT key,value FROM p_settings WHERE secret=0 AND key IN ('site_name','site_logo','site_contact','site_email','site_landline','site_address','site_postal_code','company_national_id','company_registration_no','enamad_id','enamad_code')").map(r=>[r.key,r.value]));return <html lang={locale} dir={direction(locale)} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html: "try{var t=localStorage.getItem('homa-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch(e){}"}}/></head><body><SiteLocaleProvider initialLocale={locale} initialDictionary={dictionary}><SiteSettingsProvider value={settings}><CurrencyProvider usd={currentUsdRate()}>{children}</CurrencyProvider></SiteSettingsProvider></SiteLocaleProvider></body></html>;}
+export default async function Layout({children}: {children:ReactNode}){const locale=await siteLocale(),dictionary=await loadDictionary(locale);const settings=Object.fromEntries(all("SELECT key,value FROM p_settings WHERE secret=0 AND key IN ('site_name','site_logo','site_contact','site_email','site_landline','site_address','site_postal_code','company_national_id','company_registration_no','enamad_id','enamad_code')").map(r=>[r.key,r.value]));return <html lang={locale} dir={direction(locale)} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html: "try{var t=localStorage.getItem('homa-theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch(e){}"}}/></head><body><ScrollState/><SiteLocaleProvider initialLocale={locale} initialDictionary={dictionary}><SiteSettingsProvider value={settings}><CurrencyProvider usd={currentUsdRate()}>{children}</CurrencyProvider></SiteSettingsProvider></SiteLocaleProvider></body></html>;}
