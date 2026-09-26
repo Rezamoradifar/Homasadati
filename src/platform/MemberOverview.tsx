@@ -1,5 +1,6 @@
 "use client";
 
+import { useSiteLocale } from "../i18n/SiteLocale";
 import {
   ArrowUpLeft,
   Bell,
@@ -85,6 +86,7 @@ export function MemberOverview({
   activity: RecordData;
   onNavigate: (tab: string) => void;
 }) {
+  const { locale } = useSiteLocale();
   const follow = (event: MouseEvent<HTMLAnchorElement>, tab: string) => {
     if (
       event.button === 0 &&
@@ -142,7 +144,12 @@ export function MemberOverview({
             <span translate="no" dir="ltr">
               {user.referral_code}
             </span>
-            <span>{new Date().toLocaleDateString("fa-IR-u-ca-persian", { weekday: "long", day: "numeric", month: "long" })}</span>
+            <span>
+              {new Date().toLocaleDateString(
+                locale === "en" ? "en-GB" : locale === "ar" ? "ar-u-nu-arab" : "fa-IR-u-ca-persian",
+                { weekday: "long", day: "numeric", month: "long" },
+              )}
+            </span>
           </div>
         </div>
         <a href="/account?tab=profile" onClick={(e) => follow(e, "profile")}>
