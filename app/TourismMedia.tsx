@@ -6,24 +6,6 @@ export default function TourismMedia() {
     <Localized><section className="tourism-media" dir="rtl">
       <p className="commerce-eyebrow">ایران، روایتی زنده</p>
       <h2>سفری به قلب تمدن ایران</h2>
-      <p className="media-credit" id="tourism-media-credit">
-        بازسازی هنری تخت‌جمشید، ZDF / Terra X؛{" "}
-        <a
-          href="https://creativecommons.org/licenses/by-sa/4.0/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          CC BY-SA 4.0
-        </a>
-        . نشان سازنده متعلق به منبع فیلم است.{" "}
-        <a
-          href="https://commons.wikimedia.org/wiki/File:Persepolis,_Hauptstadt_Persiens_(CC_BY-SA_4.0).webm"
-          target="_blank"
-          rel="noreferrer"
-        >
-          صفحه منبع فیلم
-        </a>
-      </p>
       <article>
         <h3>روایت سفر</h3>
         <p>

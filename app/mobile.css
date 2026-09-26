@@ -721,3 +721,27 @@ html body .contact-address, html body .contact-registry {font-size:13px;line-hei
 html body .contact-address span {font-weight:600;}
 html body .trust-badge {display:inline-flex;align-self:flex-start;justify-self:start;width:max-content;max-width:120px;padding:6px;border-radius:12px;background:#fff;box-shadow:0 2px 10px #0000001a;}
 html body .trust-badge img {display:block;width:88px;height:auto;}
+/* Tourism hero: four backdrops, 7s apart on a 28s loop, each drifting and
+ * zooming slowly while it is on screen. */
+html body .hero-motion {position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none;background:#101317;}
+html body .hero-motion img {position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform-origin:60% 45%;animation:hero-motion 28s linear infinite;will-change:opacity,transform;}
+html body .hero-motion img:nth-child(2) {transform-origin:35% 55%;}
+html body .hero-motion img:nth-child(3) {transform-origin:50% 35%;}
+html body .hero-motion img:nth-child(4) {transform-origin:40% 60%;}
+html body .hero-motion.paused img {animation-play-state:paused;}
+@keyframes hero-motion {
+  0% {opacity:0;transform:scale(1.04) translate3d(0,0,0);}
+  5% {opacity:1;}
+  25% {opacity:1;}
+  32% {opacity:0;transform:scale(1.16) translate3d(-1.5%,-1%,0);}
+  100% {opacity:0;transform:scale(1.04) translate3d(0,0,0);}
+}
+html body .brand-hero.tourism > .hero-motion-controls {position:absolute;z-index:3;inset-inline:8%;bottom:24px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:13px;color:#fff;}
+html body .hero-motion-controls button {padding:9px 16px;min-height:44px;border-radius:999px;background:#181d25cc;border:1px solid #ffffff55;color:#fff;font:inherit;backdrop-filter:blur(6px);}
+html body .hero-motion-controls span {text-shadow:0 1px 5px #000;opacity:.9;}
+@media (max-width:700px) {html body .brand-hero.tourism > .hero-motion-controls {inset-inline:6%;bottom:20px;}}
+@media (prefers-reduced-motion: reduce) {
+  html body .hero-motion img {animation:none;}
+  html body .hero-motion img:first-child {opacity:1;}
+  html body .hero-motion-controls {display:none!important;}
+}

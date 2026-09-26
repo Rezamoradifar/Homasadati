@@ -5,7 +5,7 @@ import Localized from "../../../src/i18n/Localized";
 import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
 import { BrandCollection } from "../../VisualCollections";
 import TourismMedia from "../../TourismMedia";
-import TourismHeroVideo from "../../TourismHeroVideo";
+import HeroMotion from "../../HeroMotion";
 import ClubCards from "../../ClubCards";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
@@ -49,7 +49,7 @@ export default async function BrandPage({
           style={{ backgroundColor: b.tone }}
         >
           {k === "tourism" ? (
-            <TourismHeroVideo />
+            <HeroMotion />
           ) : (
             b.image && (
               <ResponsiveImage
