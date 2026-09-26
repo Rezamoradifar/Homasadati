@@ -2,7 +2,7 @@ import { randomInt } from "node:crypto";
 import { ApiError } from "../server/http";
 import { setting } from "./providers";
 import { referralCode } from "./registration-model";
-import { atomic, now, one, run, Row } from "./schema";
+import { all, atomic, now, one, run, Row } from "./schema";
 import { audit } from "./security";
 
 /** Personal referral codes. A member may pick their own code; the previous
@@ -62,6 +62,18 @@ export function referralStatus(user: Row) {
     nextChange,
     directMembers: direct.total,
     directBuyers: direct.buyers || 0,
+    // Joined in the last 30 days, and the latest five with first name only.
+    recentMembers: one(
+      "SELECT COUNT(*) n FROM p_users WHERE sponsor_id=? AND created_at>=?",
+      user.id,
+      new Date(Date.now() - 30 * 86400000).toISOString(),
+    )!.n,
+    latest: all(
+      `SELECT u.name,u.created_at,
+         EXISTS(SELECT 1 FROM p_orders o WHERE o.user_id=u.id AND o.paid_at IS NOT NULL AND o.refunded_at IS NULL) bought
+       FROM p_users u WHERE u.sponsor_id=? ORDER BY u.created_at DESC LIMIT 5`,
+      user.id,
+    ).map((r) => ({ name: String(r.name).trim().split(/\s+/)[0], joined: r.created_at, bought: !!r.bought })),
   };
 }
 
