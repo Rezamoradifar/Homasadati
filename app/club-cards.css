@@ -1,0 +1,165 @@
+/* Club card family — one layout, eight materials. Each tier is rendered as
+ * a physical material rather than a bank or crypto card: sage linen, cypress
+ * velvet, veined turquoise stone, ruby lacquer, faceted emerald, platinum,
+ * obsidian with gold, and lapis lazuli flecked with gold. A fine grain and a
+ * slow sheen on hover make them read as objects. */
+html body .privilege-card {
+  --card-ink: var(--card-foil);
+  --card-edge: color-mix(in srgb, var(--card-foil) 30%, transparent);
+  color: var(--card-ink);
+  background: var(--card-material) !important;
+  border-radius: clamp(14px, 4.5cqw, 22px);
+  box-shadow:
+    inset 0 0 0 1px var(--card-edge),
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 18px 40px -22px rgb(13 19 34 / 0.55),
+    0 2px 6px -2px rgb(13 19 34 / 0.25);
+  transition:
+    transform var(--hn-base, 280ms) var(--hn-ease, ease),
+    box-shadow var(--hn-base, 280ms) var(--hn-ease, ease);
+}
+html body .privilege-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 0 0 1px var(--card-edge),
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    0 26px 50px -24px rgb(13 19 34 / 0.6),
+    0 3px 8px -3px rgb(13 19 34 / 0.25);
+}
+/* Fine grain over every material. */
+html body .privilege-card .privilege-material {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* Sheen that sweeps across on hover. */
+html body .privilege-card::before {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgb(255 255 255 / 0.16) 50%, transparent 58%);
+  transform: translateX(-35%);
+  transition: transform 1.1s var(--hn-ease, ease);
+}
+html body .privilege-card:hover::before {
+  transform: translateX(35%);
+}
+html body .privilege-card::after {
+  border-color: var(--card-edge) !important;
+}
+html body .privilege-card .privilege-card-lines {
+  border-color: color-mix(in srgb, var(--card-foil) 22%, transparent);
+  box-shadow:
+    0 0 0 16px #0000,
+    0 0 0 17px color-mix(in srgb, var(--card-foil) 12%, transparent),
+    0 0 0 33px #0000,
+    0 0 0 34px color-mix(in srgb, var(--card-foil) 7%, transparent);
+}
+html body .privilege-card .privilege-title h3 {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+}
+html body .privilege-card .privilege-price strong {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+html body .privilege-card .privilege-level b {
+  font-family: var(--hn-font-latin, sans-serif);
+  font-weight: 300;
+}
+
+/* 01 Javaneh — sage linen (light) */
+html body .privilege-card.rank-jade {
+  --card-foil: #2c4636;
+  --card-material:
+    radial-gradient(120% 90% at 90% 0%, rgb(255 255 255 / 0.55), transparent 55%),
+    repeating-linear-gradient(0deg, rgb(44 70 54 / 0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgb(44 70 54 / 0.03) 0 1px, transparent 1px 3px),
+    linear-gradient(140deg, #eef0e2 0%, #d5dfc8 55%, #bccdb1 100%);
+}
+/* 02 Sarv — cypress velvet */
+html body .privilege-card.rank-forest {
+  --card-foil: #e6d3a0;
+  --card-material:
+    radial-gradient(110% 90% at 85% 0%, #4c7f66 0%, transparent 55%),
+    radial-gradient(80% 70% at 0% 100%, #081813 0%, transparent 70%),
+    linear-gradient(160deg, #1b4235, #0c231c);
+}
+/* 03 Firoozeh — veined turquoise stone */
+html body .privilege-card.rank-turquoise {
+  --card-foil: #fbf4e3;
+  --card-material:
+    radial-gradient(40% 30% at 18% 28%, rgb(126 214 204 / 0.55), transparent 70%),
+    radial-gradient(35% 28% at 76% 64%, rgb(116 205 196 / 0.45), transparent 70%),
+    radial-gradient(60% 18% at 50% 46%, rgb(35 60 58 / 0.35), transparent 70%),
+    linear-gradient(28deg, transparent 47%, rgb(58 52 40 / 0.22) 48%, transparent 49.5%),
+    linear-gradient(152deg, transparent 60%, rgb(58 52 40 / 0.18) 61%, transparent 62%),
+    linear-gradient(145deg, #1a8b8b, #0f6e72 50%, #0a4f54);
+}
+/* 04 Yaqoot — ruby lacquer */
+html body .privilege-card.rank-ruby {
+  --card-foil: #f6dcc9;
+  --card-material:
+    radial-gradient(90% 70% at 18% 8%, rgb(214 92 112 / 0.55), transparent 60%),
+    radial-gradient(70% 60% at 100% 100%, #26040c, transparent 70%),
+    linear-gradient(145deg, #7a1a2f, #3d0915);
+}
+/* 05 Zomorrod — faceted emerald */
+html body .privilege-card.rank-emerald {
+  --card-foil: #f2dea3;
+  --card-material:
+    linear-gradient(118deg, transparent 38%, rgb(255 255 255 / 0.07) 38.2% 52%, transparent 52.2%),
+    linear-gradient(62deg, transparent 58%, rgb(0 0 0 / 0.12) 58.2% 74%, transparent 74.2%),
+    radial-gradient(90% 80% at 85% 0%, #1fa57f, transparent 60%),
+    linear-gradient(150deg, #0e6b51, #06402f);
+}
+/* 06 Almas — platinum (light) */
+html body .privilege-card.rank-gold {
+  --card-foil: #1e2a44;
+  --card-material:
+    conic-gradient(from 120deg at 72% 30%, rgb(255 255 255 / 0.5), transparent 12%, rgb(255 255 255 / 0.3) 24%, transparent 36%, rgb(255 255 255 / 0.4) 52%, transparent 70%),
+    linear-gradient(125deg, #f5f6f8 0%, #cdd3db 34%, #eef0f3 52%, #b6bec9 78%, #e3e7ec 100%);
+}
+/* 07 Simorgh — obsidian with gold */
+html body .privilege-card.rank-obsidian {
+  --card-foil: #e4c682;
+  --card-edge: rgb(228 198 130 / 0.55);
+  --card-material:
+    radial-gradient(80% 60% at 12% 0%, #2c3448, transparent 60%),
+    radial-gradient(60% 50% at 100% 100%, rgb(212 184 123 / 0.14), transparent 70%),
+    linear-gradient(150deg, #151923, #07080c);
+}
+/* 08 Arya — lapis lazuli with gold flecks */
+html body .privilege-card.rank-lapis {
+  --card-foil: #f0dba2;
+  --card-edge: rgb(240 219 162 / 0.5);
+  --card-material:
+    radial-gradient(circle at 23% 31%, rgb(230 201 131 / 0.75) 0 0.8px, transparent 1.3px) 0 0 / 53px 41px,
+    radial-gradient(circle at 71% 63%, rgb(230 201 131 / 0.5) 0 0.6px, transparent 1.1px) 0 0 / 71px 67px,
+    radial-gradient(circle at 44% 82%, rgb(230 201 131 / 0.4) 0 1px, transparent 1.6px) 0 0 / 97px 89px,
+    radial-gradient(90% 70% at 85% 0%, #3a63c4, transparent 60%),
+    linear-gradient(150deg, #1c3d8f, #0b1a45 75%);
+}
+/* Light materials: dark ink, and the bird mark darkens instead of glowing. */
+html body .privilege-card:is(.rank-jade, .rank-gold) .privilege-top > img,
+html body .privilege-card:is(.rank-jade, .rank-gold) .privilege-watermark {
+  filter: grayscale(1) brightness(0.3);
+  mix-blend-mode: multiply;
+}
+html body .privilege-card:is(.rank-jade, .rank-gold) .privilege-material {
+  mix-blend-mode: multiply;
+  opacity: 0.12;
+}
+html body .privilege-card:is(.rank-jade, .rank-gold) {
+  box-shadow:
+    inset 0 0 0 1px rgb(30 42 68 / 0.14),
+    inset 0 1px 0 rgb(255 255 255 / 0.7),
+    0 18px 40px -22px rgb(13 19 34 / 0.45),
+    0 2px 6px -2px rgb(13 19 34 / 0.2);
+}

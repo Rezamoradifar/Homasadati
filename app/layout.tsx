@@ -13,6 +13,7 @@ import './theme.css';
 import './refinements.css';
 import './mobile.css';
 import './design-system.css';
+import './club-cards.css';
 import '@fontsource/vazirmatn/800.css';
 import ScrollState from './ScrollState';
 import '@fontsource/vazirmatn/300.css';

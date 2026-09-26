@@ -25,6 +25,7 @@ export default function PrivilegeCard({
   const amountRial=creditToman!==undefined?tomanToRial(creditToman):holder || !showPurchaseMinimum ?undefined:tierPriceRial(level);
   return (
     <Localized><div className={"privilege-card rank-" + tone + (holder ? " has-holder" : "")}>
+      <div className="privilege-material" aria-hidden="true" />
       <div className="privilege-card-lines" aria-hidden="true" />
       <img
         className="privilege-watermark"
@@ -34,7 +35,7 @@ export default function PrivilegeCard({
       />
       <div className="privilege-top">
         <span dir="ltr">
-          HOMAY <b>PRIVILEGE</b>
+          HOMANET <b>CLUB</b>
         </span>
         <img src="/assets/brand-mark.png" alt="" loading="lazy" />
       </div>
