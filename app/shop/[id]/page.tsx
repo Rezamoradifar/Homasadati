@@ -13,6 +13,7 @@ import { extendedCatalogFields } from "../../../src/platform/catalog-fields";
 import { brands, isSector } from "../../../src/commerce/brands";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import AddToCart from "../../../src/commerce/AddToCart";
+import { breadcrumbJsonLd, JsonLd, productJsonLd } from "../../../src/platform/seo";
 function get(id: string) {
   return one(
     "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.id=? AND p.published=1",
@@ -28,9 +29,13 @@ export async function generateMetadata({
   const p = get(params.id);
   if (!p) return {};
   const d = publicCatalogDetails(p.details),copy=catalogCopy({...p,details:d} as {title:string;description:string;details:Record<string,unknown>},await siteLocale());
+  const images = (JSON.parse(p.images) as string[]).slice(0, 1);
   return {
     title: copy.title,
     description: copy.description.slice(0, 170),
+    alternates: { canonical: "/shop/" + p.id },
+    openGraph: { type: "website", title: copy.title, description: copy.description.slice(0, 170), url: "/shop/" + p.id, ...(images.length ? { images } : {}) },
+    twitter: { card: images.length ? "summary_large_image" : "summary", title: copy.title, description: copy.description.slice(0, 170) },
   };
 }
 export default async function ProductPage({
@@ -47,6 +52,16 @@ export default async function ProductPage({
   const copy=catalogCopy({...p,details:d} as {title:string;description:string;details:Record<string,unknown>},await siteLocale());
   return (
     <Localized><CommerceShell>
+      <JsonLd
+        data={[
+          productJsonLd({ id: p.id, title: copy.title, description: copy.description, price: p.price, stock: p.stock, images, sku: d.sku, brand: brand?.name }),
+          breadcrumbJsonLd([
+            { name: "فروشگاه", path: "/shop" },
+            ...(brand ? [{ name: brand.name, path: "/worlds/" + p.vertical }] : []),
+            { name: copy.title, path: "/shop/" + p.id },
+          ]),
+        ]}
+      />
       <main id="commerce-main" className="shop-wrap">
         <p>
           <a href="/shop">فروشگاه</a> / {brand?.name} / {copy.title}

@@ -36,7 +36,7 @@ export function Footer({variant = 'default', introduction, signature, id, classN
   const subscribeLock = useRef(false);
   const switchLock = useRef(false);
   const emailRef = useRef<HTMLInputElement>(null);
-  const inputClass = `min-h-12 rounded-lg border border-white/25 bg-[#2b3544] px-3 text-sm text-white ${focusRing}`;
+  const inputClass = `min-h-12 rounded-lg border border-white/25 bg-white/5 px-3 text-sm text-white ${focusRing}`;
 
   async function subscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -69,7 +69,7 @@ export function Footer({variant = 'default', introduction, signature, id, classN
   }
 
   return <footer data-variant={variant} id={id} dir={direction ?? localeDirection(locale)} lang={locale} aria-label={t('aria.footer')}
-    className={`${styles.root} relative overflow-hidden bg-[#212834] text-[#e7eef0] ${className}`}>
+    className={`${styles.root} relative overflow-hidden bg-[var(--hn-indigo-deep,#141c30)] text-[#f1ebdf] ${className}`}>
     <div aria-hidden="true" className={styles.divider} />
     <motion.div initial={false} whileInView={reducedMotion ? undefined : {y: [12, 0], opacity: [0.8, 1]}}
       viewport={{once: true, amount: 0.08}} transition={{duration: 0.5, ease: 'easeOut'}}
@@ -89,7 +89,7 @@ export function Footer({variant = 'default', introduction, signature, id, classN
                 disabled={!onSubscribe || status === 'pending'} aria-invalid={status === 'invalid'} aria-describedby={`${uid}-notice ${uid}-status`}
                 placeholder={t('newsletter.placeholder')} className={`${inputClass} w-full px-11 disabled:opacity-60`} />
             </div>
-            <button disabled={!onSubscribe || status === 'pending'} type="submit" className={`flex min-h-12 shrink-0 items-center justify-center gap-3 rounded-lg bg-[#ceb798] px-5 text-sm font-semibold text-[#212834] transition-colors hover:bg-[#e0d2be] disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`}>
+            <button disabled={!onSubscribe || status === 'pending'} type="submit" className={`flex min-h-12 shrink-0 items-center justify-center gap-3 rounded-full bg-[var(--hn-turquoise,#0f6e72)] px-6 text-sm font-semibold text-white transition-colors hover:bg-[var(--hn-turquoise-deep,#0a5357)] disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`}>
               {t(status === 'pending' ? 'newsletter.pending' : 'newsletter.submit')}<ArrowUpRight aria-hidden="true" size={17} className="rtl:-scale-x-100" />
             </button>
           </div>

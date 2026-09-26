@@ -291,3 +291,241 @@ html body .travel-collection .journey-detail small {
     gap: 20px !important;
   }
 }
+
+/* ---------- Footer: one strong closing section ---------- */
+html body .landing-footer,
+html body .landing-footer[data-variant="editorial"],
+html body footer[data-variant] {
+  background:
+    radial-gradient(50% 60% at 100% 0%, rgb(15 110 114 / 0.22), transparent 70%),
+    var(--hn-indigo-deep) !important;
+  color: #f1ebdf !important;
+}
+html body .landing-footer .footer-introduction {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto;
+  gap: 24px 48px;
+  align-items: end;
+  padding-block: clamp(40px, 6vw, 88px) clamp(28px, 4vw, 48px);
+}
+html body .landing-footer .footer-introduction h2 {
+  font-size: clamp(28px, 3.6vw, 52px) !important;
+  font-weight: 700;
+  color: #fff !important;
+}
+html body .landing-footer .footer-introduction > :last-child:not(.footer-contact-actions) {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+  color: rgb(241 235 223 / 0.75);
+  font-size: 14px;
+}
+html body .landing-footer .footer-introduction > :last-child:not(.footer-contact-actions) > * {
+  margin: 0;
+}
+html body .landing-footer .eyebrow {
+  color: var(--hn-gold) !important;
+}
+html body .landing-footer a:hover {
+  color: var(--hn-gold);
+}
+@media (max-width: 767px) {
+  html body .landing-footer .footer-introduction {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  html body .landing-footer .footer-introduction > :last-child:not(.footer-contact-actions) {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+html body footer[data-variant] form button[type="submit"] {
+  background: var(--hn-turquoise) !important;
+  color: #fff !important;
+  border: 0 !important;
+  border-radius: var(--hn-radius-pill) !important;
+}
+html body footer[data-variant] form button[type="submit"]:hover {
+  background: var(--hn-turquoise-deep) !important;
+}
+html body footer[data-variant] input[type="email"] {
+  background: rgb(255 255 255 / 0.06) !important;
+  color: #fff !important;
+  border: 1px solid rgb(255 255 255 / 0.22) !important;
+  border-radius: var(--hn-radius-pill) !important;
+}
+html body footer[data-variant] input[type="email"]::placeholder {
+  color: rgb(241 235 223 / 0.5);
+}
+
+/* ---------- Handicrafts: terracotta, product-led ---------- */
+html body .craft-section {
+  --accent: var(--hn-terracotta);
+  background: var(--hn-bg) !important;
+}
+html body .craft-section .eyebrow,
+html body .collection-leather .commerce-eyebrow {
+  color: var(--hn-terracotta) !important;
+}
+html body .craft-section .craft-visual > img {
+  border-radius: var(--hn-radius-lg);
+  object-fit: cover !important;
+  background: none !important;
+  box-shadow: var(--hn-shadow-lg);
+}
+html body .craft-section .craft-visual > span {
+  color: var(--hn-text-muted);
+  letter-spacing: 0.12em;
+}
+html body .craft-section img {
+  border-radius: var(--hn-radius-lg);
+}
+html body .craft-section .editorial-link {
+  border-color: var(--hn-terracotta) !important;
+}
+html body .craft-section .editorial-link svg {
+  color: var(--hn-terracotta);
+}
+
+/* ---------- Leather: studio product rail ---------- */
+html body .collection-leather {
+  background: linear-gradient(180deg, var(--hn-bg), #efe3d0) !important;
+}
+html[data-theme="dark"] body .collection-leather {
+  background: linear-gradient(180deg, var(--hn-bg), #1a1a22) !important;
+}
+html body .collection-leather .collection-rail > * {
+  border-radius: var(--hn-radius) !important;
+  overflow: hidden;
+}
+
+/* ---------- Beauty: warm ivory and soft rose ---------- */
+html body .beauty-section {
+  background:
+    radial-gradient(50% 60% at 0% 50%, rgb(201 138 138 / 0.14), transparent 70%),
+    #f8efe6 !important;
+}
+html[data-theme="dark"] body .beauty-section {
+  background:
+    radial-gradient(50% 60% at 0% 50%, rgb(201 138 138 / 0.12), transparent 70%),
+    #1a1a26 !important;
+}
+html body .beauty-section .beauty-editorial {
+  background: transparent !important;
+  border: 0 !important;
+  gap: clamp(12px, 1.5vw, 20px) !important;
+}
+html body .beauty-section .beauty-portrait-pair {
+  gap: clamp(10px, 1.2vw, 16px) !important;
+}
+html body .beauty-section .beauty-portrait-pair img {
+  border-radius: 999px 999px var(--hn-radius-lg) var(--hn-radius-lg) !important;
+  object-fit: cover;
+  box-shadow: 0 24px 50px -30px rgb(120 60 60 / 0.45);
+}
+html body .beauty-section .eyebrow {
+  color: #a8615f !important;
+}
+html[data-theme="dark"] body .beauty-section .eyebrow {
+  color: var(--hn-rose) !important;
+}
+html body .beauty-section svg {
+  color: var(--hn-rose) !important;
+}
+html body .beauty-section .editorial-link {
+  border-color: var(--hn-rose) !important;
+}
+
+/* ---------- AI Studio: dark indigo, abstract light ---------- */
+html body .creative-studio {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(40% 55% at 85% 20%, rgb(58 163 163 / 0.28), transparent 70%),
+    radial-gradient(35% 45% at 10% 90%, rgb(120 110 220 / 0.2), transparent 70%),
+    radial-gradient(30% 40% at 60% 60%, rgb(212 184 123 / 0.1), transparent 70%),
+    var(--hn-indigo-deep) !important;
+  color: #f1ebdf !important;
+}
+/* A faint generative grid, fading out toward the edges. */
+html body .creative-studio::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(60% 70% at 70% 40%, #000, transparent 75%);
+  mask-image: radial-gradient(60% 70% at 70% 40%, #000, transparent 75%);
+}
+html body .creative-studio h2,
+html body .creative-studio h3 {
+  color: #fff !important;
+}
+html body .creative-studio .eyebrow {
+  color: #7fd0cc !important;
+}
+html body .creative-studio p {
+  color: rgb(241 235 223 / 0.78) !important;
+}
+html body .creative-studio .studio-monogram,
+html body .creative-studio svg {
+  color: var(--hn-gold);
+}
+html body .creative-studio .studio-services > * {
+  border-color: rgb(255 255 255 / 0.12) !important;
+  color: #f1ebdf !important;
+  transition: background var(--hn-fast), padding var(--hn-base) var(--hn-ease);
+}
+html body .creative-studio .studio-services > *:hover {
+  background: rgb(255 255 255 / 0.04);
+  padding-inline: 12px;
+}
+/* Any dark editorial section keeps light headings. */
+html body :is(.heritage-section, .creative-studio, .club-banner, .values-strip) h2 {
+  color: #fff !important;
+}
+html body .collection-section .collection-rail figure img {
+  width: 100% !important;
+  aspect-ratio: 16 / 10;
+  height: auto !important;
+  object-fit: cover !important;
+  border-radius: var(--hn-radius-lg);
+  background: none !important;
+  box-shadow: var(--hn-shadow);
+}
+html body .collection-section .collection-rail figure {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+html body .collection-section .collection-rail figcaption {
+  font-weight: 700;
+  font-size: var(--hn-card-title);
+  padding-top: 14px;
+}
+html body .collection-section .collection-nav button {
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: var(--hn-radius-pill) !important;
+  background: transparent !important;
+  border: 1px solid var(--hn-border-strong) !important;
+  color: var(--hn-text) !important;
+}
+html body .collection-section .commerce-button.gold {
+  background: var(--hn-turquoise) !important;
+  border-color: var(--hn-turquoise) !important;
+  color: #fff !important;
+  border-radius: var(--hn-radius-pill) !important;
+  min-height: 48px;
+  padding-inline: 26px;
+}
+html[data-theme="dark"] body .collection-section .commerce-button.gold {
+  color: #0d1322 !important;
+}

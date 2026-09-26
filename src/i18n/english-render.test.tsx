@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { ReactNode } from "react";
-import HomePage from "../../app/page";
+import HomePage from "../../app/HomeLanding";
 import { MemberOverview } from "../platform/MemberOverview";
 import { Table } from "../platform/Widgets";
 import Registration from "../platform/Registration";
