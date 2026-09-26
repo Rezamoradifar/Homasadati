@@ -654,3 +654,20 @@ html body .privilege-card .privilege-level b {font-size: 8cqw;}
 html body .privilege-card .privilege-level i {font-size: 2.8cqw;}
 html body .privilege-card:after {inset: 2.6cqw; border-radius: 3cqw;}
 html body .privilege-card .privilege-card-lines {width: 70cqw; height: 70cqw; left: -26cqw; bottom: -42cqw;}
+/* Homepage club cards: every card visible at once, no sideways scrolling —
+ * two per row on phones, four per row from tablets up. */
+html body .club-preview-grid {display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;overflow:visible;scroll-snap-type:none;gap:16px;padding:0;}
+html body .club-preview-grid > * {flex:none;min-width:0;}
+@media (max-width:760px) {
+  html body .club-preview-grid {grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px;}
+}
+/* Small cards keep the name, amount and number; the fine print would be
+ * too small to read. */
+@container (max-width: 250px) {
+  html body .privilege-title small, html body .privilege-price small, html body .privilege-top b {display:none;}
+  html body .privilege-card .privilege-title h3 {font-size: 12cqw !important;}
+  html body .privilege-card .privilege-price strong {font-size: 7.4cqw !important;}
+  html body .privilege-card .privilege-top > span {font-size: 4.4cqw !important;}
+  html body .privilege-card .privilege-level b {font-size: 9cqw !important;}
+  html body .privilege-card .privilege-level i {font-size: 3.6cqw !important;}
+}
