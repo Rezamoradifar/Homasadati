@@ -1,7 +1,16 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { CookingPot, DiceFive, FlowerLotus, Handbag, Rug } from "@phosphor-icons/react";
 import Localized from "../i18n/Localized";
 import { craftCategories, craftCategory, craftShopHref, itemsFor } from "./craft-taxonomy";
+
+const categoryIcons: Record<string, typeof CookingPot> = {
+  copper: CookingPot,
+  leather: Handbag,
+  backgammon: DiceFive,
+  carpet: Rug,
+  enamel: FlowerLotus,
+};
 
 /** Handicraft category tree. With `active` values it marks the current
  * category, copper technique and item, and offers the next level down. */
@@ -33,17 +42,23 @@ export default function CraftNav({
     <Localized>
       <nav ref={nav} className="craft-nav" aria-label="دسته‌بندی صنایع‌دستی">
         {heading && <h2>{heading}</h2>}
-        <div className="craft-nav-row">
-          {craftCategories.map((c) => (
-            <Localized key={c.id}>
-              <a href={craftShopHref(c.id)} aria-current={c.id === cat ? "page" : undefined}>
-                {c.name}
-              </a>
-            </Localized>
-          ))}
+        <div className="craft-nav-cats">
+          {craftCategories.map((c) => {
+            const Icon = categoryIcons[c.id];
+            return (
+              <Localized key={c.id}>
+                <a href={craftShopHref(c.id)} aria-current={c.id === cat ? "page" : undefined} title={c.name}>
+                  <span className="craft-cat-icon" aria-hidden="true">
+                    {Icon && <Icon weight="light" />}
+                  </span>
+                  <span>{c.short}</span>
+                </a>
+              </Localized>
+            );
+          })}
         </div>
         {current?.techniques && (
-          <div className="craft-nav-row craft-nav-sub">
+          <div className="craft-nav-techniques">
             <a href={craftShopHref(current.id)} aria-current={!tech ? "page" : undefined}>
               همهٔ تکنیک‌ها
             </a>

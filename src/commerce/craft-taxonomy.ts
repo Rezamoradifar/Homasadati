@@ -4,6 +4,8 @@
 /** `onlyWith` limits an item to some copper techniques; absent means all. */
 export type CraftNode = { id: string; name: string; onlyWith?: string[] };
 export type CraftCategory = CraftNode & {
+  /** Label for the compact category bar; `name` stays the full title. */
+  short: string;
   vertical: "craft" | "leather";
   techniques?: CraftNode[];
   items?: CraftNode[];
@@ -32,6 +34,7 @@ export const craftCategories: CraftCategory[] = [
   {
     id: "copper",
     name: "محصولات مس",
+    short: "مس",
     vertical: "craft",
     techniques: [
       { id: "turquoise", name: "فیروزه‌کاری" },
@@ -45,17 +48,19 @@ export const craftCategories: CraftCategory[] = [
   {
     id: "leather",
     name: "محصولات چرمی",
+    short: "چرم",
     vertical: "leather",
     items: [
       { id: "bag", name: "کیف" },
       { id: "belt", name: "کمربند" },
     ],
   },
-  { id: "backgammon", name: "محصولات تخته‌نرد", vertical: "craft" },
-  { id: "carpet", name: "تابلوفرش و گلیم", vertical: "craft" },
+  { id: "backgammon", name: "محصولات تخته‌نرد", short: "تخته‌نرد", vertical: "craft" },
+  { id: "carpet", name: "تابلوفرش و گلیم", short: "فرش و گلیم", vertical: "craft" },
   {
     id: "enamel",
     name: "محصولات میناکاری‌شده",
+    short: "میناکاری",
     vertical: "craft",
     items: [
       { id: "sugar-bowl", name: "قندان" },
