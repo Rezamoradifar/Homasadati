@@ -20,7 +20,7 @@
   --homa-dark-line-strong: color-mix(in srgb, var(--homa-dark-bg) 64%, #fff);
   /* Vazirmatn (SIL Open Font License) is bundled via @fontsource.
      To switch to a licensed brand font, see public/fonts/README.md. */
-  --font-fa: "Vazirmatn";
+  --font-fa: "Vazirmatn", Tahoma, "Segoe UI";
 }
 html[data-theme="light"] body {
   background: var(--homa-light-bg);
