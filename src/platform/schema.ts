@@ -174,6 +174,11 @@ export function platformDb() {
   INSERT OR IGNORE INTO p_migrations VALUES(17,datetime('now'));
   CREATE TABLE IF NOT EXISTS p_identities(user_id TEXT PRIMARY KEY REFERENCES p_users(id),national_hash TEXT NOT NULL UNIQUE,national_enc TEXT NOT NULL,created_at TEXT NOT NULL);
   INSERT OR IGNORE INTO p_migrations VALUES(18,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_newsletter_keys(subscriber_id TEXT PRIMARY KEY,token_enc TEXT NOT NULL,updated_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_newsletter_campaigns(id TEXT PRIMARY KEY,kind TEXT NOT NULL DEFAULT 'campaign' CHECK(kind IN ('campaign','welcome')),subject TEXT NOT NULL,preheader TEXT NOT NULL DEFAULT '',body TEXT NOT NULL,button_label TEXT NOT NULL DEFAULT '',button_url TEXT NOT NULL DEFAULT '',status TEXT NOT NULL CHECK(status IN ('draft','sending','sent')),created_by TEXT,created_at TEXT NOT NULL,sent_at TEXT);
+  CREATE TABLE IF NOT EXISTS p_newsletter_deliveries(campaign_id TEXT NOT NULL REFERENCES p_newsletter_campaigns(id),subscriber_id TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','sent','failed','skipped')),attempts INTEGER NOT NULL DEFAULT 0,next_attempt INTEGER NOT NULL DEFAULT 0,last_error TEXT,sent_at TEXT,PRIMARY KEY(campaign_id,subscriber_id));
+  CREATE INDEX IF NOT EXISTS p_newsletter_queue ON p_newsletter_deliveries(status,next_attempt);
+  INSERT OR IGNORE INTO p_migrations VALUES(20,datetime('now'));
 
   `);
   migrateCardLevels(d);

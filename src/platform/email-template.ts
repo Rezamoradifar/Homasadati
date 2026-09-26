@@ -9,6 +9,8 @@ export type EmailContent = {
   code?: string;
   button?: { label: string; url: string };
   note?: string;
+  /** Newsletter only: a one-click unsubscribe link in the footer. */
+  unsubscribe?: { label: string; url: string };
 };
 export type EmailBrand = { name: string; origin: string; supportEmail?: string; direction: "rtl" | "ltr"; footer: string[] };
 
@@ -59,7 +61,7 @@ ${p}${code}${button}${note}
 </td></tr>
 <tr><td style="padding:18px 28px 24px;border-top:1px solid #ece6df;text-align:${align};font-size:12px;line-height:1.9;color:${MUTED};">
 ${footer}${b.supportEmail ? `<br><a href="mailto:${esc(b.supportEmail)}" style="color:${BLUE};">${esc(b.supportEmail)}</a>` : ""}
-<br><a href="${esc(origin)}" style="color:${BLUE};">${esc(origin.replace(/^https?:\/\//, ""))}</a>
+<br><a href="${esc(origin)}" style="color:${BLUE};">${esc(origin.replace(/^https?:\/\//, ""))}</a>${c.unsubscribe ? `<br><a href="${esc(c.unsubscribe.url)}" style="color:${MUTED};text-decoration:underline;">${esc(c.unsubscribe.label)}</a>` : ""}
 </td></tr>
 </table>
 </td></tr>
@@ -78,6 +80,7 @@ ${footer}${b.supportEmail ? `<br><a href="mailto:${esc(b.supportEmail)}" style="
     b.name,
     ...b.footer,
     origin,
+    ...(c.unsubscribe ? [c.unsubscribe.label + ": " + c.unsubscribe.url] : []),
   ].join("\n");
   return { subject: c.subject, html, text };
 }

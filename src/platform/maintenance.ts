@@ -10,6 +10,7 @@ import { renderEmail, senderAddress } from "./email-template";
 import { ApiError } from "../server/http";
 import { refreshUsdRate } from "./fx";
 import { runCardSettlement } from "./seven-card-engine";
+import { processNewsletter } from "./newsletter";
 export async function maintenance() {
   await refreshUsdRate();
   runCardSettlement();
@@ -132,6 +133,7 @@ export async function maintenance() {
       );
     }
   }
+  await processNewsletter();
   saveSetting("worker_last_success", now());
   run("DELETE FROM p_google_challenges WHERE expires<?", Date.now());
   run("DELETE FROM p_google_logins WHERE expires<?", Date.now());

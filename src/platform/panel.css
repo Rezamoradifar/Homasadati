@@ -2230,3 +2230,8 @@ html[data-theme="dark"] .candle.up rect:not(.hit) { fill: #1f2733; }
 .live-chart-table table { width: 100%; margin-top: 8px; font-size: 12.5px; border-collapse: collapse; }
 .live-chart-table th, .live-chart-table td { padding: 6px; border-bottom: 1px solid #29324114; text-align: start; }
 @media (prefers-reduced-motion: reduce) { .live-dot, .live-chart-skeleton { animation: none; } }
+.newsletter-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.newsletter-form label { display: grid; gap: 6px; font-size: 13px; }
+.newsletter-form .full { grid-column: 1 / -1; }
+.newsletter-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.newsletter-form label { align-content: end; }

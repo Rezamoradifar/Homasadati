@@ -13,6 +13,7 @@ export const adminTabs: [string, string, string[]][] = [
   ["merchant-settlements", "تسویه پذیرندگان", ["superadmin", "finance"]],
   ["access", "نقش‌ها و مجوزها", ["superadmin"]],
   ["notifications", "ارسال اعلان", ["superadmin", "support"]],
+  ["newsletter", "خبرنامهٔ ایمیلی", ["superadmin", "content"]],
   ["binary", "مرکز باینری", ["superadmin", "finance"]],
   ["merchants", "پذیرندگان", ["superadmin", "content"]],
   ["loyalty", "مدیریت امتیازات", ["superadmin", "finance"]],
@@ -96,6 +97,7 @@ export const adminGroups = [
     keys: [
       "content",
       "notifications",
+      "newsletter",
       "access",
       "settings",
       "audit",

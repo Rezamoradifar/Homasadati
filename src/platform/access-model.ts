@@ -22,6 +22,7 @@ export const resourceRoles: Record<string, string[]> = {
   refunds: ["finance"],
   withdrawals: ["finance"],
   "payout-profiles": ["finance"],
+  newsletter: ["content"],
   "gateway-transactions": ["finance"],
   users: ["support"],
   network: [],

@@ -1,4 +1,5 @@
 "use client";
+import { AdminNewsletter } from "./AdminNewsletter";
 import { NetworkTree } from "./NetworkTree";
 import { Wishlist } from "./Wishlist";
 import { memberTabIcons } from "./member-icons";
@@ -430,6 +431,9 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   )}
                   {tab === "access" && (
                     <AccessPanel refresh={refresh} onChange={refreshUser} />
+                  )}
+                  {tab === "newsletter" && (
+                    <AdminNewsletter refresh={refresh} onChange={update} />
                   )}
                   {tab === "merchant-operations" && (
                     <MerchantOperationsPanel

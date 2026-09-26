@@ -52,6 +52,7 @@ import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID, randomBytes } from "node:crypto";
 import { placementTree, searchTree } from "./network-tree";
 import { activityChart } from "./activity-chart";
+import { createCampaign, newsletterOverview, sendCampaign, sendTest } from "./newsletter";
 import { referralStatus, setReferralCode, sponsorByCode } from "./referral";
 import {
   payoutProfileSchema,
@@ -1122,6 +1123,17 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         q.page,
       ),
     );
+  if (resource === "newsletter") {
+    if (get) return json(newsletterOverview());
+    const d = z
+      .object({ action: z.enum(["create", "send", "test"]), id: id.optional(), campaign: z.unknown().optional() })
+      .strict()
+      .parse(data);
+    if (d.action === "create") return json(createCampaign(u.id, d.campaign));
+    if (!d.id) throw new ApiError(400, "invalid_input");
+    if (d.action === "test") return json(await sendTest(u.id, d.id));
+    return json(sendCampaign(u.id, d.id));
+  }
   if (resource === "payout-profiles") {
     if (get) return json({ rows: payoutProfiles(q.status || "") });
     const d = z
