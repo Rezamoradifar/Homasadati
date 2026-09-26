@@ -52,7 +52,10 @@ export default function LiveChart() {
   useEffect(() => {
     const el = plot.current;
     if (!el) return;
-    const observer = new ResizeObserver(([entry]) => setW(Math.max(280, Math.round(entry.contentRect.width))));
+    const fit = (width: number) => setW(Math.max(280, Math.round(width)));
+    // Older browsers (and test DOMs) lack ResizeObserver: measure once.
+    if (typeof ResizeObserver === "undefined") return fit(el.clientWidth || 720);
+    const observer = new ResizeObserver(([entry]) => fit(entry.contentRect.width));
     observer.observe(el);
     return () => observer.disconnect();
   });
