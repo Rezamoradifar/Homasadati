@@ -49,6 +49,8 @@ import {
   productSchema,
   policySchema,
   httpsImage,
+  companySettingRules,
+  companySettingKeys,
   role,
   vertical,
 } from "./validation";
@@ -310,7 +312,8 @@ export function validateClient(path: string, method: string, data: unknown) {
                 "fx_source_path",
                 "fx_source_unit",
                 "fx_usd_manual",
-              ]),
+                ...companySettingKeys,
+              ] as [string, ...string[]]),
               value: z.string().trim().min(1).max(2000),
               reason: text,
             })
@@ -323,6 +326,9 @@ export function validateClient(path: string, method: string, data: unknown) {
                   code: "custom",
                   message: "ایمیل فرستنده معتبر نیست",
                 });
+              const company = companySettingRules[v.key]?.safeParse(v.value);
+              if (company && !company.success)
+                c.addIssue({ code: "custom", message: company.error.issues[0].message });
               if (
                 v.key === "site_logo" &&
                 !httpsImage.safeParse(v.value).success

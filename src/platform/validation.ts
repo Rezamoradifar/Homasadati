@@ -126,3 +126,20 @@ export const iranMobile = z
   .transform((v) => latinDigits(v).replace(/^(\+98|0098|98|0)/, ""))
   .refine((v) => /^9\d{9}$/.test(v), "شماره موبایل معتبر نیست")
   .transform((v) => "+98" + v);
+
+/** Company details shown for e-commerce trust review (eNamad) and the badge
+ * codes it issues. Checked the same way in the admin form and on the server. */
+const digitsOnly = (v: string) => latinDigits(v).replace(/[()]/g, "");
+export const companySettingRules: Record<string, z.ZodType<string>> = {
+  site_landline: z
+    .string()
+    .transform(digitsOnly)
+    .refine((v) => /^0[1-8]\d{9}$/.test(v), "شماره تلفن ثابت باید با پیش‌شماره و ۱۱ رقم باشد، مثل ۰۲۱۱۲۳۴۵۶۷۸"),
+  site_address: z.string().trim().min(15, "نشانی پستی کامل را وارد کنید").max(400),
+  site_postal_code: z.string().transform(digitsOnly).refine((v) => /^\d{10}$/.test(v), "کد پستی باید ۱۰ رقم باشد"),
+  company_national_id: z.string().transform(digitsOnly).refine((v) => /^\d{11}$/.test(v), "شناسه ملی شرکت باید ۱۱ رقم باشد"),
+  company_registration_no: z.string().transform(digitsOnly).refine((v) => /^\d{1,10}$/.test(v), "شماره ثبت شرکت معتبر نیست"),
+  enamad_id: z.string().transform(digitsOnly).refine((v) => /^\d{3,12}$/.test(v), "شناسه نماد اعتماد معتبر نیست"),
+  enamad_code: z.string().trim().refine((v) => /^[A-Za-z0-9]{8,64}$/.test(v), "کد نماد اعتماد معتبر نیست"),
+};
+export const companySettingKeys = Object.keys(companySettingRules);

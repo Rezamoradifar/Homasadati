@@ -77,6 +77,8 @@ import {
   password,
   contact,
   productSchema,
+  companySettingRules,
+  companySettingKeys,
   policySchema,
   role,
   iban,
@@ -908,7 +910,8 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "fx_source_path",
           "fx_source_unit",
           "fx_usd_manual",
-        ]),
+          ...companySettingKeys,
+        ] as [string, ...string[]]),
         value: z.string().trim().min(1).max(2000),
         reason: text,
       })
@@ -923,6 +926,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     if (d.key === "site_ceo_name")
       z.string().trim().min(2).max(120).parse(d.value);
     if (d.key === "site_logo") httpsImage.parse(d.value);
+    if (companySettingRules[d.key]) d.value = companySettingRules[d.key].parse(d.value);
     if (d.key === "fx_source_url") z.string().url().startsWith("https://").parse(d.value);
     if (d.key === "fx_source_unit") z.enum(["rial", "toman"]).parse(d.value);
     if (d.key === "fx_usd_manual" && !validRate(parseAmount(d.value)))
