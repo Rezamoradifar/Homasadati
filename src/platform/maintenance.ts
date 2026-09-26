@@ -11,6 +11,7 @@ import { ApiError } from "../server/http";
 import { refreshUsdRate } from "./fx";
 import { runCardSettlement } from "./seven-card-engine";
 import { processNewsletter } from "./newsletter";
+import { isWelcomeJob, welcomeEmail } from "./welcome";
 export async function maintenance() {
   await refreshUsdRate();
   runCardSettlement();
@@ -143,6 +144,10 @@ export async function maintenance() {
 /** Branded HTML for account notifications queued in p_outbox. */
 async function outboxEmail(from: string, job: Row) {
   const brand = await emailBrand("fa");
+  if (isWelcomeJob(job.body)) {
+    const mail = welcomeEmail(job.body, brand);
+    return { from: senderAddress(brand.name, from), to: [job.target], subject: mail.subject, html: mail.html, text: mail.text };
+  }
   const mail = renderEmail(
     {
       subject: job.subject + " | " + brand.name,

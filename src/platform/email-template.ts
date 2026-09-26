@@ -9,6 +9,8 @@ export type EmailContent = {
   code?: string;
   button?: { label: string; url: string };
   note?: string;
+  /** A short numbered list, e.g. first steps after joining. */
+  steps?: { title: string; items: string[] };
   /** Newsletter only: a one-click unsubscribe link in the footer. */
   unsubscribe?: { label: string; url: string };
 };
@@ -37,6 +39,14 @@ export function renderEmail(c: EmailContent, b: EmailBrand) {
   const button = c.button
     ? `<div style="margin:24px 0;text-align:center;"><a href="${esc(c.button.url)}" style="display:inline-block;padding:13px 30px;border-radius:999px;background:${ORANGE};color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;">${esc(c.button.label)}</a></div>`
     : "";
+  const steps = c.steps
+    ? `<div style="margin:22px 0 4px;"><p style="margin:0 0 10px;font-size:15px;font-weight:700;color:${NAVY};">${esc(c.steps.title)}</p>${c.steps.items
+        .map(
+          (t, i) =>
+            `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 10px;"><tr><td style="vertical-align:top;"><span style="display:inline-block;width:26px;height:26px;line-height:26px;border-radius:50%;background:${ORANGE};color:#fff;font-weight:700;font-size:13px;text-align:center;">${(i + 1).toLocaleString(b.direction === "rtl" ? "fa-IR" : "en-US")}</span></td><td style="padding:0 10px;font-size:14px;line-height:1.9;color:${NAVY};">${esc(t)}</td></tr></table>`,
+        )
+        .join("")}</div>`
+    : "";
   const note = c.note
     ? `<p style="margin:18px 0 0;padding:12px 14px;border-radius:10px;background:${PAPER};font-size:13px;line-height:1.8;color:${MUTED};">${esc(c.note)}</p>`
     : "";
@@ -57,7 +67,7 @@ export function renderEmail(c: EmailContent, b: EmailBrand) {
 <tr><td style="height:4px;background:${ORANGE};line-height:4px;font-size:0;">&nbsp;</td></tr>
 <tr><td style="padding:30px 28px 26px;text-align:${align};">
 <h1 style="margin:0 0 16px;font-size:21px;line-height:1.6;color:${BLUE};">${esc(c.heading)}</h1>
-${p}${code}${button}${note}
+${p}${code}${button}${steps}${note}
 </td></tr>
 <tr><td style="padding:18px 28px 24px;border-top:1px solid #ece6df;text-align:${align};font-size:12px;line-height:1.9;color:${MUTED};">
 ${footer}${b.supportEmail ? `<br><a href="mailto:${esc(b.supportEmail)}" style="color:${BLUE};">${esc(b.supportEmail)}</a>` : ""}
@@ -74,6 +84,7 @@ ${footer}${b.supportEmail ? `<br><a href="mailto:${esc(b.supportEmail)}" style="
     ...c.paragraphs,
     ...(c.code ? ["", c.code, ""] : []),
     ...(c.button ? [c.button.label + ": " + c.button.url] : []),
+    ...(c.steps ? ["", c.steps.title, ...c.steps.items.map((t, i) => `${i + 1}. ${t}`)] : []),
     ...(c.note ? ["", c.note] : []),
     "",
     "—",

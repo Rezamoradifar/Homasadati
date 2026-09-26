@@ -2962,5 +2962,19 @@
   "این ایمیل را چون در خبرنامهٔ {0} عضو شده‌اید دریافت کرده‌اید.": "You received this email because you subscribed to the {0} newsletter.",
   "لغو اشتراک خبرنامه": "Unsubscribe from the newsletter",
   "[نسخهٔ آزمایشی] {0}": "[Test copy] {0}",
-  "[نسخهٔ آزمایشی]": "[Test copy]"
+  "[نسخهٔ آزمایشی]": "[Test copy]",
+  "عضویت شما در باشگاه مشتریان هما نت انجام شد. کد معرف شما {0} است؛ از بخش «شبکه و دعوت» می‌توانید لینک دعوت خود را بردارید. برای برداشت از کیف پول، تأیید دومرحله‌ای را از بخش امنیت حساب فعال کنید.": "Your Homanet customer club membership is ready. Your referral code is {0}; take your invitation link from Network & invitations. To withdraw from your wallet, turn on two-step verification in Account security.",
+  "{0}به خانوادهٔ {1} خوش آمدید": "{0}Welcome to the {1} family",
+  "{0} عزیز،": "Dear {0},",
+  "عزیز،": "Dear",
+  "عضویت شما انجام شد؛ کد معرف شما {0} است.": "Your membership is ready; your referral code is {0}.",
+  "{0}به {1} خوش آمدید": "{0}Welcome to {1}",
+  "عضویت شما در باشگاه مشتریان {0} با موفقیت انجام شد و حساب کاربری‌تان آماده است.": "Your {0} customer club membership is complete and your account is ready.",
+  "کد معرف اختصاصی شما در کادر زیر است. هر کس با این کد یا لینک دعوت شما عضو شود، در شبکهٔ شما قرار می‌گیرد:": "Your personal referral code is below. Anyone who joins with this code or your invitation link is placed in your network:",
+  "ورود به پنل کاربری": "Open your member panel",
+  "سه گام برای شروع": "Three steps to start",
+  "از بخش امنیت حساب، تأیید دومرحله‌ای را فعال کنید؛ برای برداشت از کیف پول لازم است.": "Turn on two-step verification in Account security; it is needed to withdraw from your wallet.",
+  "در فروشگاه، محصولات صنایع‌دستی، چرم، زیبایی و سفرهای {0} را ببینید.": "Browse {0} handicrafts, leather, beauty and trips in the shop.",
+  "از بخش «شبکه و دعوت» در پنل، لینک دعوت خود را برای دوستانتان بفرستید.": "Send your invitation link to friends from Network & invitations in the panel.",
+  "اگر این عضویت را شما انجام نداده‌اید، لطفاً با پشتیبانی هما نت تماس بگیرید.": "If you did not sign up, please contact Homanet support."
 }

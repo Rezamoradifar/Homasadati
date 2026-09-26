@@ -52,8 +52,9 @@ import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID, randomBytes } from "node:crypto";
 import { placementTree, searchTree } from "./network-tree";
 import { activityChart } from "./activity-chart";
+import { welcomeMember } from "./welcome";
 import { createCampaign, newsletterOverview, sendCampaign, sendTest } from "./newsletter";
-import { referralStatus, setReferralCode, sponsorByCode } from "./referral";
+import { newReferralCode, referralStatus, setReferralCode, sponsorByCode } from "./referral";
 import {
   payoutProfileSchema,
   payoutProfileView,
@@ -240,7 +241,7 @@ function signup(data: Row, ip: string) {
       data.details.firstName + " " + data.details.lastName,
       // Without a chosen password the account signs in by email code only.
       passwordHash(data.password || randomBytes(32).toString("hex")),
-      randomUUID().replaceAll("-", "").slice(0, 12),
+      newReferralCode(),
       sponsor?.id || null,
       parent?.id || null,
       leg,
@@ -589,11 +590,7 @@ async function auth(req: Request, path: string[], data: Row) {
       });
       return { u, codes: step !== null ? recoveryCodes(u.id) : [] };
     });
-    notify(
-      result.u.id,
-      "به هما نت خوش آمدید",
-      "عضویت شما در باشگاه مشتریان هما نت با موفقیت انجام شد. از این پس می‌توانید محصولات و خدمات مجموعه را خریداری کنید، کد معرف اختصاصی خود را بسازید و دوستانتان را دعوت کنید.\nبرای امنیت بیشتر، پیشنهاد می‌کنیم از بخش امنیت حساب، تأیید دومرحله‌ای را فعال کنید؛ این کار برای برداشت از کیف پول الزامی است.\nتیم پشتیبانی هما نت همیشه در کنار شماست.",
-    );
+    welcomeMember(result.u.id);
     return respondSession(result.u, req, { recoveryCodes: result.codes });
   }
   if (action === "login") {

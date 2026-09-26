@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import { ApiError } from "../server/http";
 import { setting } from "./providers";
 import { referralCode } from "./registration-model";
@@ -10,6 +11,17 @@ import { audit } from "./security";
  * members once its owner has a paid, non-refunded purchase. */
 const CHANGE_EVERY_MS = 30 * 86400000;
 const RESERVED = new Set(["admin", "administrator", "support", "homa", "homanet", "homay", "root", "system", "test", "null"]);
+
+/** A short code that is easy to read aloud and type: "hn-" and six characters
+ * with look-alikes (0/o, 1/l/i) left out, about a billion combinations. */
+const READABLE = "abcdefghjkmnpqrstuvwxyz23456789";
+export function newReferralCode() {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const code = "hn-" + Array.from({ length: 6 }, () => READABLE[randomInt(READABLE.length)]).join("");
+    if (!ownerOf(code)) return code;
+  }
+  throw new ApiError(503, "referral_code_unavailable");
+}
 
 export const referralNeedsPurchase = () => setting("referral_requires_purchase") === "1";
 
