@@ -20,8 +20,11 @@ export function CivilizationHero() {
   const [index, setIndex] = useState(0);
   const strip = useRef<HTMLDivElement>(null);
   const hero = useRef<HTMLImageElement>(null);
-  const auto = useAutoGallery(hero, () =>
-    setIndex((i) => (i + 1) % heritageSlides.length),
+  const auto = useAutoGallery(
+    hero,
+    () => setIndex((i) => (i + 1) % heritageSlides.length),
+    6500,
+    true,
   );
   function choose(n: number) {
     auto.pause();

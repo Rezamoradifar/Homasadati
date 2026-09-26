@@ -3,7 +3,7 @@ import { UsdNote } from "../src/commerce/currency";
 import Localized from "../src/i18n/Localized";
 import PrivilegeCard from "./PrivilegeCard";
 import PlanStatusNote from "./PlanStatusNote";
-import { sevenCards } from "../src/platform/seven-card-model";
+import { sevenCards } from "../src/platform/card-levels";
 const ranks = sevenCards.map(card => [card.name, card.english, card.tone]);
 export default function ClubCards({ locale = "fa" }: { locale?: string }) {
   const fa = locale !== "en";

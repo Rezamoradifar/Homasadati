@@ -1,7 +1,6 @@
 'use client';
 import {useId, useRef, useState, type FormEvent} from 'react';
 import {useLocale, useTranslations} from 'next-intl';
-import {motion, useReducedMotion} from 'framer-motion';
 import {ArrowUp, ArrowUpRight, Globe2, Mail, Sparkles} from 'lucide-react';
 import {FooterColumn} from './FooterColumn';
 import {focusRing} from './FooterLink';
@@ -28,7 +27,6 @@ export function Footer({variant = 'default', introduction, signature, id, classN
   onLocaleChange, onCurrencyChange, onSubscribe, newsletterSuccessContent, year = new Date().getUTCFullYear(), backToTopTargetId}: FooterProps) {
   const t = useTranslations('Footer');
   const locale = useLocale();
-  const reducedMotion = useReducedMotion();
   const uid = useId();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error' | 'invalid'>('idle');
@@ -65,14 +63,13 @@ export function Footer({variant = 'default', introduction, signature, id, classN
       target.focus({preventScroll: true});
       target.addEventListener('blur', () => previous === null ? target.removeAttribute('tabindex') : target.setAttribute('tabindex', previous), {once: true});
     }
-    window.scrollTo({top: 0, behavior: reducedMotion ? 'auto' : 'smooth'});
+    window.scrollTo({top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
   }
 
   return <footer data-variant={variant} id={id} dir={direction ?? localeDirection(locale)} lang={locale} aria-label={t('aria.footer')}
     className={`${styles.root} relative overflow-hidden bg-[var(--hn-indigo-deep,#141c30)] text-[#f1ebdf] ${className}`}>
     <div aria-hidden="true" className={styles.divider} />
-    <motion.div initial={false} whileInView={reducedMotion ? undefined : {y: [12, 0], opacity: [0.8, 1]}}
-      viewport={{once: true, amount: 0.08}} transition={{duration: 0.5, ease: 'easeOut'}}
+    <div
       className="footer-inner mx-auto max-w-7xl px-5 pb-6 pt-10 sm:px-8 lg:px-12 lg:pt-14">
       {introduction}
       <section data-footer-newsletter aria-labelledby={`${uid}-newsletter`} className="grid gap-6 border-b border-white/15 pb-9 lg:grid-cols-2 lg:items-center lg:gap-16">
@@ -140,6 +137,6 @@ export function Footer({variant = 'default', introduction, signature, id, classN
         <p>{t('copyright', {year: locale === 'fa' ? new Date(Date.UTC(year, 5, 1)).toLocaleDateString('fa-IR-u-ca-persian', {year: 'numeric'}) : String(year)})}</p><p>{t('madeWithLove')}</p>
         <button type="button" onClick={backToTop} className={`inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-sm px-1 text-[#eee6db] hover:text-[#ceb798] ${focusRing}`}>{t('backToTop')}<ArrowUp size={16} aria-hidden="true" /></button>
       </div>
-    </motion.div>
+    </div>
   </footer>;
 }

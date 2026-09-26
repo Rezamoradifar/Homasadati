@@ -1,7 +1,7 @@
 "use client";
 import Localized from "../i18n/Localized";
 import { useSiteLocale } from "../i18n/SiteLocale";
-import { sevenCards } from "../platform/seven-card-model";
+import { sevenCards } from "../platform/card-levels";
 
 export default function SevenCards() {
   const { locale } = useSiteLocale();

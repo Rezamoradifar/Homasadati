@@ -356,7 +356,7 @@ html[lang="en"] .eyebrow {
 }
 .hero h1 {
   font-size: var(--hn-h1) !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   line-height: 1.25 !important;
   letter-spacing: -0.02em;
   text-shadow: 0 2px 30px rgb(0 0 0 / 0.35) !important;
@@ -685,4 +685,26 @@ html[data-theme="dark"] .portal-tabs {
 /* Dark text on the lighter dark-mode turquoise keeps AA contrast. */
 html[data-theme="dark"] :is(.gold-button, .portal-button:not(.secondary)) {
   color: #0d1322 !important;
+}
+
+/* Reserve space while the product list loads so the footer doesn't jump. */
+.shop-results[aria-busy="true"] {
+  min-height: 100vh;
+}
+
+/* Sections below the first screen are laid out and painted only as they
+ * approach the viewport; the reserved size keeps the scrollbar steady. */
+main > section:not(.hero),
+main > nav.brand-home-links,
+body > footer,
+main ~ footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+/* Decorative chapter numbers still need 3:1 as large text. */
+.story-layout .chapter-number {
+  color: #8a6a3c;
+}
+html[data-theme="dark"] .story-layout .chapter-number {
+  color: var(--hn-gold);
 }

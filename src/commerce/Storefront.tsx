@@ -95,6 +95,7 @@ export default function Storefront({
           سبد خرید
         </a>
       </form>
+      <div className="shop-results" aria-busy={!state.data && !state.error}>
       <DataState state={state}>
         {(d) => (
           <Localized><>
@@ -158,6 +159,7 @@ export default function Storefront({
           </></Localized>
         )}
       </DataState>
+      </div>
     </div></Localized>
   );
 }

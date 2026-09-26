@@ -1,6 +1,6 @@
 import {Money} from '../src/commerce/currency';
 import {tierPriceRial,tomanToRial} from '../src/commerce/club-tiers';
-import {TOP_CARD_LEVEL} from '../src/platform/seven-card-model';
+import {TOP_CARD_LEVEL} from '../src/platform/card-levels';
 
 import Localized from "../src/i18n/Localized";
 type Props = {

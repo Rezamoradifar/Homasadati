@@ -1,6 +1,9 @@
 const nextConfig = {
   distDir: process.env.HOMAY_BUILD_DIRECTORY || ".next",
   poweredByHeader: false,
+  // Keep <title> and meta tags in the initial <head> for every client, not
+  // only known crawlers, so previews and audits always see them.
+  htmlLimitedBots: /.*/,
   images: {
     deviceSizes: [320, 480, 640, 750, 828, 1080, 1200, 1600, 1920, 2560, 3840],
     imageSizes: [32, 48, 64, 96, 128, 192, 256],

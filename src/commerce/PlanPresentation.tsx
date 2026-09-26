@@ -8,7 +8,7 @@ import {
   MATCH_VOLUME,
   SIMURGH_CASHBACK,
   sevenCards,
-} from "../platform/seven-card-model";
+} from "../platform/card-levels";
 
 /** Member-facing slide presentation of the seven-card plan. Every number is
  * read from the same model the settlement engine uses. */

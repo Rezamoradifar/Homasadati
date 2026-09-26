@@ -70,3 +70,21 @@ it("does not start autoplay when reduced motion is requested", () => {
   act(() => vi.advanceTimersByTime(5000));
   expect(advance).not.toHaveBeenCalled();
 });
+function HeroGallery({ advance }: { advance: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useAutoGallery(ref, advance, 1000, true);
+  return <div ref={ref} />;
+}
+it("a hero gallery holds its first image until the visitor interacts", () => {
+  fixture();
+  const advance = vi.fn();
+  render(<HeroGallery advance={advance} />);
+  act(() => intersect([{ isIntersecting: true }]));
+  act(() => vi.advanceTimersByTime(3000));
+  expect(advance).not.toHaveBeenCalled();
+  act(() => {
+    window.dispatchEvent(new Event("scroll"));
+  });
+  act(() => vi.advanceTimersByTime(1000));
+  expect(advance).toHaveBeenCalledTimes(1);
+});
