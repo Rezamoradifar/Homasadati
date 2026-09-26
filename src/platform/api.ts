@@ -51,6 +51,7 @@ import { operations } from "./operations";
 import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID, randomBytes } from "node:crypto";
 import { placementTree, searchTree } from "./network-tree";
+import { activityChart } from "./activity-chart";
 import { referralStatus, setReferralCode, sponsorByCode } from "./referral";
 import {
   payoutProfileSchema,
@@ -2064,6 +2065,8 @@ export async function handle(req: Request, path: string[]) {
     }
     if (path[0] === "network-tree" && get)
       return json(placementTree(u.id, q.root || u.id, Number(q.depth) || 3));
+    if (path[0] === "activity-chart" && get)
+      return json(activityChart(u.id, Object.fromEntries(url.searchParams)));
     if (path[0] === "network-search" && get)
       return json({ rows: searchTree(u.id, q.q || "") });
     if (path[0] === "network" && get)

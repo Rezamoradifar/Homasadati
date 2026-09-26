@@ -1,5 +1,6 @@
 "use client";
 
+import LiveChart from "./LiveChart";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
@@ -80,6 +81,7 @@ export function Dashboard({ refresh, user, onNavigate }: {
             <Stat label="فروش شخصی این ماه" value={d.sales.personal} />
             <Stat label="فروش گروهی این ماه" value={d.sales.group} />
           </div>
+          <LiveChart />
           {d.wallet.debt > 0 && (
             <Notice
               error={`بدهی ناشی از برگشت پورسانت: ${amount(d.wallet.debt)} تومان؛ برداشت تا تسویه ممکن نیست.`}

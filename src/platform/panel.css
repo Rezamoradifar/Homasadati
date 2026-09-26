@@ -2193,3 +2193,40 @@ html[data-theme="dark"] .portal-member .member-shortcuts svg { background: var(-
 html[data-theme="dark"] .tree-node { background: var(--homa-dark-surface); }
 html[data-theme="dark"] .tree-legs span { background: var(--homa-dark-line); color: #e8e2da; }
 .security-confirm { display: grid; gap: 6px; margin: 8px 0 12px; justify-items: start; }
+/* Live candlestick chart */
+.live-chart { --up: #1f8a70; --down: #d9573b; display: grid; gap: 14px; }
+html[data-theme="dark"] .live-chart { --up: #2fa885; --down: #e2694a; }
+.live-chart-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.live-chart-head h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 18px; }
+.live-chart-head small { opacity: .7; font-size: 12px; }
+.live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--up); box-shadow: 0 0 0 0 var(--up); animation: live-pulse 2s ease-out infinite; }
+@keyframes live-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--up) 60%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
+.live-chart-now { display: grid; justify-items: end; gap: 2px; }
+.live-chart-now strong { font-size: 20px; }
+.live-chart-now span { font-size: 12px; opacity: .8; }
+.live-chart-filters { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; }
+.live-chart-filters [role="tablist"] { display: inline-flex; padding: 3px; border-radius: 12px; background: #29324110; gap: 2px; }
+html[data-theme="dark"] .live-chart-filters [role="tablist"] { background: #ffffff12; }
+.live-chart-filters button { border: 0; background: transparent; color: inherit; font: inherit; font-size: 12.5px; padding: 7px 12px; border-radius: 9px; cursor: pointer; }
+.live-chart-filters button[aria-selected="true"] { background: var(--homa-navy, #293241); color: #fff; }
+html[data-theme="dark"] .live-chart-filters button[aria-selected="true"] { background: var(--homa-blue, #3c5b81); }
+.live-chart-plot { position: relative; }
+.live-chart-plot svg { display: block; width: 100%; height: auto; overflow: visible; }
+.live-grid line { stroke: currentColor; stroke-opacity: .09; stroke-width: 1; }
+.live-grid text, .live-axis { fill: currentColor; fill-opacity: .6; font-size: 11px; font-family: inherit; }
+.candle .wick { stroke-width: 1.5; }
+.candle.up .wick { stroke: var(--up); }
+.candle.down .wick { stroke: var(--down); }
+.candle.up rect:not(.hit) { fill: var(--surface, #fff); stroke: var(--up); stroke-width: 1.6; }
+html[data-theme="dark"] .candle.up rect:not(.hit) { fill: #1f2733; }
+.candle.down rect:not(.hit) { fill: var(--down); stroke: var(--down); stroke-width: 1; }
+.candle .hit { fill: transparent; cursor: crosshair; }
+.candle.active .hit { fill: currentColor; fill-opacity: .05; }
+.live-tooltip { position: absolute; top: 6px; transform: translateX(-50%); display: grid; gap: 2px; padding: 8px 10px; min-width: 120px; border-radius: 10px; font-size: 12px; background: #1b212b; color: #fff; box-shadow: 0 8px 22px #0003; pointer-events: none; white-space: nowrap; }
+.live-chart-empty { margin: 0; font-size: 13px; opacity: .75; }
+.live-chart-skeleton { height: 220px; border-radius: 12px; background: linear-gradient(90deg, #29324108, #29324114, #29324108); background-size: 200% 100%; animation: live-shimmer 1.4s linear infinite; }
+@keyframes live-shimmer { to { background-position: -200% 0; } }
+.live-chart-table summary { cursor: pointer; font-size: 13px; opacity: .8; }
+.live-chart-table table { width: 100%; margin-top: 8px; font-size: 12.5px; border-collapse: collapse; }
+.live-chart-table th, .live-chart-table td { padding: 6px; border-bottom: 1px solid #29324114; text-align: start; }
+@media (prefers-reduced-motion: reduce) { .live-dot, .live-chart-skeleton { animation: none; } }
