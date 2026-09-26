@@ -3,11 +3,18 @@ import { matureMerchantSales } from "./merchant-operations";
 import { matureLoyalty, expirePoints } from "./loyalty-engine";
 import { issueTravelCards, reviewTravel } from "./travel";
 import { tehranDay } from "./travel-model";
-import { atomic, all, one, run, now } from "./schema";
+import { atomic, all, one, run, now, type Row } from "./schema";
 import { mature, refundOrder } from "./finance";
-import { providerFetch, setting, saveSetting } from "./providers";
+import { emailBrand, providerFetch, setting, saveSetting } from "./providers";
+import { renderEmail, senderAddress } from "./email-template";
 import { ApiError } from "../server/http";
+import { refreshUsdRate } from "./fx";
+import { runCardSettlement } from "./seven-card-engine";
+import { processNewsletter } from "./newsletter";
+import { isWelcomeJob, welcomeEmail } from "./welcome";
 export async function maintenance() {
+  await refreshUsdRate();
+  runCardSettlement();
   runBinaryCycles();
   atomic(() => {
     mature();
@@ -92,14 +99,9 @@ export async function maintenance() {
             "Content-Type": "application/json",
             "Idempotency-Key": job.id,
           },
-          body: JSON.stringify({
-            from,
-            to: [job.target],
-            subject: job.subject,
-            text: job.body,
-          }),
+          body: JSON.stringify(await outboxEmail(from, job)),
         });
-        if (!response.id) throw new ApiError(502, "provider_rejected");
+        if (!response.id) throw new ApiError(503, "provider_rejected");
       } else {
         const key = setting("kavenegar_key"),
           sender = setting("sms_sender");
@@ -117,7 +119,7 @@ export async function maintenance() {
           },
         );
         if (response.return?.status !== 200)
-          throw new ApiError(502, "provider_rejected");
+          throw new ApiError(503, "provider_rejected");
       }
       run(
         "UPDATE p_outbox SET status='sent',last_error=NULL WHERE id=?",
@@ -132,8 +134,30 @@ export async function maintenance() {
       );
     }
   }
+  await processNewsletter();
   saveSetting("worker_last_success", now());
   run("DELETE FROM p_google_challenges WHERE expires<?", Date.now());
   run("DELETE FROM p_google_logins WHERE expires<?", Date.now());
   run("DELETE FROM p_enrollments WHERE expires<?", Date.now());
+}
+
+/** Branded HTML for account notifications queued in p_outbox. */
+async function outboxEmail(from: string, job: Row) {
+  const brand = await emailBrand("fa");
+  if (isWelcomeJob(job.body)) {
+    const mail = welcomeEmail(job.body, brand);
+    return { from: senderAddress(brand.name, from), to: [job.target], subject: mail.subject, html: mail.html, text: mail.text };
+  }
+  const mail = renderEmail(
+    {
+      subject: job.subject + " | " + brand.name,
+      preheader: String(job.body).slice(0, 120),
+      heading: job.subject,
+      paragraphs: String(job.body).split(/\n+/).filter(Boolean),
+      button: { label: "مشاهده در حساب کاربری", url: brand.origin.replace(/\/$/, "") + "/account" },
+      note: "این پیام دربارهٔ حساب شما در هما نت است. تنظیم اعلان‌های ایمیلی از بخش پروفایل حساب کاربری امکان‌پذیر است.",
+    },
+    brand,
+  );
+  return { from: senderAddress(brand.name, from), to: [job.target], subject: mail.subject, html: mail.html, text: mail.text };
 }

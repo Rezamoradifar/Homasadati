@@ -1,3 +1,4 @@
+import { parseAmount, validRate } from "./fx";
 import { cardPlan } from "./seven-card";
 import { operationsApi } from "./operations-api";
 import { isLocale } from "../i18n/core";
@@ -29,6 +30,7 @@ import {
 } from "./travel";
 import {
   registrationSchema,
+  identityLookup,
   referralCode,
   memberDetailsSchema,
   registrationEmail,
@@ -48,6 +50,19 @@ import { media } from "./media";
 import { operations } from "./operations";
 import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID, randomBytes } from "node:crypto";
+import { placementTree, searchTree } from "./network-tree";
+import { activityChart } from "./activity-chart";
+import { welcomeMember } from "./welcome";
+import { createCampaign, newsletterOverview, sendCampaign, sendTest } from "./newsletter";
+import { newReferralCode, referralStatus, setReferralCode, sponsorByCode } from "./referral";
+import {
+  payoutProfileSchema,
+  payoutProfileView,
+  payoutProfiles,
+  reviewPayoutProfile,
+  savePayoutProfile,
+  verifiedIban,
+} from "./payout-profile";
 import { z } from "zod";
 import {
   ApiError,
@@ -65,6 +80,8 @@ import {
   password,
   contact,
   productSchema,
+  companySettingRules,
+  companySettingKeys,
   policySchema,
   role,
   iban,
@@ -98,6 +115,7 @@ import {
   policy,
   paymentRequest,
   verifyPayment,
+  logGatewayCancel,
 } from "./providers";
 import {
   createOrder,
@@ -137,6 +155,11 @@ const querySchema = z.object({
   user: z.string().uuid().optional(),
   kind: z.string().max(30).default(""),
   family: z.string().max(200).default(""),
+  cat: z.string().regex(/^[a-z-]{0,40}$/).default(""),
+  tech: z.string().regex(/^[a-z-]{0,40}$/).default(""),
+  item: z.string().regex(/^[a-z-]{0,40}$/).default(""),
+  root: z.string().uuid().optional(),
+  depth: z.coerce.number().int().min(1).max(5).optional(),
 });
 function query(url: URL) {
   const q = querySchema.parse(Object.fromEntries(url.searchParams));
@@ -165,20 +188,33 @@ function revokeSessions(userId: string) {
   run("DELETE FROM p_google_logins WHERE user_id=?", userId);
   run("DELETE FROM p_google_challenges WHERE user_id=?", userId);
 }
+/** The contact (email, else mobile) of the account that owns this national
+ * code and mobile pair, or null. */
+function identityTarget(d: { nationalId: string; mobile: string }) {
+  const u = one(
+    "SELECT u.email,u.phone FROM p_users u JOIN p_identities i ON i.user_id=u.id WHERE i.national_hash=? AND u.phone=? AND u.blocked=0",
+    hash("national:" + d.nationalId),
+    d.mobile,
+  );
+  return u ? (u.email || u.phone) as string : null;
+}
 function activeUser(target: string) {
   return one("SELECT * FROM p_users WHERE email=? OR phone=?", target, target);
 }
 function signup(data: Row, ip: string) {
   return atomic(() => {
     if (activeUser(data.target)) throw new ApiError(409, "account_exists");
+    const nationalHash = hash("national:" + data.nationalId);
+    if (one("SELECT user_id FROM p_identities WHERE national_hash=?", nationalHash))
+      throw new ApiError(409, "national_id_in_use");
+    if (!data.target.includes("@") && data.target !== data.mobile)
+      throw new ApiError(400, "invalid_input");
+    if (one("SELECT id FROM p_users WHERE phone=?", data.mobile)) throw new ApiError(409, "phone_in_use");
     let sponsor: Row | undefined,
       parent: Row | undefined,
       leg: string | null = null;
     if (data.referral) {
-      sponsor = one(
-        "SELECT * FROM p_users WHERE referral_code=? AND blocked=0",
-        data.referral,
-      );
+      sponsor = sponsorByCode(data.referral);
       if (!sponsor) throw new ApiError(400, "invalid_referral");
       const queue = [sponsor];
       for (let i = 0; i < queue.length && i < 10000; i++) {
@@ -201,10 +237,11 @@ function signup(data: Row, ip: string) {
       "INSERT INTO p_users(id,email,phone,name,password,referral_code,sponsor_id,parent_id,leg,created_at,last_seen,signup_ip) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
       user,
       data.target.includes("@") ? data.target : null,
-      data.target.includes("@") ? null : data.target,
+      data.mobile,
       data.details.firstName + " " + data.details.lastName,
-      passwordHash(data.password),
-      randomUUID().replaceAll("-", "").slice(0, 12),
+      // Without a chosen password the account signs in by email code only.
+      passwordHash(data.password || randomBytes(32).toString("hex")),
+      newReferralCode(),
       sponsor?.id || null,
       parent?.id || null,
       leg,
@@ -213,6 +250,13 @@ function signup(data: Row, ip: string) {
       ip,
     );
     run("INSERT INTO p_wallets(user_id) VALUES(?)", user);
+    run(
+      "INSERT INTO p_identities VALUES(?,?,?,?)",
+      user,
+      nationalHash,
+      encrypt(data.nationalId),
+      now(),
+    );
     run(
       "INSERT INTO p_member_details VALUES(?,?,?,?)",
       user,
@@ -444,6 +488,18 @@ async function auth(req: Request, path: string[], data: Row) {
       return respondSession(u, req);
     });
   }
+  // Recovery by national code + mobile: the code goes to the account's own
+  // email (or mobile). Unknown pairs get a decoy reply so accounts cannot be
+  // discovered this way.
+  if (action === "otp" && data.purpose === "reset" && data.nationalId) {
+    const lookup = identityLookup.parse({ nationalId: data.nationalId, mobile: data.mobile });
+    await verifyCaptcha(data.captchaToken, "otp");
+    limit("recover:" + hash(lookup.nationalId), 5, 3600);
+    const target = identityTarget(lookup);
+    if (!target) return json({ challenge: randomUUID(), expiresIn: 300, retryAfter: 60 });
+    const locale = req.headers.get("cookie")?.match(/(?:^|;\s*)homay-locale=([^;]*)/)?.[1];
+    return json(await sendOtp(target, "reset", isLocale(locale) ? locale : "fa"));
+  }
   if (action === "otp") {
     const d = z
       .object({
@@ -460,7 +516,9 @@ async function auth(req: Request, path: string[], data: Row) {
   if (action === "verify-email" || action === "verify-contact") {
     const d = verifyEmailSchema.parse(data);
     if (action === "verify-email") registrationEmail.parse(d.target);
-    await verifyCaptcha(d.captchaToken, "verify_email");
+    // No captcha here: the code itself was sent behind one, allows five tries
+    // and expires in five minutes; the IP limit stops wide guessing.
+    limit("verify-email:" + ipOf(req), 20, 300);
     consumeOtp(d.challenge, d.target, "register", d.code);
     if (activeUser(d.target)) throw new ApiError(409, "account_exists");
     return json(beginEnrollment(d.target));
@@ -470,10 +528,7 @@ async function auth(req: Request, path: string[], data: Row) {
     await verifyCaptcha(d.captchaToken, "register");
     if (
       d.referral &&
-      !one(
-        "SELECT id FROM p_users WHERE referral_code=? AND blocked=0",
-        d.referral,
-      )
+      !sponsorByCode(d.referral)
     )
       throw new ApiError(400, "invalid_referral");
     // Reserve each attempt atomically across workers. A wrong TOTP must not
@@ -497,7 +552,7 @@ async function auth(req: Request, path: string[], data: Row) {
       );
       return pending;
     });
-    const step = matchingTotp(decrypt(enrollment.secret), d.totp);
+    const step = d.totp ? matchingTotp(decrypt(enrollment.secret), d.totp) : null;
     if (step === undefined) throw new ApiError(401, "invalid_otp");
     const result = atomic(() => {
       const claimed = run(
@@ -518,28 +573,33 @@ async function auth(req: Request, path: string[], data: Row) {
           u.id,
           now(),
         );
-      run(
-        "UPDATE p_users SET otp_secret=?,otp_last=? WHERE id=?",
-        enrollment.secret,
-        step,
-        u.id,
-      );
-      u.otp_secret = enrollment.secret;
+      if (step !== null) {
+        run(
+          "UPDATE p_users SET otp_secret=?,otp_last=? WHERE id=?",
+          enrollment.secret,
+          step,
+          u.id,
+        );
+        u.otp_secret = enrollment.secret;
+      }
       audit(u.id, "security.enrolled", u.id, null, {
         emailVerified: d.target.includes("@"),
         phoneVerified: !d.target.includes("@"),
-        twoFactor: true,
+        twoFactor: step !== null,
         invitationMode: d.invitationMode,
       });
-      return { u, codes: recoveryCodes(u.id) };
+      return { u, codes: step !== null ? recoveryCodes(u.id) : [] };
     });
+    welcomeMember(result.u.id);
     return respondSession(result.u, req, { recoveryCodes: result.codes });
   }
   if (action === "login") {
     const d = loginSchema.parse(data);
     const temporaryAdminLogin = data.adminPasswordLogin === true &&
       !!d.password && d.target.includes("@") && temporaryAdminPasswordLogin();
-    if (!temporaryAdminLogin) await verifyCaptcha(data.captchaToken, "login");
+    // A password sign-in needs the captcha. A code sign-in does not: the code
+    // was sent behind one, allows five tries and expires in five minutes.
+    if (d.password && !temporaryAdminLogin) await verifyCaptcha(data.captchaToken, "login");
     limit("login:" + hash(d.target), 8, 300);
     const u = activeUser(d.target);
     if (d.password) {
@@ -562,19 +622,25 @@ async function auth(req: Request, path: string[], data: Row) {
     return respondSession(u, req);
   }
   if (action === "reset") {
+    const byIdentity = !data.target && !!data.nationalId;
     const d = z
       .object({
-        target: contact,
+        target: byIdentity ? z.string().optional() : contact,
         password,
         challenge: id,
         code: z.string().regex(/^\d{6}$/),
         totp: z.string().optional(),
         recoveryCode: z.string().max(30).optional(),
       })
-      .parse(data);
-    await verifyCaptcha(data.captchaToken, "reset");
-    consumeOtp(d.challenge, d.target, "reset", d.code);
-    const u = activeUser(d.target);
+      .parse(byIdentity ? { ...data, nationalId: undefined, mobile: undefined } : data);
+    limit("reset:" + ipOf(req), 20, 300);
+    if (byIdentity) {
+      const target = identityTarget(identityLookup.parse({ nationalId: data.nationalId, mobile: data.mobile }));
+      if (!target) throw new ApiError(401, "invalid_otp");
+      d.target = target;
+    }
+    consumeOtp(d.challenge, d.target!, "reset", d.code);
+    const u = activeUser(d.target!);
     if (!u || u.blocked) throw new ApiError(401, "invalid_credentials");
     verifySecondFactor(u, d.totp || "", d.recoveryCode);
     atomic(() => {
@@ -829,6 +895,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "email_from",
           "turnstile_site_key",
           "turnstile_secret_key",
+          "referral_requires_purchase",
           "kavenegar_key",
           "sms_template",
           "sms_sender",
@@ -838,7 +905,12 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "site_contact",
           "site_email",
           "site_ceo_name",
-        ]),
+          "fx_source_url",
+          "fx_source_path",
+          "fx_source_unit",
+          "fx_usd_manual",
+          ...companySettingKeys,
+        ] as [string, ...string[]]),
         value: z.string().trim().min(1).max(2000),
         reason: text,
       })
@@ -847,16 +919,23 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       z.string()
         .regex(/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/)
         .parse(d.value);
+    if (d.key === "referral_requires_purchase") z.enum(["0", "1"]).parse(d.value);
     if (d.key === "email_from" || d.key === "site_email")
       z.string().email().parse(d.value);
     if (d.key === "site_ceo_name")
       z.string().trim().min(2).max(120).parse(d.value);
     if (d.key === "site_logo") httpsImage.parse(d.value);
+    if (companySettingRules[d.key]) d.value = companySettingRules[d.key].parse(d.value);
+    if (d.key === "fx_source_url") z.string().url().startsWith("https://").parse(d.value);
+    if (d.key === "fx_source_unit") z.enum(["rial", "toman"]).parse(d.value);
+    if (d.key === "fx_usd_manual" && !validRate(parseAmount(d.value)))
+      throw new ApiError(400, "invalid_rate");
     const secret = [
       "resend_key",
       "turnstile_secret_key",
       "kavenegar_key",
       "zarinpal_merchant",
+      "fx_source_url",
     ].includes(d.key);
     atomic(() => {
       const before = one("SELECT key FROM p_settings WHERE key=?", d.key);
@@ -1033,6 +1112,36 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     });
     return json({ ok: true });
   }
+  if (resource === "gateway-transactions" && get)
+    return json(
+      paged(
+        "SELECT g.id,g.gateway,g.authority,g.ref_kind,g.ref_id,g.amount,g.status,g.bank_reference,g.card_pan,g.fee,g.code,g.created_at,g.updated_at,u.name FROM p_gateway_transactions g LEFT JOIN p_users u ON u.id=g.user_id WHERE (?='' OR g.status=?) AND (?='' OR u.name LIKE ? OR g.bank_reference=? OR g.authority=?) AND g.created_at>=? AND g.created_at<=? ORDER BY g.created_at DESC",
+        [q.status, q.status, q.q, "%" + q.q + "%", q.q, q.q, q.from, q.to],
+        q.page,
+      ),
+    );
+  if (resource === "newsletter") {
+    if (get) return json(newsletterOverview());
+    const d = z
+      .object({ action: z.enum(["create", "send", "test"]), id: id.optional(), campaign: z.unknown().optional() })
+      .strict()
+      .parse(data);
+    if (d.action === "create") return json(createCampaign(u.id, d.campaign));
+    if (!d.id) throw new ApiError(400, "invalid_input");
+    if (d.action === "test") return json(await sendTest(u.id, d.id));
+    return json(sendCampaign(u.id, d.id));
+  }
+  if (resource === "payout-profiles") {
+    if (get) return json({ rows: payoutProfiles(q.status || "") });
+    const d = z
+      .object({
+        userId: id,
+        status: z.enum(["verified", "rejected"]),
+        reason: z.string().trim().max(500).default(""),
+      })
+      .parse(data);
+    return json(reviewPayoutProfile(u.id, d.userId, d.status, d.reason));
+  }
   if (resource === "withdrawals") {
     if (get)
       return json(
@@ -1129,6 +1238,11 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     });
     return json({ ok: true });
   }
+  if (resource === "network-tree" && get)
+    return json({
+      ...placementTree(u.id, q.root || u.id, Number(q.depth) || 3, true),
+      matches: q.q ? searchTree(u.id, q.q, true) : [],
+    });
   if (resource === "network") {
     if (get) return json(network(u, q.user || u.id, true, q.page));
     const d = z
@@ -1312,10 +1426,7 @@ export async function handle(req: Request, path: string[]) {
       limit("referral-check:" + ipOf(req), 15, 300);
       const code = referralCode.parse(data.code);
       return json({
-        valid: !!one(
-          "SELECT id FROM p_users WHERE referral_code=? AND blocked=0",
-          code,
-        ),
+        valid: !!sponsorByCode(code),
       });
     }
     if (path.join("/") === "card-plan" && get) return json(cardPlan());
@@ -1353,30 +1464,35 @@ export async function handle(req: Request, path: string[]) {
         .min(10)
         .max(100)
         .parse(url.searchParams.get("Authority"));
+      const back = (result: string) =>
+        Response.redirect(
+          new URL("/account?tab=orders&payment=" + result, process.env.APP_ORIGIN!),
+          303,
+        );
       const checkout = one(
         "SELECT * FROM p_checkouts WHERE authority=?",
         authority,
       );
-      if (checkout) {
-        if (checkout.status !== "paid") {
-          const ref = await verifyPayment(authority, checkout.amount);
-          settleCheckout(checkout.id, ref);
-        }
-        return Response.redirect(
-          new URL("/account?tab=orders", process.env.APP_ORIGIN!),
-          303,
-        );
+      const order = checkout
+        ? undefined
+        : one("SELECT * FROM p_orders WHERE authority=?", authority);
+      if (!checkout && !order) throw new ApiError(404, "not_found");
+      const alreadyPaid = checkout ? checkout.status === "paid" : !!order!.paid_at;
+      if (alreadyPaid) return back("paid");
+      // The member pressed cancel at the bank, or the bank declined the card.
+      if (url.searchParams.get("Status") !== "OK") {
+        logGatewayCancel(authority, String(url.searchParams.get("Status") || "NOK").slice(0, 20));
+        return back("cancelled");
       }
-      const order = one("SELECT * FROM p_orders WHERE authority=?", authority);
-      if (!order) throw new ApiError(404, "not_found");
-      if (!order.paid_at) {
-        const ref = await verifyPayment(authority, order.amount);
-        settleOrder(order.id, ref);
+      try {
+        const ref = await verifyPayment(authority, checkout ? checkout.amount : order!.amount);
+        if (checkout) settleCheckout(checkout.id, ref);
+        else settleOrder(order!.id, ref);
+      } catch (e) {
+        if (e instanceof ApiError && e.code === "payment_unverified") return back("failed");
+        throw e;
       }
-      return Response.redirect(
-        new URL("/account?tab=orders", process.env.APP_ORIGIN!),
-        303,
-      );
+      return back("paid");
     }
     if (path.join("/") === "cart/quote" && method === "POST") {
       limit("cart-quote:" + ipOf(req), 100, 300);
@@ -1385,14 +1501,22 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "catalog" && get) {
       const q = query(url);
       const result = paged(
-        "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR p.vertical=?) AND (?='' OR d.family=?) ORDER BY p.created_at DESC",
+        "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR p.vertical=? OR (?='craft' AND p.vertical='leather')) AND (?='' OR d.family=?) AND (?='' OR IFNULL(json_extract(d.details,'$.craftCategory'),'')=? OR (?='leather' AND p.vertical='leather')) AND (?='' OR json_extract(d.details,'$.craftTechnique')=?) AND (?='' OR json_extract(d.details,'$.craftItem')=?) ORDER BY p.created_at DESC",
         [
           "%" + q.q + "%",
           "%" + q.q + "%",
           q.vertical,
           q.vertical,
+          q.vertical,
           q.family,
           q.family,
+          q.cat,
+          q.cat,
+          q.cat,
+          q.tech,
+          q.tech,
+          q.item,
+          q.item,
         ],
         q.page,
       );
@@ -1550,14 +1674,21 @@ export async function handle(req: Request, path: string[]) {
             (SELECT COUNT(*) FROM p_orders WHERE user_id=? AND status IN ('pending','processing','shipped')) AS activeOrders,
             (SELECT COUNT(*) FROM p_notifications WHERE user_id=? AND read_at IS NULL) AS unreadNotifications,
             (SELECT COUNT(*) FROM p_tickets WHERE user_id=? AND status!='closed') AS openTickets,
-            (SELECT COUNT(*) FROM p_subscriptions WHERE user_id=? AND cancelled=0 AND starts_at<=? AND expires_at>?) AS activeSubscriptions`,
+            (SELECT COUNT(*) FROM p_subscriptions WHERE user_id=? AND cancelled=0 AND starts_at<=? AND expires_at>?) AS activeSubscriptions,
+            (SELECT COUNT(*) FROM p_wishlist WHERE user_id=?) AS wishlist`,
           u.id,
           u.id,
           u.id,
           u.id,
           now(),
           now(),
+          u.id,
         ),
+        latestNotice:
+          one(
+            "SELECT id,title,body,created_at,read_at FROM p_notifications WHERE user_id=? ORDER BY created_at DESC,rowid DESC LIMIT 1",
+            u.id,
+          ) || null,
         wallet: wallet(u.id),
         sales: sales(u.id, start),
         rank: rankProgress(u.id),
@@ -1636,6 +1767,13 @@ export async function handle(req: Request, path: string[]) {
           u.id,
         )!.n,
       });
+    // Members who signed up with an email code have no password; they confirm
+    // security changes with a code sent to their own contact instead.
+    if (path.join("/") === "security/code" && !get) {
+      const target = u.email || u.phone;
+      if (!target) throw new ApiError(409, "invalid_state");
+      return json(await sendOtp(target, "security"));
+    }
     if (path[0] === "security" && !get) {
       limit("security:" + u.id, 8, 300);
       const d = z
@@ -1649,14 +1787,24 @@ export async function handle(req: Request, path: string[]) {
             "google-unlink",
             "recovery-regenerate",
           ]),
-          currentPassword: z.string().max(128),
+          currentPassword: z.string().max(128).default(""),
+          emailChallenge: id.optional(),
+          emailCode: z.string().regex(/^\d{6}$/).optional(),
           newPassword: password.optional(),
           code: z.string().max(10).optional(),
           recoveryCode: z.string().max(30).optional(),
         })
         .parse(data);
-      if (!checkPassword(d.currentPassword, u.password))
-        throw new ApiError(401, "invalid_credentials");
+      // Enabling the authenticator follows a setup that was itself confirmed
+      // (within ten minutes) and proves the new code, so it needs no re-check.
+      if (d.action !== "totp-enable") {
+        if (d.currentPassword) {
+          if (!checkPassword(d.currentPassword, u.password))
+            throw new ApiError(401, "invalid_credentials");
+        } else if (d.emailChallenge && d.emailCode)
+          consumeOtp(d.emailChallenge, u.email || u.phone, "security", d.emailCode);
+        else throw new ApiError(400, "invalid_input");
+      }
       if (d.action === "totp-setup") {
         verifySecondFactor(u, d.code || "", d.recoveryCode);
         const secret = newTotpSecret();
@@ -1672,7 +1820,7 @@ export async function handle(req: Request, path: string[]) {
         );
         return json({
           secret,
-          uri: `otpauth://totp/HomaySaadat:${encodeURIComponent(u.email || u.phone)}?secret=${secret}&issuer=HomaySaadat`,
+          uri: `otpauth://totp/Homanet:${encodeURIComponent(u.email || u.phone)}?secret=${secret}&issuer=Homanet`,
         });
       }
       if (d.action === "totp-enable") {
@@ -1831,7 +1979,7 @@ export async function handle(req: Request, path: string[]) {
         )
           throw new ApiError(409, "payment_request_in_progress");
         try {
-          const authority = await paymentRequest(order.id, order.amount);
+          const authority = await paymentRequest(order.id, order.amount, { kind: "order", userId: order.user_id });
           if (
             !run(
               "UPDATE p_orders SET authority=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
@@ -1892,17 +2040,44 @@ export async function handle(req: Request, path: string[]) {
       const d = z
         .object({
           amount: money,
-          iban,
           idempotencyKey: id,
           totp: z.string().optional(),
         })
         .parse(data);
+      if (!u.otp_secret) throw new ApiError(403, "two_factor_required");
+      const destination = verifiedIban(u.id);
       verifyTotp(u, d.totp || "");
       return json(
-        requestWithdrawal(u.id, d.amount, d.iban, d.idempotencyKey),
+        requestWithdrawal(u.id, d.amount, destination, d.idempotencyKey),
         201,
       );
     }
+    if (path[0] === "payments" && get)
+      return json(
+        paged(
+          "SELECT id,ref_kind,amount,status,bank_reference,card_pan,created_at FROM p_gateway_transactions WHERE user_id=? ORDER BY created_at DESC",
+          [u.id],
+          q.page,
+        ),
+      );
+    if (path[0] === "payout-profile") {
+      if (get) return json({ profile: payoutProfileView(u.id) });
+      const d = payoutProfileSchema.parse(data);
+      // Changing where money goes needs the second factor, like a withdrawal.
+      if (!u.otp_secret) throw new ApiError(403, "two_factor_required");
+      verifyTotp(u, d.totp || "");
+      return json({ profile: savePayoutProfile(u.id, d) });
+    }
+    if (path[0] === "referral") {
+      if (get) return json(referralStatus(u));
+      return json(setReferralCode(u, z.object({ code: z.string() }).parse(data).code));
+    }
+    if (path[0] === "network-tree" && get)
+      return json(placementTree(u.id, q.root || u.id, Number(q.depth) || 3));
+    if (path[0] === "activity-chart" && get)
+      return json(activityChart(u.id, Object.fromEntries(url.searchParams)));
+    if (path[0] === "network-search" && get)
+      return json({ rows: searchTree(u.id, q.q || "") });
     if (path[0] === "network" && get)
       return json(network(u, q.user || u.id, false, q.page));
     if (path[0] === "commissions" && get)
@@ -1933,6 +2108,30 @@ export async function handle(req: Request, path: string[]) {
           progress: counts[m.metric as keyof typeof counts],
         })),
       });
+    }
+    if (path[0] === "wishlist") {
+      if (get && path[1] === "ids")
+        return json({
+          ids: all("SELECT product_id FROM p_wishlist WHERE user_id=?", u.id).map((r) => r.product_id),
+        });
+      if (get)
+        return json({
+          rows: all(
+            "SELECT p.id,p.title,p.vertical,p.price,p.stock,p.images,w.created_at FROM p_wishlist w JOIN p_products p ON p.id=w.product_id WHERE w.user_id=? AND p.published=1 ORDER BY w.created_at DESC LIMIT 200",
+            u.id,
+          ),
+        });
+      if (method === "DELETE") {
+        run("DELETE FROM p_wishlist WHERE user_id=? AND product_id=?", u.id, id.parse(path[1]));
+        return json({ ok: true });
+      }
+      const productId = z.object({ productId: id }).parse(data).productId;
+      if (!one("SELECT id FROM p_products WHERE id=? AND published=1", productId))
+        throw new ApiError(404, "not_found");
+      if (one("SELECT COUNT(*) n FROM p_wishlist WHERE user_id=?", u.id)!.n >= 200)
+        throw new ApiError(409, "invalid_state");
+      run("INSERT OR IGNORE INTO p_wishlist VALUES(?,?,?)", u.id, productId, now());
+      return json({ ok: true }, 201);
     }
     if (path[0] === "addresses") {
       if (get)

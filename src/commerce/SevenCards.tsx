@@ -1,7 +1,7 @@
 "use client";
 import Localized from "../i18n/Localized";
 import { useSiteLocale } from "../i18n/SiteLocale";
-import { sevenCards } from "../platform/seven-card-model";
+import { sevenCards } from "../platform/card-levels";
 
 export default function SevenCards() {
   const { locale } = useSiteLocale();
@@ -10,7 +10,7 @@ export default function SevenCards() {
   return (
     <Localized>
       <section className="brand-chapter">
-        <h2>طرح هفت کارت باشگاه</h2>
+        <h2>طرح هشت‌کارتی باشگاه</h2>
         <p>مبالغ این جدول به تومان است. سقف پاداش، درآمد تضمین‌شده نیست.</p>
         <div style={{ overflowX: "auto" }}>
           <table className="portal-table">
@@ -21,7 +21,6 @@ export default function SevenCards() {
                 <th>حداقل خرید</th>
                 <th>کمتر از</th>
                 <th>میز کار فعال</th>
-                <th>حداکثر شاخه</th>
                 <th>سقف هفتگی</th>
               </tr>
             </thead>
@@ -34,7 +33,6 @@ export default function SevenCards() {
                     {card.maxExclusiveToman ? n(card.maxExclusiveToman) : "—"}
                   </td>
                   <td>{n(card.desks)}</td>
-                  <td>{n(card.branches)}</td>
                   <td>{n(card.weeklyCapToman)}</td>
                 </tr>
               ))}

@@ -1,6 +1,6 @@
 import { hasPermission } from "./access-model";
 export const adminTabs: [string, string, string[]][] = [
-  ["seven-card-plan", "پلن هفت کارت", ["superadmin", "finance"]],
+  ["seven-card-plan", "پلن هشت کارت", ["superadmin", "finance"]],
   ["tickets", "پشتیبانی و تیکت‌ها", ["superadmin", "support"]],
   ["binary-schedule", "زمان‌بندی تسویه باینری", ["superadmin", "finance"]],
   ["binary-rules", "قواعد و شبیه‌ساز باینری", ["superadmin", "finance"]],
@@ -13,6 +13,7 @@ export const adminTabs: [string, string, string[]][] = [
   ["merchant-settlements", "تسویه پذیرندگان", ["superadmin", "finance"]],
   ["access", "نقش‌ها و مجوزها", ["superadmin"]],
   ["notifications", "ارسال اعلان", ["superadmin", "support"]],
+  ["newsletter", "خبرنامهٔ ایمیلی", ["superadmin", "content"]],
   ["binary", "مرکز باینری", ["superadmin", "finance"]],
   ["merchants", "پذیرندگان", ["superadmin", "content"]],
   ["loyalty", "مدیریت امتیازات", ["superadmin", "finance"]],
@@ -96,6 +97,7 @@ export const adminGroups = [
     keys: [
       "content",
       "notifications",
+      "newsletter",
       "access",
       "settings",
       "audit",

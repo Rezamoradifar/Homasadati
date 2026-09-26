@@ -1,16 +1,16 @@
 {
   "Footer": {
     "brand": {
-      "name": "Homay Saadat",
+      "name": "Homanet",
       "tagline": "Rooted in Iran. Connected to the world. Discover a more thoughtful way to travel, shop, and belong."
     },
     "aria": {
-      "footer": "Homay Saadat footer",
-      "home": "Homay Saadat home",
-      "socials": "Follow Homay Saadat"
+      "footer": "Homanet footer",
+      "home": "Homanet home",
+      "socials": "Follow Homanet"
     },
     "columns": {
-      "verticals": "The world of Homay Saadat",
+      "verticals": "The world of Homanet",
       "services": "Services",
       "company": "About us",
       "support": "Support"
@@ -28,7 +28,7 @@
       "dalarit": "Dalarit",
       "api": "API",
       "partners": "Partners",
-      "about": "About Homay Saadat",
+      "about": "About Homanet",
       "careers": "Careers",
       "press": "Press",
       "sustainability": "Sustainability",
@@ -43,7 +43,7 @@
     "newsletter": {
       "eyebrow": "A world of possibility",
       "title": "Good things, delivered thoughtfully.",
-      "description": "Stories, new discoveries, and a little inspiration from Homay Saadat.",
+      "description": "Stories, new discoveries, and a little inspiration from Homanet.",
       "email": "Email address",
       "placeholder": "you@example.com",
       "submit": "Join our newsletter",
@@ -88,11 +88,11 @@
       "youtube": "YouTube"
     },
     "global": "One home. A world of possibilities.",
-    "copyright": "© {year} Homay Saadat. All rights reserved.",
+    "copyright": "© {year} Homanet. All rights reserved.",
     "madeWithLove": "Made with love in Iran for the world",
     "backToTop": "Back to top",
     "demo": {
-      "eyebrow": "THE HOMAY SAADAT COLLECTION",
+      "eyebrow": "THE HOMANET COLLECTION",
       "title": "A little closer to the world.",
       "description": "Explore the footer below. Switch languages, browse the mobile sections, and try the newsletter demo.",
       "note": "Interactive component demo. No subscription is sent. Routes, social destinations, payment methods, and badges are examples."

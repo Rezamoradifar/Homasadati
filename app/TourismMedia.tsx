@@ -4,26 +4,8 @@ import PersianNarration from "./PersianNarration";
 export default function TourismMedia() {
   return (
     <Localized><section className="tourism-media" dir="rtl">
-      <p className="commerce-eyebrow">IRAN, A LIVING STORY</p>
+      <p className="commerce-eyebrow">ایران، روایتی زنده</p>
       <h2>سفری به قلب تمدن ایران</h2>
-      <p className="media-credit" id="tourism-media-credit">
-        بازسازی هنری تخت‌جمشید، ZDF / Terra X؛{" "}
-        <a
-          href="https://creativecommons.org/licenses/by-sa/4.0/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          CC BY-SA 4.0
-        </a>
-        . نشان سازنده متعلق به منبع فیلم است.{" "}
-        <a
-          href="https://commons.wikimedia.org/wiki/File:Persepolis,_Hauptstadt_Persiens_(CC_BY-SA_4.0).webm"
-          target="_blank"
-          rel="noreferrer"
-        >
-          صفحه منبع فیلم
-        </a>
-      </p>
       <article>
         <h3>روایت سفر</h3>
         <p>
@@ -38,7 +20,7 @@ export default function TourismMedia() {
       <article className="travel-benefit-intro">
         <h3>از هنر ایرانی تا تجربه سفر</h3>
         <p>
-          اعضای باشگاه که از هما تمدن خرید واجد شرایط داشته باشند، برای هر رتبه
+          اعضای باشگاه که از همای تمدن خرید واجد شرایط داشته باشند، برای هر رتبه
           مشمول، یک کارت سفر به نام خود دریافت می‌کنند. مبلغ و اعتبار زمانی هر
           کارت طبق تنظیمات مصوب همان رتبه است؛ پس از پایان مهلت لغو خرید و احراز
           شرایط، کارت در حساب کاربری صادر می‌شود.

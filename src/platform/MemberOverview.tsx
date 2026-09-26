@@ -1,5 +1,6 @@
 "use client";
 
+import { useSiteLocale } from "../i18n/SiteLocale";
 import {
   ArrowUpLeft,
   Bell,
@@ -7,6 +8,7 @@ import {
   CreditCard,
   Gift,
   GitBranch,
+  Heart,
   LifeBuoy,
   Package,
   Plane,
@@ -15,7 +17,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { MouseEvent } from "react";
+import { MouseEvent, ReactNode } from "react";
 import { amount, RecordData } from "./client";
 import Localized from "../i18n/Localized";
 
@@ -74,11 +76,17 @@ export function MemberOverview({
   user,
   activity = {},
   onNavigate,
+  notice,
+  summary,
 }: {
+  notice?: ReactNode;
+  /** Money figures and the live chart, shown right under the welcome. */
+  summary?: ReactNode;
   user: RecordData;
   activity: RecordData;
   onNavigate: (tab: string) => void;
 }) {
+  const { locale } = useSiteLocale();
   const follow = (event: MouseEvent<HTMLAnchorElement>, tab: string) => {
     if (
       event.button === 0 &&
@@ -111,6 +119,12 @@ export function MemberOverview({
       icon: LifeBuoy,
     },
     {
+      tab: "wishlist",
+      label: "محصول در علاقه‌مندی‌ها",
+      value: activity.wishlist,
+      icon: Heart,
+    },
+    {
       tab: "subscriptions",
       label: "اشتراک فعال",
       value: activity.activeSubscriptions,
@@ -121,16 +135,28 @@ export function MemberOverview({
     <Localized>
       <section className="member-welcome">
         <div>
-          <span>همای سعادت · باشگاه همراهان</span>
+          <span>هما نت · باشگاه همراهان</span>
           <h2>
             خوش آمدید، <bdi translate="no">{user.name}</bdi>
           </h2>
           <p>خریدها، خدمات، مزایا و وضعیت حساب شما در یک نگاه.</p>
+          <div className="member-welcome-chips">
+            <span translate="no" dir="ltr">
+              {user.referral_code}
+            </span>
+            <span>
+              {new Date().toLocaleDateString(
+                locale === "en" ? "en-GB" : locale === "ar" ? "ar-u-nu-arab" : "fa-IR-u-ca-persian",
+                { weekday: "long", day: "numeric", month: "long" },
+              )}
+            </span>
+          </div>
         </div>
         <a href="/account?tab=profile" onClick={(e) => follow(e, "profile")}>
           مشاهده پروفایل <ArrowUpLeft size={18} aria-hidden="true" />
         </a>
       </section>
+      {summary}
       <section className="member-activity" aria-label="وضعیت خدمات من">
         {counters.map(({ tab, label, value, icon: Icon }) => (
           <a
@@ -144,6 +170,7 @@ export function MemberOverview({
           </a>
         ))}
       </section>
+      {notice}
       <section
         className="member-services"
         aria-labelledby="member-services-heading"

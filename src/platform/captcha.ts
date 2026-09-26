@@ -30,6 +30,12 @@ export function captchaConfig() {
       (!!(c.siteKey && c.secret && process.env.APP_ORIGIN) && !c.testKey),
   };
 }
+/** The site's own host and its www twin, so a visitor who reaches
+ * www.<domain> before nginx redirects them is not rejected. */
+export function allowedHostnames(origin: string) {
+  const host = new URL(origin).hostname;
+  return host.startsWith("www.") ? [host, host.slice(4)] : [host, "www." + host];
+}
 export async function verifyCaptcha(token: unknown, action: string) {
   const c = configured();
   if (!c.required) return;
@@ -52,13 +58,13 @@ export async function verifyCaptcha(token: unknown, action: string) {
     if (!response.ok) throw new Error("provider");
     result = await response.json();
   } catch {
-    throw new ApiError(502, "captcha_unavailable");
+    throw new ApiError(503, "captcha_unavailable");
   }
   const age = Date.now() - Date.parse(result.challenge_ts);
   if (
     result.success !== true ||
     result.action !== action ||
-    result.hostname !== new URL(process.env.APP_ORIGIN).hostname ||
+    !allowedHostnames(process.env.APP_ORIGIN).includes(result.hostname) ||
     !Number.isFinite(age) ||
     age < -30000 ||
     age > 300000

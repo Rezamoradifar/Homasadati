@@ -37,6 +37,8 @@ import {
 } from "./registration-model";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { z } from "zod";
+import { payoutProfileSchema } from "./payout-model";
+import { nationalId, iranMobile } from "./validation";
 import {
   id,
   text,
@@ -47,6 +49,8 @@ import {
   productSchema,
   policySchema,
   httpsImage,
+  companySettingRules,
+  companySettingKeys,
   role,
   vertical,
 } from "./validation";
@@ -67,11 +71,14 @@ export function validateClient(path: string, method: string, data: unknown) {
   if (path === "travel-cards/cancel") schema = z.object({ id, reason: text });
   if (p[0] === "auth") {
     if (p[1] === "otp")
-      schema = z.object({
-        target: contact,
-        purpose: z.enum(["register", "login", "reset", "contact"]),
-        captchaToken,
-      });
+      schema = z.union([
+        z.object({
+          target: contact,
+          purpose: z.enum(["register", "login", "reset", "contact"]),
+          captchaToken,
+        }),
+        z.object({ purpose: z.literal("reset"), nationalId, mobile: iranMobile, captchaToken }),
+      ]);
     if (p[1] === "verify-email") schema = verifyEmailSchema;
     if (p[1] === "register") schema = registrationSchema;
     if (p[1] === "login")
@@ -89,7 +96,9 @@ export function validateClient(path: string, method: string, data: unknown) {
         .refine((v) => v.password || (v.challenge && v.code));
     if (p[1] === "reset")
       schema = z.object({
-        target: contact,
+        target: contact.optional(),
+        nationalId: nationalId.optional(),
+        mobile: iranMobile.optional(),
         password,
         challenge: id,
         code: otp,
@@ -115,10 +124,11 @@ export function validateClient(path: string, method: string, data: unknown) {
   if (p[0] === "withdrawals")
     schema = z.object({
       amount: money,
-      iban,
       idempotencyKey: id,
       totp: otp.optional(),
     });
+  if (p[0] === "payout-profile") schema = payoutProfileSchema;
+  if (p[0] === "referral") schema = z.object({ code: referralCode });
   if (p[0] === "referrals") schema = z.object({ code: referralCode });
   if (p[0] === "member-details") schema = memberDetailsSchema;
   if (p[0] === "profile")
@@ -138,6 +148,10 @@ export function validateClient(path: string, method: string, data: unknown) {
       password,
       totp: otp.optional(),
     });
+  if (p[0] === "wishlist") {
+    if (method === "DELETE") id.parse(p[1]);
+    else schema = z.object({ productId: id });
+  }
   if (p[0] === "addresses") {
     if (method === "DELETE") id.parse(p[1]);
     else
@@ -155,7 +169,7 @@ export function validateClient(path: string, method: string, data: unknown) {
     schema = z
       .object({ id: id.optional(), all: z.boolean().optional() })
       .refine((v) => v.id || v.all === true);
-  if (p[0] === "security")
+  if (p[0] === "security" && !p[1])
     schema = z
       .object({
         action: z.enum([
@@ -164,9 +178,12 @@ export function validateClient(path: string, method: string, data: unknown) {
           "totp-setup",
           "totp-enable",
           "totp-disable",
+          "google-unlink",
           "recovery-regenerate",
         ]),
-        currentPassword: password,
+        currentPassword: z.string().max(128).optional(),
+        emailChallenge: id.optional(),
+        emailCode: otp.optional(),
         newPassword: password.optional(),
         code: z.string().max(6).optional(),
         recoveryCode: z.string().max(30).optional(),
@@ -183,6 +200,13 @@ export function validateClient(path: string, method: string, data: unknown) {
           break;
         case "policy":
           schema = z.object({ policy: policySchema, reason: text });
+          break;
+        case "payout-profiles":
+          schema = z.object({
+            userId: id,
+            status: z.enum(["verified", "rejected"]),
+            reason: z.string().trim().max(500).default(""),
+          });
           break;
         case "withdrawals":
           schema = z
@@ -272,6 +296,7 @@ export function validateClient(path: string, method: string, data: unknown) {
                 "resend_key",
                 "turnstile_site_key",
                 "turnstile_secret_key",
+                "referral_requires_purchase",
                 "email_from",
                 "kavenegar_key",
                 "sms_template",
@@ -280,7 +305,15 @@ export function validateClient(path: string, method: string, data: unknown) {
                 "site_name",
                 "site_logo",
                 "site_contact",
-              ]),
+                "site_email",
+                "site_ceo_name",
+                "google_client_id",
+                "fx_source_url",
+                "fx_source_path",
+                "fx_source_unit",
+                "fx_usd_manual",
+                ...companySettingKeys,
+              ] as [string, ...string[]]),
               value: z.string().trim().min(1).max(2000),
               reason: text,
             })
@@ -293,6 +326,9 @@ export function validateClient(path: string, method: string, data: unknown) {
                   code: "custom",
                   message: "ایمیل فرستنده معتبر نیست",
                 });
+              const company = companySettingRules[v.key]?.safeParse(v.value);
+              if (company && !company.success)
+                c.addIssue({ code: "custom", message: company.error.issues[0].message });
               if (
                 v.key === "site_logo" &&
                 !httpsImage.safeParse(v.value).success

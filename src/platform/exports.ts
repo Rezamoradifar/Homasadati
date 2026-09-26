@@ -12,7 +12,7 @@ export async function invoice(order: Row, user: Row) {
     doc.on("end", () => res(Buffer.concat(buffers)));
     doc.on("error", rej);
   });
-  doc.fontSize(22).text("HOMAY SAADAT");
+  doc.fontSize(22).text("HOMANET");
   doc.fontSize(12).text("Invoice / TOMAN", 45, 90);
   doc.moveDown();
   for (const [key, value] of Object.entries({

@@ -1,5 +1,6 @@
 "use client";
 
+import { Money, UsdNote } from "./currency";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
@@ -17,6 +18,8 @@ export default function Cart() {
     [addresses, setAddresses] = useState<RecordData[]>([]),
     [address, setAddress] = useState(""),
     [method, setMethod] = useState("zarinpal"),
+    [voucher, setVoucher] = useState(0),
+    [useVoucher, setUseVoucher] = useState(false),
     [pending, setPending] = useState(""),
     [done, setDone] = useState(false),
     [revision, setRevision] = useState(0);
@@ -28,7 +31,12 @@ export default function Cart() {
         setMe(r.user);
         return api("addresses");
       })
-      .then((r) => setAddresses(r.rows))
+      .then((r) => {
+        setAddresses(r.rows);
+        return api("seven-card-plan")
+          .then((plan) => setVoucher(Math.max(0, Number(plan.member?.voucherBalance) || 0)))
+          .catch(() => setVoucher(0));
+      })
       .catch((e) => {
         if (e.message !== "برای ادامه وارد حساب شوید.") setError(e.message);
       });
@@ -92,6 +100,7 @@ export default function Cart() {
         items,
         method,
         expectedTotal: quote.total,
+        ...(useVoucher && voucher > 0 ? { useVoucher: true } : {}),
         ...(quote.requiresAddress ? { addressId: address } : {}),
       };
       const signature = JSON.stringify(payload);
@@ -123,7 +132,7 @@ export default function Cart() {
   return (
     <Localized><div className="shop-wrap">
       <div className="shop-heading">
-        <span className="commerce-eyebrow">یک سبد، تمام خانواده هما</span>
+        <span className="commerce-eyebrow">یک سبد برای همهٔ خانوادهٔ همای</span>
         <h1>سبد خرید شما</h1>
         <p>تعداد، مشخصات و مبلغ را پیش از ثبت سفارش بررسی کنید.</p>
       </div>
@@ -207,7 +216,7 @@ export default function Cart() {
                     </a>
                     <p>
                       {p
-                        ? `${amount(p.price)} تومان`
+                        ? <Money toman={p.price}/>
                         : "قیمت نیازمند بررسی است"}
                     </p>
                     <button
@@ -235,7 +244,7 @@ export default function Cart() {
                         }}
                       />
                     </label>
-                    {p && <p>{amount(p.lineTotal)} تومان</p>}
+                    {p && <p><Money toman={p.lineTotal}/></p>}
                   </div>
                 </article></Localized>
               );
@@ -245,7 +254,7 @@ export default function Cart() {
           <aside className="cart-summary">
             <h2>جمع سفارش</h2>
             <strong>
-              {quote ? amount(quote.total) + " تومان" : "در انتظار بررسی"}
+              {quote ? <><Money toman={quote.total}/><UsdNote/></> : "در انتظار بررسی"}
             </strong>
             <p>
               هزینه جداگانه ارسال در این نسخه محاسبه نمی‌شود. مالیات یا هزینه‌ای
@@ -264,6 +273,23 @@ export default function Cart() {
                     <option value="wallet">کیف پول</option>
                   </select>
                 </label>
+                {voucher > 0 && (
+                  <label className="cart-voucher">
+                    <input
+                      type="checkbox"
+                      disabled={busy}
+                      checked={useVoucher}
+                      onChange={(e) => setUseVoucher(e.target.checked)}
+                    />
+                    استفاده از موجودی ووچر خرید: <Money toman={voucher} />
+                  </label>
+                )}
+                {useVoucher && quote && voucher > 0 && (
+                  <p className="cart-voucher-note">
+                    مبلغ قابل پرداخت با روش انتخابی:{" "}
+                    <Money toman={Math.max(0, quote.total - voucher)} />
+                  </p>
+                )}
                 {quote?.requiresAddress && (
                   <label>
                     آدرس ارسال

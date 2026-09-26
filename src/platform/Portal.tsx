@@ -1,4 +1,8 @@
 "use client";
+import { AdminNewsletter } from "./AdminNewsletter";
+import { NetworkTree } from "./NetworkTree";
+import { Wishlist } from "./Wishlist";
+import { memberTabIcons } from "./member-icons";
 import SevenCardPanel from "./SevenCardPanel";
 import { TicketsPanel, BinarySchedulePanel } from "./SupportPanels";
 import {
@@ -205,9 +209,12 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
         lang="fa"
       >
         <header className="portal-header">
-          <a href="/">
-            <strong>{site.site_name || "همای سعادت"}</strong>
-            <small>HOMAY SAADAT / {admin ? "MANAGEMENT" : "MEMBERS"}</small>
+          <a href="/" className="portal-brand">
+            <img src="/assets/brand-mark.png" alt="" width={40} height={40} />
+            <span>
+              <strong>{site.site_name || "هما نت"}</strong>
+              <small>HOMANET / {admin ? "MANAGEMENT" : "MEMBERS"}</small>
+            </span>
           </a>
           <div className="portal-toplinks">
             <LanguagePicker />
@@ -269,10 +276,12 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
         ) : (
           <div className="portal-layout" key={user.id}>
             <aside className="portal-sidebar">
-              <div className="portal-user">
-                <strong translate="no">{user.name}</strong>
-                <span>{labels[user.role]}</span>
-              </div>
+              {admin && (
+                <div className="portal-user">
+                  <strong translate="no">{user.name}</strong>
+                  <span>{labels[user.role]}</span>
+                </div>
+              )}
               {admin ? (
                 <>
                   <button
@@ -322,6 +331,17 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                 </>
               ) : (
                 <>
+                  <div className="member-profile-card">
+                    <span className="member-avatar" aria-hidden="true">
+                      {String(user.name || "").trim().slice(0, 1)}
+                    </span>
+                    <strong>
+                      سلام <bdi translate="no">{user.name}</bdi> عزیز!
+                    </strong>
+                    <small>
+                      کد معرف: <bdi dir="ltr">{user.referral_code}</bdi>
+                    </small>
+                  </div>
                   <button
                     className="member-menu-toggle"
                     type="button"
@@ -340,16 +360,20 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     {userGroups.map((group) => (
                       <section key={group.title}>
                         <h2>{group.title}</h2>
-                        {group.tabs.map(([key, label]) => (
-                          <button
-                            key={key}
-                            type="button"
-                            aria-current={tab === key ? "page" : undefined}
-                            onClick={() => selectTab(key)}
-                          >
-                            {label}
-                          </button>
-                        ))}
+                        {group.tabs.map(([key, label]) => {
+                          const Icon = memberTabIcons[key];
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              aria-current={tab === key ? "page" : undefined}
+                              onClick={() => selectTab(key)}
+                            >
+                              {Icon && <Icon size={18} aria-hidden="true" />}
+                              <span>{label}</span>
+                            </button>
+                          );
+                        })}
                       </section>
                     ))}
                   </nav>
@@ -359,7 +383,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
             <main className="portal-main">
               <div className="portal-title">
                 <div>
-                  <h1>{current?.[1] || "پنل همای سعادت"}</h1>
+                  <h1>{current?.[1] || "پنل هما نت"}</h1>
                   <p>
                     {connectionError
                       ? "ارتباط قطع است؛ اطلاعات ممکن است قدیمی باشد."
@@ -407,6 +431,9 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   )}
                   {tab === "access" && (
                     <AccessPanel refresh={refresh} onChange={refreshUser} />
+                  )}
+                  {tab === "newsletter" && (
+                    <AdminNewsletter refresh={refresh} onChange={update} />
                   )}
                   {tab === "merchant-operations" && (
                     <MerchantOperationsPanel
@@ -494,11 +521,14 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     />
                   )}{" "}
                   {tab === "network" && (
-                    <AdminNetwork
-                      refresh={refresh}
-                      onChange={update}
-                      user={user}
-                    />
+                    <>
+                      <NetworkTree user={user} refresh={refresh} admin />
+                      <AdminNetwork
+                        refresh={refresh}
+                        onChange={update}
+                        user={user}
+                      />
+                    </>
                   )}{" "}
                   {tab === "commissions" && (
                     <Listing
@@ -548,6 +578,9 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   {tab === "binary" && (
                     <BinaryPanel user={user} refresh={refresh} />
                   )}
+                  {tab === "wishlist" && (
+                    <Wishlist refresh={refresh} onNavigate={selectTab} />
+                  )}
                   {tab === "loyalty" && (
                     <LoyaltyPanel refresh={refresh} onChange={update} />
                   )}
@@ -571,7 +604,10 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     <Wallet refresh={refresh} onChange={update} user={user} />
                   )}{" "}
                   {tab === "network" && (
-                    <Network user={user} refresh={refresh} />
+                    <>
+                      <NetworkTree user={user} refresh={refresh} />
+                      <Network user={user} refresh={refresh} />
+                    </>
                   )}{" "}
                   {tab === "missions" && <Missions refresh={refresh} />}{" "}
                   {tab === "commissions" && (

@@ -30,7 +30,7 @@ export default function Contact() {
           <section className="company-contact-panel">
             <h2>آشنایی با مجموعه</h2>
             <p>
-              نام شرکت «میراث جاویدان ایرانیان» است و «همای سعادت» برند این
+              نام شرکت «میراث جاویدان ایرانیان» است و «هما نت» برند این
               مجموعه است.
             </p>
             <a href="/about#licenses">معرفی شرکت، مدیریت و مشاهده مجوزها</a>

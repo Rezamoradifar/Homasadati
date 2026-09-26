@@ -1,6 +1,6 @@
 "use client";
 import Localized from "../i18n/Localized";
-import SevenCards from "../commerce/SevenCards";
+import PlanText from "../commerce/PlanText";
 import { DataState, useData } from "./Widgets";
 export default function SevenCardPublic() {
   const state = useData("card-plan");
@@ -13,7 +13,7 @@ export default function SevenCardPublic() {
               این پلن در مرحله آماده‌سازی است؛ پرداخت، فعال‌سازی جایگاه و صدور
               ووچر بر اساس آن هنوز فعال نشده است.
             </p>
-            <SevenCards />
+            <PlanText />
           </>
         </Localized>
       )}

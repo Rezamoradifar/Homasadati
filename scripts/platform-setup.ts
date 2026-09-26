@@ -54,7 +54,7 @@ async function main() {
       "INSERT INTO p_users(id,email,name,password,role,referral_code,created_at,last_seen,signup_ip) VALUES(?,?,?,?,'superadmin',?,?,?,?)",
       id,
       email,
-      "مدیر همای سعادت",
+      "مدیر هما نت",
       passwordHash(password),
       randomBytes(6).toString("hex"),
       now(),

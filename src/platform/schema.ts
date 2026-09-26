@@ -1,4 +1,5 @@
 import { migrateLeather } from "./migrate-leather";
+import { migrateCardLevels } from "./migrate-card-levels";
 import { db } from "../server/db";
 let ready: object | undefined;
 export function platformDb() {
@@ -77,6 +78,7 @@ export function platformDb() {
   (5,'زمرد',120000000,2400000,365,'emerald',NULL),
   (6,'پارسه',250000000,5000000,365,'gold',NULL),
   (7,'سیمرغ',500000000,10000000,365,'obsidian',NULL);
+  INSERT OR IGNORE INTO p_travel_presets VALUES(8,'آریا',1000000000,20000000,365,'lapis',NULL);
   INSERT OR IGNORE INTO p_migrations VALUES(6,datetime('now'));
   CREATE TABLE IF NOT EXISTS p_enrollments(token_hash TEXT PRIMARY KEY,target TEXT NOT NULL,secret TEXT NOT NULL,expires INTEGER NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,used INTEGER NOT NULL DEFAULT 0);
   CREATE INDEX IF NOT EXISTS p_enrollment_target ON p_enrollments(target);
@@ -137,7 +139,49 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_binary_order_cycles(order_id TEXT NOT NULL REFERENCES p_orders(id),cycle_key TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>=0),matches INTEGER NOT NULL CHECK(matches>=0),created_at TEXT NOT NULL,PRIMARY KEY(order_id,cycle_key));
   INSERT OR IGNORE INTO p_migrations VALUES(11,datetime('now'));
 
+  CREATE TABLE IF NOT EXISTS p_card_orders(order_id TEXT PRIMARY KEY REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),counted_cutoff TEXT NOT NULL,created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_card_orders_user ON p_card_orders(user_id);
+  CREATE TABLE IF NOT EXISTS p_card_members(user_id TEXT PRIMARY KEY REFERENCES p_users(id),total INTEGER NOT NULL CHECK(total>=0),level INTEGER NOT NULL CHECK(level BETWEEN 0 AND 8),desks INTEGER NOT NULL CHECK(desks BETWEEN 0 AND 8),updated_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_card_lots(id TEXT PRIMARY KEY,order_id TEXT NOT NULL REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),leg TEXT NOT NULL CHECK(leg IN ('left','right')),volume INTEGER NOT NULL CHECK(volume>0),remaining INTEGER NOT NULL CHECK(remaining>=0),void INTEGER NOT NULL DEFAULT 0 CHECK(void IN (0,1)),created_at TEXT NOT NULL,UNIQUE(order_id,user_id));
+  CREATE INDEX IF NOT EXISTS p_card_lots_pool ON p_card_lots(user_id,leg,void,remaining);
+  CREATE TABLE IF NOT EXISTS p_card_desks(user_id TEXT NOT NULL REFERENCES p_users(id),desk INTEGER NOT NULL CHECK(desk BETWEEN 1 AND 8),matches INTEGER NOT NULL CHECK(matches>=0),PRIMARY KEY(user_id,desk));
+  CREATE TABLE IF NOT EXISTS p_card_matches(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),desk INTEGER NOT NULL,week TEXT NOT NULL,sequence INTEGER NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('cash','voucher')),amount INTEGER NOT NULL CHECK(amount>0),void INTEGER NOT NULL DEFAULT 0 CHECK(void IN (0,1)),created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_card_matches_user ON p_card_matches(user_id,week);
+  CREATE TABLE IF NOT EXISTS p_card_match_allocations(match_id TEXT NOT NULL REFERENCES p_card_matches(id),lot_id TEXT NOT NULL REFERENCES p_card_lots(id),volume INTEGER NOT NULL CHECK(volume>0),PRIMARY KEY(match_id,lot_id));
+  CREATE INDEX IF NOT EXISTS p_card_allocations_lot ON p_card_match_allocations(lot_id);
+  CREATE TABLE IF NOT EXISTS p_card_weeks(week TEXT PRIMARY KEY,cutoff TEXT NOT NULL,sales INTEGER NOT NULL,budget INTEGER NOT NULL,matches INTEGER NOT NULL,cash INTEGER NOT NULL,voucher INTEGER NOT NULL,settled_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_card_voucher_ledger(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),event_key TEXT NOT NULL UNIQUE,kind TEXT NOT NULL,amount INTEGER NOT NULL,reference TEXT NOT NULL,created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_card_voucher_user ON p_card_voucher_ledger(user_id,created_at);
+  CREATE TRIGGER IF NOT EXISTS p_card_voucher_no_update BEFORE UPDATE ON p_card_voucher_ledger BEGIN SELECT RAISE(ABORT,'immutable voucher ledger'); END;
+  CREATE TRIGGER IF NOT EXISTS p_card_voucher_no_delete BEFORE DELETE ON p_card_voucher_ledger BEGIN SELECT RAISE(ABORT,'immutable voucher ledger'); END;
+  CREATE TABLE IF NOT EXISTS p_card_cashbacks(order_id TEXT PRIMARY KEY REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),reversed INTEGER NOT NULL DEFAULT 0 CHECK(reversed IN (0,1)),created_at TEXT NOT NULL);
+  INSERT OR IGNORE INTO p_migrations VALUES(12,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_card_payouts(id TEXT PRIMARY KEY,match_id TEXT NOT NULL REFERENCES p_card_matches(id),user_id TEXT NOT NULL REFERENCES p_users(id),week TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('cash','voucher')),amount INTEGER NOT NULL CHECK(amount>0),created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_card_payouts_match ON p_card_payouts(match_id);
+  CREATE TABLE IF NOT EXISTS p_order_vouchers(order_id TEXT PRIMARY KEY REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),created_at TEXT NOT NULL);
+  INSERT OR IGNORE INTO p_migrations VALUES(13,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_payout_profiles(user_id TEXT PRIMARY KEY REFERENCES p_users(id),data TEXT NOT NULL,national_hash TEXT NOT NULL UNIQUE,iban_last4 TEXT NOT NULL,card_last4 TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','verified','rejected')),reason TEXT NOT NULL DEFAULT '',reviewed_by TEXT REFERENCES p_users(id),reviewed_at TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_payout_profiles_status ON p_payout_profiles(status,updated_at);
+  INSERT OR IGNORE INTO p_migrations VALUES(14,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_referral_aliases(code TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),retired_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_referral_aliases_user ON p_referral_aliases(user_id,retired_at);
+  INSERT OR IGNORE INTO p_migrations VALUES(15,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_wishlist(user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),created_at TEXT NOT NULL,PRIMARY KEY(user_id,product_id));
+  INSERT OR IGNORE INTO p_migrations VALUES(16,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_gateway_transactions(id TEXT PRIMARY KEY,gateway TEXT NOT NULL,authority TEXT UNIQUE,ref_kind TEXT NOT NULL CHECK(ref_kind IN ('order','checkout')),ref_id TEXT NOT NULL,user_id TEXT REFERENCES p_users(id),amount INTEGER NOT NULL,status TEXT NOT NULL CHECK(status IN ('requested','request_failed','paid','failed','cancelled')),bank_reference TEXT,card_pan TEXT,fee INTEGER,code TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_gateway_transactions_user ON p_gateway_transactions(user_id,created_at);
+  CREATE INDEX IF NOT EXISTS p_gateway_transactions_status ON p_gateway_transactions(status,created_at);
+  INSERT OR IGNORE INTO p_migrations VALUES(17,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_identities(user_id TEXT PRIMARY KEY REFERENCES p_users(id),national_hash TEXT NOT NULL UNIQUE,national_enc TEXT NOT NULL,created_at TEXT NOT NULL);
+  INSERT OR IGNORE INTO p_migrations VALUES(18,datetime('now'));
+  CREATE TABLE IF NOT EXISTS p_newsletter_keys(subscriber_id TEXT PRIMARY KEY,token_enc TEXT NOT NULL,updated_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_newsletter_campaigns(id TEXT PRIMARY KEY,kind TEXT NOT NULL DEFAULT 'campaign' CHECK(kind IN ('campaign','welcome')),subject TEXT NOT NULL,preheader TEXT NOT NULL DEFAULT '',body TEXT NOT NULL,button_label TEXT NOT NULL DEFAULT '',button_url TEXT NOT NULL DEFAULT '',status TEXT NOT NULL CHECK(status IN ('draft','sending','sent')),created_by TEXT,created_at TEXT NOT NULL,sent_at TEXT);
+  CREATE TABLE IF NOT EXISTS p_newsletter_deliveries(campaign_id TEXT NOT NULL REFERENCES p_newsletter_campaigns(id),subscriber_id TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','sent','failed','skipped')),attempts INTEGER NOT NULL DEFAULT 0,next_attempt INTEGER NOT NULL DEFAULT 0,last_error TEXT,sent_at TEXT,PRIMARY KEY(campaign_id,subscriber_id));
+  CREATE INDEX IF NOT EXISTS p_newsletter_queue ON p_newsletter_deliveries(status,next_attempt);
+  INSERT OR IGNORE INTO p_migrations VALUES(20,datetime('now'));
+
   `);
+  migrateCardLevels(d);
   ready = d;
   return d;
 }

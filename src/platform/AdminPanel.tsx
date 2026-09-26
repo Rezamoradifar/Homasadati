@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminPayoutProfiles } from "./AdminPayoutProfiles";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import ServiceHealth from "./ServiceHealth";
 import Localized from "../i18n/Localized";
@@ -834,6 +835,29 @@ export function AdminWithdrawals({
   return (
     <Localized>
       <>
+        <AdminPayoutProfiles refresh={refresh} onChange={onChange} />
+        <div className="portal-card">
+          <h2>تراکنش‌های درگاه بانکی</h2>
+          <p>
+            همهٔ درخواست‌های پرداخت، پرداخت‌های تأییدشده، ناموفق و لغوشده؛ برای
+            تطبیق با گزارش درگاه از شمارهٔ پیگیری بانکی استفاده کنید.
+          </p>
+          <Listing
+            endpoint="admin/gateway-transactions"
+            refresh={refresh}
+            filters={{ dates: true, statuses: ["requested", "paid", "failed", "cancelled", "request_failed"] }}
+            columns={[
+              ["name", "کاربر"],
+              ["amount", "مبلغ", "money"],
+              ["status", "وضعیت", "status"],
+              ["bank_reference", "شمارهٔ پیگیری بانکی"],
+              ["card_pan", "کارت پرداخت‌کننده"],
+              ["fee", "کارمزد", "money"],
+              ["ref_kind", "بابت", "status"],
+              ["created_at", "تاریخ", "date"],
+            ]}
+          />
+        </div>
         <Listing
           endpoint="admin/withdrawals"
           refresh={refresh}
@@ -924,7 +948,7 @@ export function AdminUsers({
 
   const [selected, setSelected] = useState<RecordData | null>(null);
   const detail = useData(
-    "admin/users/" + (selected?.id || "00000000-0000-0000-0000-000000000000"),
+    selected?.id ? "admin/users/" + selected.id : "",
     refresh,
   );
   return (
@@ -1139,6 +1163,7 @@ export function Settings({
                   ["email_from", "ایمیل فرستندهٔ تأییدشده"],
                   ["turnstile_site_key", "کلید عمومی کپچا Turnstile"],
                   ["turnstile_secret_key", "کلید محرمانه کپچا Turnstile"],
+                  ["referral_requires_purchase", "فعال‌شدن کد معرف پس از اولین خرید (۱ = بله، ۰ = خیر)"],
                   ["kavenegar_key", "کلید API پیامک کاوه‌نگار"],
                   ["sms_template", "نام الگوی OTP پیامک"],
                   ["sms_sender", "شماره فرستنده پیامک اعلان"],
@@ -1148,6 +1173,17 @@ export function Settings({
                   ["site_contact", "اطلاعات تماس"],
                   ["site_email", "ایمیل رسمی ارتباط با ما"],
                   ["site_ceo_name", "نام مدیرعامل"],
+                  ["site_landline", "تلفن ثابت شرکت (با پیش‌شماره)"],
+                  ["site_address", "نشانی پستی کامل شرکت"],
+                  ["site_postal_code", "کد پستی ۱۰ رقمی"],
+                  ["company_national_id", "شناسه ملی شرکت (۱۱ رقم)"],
+                  ["company_registration_no", "شماره ثبت شرکت"],
+                  ["enamad_id", "شناسه نماد اعتماد (id در کد اینماد)"],
+                  ["enamad_code", "کد نماد اعتماد (Code در کد اینماد)"],
+                  ["fx_source_url", "نشانی سرویس نرخ ارز (همراه کلید API)"],
+                  ["fx_source_path", "مسیر نرخ دلار در پاسخ سرویس، مثل usd_sell.value"],
+                  ["fx_source_unit", "واحد نرخ سرویس: rial یا toman"],
+                  ["fx_usd_manual", "نرخ دستی دلار به ریال (پشتیبان)"],
                 ],
               },
               {

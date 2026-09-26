@@ -8,6 +8,7 @@ import { handle } from "./api";
 import { run, one, now, platformDb } from "./schema";
 import { hash } from "../server/http";
 import { TERMS_VERSION, registrationSchema } from "./registration-model";
+import { testIdentity } from "./test-identity";
 import { saveSetting, sendOtp } from "./providers";
 import { totp, decrypt, checkPassword } from "./security";
 const dir = mkdtempSync(join(tmpdir(), "homay-registration-"));
@@ -59,6 +60,8 @@ async function payload(
   const e = await verification.json();
   return {
     target,
+    ...testIdentity(),
+    ...(target.includes("@") ? {} : { mobile: target }),
     password: pw,
     verificationToken: e.verificationToken,
     totp: totp(e.secret),
@@ -396,7 +399,7 @@ it("rate limits OTP delivery, invalidates old codes on resend, and never returns
 it("sends English verification email for the website locale without changing the secret code", async () => {
   saveSetting("resend_key", "test-key", true);
   saveSetting("email_from", "test@homay.test");
-  let email: { subject: string; text: string } | undefined;
+  let email: { subject: string; text: string; html: string; from: string } | undefined;
   vi.stubGlobal("fetch", vi.fn(async (_url, init) => {
     email = JSON.parse(init.body);
     return Response.json({ id: randomUUID() });
@@ -406,9 +409,14 @@ it("sends English verification email for the website locale without changing the
     expect(response.status).toBe(200);
     const result = await response.json();
     expect(result).not.toHaveProperty("code");
-    expect(email!.subject).toBe("Homay Saadat verification code | HOMA");
-    expect(email!.text).toMatch(/^Your Homay Saadat verification code: \d{6}\. Valid for 5 minutes\. Do not share this code\.$/);
-    expect(one("SELECT code_hash FROM p_otp WHERE id=?", result.challenge)!.code_hash).toBe(hash(result.challenge + ":" + email!.text.match(/\d{6}/)![0]));
+    expect(email!.subject).toBe("Homanet sign-up verification code");
+    expect(email!.from).toBe('"Homanet" <test@homay.test>');
+    expect(email!.html).toContain('dir="ltr"');
+    expect(email!.text).toContain("Welcome to the Homanet family");
+    expect(email!.text).toContain("This code is valid for only 5 minutes.");
+    const code = email!.text.match(/^\d{6}$/m)![0];
+    expect(email!.html).toContain(code);
+    expect(one("SELECT code_hash FROM p_otp WHERE id=?", result.challenge)!.code_hash).toBe(hash(result.challenge + ":" + code));
   } finally {
     vi.unstubAllGlobals();
   }
@@ -503,7 +511,7 @@ it("expires authenticator setup and enables a replacement only after proving the
 it("registers a verified phone using the same invitation, consent and mandatory authenticator flow", async()=>{
  const d=await payload();const target="+989131112233";
  const r=await request("auth/verify-contact","POST",emailOtp(target));expect(r.status).toBe(200);const e=await r.json();
- const input={...d,target,verificationToken:e.verificationToken,totp:totp(e.secret)};
+ const input={...d,target,mobile:target,verificationToken:e.verificationToken,totp:totp(e.secret)};
  const result=await request("auth/register","POST",input);expect(result.status).toBe(200);
  const member=one("SELECT email,phone,otp_secret FROM p_users WHERE phone=?",target)!;expect(member.email).toBeNull();expect(member.phone).toBe(target);expect(member.otp_secret).toBeTruthy();
  expect((await request("auth/register","POST",input)).status).toBe(401);

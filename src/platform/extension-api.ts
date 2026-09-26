@@ -1,3 +1,4 @@
+import { cardLive, cardWeeks, fundingBps, unlimitedBudget, memberCardStatus, previewCardSettlement, setCardLive } from "./seven-card-engine";
 import { cardPlan, saveCardPlan } from "./seven-card";
 import { previewCardMatches } from "./seven-card-model";
 import { setting } from "./providers";
@@ -56,6 +57,8 @@ export async function extensionAdmin(
     ![
       "seven-card-plan",
       "seven-card-simulate",
+      "seven-card-live",
+      "seven-card-preview",
       "binary-rules",
       "binary-simulate",
       "loyalty-policy",
@@ -76,6 +79,8 @@ export async function extensionAdmin(
     [
       "seven-card-plan",
       "seven-card-simulate",
+      "seven-card-live",
+      "seven-card-preview",
       "binary-rules",
       "binary-simulate",
       "loyalty-policy",
@@ -88,6 +93,23 @@ export async function extensionAdmin(
     throw new ApiError(404, "not_found");
   if (resource === "seven-card-plan")
     return json(get ? cardPlan() : saveCardPlan(u.id, data));
+  if (resource === "seven-card-live") {
+    if (get) return json({ live: cardLive(), fundingBps: fundingBps(), unlimitedBudget: unlimitedBudget(), weeks: cardWeeks() });
+    const d = z
+      .object({
+        live: z.boolean(),
+        fundingBps: z.number().int().min(1).max(10000).optional(),
+        unlimitedBudget: z.boolean().optional(),
+        reason: text,
+      })
+      .strict()
+      .parse(data);
+    return json(setCardLive(u.id, d));
+  }
+  if (resource === "seven-card-preview") {
+    if (!get) throw new ApiError(405, "method_not_allowed");
+    return json(previewCardSettlement());
+  }
   if (resource === "seven-card-simulate") {
     if (get) throw new ApiError(405, "method_not_allowed");
     return json(previewCardMatches(data));
@@ -233,7 +255,7 @@ export function extensionMember(
 ): Response | null {
   if (path.join("/") === "seven-card-plan") {
     if (req.method !== "GET") throw new ApiError(405, "method_not_allowed");
-    return json(cardPlan());
+    return json({ ...cardPlan(), member: memberCardStatus(u.id) });
   }
   if (path[0] === "merchant") {
     if (path.length === 1 && req.method === "GET")

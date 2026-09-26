@@ -26,7 +26,7 @@ export default function AdminHome({user, refresh, onNavigate}: {
   return <Localized><div className="admin-workspace">
     <section className="admin-welcome">
       <div>
-        <span className="admin-kicker">همای سعادت · مدیریت مجموعه</span>
+        <span className="admin-kicker">هما نت · مدیریت مجموعه</span>
         <h2>کارهای امروز، در یک نگاه</h2>
         <p><bdi translate="no">{user.name}</bdi> · {labels[user.role]}</p>
         <p>از اینجا به کارهای روزانه و بخش‌های موردنیاز خود دسترسی دارید.</p>

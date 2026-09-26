@@ -13,7 +13,7 @@ export default function ProductGallery({
   if (!images.length)
     return (
       <Localized>
-        <p className="shop-empty">تصویر محصول هنوز ثبت نشده است.</p>
+        <div className="no-image product-no-image"><img src="/assets/brand/homanet-horizontal-orange.png" alt="هما نت" /></div>
       </Localized>
     );
   return (

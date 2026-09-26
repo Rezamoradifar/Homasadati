@@ -44,7 +44,7 @@ describe('Footer integration', () => {
   it('uses keyboard-operable accordion buttons and stable panel associations', async () => {
     const user = userEvent.setup();
     render(provider(<FooterColumn titleKey="columns.verticals" links={[{href: '/tourism', labelKey: 'links.tourism'}]} />));
-    const button = screen.getByRole('button', {name: 'The world of Homay Saadat'});
+    const button = screen.getByRole('button', {name: 'The world of Homanet'});
     const panel = document.getElementById(button.getAttribute('aria-controls')!);
     expect(panel?.classList.contains('hidden')).toBe(true);
     button.focus(); await user.keyboard('{Enter}');

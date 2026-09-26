@@ -43,7 +43,7 @@ export function TravelCards({
     <Localized><>
       <p className="portal-notice">
         برای هر رتبه تنظیم‌شده، یک کارت غیرنقدی به نام شما صادر می‌شود؛ خرید
-        پرداخت‌شده هما تمدن و پایان مهلت لغو آن لازم است. هفت روز کاری کامل پیش
+        پرداخت‌شده همای تمدن و پایان مهلت لغو آن لازم است. هفت روز کاری کامل پیش
         از سفر هماهنگ کنید. جمعه و تعطیلات ثبت‌شده کارگزار در شمارش لحاظ
         نمی‌شوند؛ تقویم جاری پایین فرم دیده می‌شود.
       </p>
@@ -267,11 +267,11 @@ export function AdminTravel({
               <section className="portal-card">
                 <h2>اعتبار سفر هر رتبه</h2>
                 <a href="/club/ranks" target="_blank" rel="noreferrer">
-                  مشاهده هفت رتبه و طراحی کارت‌ها
+                  مشاهده هشت رتبه و طراحی کارت‌ها
                 </a>
                 <Form
                   fields={[]}
-                  submit="ایجاد هفت رتبه پیشنهادی با صدور غیرفعال"
+                  submit="ایجاد هشت رتبه پیشنهادی با صدور غیرفعال"
                   onSubmit={async () => {
                     await api("admin/travel/presets", "POST", {});
                     onChange();

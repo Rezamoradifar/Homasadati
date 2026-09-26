@@ -21,5 +21,6 @@ export const checkoutSchema = z
     idempotencyKey: z.string().uuid(),
     expectedTotal: z.number().int().min(1).max(1e12),
     addressId: z.string().uuid().optional(),
+    useVoucher: z.boolean().optional(),
   })
   .strict();

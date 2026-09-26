@@ -4,6 +4,8 @@ export function useAutoGallery(
   target: RefObject<HTMLElement>,
   advance: () => void,
   delay = 6500,
+  /** Hero use: wait for interaction (or 12s after load) before the first change. */
+  holdAtStart = false,
 ) {
   const [paused, setPaused] = useState(false),
     [allowed, setAllowed] = useState(false),
@@ -28,11 +30,30 @@ export function useAutoGallery(
       document.removeEventListener("visibilitychange", sync);
     };
   }, [target]);
+  // Hold the first change until the visitor interacts or has been on the
+  // page a while, so the opening image stays the page's largest paint and
+  // nothing competes with loading.
+  const [loaded, setLoaded] = useState(!holdAtStart);
   useEffect(() => {
-    if (paused || !allowed || !visible) return;
+    if (!holdAtStart) return;
+    const events = ["pointerdown", "keydown", "scroll", "touchstart"];
+    let timer = 0;
+    const done = () => setLoaded(true);
+    const arm = () => (timer = window.setTimeout(done, 12000));
+    events.forEach((e) => window.addEventListener(e, done, { once: true, passive: true }));
+    if (document.readyState === "complete") arm();
+    else window.addEventListener("load", arm, { once: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("load", arm);
+      events.forEach((e) => window.removeEventListener(e, done));
+    };
+  }, [holdAtStart]);
+  useEffect(() => {
+    if (paused || !allowed || !visible || !loaded) return;
     const timer = setInterval(() => callback.current(), delay);
     return () => clearInterval(timer);
-  }, [paused, allowed, visible, delay]);
+  }, [paused, allowed, visible, loaded, delay]);
   return {
     paused: paused || !allowed,
     pause: () => setPaused(true),

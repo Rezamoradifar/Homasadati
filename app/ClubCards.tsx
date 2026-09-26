@@ -1,7 +1,9 @@
 
+import { UsdNote } from "../src/commerce/currency";
 import Localized from "../src/i18n/Localized";
 import PrivilegeCard from "./PrivilegeCard";
-import { sevenCards } from "../src/platform/seven-card-model";
+import PlanStatusNote from "./PlanStatusNote";
+import { sevenCards } from "../src/platform/card-levels";
 const ranks = sevenCards.map(card => [card.name, card.english, card.tone]);
 export default function ClubCards({ locale = "fa" }: { locale?: string }) {
   const fa = locale !== "en";
@@ -12,11 +14,11 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
     >
       <div className="section-heading">
         <div>
-          <p className="eyebrow">HOMA PRIVILEGE</p>
+          <p className="eyebrow">کارت‌های باشگاه همای</p>
           <h2 id="ranks-title">
             {fa
-              ? "هفت رتبه، هفت رنگ همراهی"
-              : "Seven ranks. Your next chapter."}
+              ? "هشت رتبه، هشت رنگ همراهی"
+              : "Eight ranks. Your next chapter."}
           </h2>
         </div>
         <a className="editorial-link" href="/club/ranks">
@@ -42,11 +44,8 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
           </a></Localized>
         ))}
       </div>
-      <p className="club-preview-note">
-        {fa
-          ? "مبالغ روی کارت، حداقل خرید به ریال در پلن جدید هستند؛ فعال‌سازی این پلن هنوز انجام نشده است."
-          : "Card amounts are minimum purchases in Iranian rials under the new plan; this plan is not yet active."}
-      </p>
+      <UsdNote/>
+      <PlanStatusNote fa={fa} />
     </section></Localized>
   );
 }

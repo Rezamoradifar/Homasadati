@@ -207,6 +207,11 @@ export function useData(path: string, refresh = 0) {
       previous.current = path;
     }
     setError("");
+    // An empty path means "nothing to load yet" (e.g. no row selected).
+    if (!path) {
+      setLoading(false);
+      return;
+    }
     api(path)
       .then((d) => {
         if (current) setData(d);
@@ -495,20 +500,8 @@ export function Modal({
       className="portal-dialog"
       ref={ref}
       onCancel={onClose}
-      style={{
-        border: "1px solid #c4cdbd",
-        borderRadius: 8,
-        padding: 28,
-        width: "min(760px,calc(100% - 30px))",
-        maxHeight: "90vh",
-        color: "#254331",
-        background: "#fff",
-      }}
     >
-      <div
-        className="portal-row"
-        style={{ justifyContent: "space-between", marginBottom: 20 }}
-      >
+      <div className="portal-row portal-dialog-head">
         <h2>{title}</h2>
         <button className="portal-button" onClick={onClose} aria-label="بستن">
           بستن

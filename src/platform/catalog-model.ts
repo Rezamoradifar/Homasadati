@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { validCraftPath } from "../commerce/craft-taxonomy";
 const short = z.string().trim().max(200).default("");
 const long = z.string().trim().max(5000).default("");
 const count = z.number().int().min(0).max(1e9).default(0);
@@ -74,11 +75,18 @@ export const catalogDetailsSchema = z
     quota: short,
     delivery: long,
     requirements: long,
+    craftCategory: short,
+    craftTechnique: short,
+    craftItem: short,
   })
   .strict()
   .refine(
     (v) => !v.startsOn || !v.endsOn || v.endsOn >= v.startsOn,
     "End date precedes start",
+  )
+  .refine(
+    (v) => validCraftPath(v.craftCategory, v.craftTechnique, v.craftItem),
+    "Unknown handicraft category",
   );
 export const emptyCatalogDetails = () => catalogDetailsSchema.parse({});
 export function publicCatalogDetails(raw: string | undefined) {

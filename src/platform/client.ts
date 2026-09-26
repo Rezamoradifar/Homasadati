@@ -59,6 +59,14 @@ export const errors: Record<string, string> = {
   out_of_stock: "موجودی این محصول کافی نیست.",
   payouts_paused:
     "پرداخت‌های جدید موقتاً متوقف شده‌اند؛ با پشتیبانی تماس بگیرید.",
+  referral_code_taken: "این کد معرف قبلاً انتخاب شده است؛ کد دیگری امتحان کنید.",
+  referral_change_too_soon: "کد معرف را هر ۳۰ روز یک بار می‌توانید تغییر دهید.",
+  national_id_mismatch: "کد ملی حساب بانکی باید با کد ملی ثبت‌شده در عضویت یکی باشد.",
+  phone_in_use: "این شماره موبایل برای حساب دیگری ثبت شده است.",
+  national_id_in_use: "این کد ملی برای حساب دیگری ثبت شده است.",
+  payout_profile_required: "برداشت پس از ثبت و تأیید اطلاعات بانکی ممکن است.",
+  two_factor_required:
+    "برای برداشت، ابتدا تأیید دومرحله‌ای را در بخش امنیت حساب فعال کنید.",
   withdrawal_limits: "مبلغ برداشت خارج از حداقل یا سقف تعیین‌شده است.",
   cancellation_expired: "مهلت لغو این سفارش تمام شده است.",
   invalid_state: "وضعیت فعلی اجازهٔ این تغییر را نمی‌دهد.",
@@ -137,6 +145,10 @@ export async function api(path: string, method = "GET", data?: unknown) {
 export const amount = (n: unknown) => Number(n ?? 0).toLocaleString("fa-IR");
 export const date = formatDate;
 export const labels: Record<string, string> = {
+  failed: "ناموفق",
+  request_failed: "خطا در اتصال به درگاه",
+  order: "سفارش",
+  checkout: "سبد خرید",
   waiting_support: "در انتظار پشتیبانی",
   waiting_user: "در انتظار کاربر",
   closed: "بسته‌شده",

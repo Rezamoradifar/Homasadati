@@ -112,7 +112,9 @@ it("returns only the signed-in member's current activity and ignores another use
     unreadNotifications: 1,
     openTickets: 2,
     activeSubscriptions: 1,
+    wishlist: 0,
   });
+  expect(data.latestNotice).toMatchObject({ title: "اعلان" });
   expect(data.orders.length).toBe(5);
   expect(
     data.orders.every((order: { user_id: string }) => order.user_id === owner),

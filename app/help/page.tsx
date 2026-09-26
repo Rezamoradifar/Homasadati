@@ -7,7 +7,7 @@ export default function Help() {
       <CommerceShell>
         <main id="commerce-main" className="shop-wrap help-page">
           <header>
-            <p className="commerce-eyebrow">باشگاه مشتریان همای سعادت</p>
+            <p className="commerce-eyebrow">باشگاه مشتریان هما نت</p>
             <h1>راهنمای خرید و پشتیبانی</h1>
             <p>از انتخاب محصول تا دریافت سفارش، مسیر خود را اینجا پیدا کنید.</p>
           </header>

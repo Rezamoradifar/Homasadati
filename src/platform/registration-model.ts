@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { id, password, text, contact } from "./validation";
+import { id, password, text, contact, nationalId, iranMobile } from "./validation";
 export const registrationEmail = z
   .string()
   .trim()
@@ -42,9 +42,15 @@ export const memberDetailsSchema = z
 export const registrationSchema = z
   .object({
     target: registrationContact,
-    password,
+    // Both optional: the verified email code is enough to open an account.
+    // A password or an authenticator can be added later from the account;
+    // the authenticator is required before the first withdrawal.
+    password: password.optional(),
     verificationToken: z.string().regex(/^[a-f0-9]{64}$/),
-    totp: z.string().regex(/^\d{6}$/),
+    // Identity: one account per national code and per mobile number.
+    nationalId,
+    mobile: iranMobile,
+    totp: z.string().regex(/^\d{6}$/).optional(),
     captchaToken,
     invitationMode: z.enum(["with-code", "without-code"]),
     referral: z.union([z.literal(""), referralCode]).optional(),
@@ -70,3 +76,6 @@ export const registrationSchema = z
         message: "مسیر ثبت‌نام و کد دعوت هماهنگ نیست.",
       });
   });
+
+/** Account recovery by identity instead of email: national code + mobile. */
+export const identityLookup = z.object({ nationalId, mobile: iranMobile }).strict();

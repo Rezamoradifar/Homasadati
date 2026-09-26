@@ -16,14 +16,18 @@ export default function AuthPanel({
   admin?: boolean;
 }) {
   const [mode, setMode] = useState("login"),
-    [otp, setOtp] = useState(false),
+    [otp, setOtp] = useState(!admin),
     [recovery, setRecovery] = useState(false),
     [challenge, setChallenge] = useState("");
   const [target, setTarget] = useState(""),
     [password, setPassword] = useState(""),
     [code, setCode] = useState(""),
     [totp, setTotp] = useState(""),
-    [recoveryCode, setRecoveryCode] = useState("");
+    [recoveryCode, setRecoveryCode] = useState(""),
+    [byIdentity, setByIdentity] = useState(false),
+    [nationalId, setNationalId] = useState(""),
+    [mobile, setMobile] = useState("");
+  const identity = mode === "reset" && byIdentity;
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
@@ -53,14 +57,18 @@ export default function AuthPanel({
     setError("");
     try {
       const r = await api("auth/otp", "POST", {
-        target,
+        ...(identity ? { nationalId, mobile } : { target }),
         purpose: mode,
         captchaToken: sendCaptcha.token,
       });
       setChallenge(r.challenge);
       setCode("");
       setCooldown(r.retryAfter || 60);
-      setNotice("کد به راه تماس واردشده ارسال شد؛ ۵ دقیقه اعتبار دارد.");
+      setNotice(
+        identity
+          ? "اگر کد ملی و موبایل با یک حساب مطابقت داشته باشد، کد به ایمیل ثبت‌شدهٔ آن حساب ارسال شد؛ ۵ دقیقه اعتبار دارد."
+          : "کد به راه تماس واردشده ارسال شد؛ ۵ دقیقه اعتبار دارد.",
+      );
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -70,18 +78,18 @@ export default function AuthPanel({
   }
   async function submit(e: FormEvent) {
     e.preventDefault();
-    if (busy || !submitCaptcha.ready) return;
+    if (busy || (!needsCode && !submitCaptcha.ready)) return;
     setBusy(true);
     setError("");
     try {
       const payload = {
-        target,
+        ...(identity ? { nationalId, mobile } : { target }),
         ...(admin && mode === "login" && !otp ? { adminPasswordLogin: true } : {}),
         ...(!otp || mode === "reset" ? { password } : {}),
         ...(needsCode ? { challenge, code } : {}),
         ...(!recovery && totp ? { totp } : {}),
         ...(recovery && recoveryCode ? { recoveryCode } : {}),
-        captchaToken: submitCaptcha.token,
+        ...(needsCode ? {} : { captchaToken: submitCaptcha.token }),
       };
       const r = await api("auth/" + mode, "POST", payload);
       if (mode === "reset") {
@@ -111,7 +119,7 @@ export default function AuthPanel({
             ? "ورود مدیران"
             : "خوش آمدید"}
       </h1>
-      <p>با حساب خود وارد دنیای همراهان هما شوید.</p>
+      <p>با حساب خود وارد دنیای همراهان همای شوید.</p>
       <div className="portal-tabs" role="tablist" aria-label="روش دسترسی">
         {[
           ["login", "ورود"],
@@ -132,6 +140,57 @@ export default function AuthPanel({
       <Notice error={error} success={notice} />
       <form onSubmit={submit}>
         <fieldset disabled={busy}>
+          {mode === "reset" && (
+            <label className="auth-check">
+              <input
+                type="checkbox"
+                checked={byIdentity}
+                onChange={(e) => {
+                  setByIdentity(e.target.checked);
+                  setChallenge("");
+                  setCode("");
+                }}
+              />
+              ایمیل را به خاطر ندارم؛ بازیابی با کد ملی و شماره موبایل
+            </label>
+          )}
+          {identity && (
+            <>
+              <label>
+                کد ملی
+                <input
+                  name="nationalId"
+                  dir="ltr"
+                  inputMode="numeric"
+                  maxLength={12}
+                  required
+                  value={nationalId}
+                  onChange={(e) => {
+                    setNationalId(e.target.value);
+                    setChallenge("");
+                  }}
+                />
+              </label>
+              <label>
+                شماره موبایل ثبت‌شده در حساب
+                <input
+                  name="mobile"
+                  type="tel"
+                  dir="ltr"
+                  inputMode="numeric"
+                  maxLength={16}
+                  required
+                  value={mobile}
+                  placeholder="09121234567"
+                  onChange={(e) => {
+                    setMobile(e.target.value);
+                    setChallenge("");
+                  }}
+                />
+              </label>
+            </>
+          )}
+{!identity && (
           <label>
             ایمیل یا شماره موبایل
             <input
@@ -139,7 +198,7 @@ export default function AuthPanel({
               dir="ltr"
               autoComplete="username"
               maxLength={254}
-              required
+              required={!identity}
               value={target}
               placeholder="name@example.com"
               onChange={(e) => {
@@ -152,18 +211,19 @@ export default function AuthPanel({
               برای حساب‌های قدیمی با موبایل، پیش‌شماره کشور را وارد کنید.
             </small>
           </label>
+          )}
           {mode === "login" && (
             <label className="auth-check">
               <input
                 type="checkbox"
-                checked={otp}
+                checked={!otp}
                 onChange={(e) => {
-                  setOtp(e.target.checked);
+                  setOtp(!e.target.checked);
                   setChallenge("");
                   setCode("");
                 }}
               />
-              ورود با کد ایمیل یا پیامک
+              ورود با رمز عبور
             </label>
           )}
           {(!otp || mode === "reset") && (
@@ -189,7 +249,7 @@ export default function AuthPanel({
               <button
                 type="button"
                 className="portal-button secondary"
-                disabled={!target || busy || cooldown > 0 || !sendCaptcha.ready}
+                disabled={(identity ? !nationalId || !mobile : !target) || busy || cooldown > 0 || !sendCaptcha.ready}
                 onClick={send}
               >
                 {cooldown
@@ -217,11 +277,11 @@ export default function AuthPanel({
               </label>
             </div>
           )}
-          <div className="login-second-factor">
-            <strong>
-              <ShieldCheck size={18} /> تأیید دومرحله‌ای
-            </strong>
-            <p>اگر رمزساز حساب شما فعال است، کد آن را وارد کنید.</p>
+          <details className="login-second-factor" open={!!totp || recovery || !!error || undefined}>
+            <summary>
+              <ShieldCheck size={18} /> رمزساز را فعال کرده‌اید؟
+            </summary>
+            <p>اگر تأیید دومرحله‌ای حساب شما فعال است، کد آن را وارد کنید.</p>
             {recovery ? (
               <label>
                 کد بازیابی یک‌بارمصرف
@@ -262,11 +322,11 @@ export default function AuthPanel({
                 ? "استفاده از برنامه رمزساز"
                 : "به رمزساز دسترسی ندارم؛ استفاده از کد بازیابی"}
             </button>
-          </div>
-          {submitCaptcha.element}
+          </details>
+          {!needsCode && submitCaptcha.element}
           <button
             className="portal-button"
-            disabled={busy || !submitCaptcha.ready || (needsCode && !challenge)}
+            disabled={busy || (!needsCode && !submitCaptcha.ready) || (needsCode && !challenge)}
           >
             {busy
               ? "در حال بررسی…"

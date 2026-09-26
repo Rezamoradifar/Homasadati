@@ -3,6 +3,19 @@ import Localized from "../../../src/i18n/Localized";
 import { notFound } from "next/navigation";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import { TERMS_VERSION } from "../../../src/platform/registration-model";
+/** "نسخهٔ ۱ · منتشرشده ۲۹ شهریور ۱۴۰۵", read from TERMS_VERSION (YYYY-MM-DD-vN)
+ * in the Iranian calendar, Tehran time. */
+function published() {
+  const [, y, m, d, v] = TERMS_VERSION.match(/^(\d{4})-(\d{2})-(\d{2})-v(\d+)$/) || [];
+  if (!y) return "";
+  const day = new Date(Date.UTC(+y, +m - 1, +d, 12)).toLocaleDateString("fa-IR-u-ca-persian", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "Asia/Tehran",
+  });
+  return `نسخهٔ ${Number(v).toLocaleString("fa-IR")} · منتشرشده ${day}`;
+}
 const documents = {
   terms: {
     title: "قوانین عضویت، خرید و باشگاه همراهان",
@@ -66,7 +79,7 @@ const documents = {
       ],
       [
         "کوکی و رسانه",
-        "کوکی نشست برای ورود استفاده می‌شود. سبد خرید و ترجیح زبان در مرورگر ذخیره می‌شوند. اگر ویدئوی خارجی پخش شود، سرویس میزبان رسانه IP مرورگر را دریافت می‌کند. توقف ویدئو و نمایش تصویر ثابت در دسترس است.",
+        "کوکی نشست برای ورود استفاده می‌شود. سبد خرید و ترجیح زبان در مرورگر ذخیره می‌شوند. سایت از ابزار ردیابی تبلیغاتی شخص ثالث استفاده نمی‌کند.",
       ],
     ],
   },
@@ -84,7 +97,7 @@ export default async function Page({
       <main id="commerce-main" className="brand-body">
         <header className="brand-chapter">
           <h1>{doc.title}</h1>
-          <p>نسخه {TERMS_VERSION} · منتشرشده ۲۰ سپتامبر ۲۰۲۶</p>
+          <p>{published()}</p>
         </header>
         {doc.sections.map(([title, body]) => (
           <Localized key={title}><section className="brand-chapter">
