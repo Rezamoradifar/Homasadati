@@ -91,7 +91,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           </nav>
         </details>
         <div className="commerce-footer-bottom">
-          <p>© {new Date().getFullYear()} هما نت · از ایران، برای جهان</p>
+          <p>© {new Date().toLocaleDateString("fa-IR-u-ca-persian", { year: "numeric", timeZone: "Asia/Tehran" })} هما نت · از ایران، برای جهان</p>
           <a href="#page-top">بازگشت به بالا ↑</a>
         </div>
       </footer>

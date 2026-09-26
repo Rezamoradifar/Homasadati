@@ -792,7 +792,6 @@
   "کوکی و رسانه": "Cookies and media",
   "کوکی نشست برای ورود استفاده می‌شود. سبد خرید و ترجیح زبان در مرورگر ذخیره می‌شوند. اگر ویدئوی خارجی پخش شود، سرویس میزبان رسانه IP مرورگر را دریافت می‌کند. توقف ویدئو و نمایش تصویر ثابت در دسترس است.": "A session cookie is used for sign-in. The cart and language preference are stored in your browser. Playing externally hosted video shares the browser IP with that host. You can pause the film and display a still image.",
   "نسخه": "Version",
-  "· منتشرشده ۲۰ سپتامبر ۲۰۲۶": "· Published 20 September 2026",
   "بازگشت به حساب": "Back to account",
   "جلود هماي": "Homa Leather",
   "همای چرم": "Homa Leather",
@@ -842,7 +841,6 @@
   "مسیرهای درآمد": "Revenue streams",
   "هزینه‌هایی که باید دید": "Costs to consider",
   "شاخص‌های قابل سنجش": "Measurable indicators",
-  "آخرین بررسی محتوای مستند: ۲۰ سپتامبر ۲۰۲۶. تحلیل اقتصادی این صفحه چارچوب پیشنهادی هماست؛ آمار عملکرد واقعی شرکت یا تضمین سود نیست.": "Documented content last reviewed: 20 September 2026. The economic analysis is Homa's proposed framework, not actual company performance or a profit guarantee.",
   "حالا با آگاهی انتخاب کنید.": "Make an informed choice.",
   "قیمت، موجودی، توضیحات و شرایط هر پیشنهاد را در فروشگاه ببینید.": "See the price, availability, description and conditions of each offer in the shop.",
   "ورود به فروشگاه": "Enter the shop",
@@ -1715,7 +1713,6 @@
   "هنر صفوی پیش از ۱۶۰۰ — موزه متروپولیتن": "Safavid art before 1600 — Metropolitan Museum of Art",
   "ایران را نمی‌توان در یک عکس یا یک مسیر خلاصه کرد. هر سفر می‌تواند پیوندی میان معماری، خوراک، طبیعت و زندگی مردم باشد. همای سعادت برای معرفی این تنوع شکل می‌گیرد: سفری با برنامه روشن، میزبان شناخته‌شده و احترام به مقصد؛ از انتخاب تجربه تا بازگشت به خانه.": "Iran cannot be captured in one photograph or itinerary. Each trip can connect architecture, food, nature and everyday life. Homay Saadat introduces this diversity through clearly planned journeys, known hosts and respect for each destination, from choosing an experience to returning home.",
   "ایران؛ مجموعه‌ای از جهان‌های متفاوت": "Iran: many different worlds",
-  "در صفحه رسمی یونسکو که در ۲۰ سپتامبر ۲۰۲۶ بررسی شد، ایران ۳۰ اثر ثبت‌شده در میراث جهانی دارد: ۲۸ اثر فرهنگی و ۲ اثر طبیعی. این تعداد با شهرهای جهانی صنایع‌دستی، میراث ناملموس و رکوردهای گینس یکسان نیست.": "On UNESCO's official page, checked on 20 September 2026, Iran has 30 World Heritage properties: 28 cultural and 2 natural. This is not the same as counts of world craft cities, intangible heritage or Guinness records.",
   "ارزش یک مقصد تنها در ثبت جهانی آن خلاصه نمی‌شود. تجربه بازار، ملاقات با هنرمند، غذای محلی و شناخت شیوه زندگی، سفر را از بازدید کوتاه به رابطه‌ای عمیق‌تر با یک سرزمین تبدیل می‌کند.": "A destination's value extends beyond World Heritage recognition. Markets, encounters with artists, local food and everyday traditions turn a brief visit into a deeper relationship with a place.",
   "مسیرهایی برای کشف ایران": "Routes to discover Iran",
   "برای انتخاب مسیر، ابتدا علاقه، زمان و توان سفر را مشخص کنید. همه جاذبه‌ها را نمی‌توان در یک برنامه کوتاه جا داد؛ کیفیت راهنمایی و زمان کافی برای تجربه، از طول فهرست بازدید مهم‌تر است.": "Start with your interests, available time and travel capabilities. A short itinerary cannot include every attraction; good guidance and enough time to experience a place matter more than a long checklist.",
@@ -2996,5 +2993,9 @@
   "هنوز خریدی ندارد": "No purchase yet",
   "۴ تا ۴۰ نویسه؛ حروف کوچک انگلیسی، عدد و خط تیره، مثل sara-shop. لینک‌های قبلی همچنان کار می‌کنند.": "4–40 characters: lowercase English letters, digits and hyphens, e.g. sara-shop. Earlier links keep working.",
   "مبالغ روی کارت، حداقل خرید به ریال است. طرح هشت کارت فعال است و پاداش‌ها هر هفته محاسبه و واریز می‌شوند.": "Card amounts are minimum purchases in Iranian rials. The eight-card plan is active and rewards are calculated and paid weekly.",
-  "مبالغ روی کارت، حداقل خرید به ریال است. طرح هشت کارت به‌زودی فعال می‌شود؛ زمان شروع از همین‌جا اعلام خواهد شد.": "Card amounts are minimum purchases in Iranian rials. The eight-card plan is launching soon; the start date will be announced here."
+  "مبالغ روی کارت، حداقل خرید به ریال است. طرح هشت کارت به‌زودی فعال می‌شود؛ زمان شروع از همین‌جا اعلام خواهد شد.": "Card amounts are minimum purchases in Iranian rials. The eight-card plan is launching soon; the start date will be announced here.",
+  "نسخهٔ {0} · منتشرشده {1}": "Version {0} · published {1}",
+  "· منتشرشده ۲۹ شهریور ۱۴۰۵": "· Published 20 September 2026",
+  "آخرین بررسی محتوای مستند: ۲۹ شهریور ۱۴۰۵. تحلیل اقتصادی این صفحه چارچوب پیشنهادی هماست؛ آمار عملکرد واقعی شرکت یا تضمین سود نیست.": "Documented content last reviewed: 20 September 2026. The economic analysis is Homa's proposed framework, not actual company performance or a profit guarantee.",
+  "در صفحه رسمی یونسکو که در ۲۹ شهریور ۱۴۰۵ بررسی شد، ایران ۳۰ اثر ثبت‌شده در میراث جهانی دارد: ۲۸ اثر فرهنگی و ۲ اثر طبیعی. این تعداد با شهرهای جهانی صنایع‌دستی، میراث ناملموس و رکوردهای گینس یکسان نیست.": "On UNESCO's official page, checked on 20 September 2026, Iran has 30 World Heritage properties: 28 cultural and 2 natural. This is not the same as counts of world craft cities, intangible heritage or Guinness records."
 }

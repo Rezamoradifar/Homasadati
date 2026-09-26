@@ -137,7 +137,7 @@ export function Footer({variant = 'default', introduction, signature, id, classN
       </div>
       {signature}
       <div data-footer-legal className="flex flex-col gap-4 border-t border-white/15 pt-6 text-xs leading-6 text-[#b9cad5] lg:flex-row lg:items-center lg:justify-between">
-        <p>{t('copyright', {year: String(year)})}</p><p>{t('madeWithLove')}</p>
+        <p>{t('copyright', {year: locale === 'fa' ? new Date(Date.UTC(year, 5, 1)).toLocaleDateString('fa-IR-u-ca-persian', {year: 'numeric'}) : String(year)})}</p><p>{t('madeWithLove')}</p>
         <button type="button" onClick={backToTop} className={`inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-sm px-1 text-[#eee6db] hover:text-[#ceb798] ${focusRing}`}>{t('backToTop')}<ArrowUp size={16} aria-hidden="true" /></button>
       </div>
     </motion.div>
