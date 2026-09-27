@@ -708,3 +708,63 @@ main ~ footer {
 html[data-theme="dark"] .story-layout .chapter-number {
   color: var(--hn-gold);
 }
+
+/* ---------- Product images: square frames, whole product visible ----------
+ * Every product photo sits in a 1:1 frame and is contained, never cropped,
+ * on phones and desktop alike, in the gallery, thumbnails and shop cards. */
+html body .product-gallery-main {
+  position: relative;
+  display: block !important;
+  width: 100%;
+  height: auto !important;
+  aspect-ratio: 1 / 1;
+  max-height: none !important;
+  background: #fff !important;
+  padding: clamp(8px, 2vw, 20px);
+}
+html body .product-gallery-main img,
+html body .product-gallery-main picture {
+  position: absolute !important;
+  inset: clamp(8px, 2vw, 20px);
+  width: calc(100% - 2 * clamp(8px, 2vw, 20px)) !important;
+  height: calc(100% - 2 * clamp(8px, 2vw, 20px)) !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+html body .product-gallery-thumbs button {
+  aspect-ratio: 1 / 1;
+  height: auto !important;
+  background: #fff !important;
+}
+html body :is(.shop-card, .shop-product > div) img:not(.no-image img) {
+  aspect-ratio: 1 / 1 !important;
+  height: auto !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: #fff !important;
+}
+html body .shop-card .no-image,
+html body .product-no-image {
+  aspect-ratio: 1 / 1 !important;
+}
+@media (min-width: 900px) {
+  html body .product-gallery-main {
+    max-width: 640px;
+  }
+}
+html body .shop-card > a:first-child {
+  aspect-ratio: 1 / 1 !important;
+  align-self: start !important;
+  min-height: 0 !important;
+  height: auto !important;
+  background: #fff;
+}
+html body .shop-card > a:first-child img {
+  width: 100% !important;
+  height: 100% !important;
+}
+html body .shop-card > a:first-child,
+html body .product-gallery-main {
+  border: 1px solid var(--hn-border);
+}
