@@ -1,5 +1,6 @@
 import { migrateLeather } from "./migrate-leather";
 import { migrateCardLevels } from "./migrate-card-levels";
+import { migratePaymentMethods } from "./migrate-payment-methods";
 import { db } from "../server/db";
 let ready: object | undefined;
 export function platformDb() {
@@ -30,7 +31,7 @@ export function platformDb() {
   CREATE TRIGGER IF NOT EXISTS p_ledger_no_delete BEFORE DELETE ON p_ledger BEGIN SELECT RAISE(ABORT,'immutable ledger'); END;
   CREATE TABLE IF NOT EXISTS p_categories(id TEXT PRIMARY KEY,name TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('category','tag')),vertical TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_products(id TEXT PRIMARY KEY,title TEXT NOT NULL,description TEXT NOT NULL,vertical TEXT NOT NULL CHECK(vertical IN ('tourism','beauty','craft','ai','leather')),subtype TEXT NOT NULL,price INTEGER NOT NULL CHECK(price>0),stock INTEGER NOT NULL CHECK(stock>=0),images TEXT NOT NULL DEFAULT '[]',taxonomy TEXT NOT NULL DEFAULT '[]',published INTEGER NOT NULL DEFAULT 0,duration_days INTEGER NOT NULL DEFAULT 30 CHECK(duration_days>0),cancel_hours INTEGER NOT NULL DEFAULT 24 CHECK(cancel_hours>=0),created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
-  CREATE TABLE IF NOT EXISTS p_orders(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),title TEXT NOT NULL,vertical TEXT NOT NULL,quantity INTEGER NOT NULL CHECK(quantity>0),unit_price INTEGER NOT NULL CHECK(unit_price>0),amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','processing','shipped','delivered','cancelled','refunded')),payment_method TEXT NOT NULL CHECK(payment_method IN ('wallet','zarinpal')),payment_ref TEXT UNIQUE,authority TEXT UNIQUE,checkout_claim TEXT,policy TEXT NOT NULL,cancel_until TEXT,expires_at TEXT NOT NULL,created_at TEXT NOT NULL,paid_at TEXT,refunded_at TEXT,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
+  CREATE TABLE IF NOT EXISTS p_orders(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),title TEXT NOT NULL,vertical TEXT NOT NULL,quantity INTEGER NOT NULL CHECK(quantity>0),unit_price INTEGER NOT NULL CHECK(unit_price>0),amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','processing','shipped','delivered','cancelled','refunded')),payment_method TEXT NOT NULL CHECK(payment_method IN ('wallet','zarinpal','bale')),payment_ref TEXT UNIQUE,authority TEXT UNIQUE,checkout_claim TEXT,policy TEXT NOT NULL,cancel_until TEXT,expires_at TEXT NOT NULL,created_at TEXT NOT NULL,paid_at TEXT,refunded_at TEXT,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
   CREATE INDEX IF NOT EXISTS p_orders_user ON p_orders(user_id,created_at);
   CREATE TABLE IF NOT EXISTS p_ranks(id TEXT PRIMARY KEY,name TEXT NOT NULL,personal_threshold INTEGER NOT NULL CHECK(personal_threshold>=0),group_threshold INTEGER NOT NULL CHECK(group_threshold>=0),bonus_bps INTEGER NOT NULL CHECK(bonus_bps BETWEEN 0 AND 10000));
   CREATE TABLE IF NOT EXISTS p_commissions(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),order_id TEXT NOT NULL REFERENCES p_orders(id),kind TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','available','reversed')),available_at TEXT NOT NULL,created_at TEXT NOT NULL,event_key TEXT UNIQUE NOT NULL);
@@ -56,7 +57,7 @@ export function platformDb() {
   CREATE INDEX IF NOT EXISTS p_product_family ON p_product_details(family);
   INSERT OR IGNORE INTO p_migrations VALUES(1,datetime('now'));
   INSERT OR IGNORE INTO p_migrations VALUES(2,datetime('now'));
-  CREATE TABLE IF NOT EXISTS p_checkouts(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),method TEXT NOT NULL CHECK(method IN ('wallet','zarinpal')),status TEXT NOT NULL CHECK(status IN ('pending','paid')),authority TEXT UNIQUE,claim TEXT,payment_ref TEXT UNIQUE,payload TEXT NOT NULL,created_at TEXT NOT NULL,expires_at TEXT NOT NULL,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
+  CREATE TABLE IF NOT EXISTS p_checkouts(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),method TEXT NOT NULL CHECK(method IN ('wallet','zarinpal','bale')),status TEXT NOT NULL CHECK(status IN ('pending','paid')),authority TEXT UNIQUE,claim TEXT,payment_ref TEXT UNIQUE,payload TEXT NOT NULL,created_at TEXT NOT NULL,expires_at TEXT NOT NULL,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
   CREATE TABLE IF NOT EXISTS p_checkout_items(checkout_id TEXT NOT NULL REFERENCES p_checkouts(id),order_id TEXT NOT NULL UNIQUE REFERENCES p_orders(id),PRIMARY KEY(checkout_id,order_id));
   INSERT OR IGNORE INTO p_migrations VALUES(3,datetime('now'));
   CREATE TABLE IF NOT EXISTS p_member_details(user_id TEXT PRIMARY KEY REFERENCES p_users(id),details TEXT NOT NULL,contact_verified_at TEXT NOT NULL,updated_at TEXT NOT NULL);
@@ -179,9 +180,18 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_newsletter_deliveries(campaign_id TEXT NOT NULL REFERENCES p_newsletter_campaigns(id),subscriber_id TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('pending','sent','failed','skipped')),attempts INTEGER NOT NULL DEFAULT 0,next_attempt INTEGER NOT NULL DEFAULT 0,last_error TEXT,sent_at TEXT,PRIMARY KEY(campaign_id,subscriber_id));
   CREATE INDEX IF NOT EXISTS p_newsletter_queue ON p_newsletter_deliveries(status,next_attempt);
   INSERT OR IGNORE INTO p_migrations VALUES(20,datetime('now'));
+  -- Bale payment attempts for a checkout. provider_transaction_id is UNIQUE so
+  -- one Bale transaction can never settle two payments. status:
+  -- creating → pending → paid | failed | cancelled; creating → request_failed.
+  CREATE TABLE IF NOT EXISTS p_bale_payments(id TEXT PRIMARY KEY,checkout_id TEXT NOT NULL REFERENCES p_checkouts(id),user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),amount_rial INTEGER NOT NULL CHECK(amount_rial>0),status TEXT NOT NULL CHECK(status IN ('creating','pending','paid','failed','cancelled','request_failed')),provider_reference TEXT UNIQUE,provider_transaction_id TEXT UNIQUE,redirect_url TEXT,last_error TEXT,verify_attempts INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,verified_at TEXT);
+  CREATE INDEX IF NOT EXISTS p_bale_payments_checkout ON p_bale_payments(checkout_id,created_at);
+  CREATE INDEX IF NOT EXISTS p_bale_payments_status ON p_bale_payments(status,updated_at);
+  -- At most one attempt in flight per checkout.
+  CREATE UNIQUE INDEX IF NOT EXISTS p_bale_payments_open ON p_bale_payments(checkout_id) WHERE status IN ('creating','pending');
 
   `);
   migrateCardLevels(d);
+  migratePaymentMethods(d);
   ready = d;
   return d;
 }

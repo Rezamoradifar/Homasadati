@@ -83,6 +83,8 @@ export const errors: Record<string, string> = {
   payment_unverified: "پرداخت تأیید نشده است.",
   payment_request_in_progress:
     "درخواست درگاه در حال پردازش است. کمی بعد دوباره بررسی کنید.",
+  payment_verification_pending:
+    "پرداخت قبلی شما هنوز در حال بررسی است؛ چند دقیقه بعد دوباره تلاش کنید.",
   payment_reconciliation_required:
     "ابتدا وضعیت پرداخت درگاه باید بررسی شود؛ با پشتیبانی تماس بگیرید.",
   idempotency_conflict:

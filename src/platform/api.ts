@@ -1400,6 +1400,41 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
   }
   throw new ApiError(404, "not_found");
 }
+import { balePaymentSummary, handleBaleCallback, startBalePayment, verifyBalePayment } from "./bale-payments";
+import { balePayEnabled } from "./bale-pay";
+
+/** Bale returns the customer here (GET) or calls back server-to-server
+ * (POST, cross-origin, so before the same-origin guard). Nothing in the
+ * request is proof of payment: it only names the attempt, which is then
+ * verified with Bale server-to-server. */
+async function baleCallback(req: Request, url: URL) {
+  limit("bale-callback:" + ipOf(req), 60, 60);
+  const fields = new URLSearchParams(url.searchParams);
+  if (req.method === "POST") {
+    const type = req.headers.get("content-type") || "";
+    const text = (await req.text()).slice(0, 8192);
+    if (type.includes("application/x-www-form-urlencoded"))
+      new URLSearchParams(text).forEach((v, k) => fields.set(k, v));
+    else if (type.includes("application/json")) {
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed && typeof parsed === "object")
+          for (const [k, v] of Object.entries(parsed))
+            if (typeof v === "string" || typeof v === "number") fields.set(k, String(v));
+      } catch {}
+    }
+    // `pid` is ours and travels only in the callback URL we issued.
+    fields.set("pid", url.searchParams.get("pid") || "");
+  }
+  const { outcome } = await handleBaleCallback(fields);
+  if (req.method === "POST") return json({ ok: outcome !== "unknown_payment" });
+  const pid = /^[0-9a-f-]{36}$/i.test(fields.get("pid") || "") ? fields.get("pid") : "";
+  return Response.redirect(
+    new URL("/payment/result?provider=bale" + (pid ? "&pid=" + pid : ""), process.env.APP_ORIGIN || url.origin),
+    303,
+  );
+}
+
 export async function handle(req: Request, path: string[]) {
   try {
     const url = new URL(req.url),
@@ -1418,6 +1453,10 @@ export async function handle(req: Request, path: string[]) {
         ),
         googleEnabled: !!googleClientId(),
       });
+    if (path.join("/") === "payment/bale/callback" && (get || method === "POST"))
+      return await baleCallback(req, url);
+    if (path.join("/") === "payment/methods" && get)
+      return json({ wallet: true, zarinpal: true, bale: balePayEnabled() });
     if (!get) {
       sameOrigin(req);
       data = await body(req, 65536);
@@ -1881,6 +1920,17 @@ export async function handle(req: Request, path: string[]) {
       });
       return json({ ok: true, reauthenticate: true });
     }
+    if (path[0] === "payments" && path[1] === "bale" && path[2]) {
+      const pid = id.parse(path[2]);
+      if (get) return json(balePaymentSummary(pid, u.id));
+      if (path[3] === "verify" && method === "POST") {
+        balePaymentSummary(pid, u.id); // ownership check
+        limit("bale-verify:" + u.id, 20, 300);
+        await verifyBalePayment(pid);
+        return json(balePaymentSummary(pid, u.id));
+      }
+      throw new ApiError(404, "not_found");
+    }
     if (path[0] === "checkouts") {
       if (get) {
         const c = one(
@@ -1891,10 +1941,19 @@ export async function handle(req: Request, path: string[]) {
         if (!c) throw new ApiError(404, "not_found");
         return json(c);
       }
-      if (path[2] === "payment")
-        return json(await payCheckout(id.parse(path[1]), u.id));
+      if (path[2] === "payment") {
+        const checkoutId = id.parse(path[1]);
+        const target = one("SELECT method FROM p_checkouts WHERE id=? AND user_id=?", checkoutId, u.id);
+        if (target?.method === "bale") {
+          limit("bale-start:" + u.id, 10, 300);
+          return json(await startBalePayment(checkoutId, u.id));
+        }
+        return json(await payCheckout(checkoutId, u.id));
+      }
       if (path.length !== 1) throw new ApiError(404, "not_found");
-      const c = createCheckout(u.id, checkoutSchema.parse(data));
+      const input = checkoutSchema.parse(data);
+      if (input.method === "bale" && !balePayEnabled()) throw new ApiError(503, "payment_not_configured");
+      const c = createCheckout(u.id, input);
       return json(
         { id: c.id, status: c.status, amount: c.amount, method: c.method },
         201,
@@ -1952,7 +2011,14 @@ export async function handle(req: Request, path: string[]) {
           "SELECT checkout_id FROM p_checkout_items WHERE order_id=?",
           id.parse(path[1]),
         );
-        if (group) return json(await payCheckout(group.checkout_id, u.id));
+        if (group) {
+          const target = one("SELECT method FROM p_checkouts WHERE id=?", group.checkout_id);
+          if (target?.method === "bale") {
+            limit("bale-start:" + u.id, 10, 300);
+            return json(await startBalePayment(group.checkout_id, u.id));
+          }
+          return json(await payCheckout(group.checkout_id, u.id));
+        }
         const order = one(
           "SELECT * FROM p_orders WHERE id=? AND user_id=?",
           id.parse(path[1]),

@@ -18,6 +18,8 @@ export default function Cart() {
     [addresses, setAddresses] = useState<RecordData[]>([]),
     [address, setAddress] = useState(""),
     [method, setMethod] = useState("zarinpal"),
+    [baleEnabled, setBaleEnabled] = useState(false),
+    [stage, setStage] = useState<"" | "redirecting">(""),
     [voucher, setVoucher] = useState(0),
     [useVoucher, setUseVoucher] = useState(false),
     [pending, setPending] = useState(""),
@@ -25,6 +27,11 @@ export default function Cart() {
     [revision, setRevision] = useState(0);
   const version = JSON.stringify(items),
     lock = useRef(false);
+  useEffect(() => {
+    api("payment/methods")
+      .then((m) => setBaleEnabled(!!m.bale))
+      .catch(() => setBaleEnabled(false));
+  }, []);
   useEffect(() => {
     api("me")
       .then((r) => {
@@ -88,6 +95,13 @@ export default function Cart() {
       return;
     }
     const result = await api(`checkouts/${id}/payment`, "POST", {});
+    if (result.status === "paid") {
+      setDone(true);
+      setPending("");
+      sessionStorage.removeItem("homa-pending-checkout");
+      return;
+    }
+    setStage("redirecting");
     window.location.assign(result.url);
   };
   const checkout = async () => {
@@ -270,9 +284,16 @@ export default function Cart() {
                     onChange={(e) => setMethod(e.target.value)}
                   >
                     <option value="zarinpal">درگاه بانکی</option>
+                    {baleEnabled && <option value="bale">پرداخت با بله</option>}
                     <option value="wallet">کیف پول</option>
                   </select>
                 </label>
+                {method === "bale" && (
+                  <p className="cart-method-note" role="status">
+                    <span>پرداخت امن از طریق بله</span>
+                    <span>{stage === "redirecting" ? "در حال انتقال به پرداخت…" : "آماده پرداخت"}</span>
+                  </p>
+                )}
                 {voucher > 0 && (
                   <label className="cart-voucher">
                     <input

@@ -768,3 +768,85 @@ html body .shop-card > a:first-child,
 html body .product-gallery-main {
   border: 1px solid var(--hn-border);
 }
+
+/* ---------- Payment result ---------- */
+.payment-result {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  padding-block: 48px;
+}
+.payment-result-card {
+  width: min(560px, 100%);
+  padding: clamp(24px, 5vw, 40px);
+  border-radius: var(--hn-radius-lg);
+  border: 1px solid var(--hn-border);
+  background: var(--hn-surface);
+  box-shadow: var(--hn-shadow);
+  text-align: center;
+}
+.payment-result-card h1 {
+  font-size: clamp(24px, 4vw, 32px);
+  margin: 8px 0;
+}
+.payment-result-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  font-size: 28px;
+  font-weight: 700;
+  background: var(--hn-turquoise-soft);
+  color: var(--hn-turquoise);
+}
+.payment-result-card.bad .payment-result-icon {
+  background: #f8e1de;
+  color: #b3261e;
+}
+.payment-result-card.pending .payment-result-icon {
+  animation: hn-pulse 1.4s ease-in-out infinite;
+}
+@keyframes hn-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+.payment-result-card dl {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+  padding: 16px;
+  border-radius: var(--hn-radius);
+  background: var(--hn-bg);
+  text-align: start;
+}
+.payment-result-card dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.payment-result-card dt {
+  color: var(--hn-text-muted);
+}
+.payment-result-card dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.payment-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.payment-result-actions > * {
+  min-height: 48px;
+}
+.cart-method-note {
+  font-size: 13px;
+  color: var(--hn-text-muted);
+  margin: 6px 0 0;
+}

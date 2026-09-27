@@ -11,6 +11,7 @@ import { ApiError } from "../server/http";
 import { refreshUsdRate } from "./fx";
 import { runCardSettlement } from "./seven-card-engine";
 import { processNewsletter } from "./newsletter";
+import { recheckPendingBalePayments } from "./bale-payments";
 import { isWelcomeJob, welcomeEmail } from "./welcome";
 export async function maintenance() {
   await refreshUsdRate();
@@ -135,6 +136,8 @@ export async function maintenance() {
     }
   }
   await processNewsletter();
+  // Bale attempts left pending (closed tab, timeout) are verified again.
+  await recheckPendingBalePayments();
   saveSetting("worker_last_success", now());
   run("DELETE FROM p_google_challenges WHERE expires<?", Date.now());
   run("DELETE FROM p_google_logins WHERE expires<?", Date.now());
