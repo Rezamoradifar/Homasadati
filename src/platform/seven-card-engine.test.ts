@@ -271,3 +271,57 @@ it("starts weeks on Saturday 00:00 Tehran time", () => {
   const start = weekStartAt(Date.parse("2026-09-23T12:00:00Z"), 6);
   expect(new Date(start).toISOString()).toBe("2026-09-18T20:30:00.000Z");
 });
+
+it("AUDIT: a purchase before activation prevents later purchase being treated as initial", () => {
+  const first = buy(root, 10 * M);
+  run("UPDATE p_orders SET paid_at=?,cancel_until=? WHERE id=?", "2026-01-01T00:00:00.000Z", "2026-01-01T00:00:00.000Z", first.id);
+  buy(root, 70 * M);
+  settleAfter(8);
+  expect(one("SELECT COUNT(*) n FROM p_card_cashbacks WHERE user_id=?", root)!.n).toBe(0);
+});
+
+it("AUDIT: a later purchase maturing first is not an initial Simurgh purchase", () => {
+  const first = buy(root, 10 * M);
+  run("UPDATE p_orders SET cancel_until=? WHERE id=?", new Date(Date.now()+30*DAY).toISOString(), first.id);
+  buy(root, 70 * M);
+  settleAfter(8);
+  expect(one("SELECT COUNT(*) n FROM p_card_cashbacks WHERE user_id=?", root)!.n).toBe(0);
+});
+
+it("AUDIT: orders already processed by the legacy engine while paused are not processed twice", () => {
+  buy(root, 10 * M);
+  setCardLive(admin, {live:false,reason:"pause"});
+  const l = buy(left, 30 * M), r = buy(right,30 * M);
+  expect(one("SELECT COUNT(*) n FROM p_commissions WHERE user_id=? AND kind='binary'",root)!.n).toBeGreaterThan(0);
+  setCardLive(admin,{live:true,fundingBps:10000,reason:"resume"});
+  settleAfter(8);
+  expect(one("SELECT COALESCE(SUM(amount),0) n FROM p_card_payouts WHERE user_id=?", root)!.n).toBe(0);
+});
+
+it("pins the first paid purchase even when orders are created in the opposite order", () => {
+  run("UPDATE p_products SET price=? WHERE id=?", 10*M, product);
+  const pending = createOrder(root,product,1,"zarinpal",randomUUID());
+  const first = buy(root,70*M);
+  const second = settleOrder(pending.id,"bank-"+randomUUID());
+  expect(JSON.parse(first.policy).initialPaidPurchase).toBe(true);
+  expect(JSON.parse(second.policy).initialPaidPurchase).toBe(false);
+  settleAfter(8);
+  expect(wallet(root).available).toBe(6*M);
+});
+
+it("keeps card orders eligible after a pause and does not schedule legacy binary work", () => {
+  buy(root,10*M); buy(left,30*M); buy(right,30*M);
+  setCardLive(admin,{live:false,reason:"pause"});
+  expect(settleAfter(8)).toEqual([]);
+  setCardLive(admin,{live:true,fundingBps:10000,reason:"resume"});
+  expect(settleAfter(8)[0].cash).toBe(5_400_000);
+});
+
+it("holds unclassified historical orders instead of guessing their engine", () => {
+  const o = buy(root,70*M);
+  const p = JSON.parse(o.policy); delete p.binaryEngine;
+  run("UPDATE p_orders SET policy=? WHERE id=?",JSON.stringify(p),o.id);
+  settleAfter(8);
+  expect(one("SELECT order_id FROM p_card_orders WHERE order_id=?",o.id)).toBeUndefined();
+  expect(wallet(root).available).toBe(0);
+});

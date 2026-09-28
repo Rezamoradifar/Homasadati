@@ -276,7 +276,7 @@ export function calculateCommissions(order: Row) {
     budget -= bonus;
   }
   // While the seven-card plan settles live, its engine owns binary volume.
-  if (setting("seven_card_live") === "1") return;
+  if (JSON.parse(order.policy).binaryEngine === "cards-v1") return;
   const rules = JSON.parse(order.policy).binaryRules || legacyBinaryRules;
   let child = buyer;
   const parents = new Set<string>();
@@ -457,16 +457,23 @@ export function settleOrder(orderId: string, reference: string) {
       durationDays: product.duration_days,
     };
     run(
-      "UPDATE p_orders SET status='processing',payment_ref=?,paid_at=?,cancel_until=? WHERE id=?",
+      "UPDATE p_orders SET status='processing',payment_ref=?,paid_at=?,cancel_until=?,policy=? WHERE id=?",
       reference,
       now(),
       new Date(Date.now() + terms.cancelHours * 3600000).toISOString(),
+      JSON.stringify({
+        ...JSON.parse(o.policy),
+        // Pin ownership and first-payment eligibility atomically at confirmation.
+        // Later plan toggles and cancellation windows cannot reclassify a sale.
+        binaryEngine: setting("seven_card_live") === "1" ? "cards-v1" : "legacy",
+        initialPaidPurchase: !one("SELECT id FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL LIMIT 1", o.user_id),
+      }),
       o.id,
     );
     const saved = one("SELECT * FROM p_orders WHERE id=?", o.id)!;
     calculateCommissions(saved);
     const schedule = JSON.parse(saved.policy).binarySchedule;
-    if (schedule && schedule.mode !== "immediate")
+    if (JSON.parse(saved.policy).binaryEngine !== "cards-v1" && schedule && schedule.mode !== "immediate")
       run(
         "INSERT OR IGNORE INTO p_binary_scheduled_orders(order_id,schedule,paid_at) VALUES(?,?,?)",
         saved.id,
