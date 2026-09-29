@@ -3023,5 +3023,11 @@
   "مشاهدهٔ سفارش‌ها": "View orders",
   "بازگشت به سبد خرید": "Back to cart",
   "ادامهٔ خرید": "Continue shopping",
-  "پرداخت قبلی شما هنوز در حال بررسی است؛ چند دقیقه بعد دوباره تلاش کنید.": "Your previous payment is still being checked; please try again in a few minutes."
+  "پرداخت قبلی شما هنوز در حال بررسی است؛ چند دقیقه بعد دوباره تلاش کنید.": "Your previous payment is still being checked; please try again in a few minutes.",
+  "استعلام نماد اعتماد الکترونیکی در سایت اینماد": "Verify the e-trust seal on the eNamad website",
+  "نماد اعتماد الکترونیکی (اینماد)": "E-trust seal (eNamad)",
+  "مرکز توسعه تجارت الکترونیکی، وزارت صنعت، معدن و تجارت": "E-Commerce Development Center, Ministry of Industry, Mine and Trade",
+  "شناسه نماد": "Seal ID",
+  "دامنه": "Domain",
+  "استعلام نماد در سایت اینماد": "Verify on the eNamad website"
 }

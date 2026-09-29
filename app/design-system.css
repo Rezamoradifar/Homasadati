@@ -850,3 +850,19 @@ html body .product-gallery-main {
   color: var(--hn-text-muted);
   margin: 6px 0 0;
 }
+
+/* eNamad card beside the licences: the live seal on a white panel. */
+.enamad-card .enamad-preview {
+  display: grid !important;
+  place-items: center;
+  min-height: 220px;
+  background: #fff !important;
+}
+.enamad-card .enamad-preview img {
+  width: 125px !important;
+  height: auto !important;
+  object-fit: contain;
+}
+.license-copy dd[dir="ltr"] {
+  text-align: right;
+}
