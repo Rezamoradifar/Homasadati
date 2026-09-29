@@ -881,3 +881,38 @@ html body .trust-badge .enamad-seal-logo {
 .enamad-seal {
   display: inline-block;
 }
+
+/* eNamad: the owner's logo sits behind the official live seal. */
+html body .enamad-seal {
+  display: inline-grid;
+  place-items: center;
+  min-width: 167px;
+  min-height: 58px;
+  background: #fff url("/assets/licenses/enamad-seal.png") center / 167px auto no-repeat;
+  border-radius: 10px;
+}
+html body .enamad-seal.enamad-live {
+  background-image: none;
+  min-width: 0;
+}
+html body .enamad-seal img {
+  display: block;
+  width: auto !important;
+  max-width: 125px;
+  height: auto !important;
+}
+html body .enamad-seal.enamad-failed img,
+html body .enamad-seal.enamad-loading img {
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+}
+html body .trust-badge.enamad-seal {
+  max-width: none;
+  padding: 6px;
+}
+.enamad-card .enamad-preview .enamad-seal {
+  min-width: 240px;
+  min-height: 84px;
+  background-size: 240px auto;
+}
