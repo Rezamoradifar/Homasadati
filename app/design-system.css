@@ -919,3 +919,15 @@ html body .trust-badge.enamad-seal {
   min-height: 84px;
   background-size: 240px auto;
 }
+
+/* Until the live seal shows, the eNamad link covers the whole logo so a tap
+ * anywhere on it opens the verification page. */
+html body .enamad-seal {
+  position: relative;
+}
+html body .enamad-seal.enamad-loading > a,
+html body .enamad-seal.enamad-failed > a {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
