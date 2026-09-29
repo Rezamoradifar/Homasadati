@@ -895,6 +895,9 @@ html body .enamad-seal.enamad-live {
   background-image: none;
   min-width: 0;
 }
+html body .enamad-seal > a {
+  display: block;
+}
 html body .enamad-seal img {
   display: block;
   width: auto !important;
