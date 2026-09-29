@@ -97,7 +97,7 @@ function TrustBadge({ id, code }: { id?: string; code?: string }) {
       referrerPolicy="origin"
       aria-label="نماد اعتماد الکترونیکی"
     >
-      <img src={`https://trustseal.enamad.ir/logo.aspx?${query}`} alt="نماد اعتماد الکترونیکی" referrerPolicy="origin" width={96} height={104} loading="lazy" style={{ cursor: "pointer" }} />
+      <img src={`https://trustseal.enamad.ir/logo.aspx?${query}`} alt="نماد اعتماد الکترونیکی" referrerPolicy="origin" width={96} height={104} loading="lazy" style={{ cursor: "pointer", height: "auto" }} />
     </a>
   );
 }
