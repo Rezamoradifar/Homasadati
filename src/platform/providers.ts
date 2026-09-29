@@ -5,6 +5,7 @@ import { decrypt, encrypt } from "./security";
 import { policySchema, Policy } from "./validation";
 import { loadDictionary, translateText, type SiteLocale } from "../i18n/core";
 import { renderEmail, senderAddress, type EmailBrand } from "./email-template";
+import { DEFAULT_SITE_EMAIL } from "./site-defaults";
 export function setting(key: string) {
   const r = one("SELECT * FROM p_settings WHERE key=?", key);
   return r ? (r.secret ? decrypt(r.value) : r.value) : undefined;
@@ -73,7 +74,7 @@ export async function emailBrand(locale: SiteLocale = "fa"): Promise<EmailBrand>
   return {
     name: brandName(locale),
     origin: process.env.APP_ORIGIN || "https://homanets.com",
-    supportEmail: setting("site_email") || undefined,
+    supportEmail: setting("site_email") || DEFAULT_SITE_EMAIL,
     direction: locale === "en" ? "ltr" : "rtl",
     footer: [
       t("هما نت · باشگاه مشتریان"),

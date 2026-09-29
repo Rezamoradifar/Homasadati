@@ -1,4 +1,5 @@
 import { all } from "./schema";
+import { DEFAULT_SITE_EMAIL } from "./site-defaults";
 
 /** Search-engine helpers: the canonical site origin and schema.org JSON-LD. */
 export function siteOrigin() {
@@ -31,7 +32,7 @@ export function organizationJsonLd() {
       alternateName: "Homanet",
       url: origin,
       logo: origin + (s.site_logo?.startsWith("/") ? s.site_logo : "/assets/brand-mark.png"),
-      ...(s.site_email ? { email: s.site_email } : {}),
+      email: s.site_email || DEFAULT_SITE_EMAIL,
       ...(phone ? { contactPoint: { "@type": "ContactPoint", telephone: phone, contactType: "customer service", availableLanguage: ["fa", "en", "ar"] } } : {}),
       ...(s.site_address
         ? { address: { "@type": "PostalAddress", streetAddress: s.site_address, addressCountry: "IR", ...(s.site_postal_code ? { postalCode: s.site_postal_code } : {}) } }
