@@ -5,6 +5,7 @@ import ResponsiveImage from "../../src/components/media/ResponsiveImage";
 import Localized from "../../src/i18n/Localized";
 import { all } from "../../src/platform/schema";
 import { DEFAULT_ENAMAD } from "../../src/platform/site-defaults";
+import EnamadSeal from "../../src/commerce/EnamadSeal";
 const documents = [
   {
     file: "trade-license",
@@ -121,23 +122,9 @@ export default async function About() {
                 </Localized>
               ))}
               <article className="license-card enamad-card">
-                <a
-                  className="license-preview enamad-preview"
-                  href={`https://trustseal.enamad.ir/?${enamadQuery}`}
-                  target="_blank"
-                  rel="noopener"
-                  referrerPolicy="origin"
-                  aria-label={t("استعلام نماد اعتماد الکترونیکی در سایت اینماد")}
-                >
-                  <img
-                    src={`https://trustseal.enamad.ir/logo.aspx?${enamadQuery}`}
-                    alt={t("نماد اعتماد الکترونیکی")}
-                    referrerPolicy="origin"
-                    width={125}
-                    height={136}
-                    loading="lazy"
-                  />
-                </a>
+                <div className="license-preview enamad-preview">
+                  <EnamadSeal id={enamad.id} code={enamad.code} />
+                </div>
                 <div className="license-copy">
                   <span className="license-number" aria-hidden="true">
                     {String(documents.length + 1).padStart(2, "0")}

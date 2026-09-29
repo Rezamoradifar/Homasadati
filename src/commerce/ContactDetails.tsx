@@ -1,6 +1,7 @@
 "use client";
 import Localized from "../i18n/Localized";
 import { useSiteSettings } from "../platform/SiteSettings";
+import EnamadSeal from "./EnamadSeal";
 
 export default function ContactDetails({
   compact = false,
@@ -87,17 +88,5 @@ export default function ContactDetails({
  * needs the site's origin in the referrer, hence referrerPolicy="origin". */
 function TrustBadge({ id, code }: { id?: string; code?: string }) {
   if (!id || !code || !/^\d{3,12}$/.test(id) || !/^[A-Za-z0-9]{8,64}$/.test(code)) return null;
-  const query = `id=${id}&Code=${code}`;
-  return (
-    <a
-      className="trust-badge"
-      href={`https://trustseal.enamad.ir/?${query}`}
-      target="_blank"
-      rel="noopener"
-      referrerPolicy="origin"
-      aria-label="نماد اعتماد الکترونیکی"
-    >
-      <img src={`https://trustseal.enamad.ir/logo.aspx?${query}`} alt="نماد اعتماد الکترونیکی" referrerPolicy="origin" width={96} height={104} loading="lazy" style={{ cursor: "pointer", height: "auto" }} />
-    </a>
-  );
+  return <EnamadSeal id={id} code={code} className="trust-badge" />;
 }

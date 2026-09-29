@@ -866,3 +866,18 @@ html body .product-gallery-main {
 .license-copy dd[dir="ltr"] {
   text-align: right;
 }
+/* The horizontal eNamad logo (fallback) needs more width than the square seal. */
+html body .trust-badge:has(.enamad-seal-logo) {
+  max-width: 200px;
+}
+html body .trust-badge .enamad-seal-logo {
+  width: 167px !important;
+  height: auto !important;
+}
+.enamad-card .enamad-preview .enamad-seal-logo {
+  width: min(260px, 80%) !important;
+  height: auto !important;
+}
+.enamad-seal {
+  display: inline-block;
+}
