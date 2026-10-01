@@ -41,7 +41,11 @@ def growth(total, weeks):
     return np.diff(np.concatenate([[0], cum]))
 
 
-def simulate(name, mix, total=1_000_000, growth_weeks=104, tail_weeks=52, seed=7):
+def simulate(name, mix, total=1_000_000, growth_weeks=104, tail_weeks=52, seed=7,
+             pool=None, depth=None, carry_cap=None):
+    """pool: weekly rewards (cash+voucher) capped at this share of the week's
+    sales, scaled down pro rata; depth: volume counts only this many levels up;
+    carry_cap: saved volume per leg is capped at this many toman."""
     rng = np.random.default_rng(seed)
     levels = rng.choice(np.arange(1, 9), size=total, p=np.array(mix) / sum(mix)).astype(np.int64)
     price = PRICES[levels]
@@ -61,7 +65,9 @@ def simulate(name, mix, total=1_000_000, growth_weeks=104, tail_weeks=52, seed=7
         cashback = int((price[new] >= 70_000_000).sum()) * CASHBACK
         # Each new purchase adds volume to the leg it sits in, for every ancestor.
         node, amt = new, price[new]
-        while node.size:
+        level = 0
+        while node.size and (depth is None or level < depth):
+            level += 1
             keep = node > 0
             node, amt = node[keep], amt[keep]
             if not node.size:
@@ -78,7 +84,15 @@ def simulate(name, mix, total=1_000_000, growth_weeks=104, tail_weeks=52, seed=7
         left[live] -= m * MV
         right[live] -= m * MV
         lifetime[live] += m
+        if carry_cap is not None:
+            np.minimum(left[live], carry_cap, out=left[live])
+            np.minimum(right[live], carry_cap, out=right[live])
         cash, voucher = int((m - v).sum()) * RW, int(v.sum()) * RW
+        if pool is not None:
+            budget = pool * sales
+            if cash + voucher > budget:
+                scale = budget / (cash + voucher) if cash + voucher else 0
+                cash, voucher = int(cash * scale), int(voucher * scale)
         earners = int((m > 0).sum())
         cum["sales"] += sales
         cum["cash"] += cash
