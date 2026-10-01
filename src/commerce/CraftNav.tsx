@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { CookingPot, DiceFive, FlowerLotus, Handbag, Rug } from "@phosphor-icons/react";
+import { CookingPot, DiceFive, FlowerLotus, Handbag, Rug, Sparkle, Tree } from "@phosphor-icons/react";
 import Localized from "../i18n/Localized";
 import { craftCategories, craftCategory, craftShopHref, itemsFor } from "./craft-taxonomy";
 
@@ -10,6 +10,8 @@ const categoryIcons: Record<string, typeof CookingPot> = {
   backgammon: DiceFive,
   carpet: Rug,
   enamel: FlowerLotus,
+  "silver-inlay": Sparkle,
+  wood: Tree,
 };
 
 /** Handicraft category tree. With `active` values it marks the current
@@ -29,7 +31,7 @@ export default function CraftNav({
   const nav = useRef<HTMLElement>(null);
   // Rows scroll sideways on phones; bring each row's chosen chip into view.
   useEffect(() => {
-    nav.current?.querySelectorAll<HTMLElement>(".craft-nav-row").forEach((row) => {
+    nav.current?.querySelectorAll<HTMLElement>(".craft-nav-row, .craft-nav-cats").forEach((row) => {
       const chosen = row.querySelector<HTMLElement>("[aria-current=page]");
       if (!chosen) return;
       const rowBox = row.getBoundingClientRect(),

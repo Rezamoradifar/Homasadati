@@ -41,7 +41,7 @@ export const craftCategories: CraftCategory[] = [
       { id: "khatam", name: "خاتم‌کاری" },
       { id: "diamond-cut", name: "الماس‌تراش" },
       { id: "pardaz", name: "پرداز" },
-      { id: "silver-inlay", name: "نقره‌کوب" },
+      { id: "engraving", name: "قلم‌زنی" },
     ],
     items: copperItems,
   },
@@ -70,16 +70,85 @@ export const craftCategories: CraftCategory[] = [
       { id: "tea-set", name: "چای‌خوری" },
     ],
   },
+  {
+    id: "silver-inlay",
+    name: "محصولات نقره‌کوب",
+    short: "نقره‌کوب",
+    vertical: "craft",
+    items: copperItems.filter((i) => !i.onlyWith),
+  },
+  { id: "wood", name: "محصولات چوبی، منبت و جعبه", short: "چوب و منبت", vertical: "craft" },
 ];
 
 export const craftCategory = (id: string) => craftCategories.find((c) => c.id === id);
+
+/** Keyword rules for products saved without a category: the product's type
+ * (subtype) and title say what it is. Order matters — enamel on wood with
+ * khatam is enamel; silver work is its own category. */
+const categoryRules: [string, RegExp][] = [
+  ["enamel", /مینا/],
+  ["silver-inlay", /نقره/],
+  ["leather", /چرم|کیف|کمربند/],
+  ["backgammon", /تخته[\s\u200c]?نرد/],
+  ["carpet", /فرش|گلیم/],
+  ["wood", /منبت|جعبه|چوب/],
+  ["copper", /مس|پرداز|خاتم|الماس[\s\u200c]?تراش|فیروزه|قلم[\s\u200c]?زنی/],
+];
+const techniqueRules: [string, RegExp][] = [
+  ["turquoise", /فیروزه/],
+  ["khatam", /خاتم/],
+  ["diamond-cut", /الماس/],
+  ["pardaz", /پرداز/],
+  ["engraving", /قلم[\s\u200c]?زنی/],
+];
+const itemRules: [string, RegExp][] = [
+  ["samovar-tea-set", /سماور.*چای|چای.*سماور/],
+  ["samovar-set", /سماور/],
+  ["sugar-bowl", /قندان/],
+  ["chocolate-dish", /شکلات[\s\u200c]?خوری/],
+  ["sherbet-set", /شربت[\s\u200c]?خوری/],
+  ["nut-bowl", /آجیل[\s\u200c]?خوری/],
+  ["sweets-dish", /شیرینی[\s\u200c]?خوری/],
+  ["tea-set", /چای[\s\u200c]?خوری/],
+  ["hyacinth-holder", /سنبل[\s\u200c]?دان/],
+  ["laleh", /لاله/],
+  ["rosewater-sprinkler", /گلاب[\s\u200c]?پاش/],
+  ["fruit-bowl", /میوه[\s\u200c]?خوری/],
+  ["vase", /گلدان/],
+  ["bag", /کیف(?![\s\u200c]*پول)/],
+  ["belt", /کمربند/],
+];
+const pick = (rules: [string, RegExp][], text: string) => rules.find(([, re]) => re.test(text))?.[0] || "";
+
+/** The category, technique and item a product belongs to in the shop. Values
+ * set by staff win; anything missing is inferred from the product's type and
+ * title. Old copper products marked "silver-inlay" move to that category. */
+export function effectiveCraft(
+  p: { vertical: string; subtype?: string; title?: string },
+  details: { craftCategory?: string; craftTechnique?: string; craftItem?: string } = {},
+) {
+  if (p.vertical !== "craft" && p.vertical !== "leather") return { category: "", technique: "", item: "" };
+  const text = `${p.subtype || ""} ${p.title || ""}`;
+  let category = details.craftCategory || "";
+  let technique = details.craftTechnique || "";
+  if (category === "copper" && technique === "silver-inlay") (category = "silver-inlay"), (technique = "");
+  if (!category) category = p.vertical === "leather" ? "leather" : pick(categoryRules, text);
+  if (category === "copper" && !technique) technique = pick(techniqueRules, text);
+  if (category !== "copper") technique = "";
+  const c = craftCategory(category);
+  let item = details.craftItem || pick(itemRules, text);
+  if (!c?.items?.some((i) => i.id === item)) item = "";
+  return { category, technique, item };
+}
 
 /** True when the chosen technique and item belong to the chosen category. */
 export function validCraftPath(category: string, technique: string, item: string) {
   if (!category) return !technique && !item;
   const c = craftCategory(category);
   if (!c) return false;
-  if (technique && !c.techniques?.some((t) => t.id === technique)) return false;
+  // Older copper products marked silver-inlay stay valid; the shop lists them under silver-inlay.
+  const legacy = category === "copper" && technique === "silver-inlay";
+  if (technique && !legacy && !c.techniques?.some((t) => t.id === technique)) return false;
   const found = c.items?.find((i) => i.id === item);
   if (item && !found) return false;
   if (found?.onlyWith && !(technique && found.onlyWith.includes(technique))) return false;

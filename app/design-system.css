@@ -931,3 +931,20 @@ html body .enamad-seal.enamad-failed > a {
   inset: 0;
   z-index: 1;
 }
+
+/* Handicraft categories on phones: one row that scrolls sideways, so all
+ * seven tiles keep a readable size. */
+@media (max-width: 640px) {
+  html body .craft-nav-cats {
+    grid-template-columns: none !important;
+    grid-auto-flow: column;
+    grid-auto-columns: 84px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  html body .craft-nav-cats > * {
+    scroll-snap-align: start;
+  }
+}

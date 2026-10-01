@@ -1402,6 +1402,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
 }
 import { balePaymentSummary, handleBaleCallback, startBalePayment, verifyBalePayment } from "./bale-payments";
 import { balePayEnabled } from "./bale-pay";
+import { effectiveCraft } from "../commerce/craft-taxonomy";
 
 /** Bale returns the customer here (GET) or calls back server-to-server
  * (POST, cross-origin, so before the same-origin guard). Nothing in the
@@ -1539,6 +1540,27 @@ export async function handle(req: Request, path: string[]) {
     }
     if (path[0] === "catalog" && get) {
       const q = query(url);
+      // Handicraft and leather pages filter by the product's effective category,
+      // technique and item: what staff set, or what its type and title say.
+      if (["craft", "leather"].includes(q.vertical) && (q.cat || q.tech || q.item || q.vertical === "leather")) {
+        const cat = q.cat || (q.vertical === "leather" ? "leather" : "");
+        const matched = all(
+          "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND p.vertical IN ('craft','leather') AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR d.family=?) ORDER BY p.created_at DESC",
+          "%" + q.q + "%",
+          "%" + q.q + "%",
+          q.family,
+          q.family,
+        ).filter((p) => {
+          const e = effectiveCraft(p as { vertical: string; subtype?: string; title?: string }, publicCatalogDetails(p.details) as Record<string, string>);
+          return (!cat || e.category === cat) && (!q.tech || e.technique === q.tech) && (!q.item || e.item === q.item);
+        });
+        const start = (q.page - 1) * 30;
+        return json({
+          rows: matched.slice(start, start + 30).map((p) => ({ ...p, details: publicCatalogDetails(p.details) })),
+          hasMore: matched.length > start + 30,
+          page: q.page,
+        });
+      }
       const result = paged(
         "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR p.vertical=? OR (?='craft' AND p.vertical='leather')) AND (?='' OR d.family=?) AND (?='' OR IFNULL(json_extract(d.details,'$.craftCategory'),'')=? OR (?='leather' AND p.vertical='leather')) AND (?='' OR json_extract(d.details,'$.craftTechnique')=?) AND (?='' OR json_extract(d.details,'$.craftItem')=?) ORDER BY p.created_at DESC",
         [
