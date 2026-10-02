@@ -47,6 +47,12 @@ export const imageDimensions: Record<string, readonly [number, number]> = {
   "/assets/heritage/yazd.webp": [1672, 941],
   "/assets/hero.jpg": [1672, 940],
   "/assets/international.jpg": [557, 281],
+  "/assets/redesign/ai-studio.webp": [1619, 971],
+  "/assets/redesign/beauty.webp": [1619, 971],
+  "/assets/redesign/craft-feature.webp": [1825, 862],
+  "/assets/redesign/craft.webp": [1619, 971],
+  "/assets/redesign/heritage-hero.webp": [1374, 1145],
+  "/assets/redesign/tourism.webp": [1619, 971],
   "/assets/tourism-wide.jpg": [630, 248],
   "/assets/tourism.jpg": [1086, 1448],
 };
