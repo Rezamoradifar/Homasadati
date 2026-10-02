@@ -79,6 +79,8 @@ function countOrders(cutoff: string) {
   const orders = all(
     `SELECT o.* FROM p_orders o WHERE o.paid_at IS NOT NULL AND o.paid_at>=? AND o.refunded_at IS NULL
      AND o.status NOT IN ('refunded','cancelled') AND o.cancel_until IS NOT NULL AND o.cancel_until<=?
+     AND json_extract(o.policy,'$.binaryEngine')='cards-v1'
+     AND NOT EXISTS(SELECT 1 FROM p_binary_lots l WHERE l.order_id=o.id)
      AND NOT EXISTS(SELECT 1 FROM p_card_orders c WHERE c.order_id=o.id)
      ORDER BY o.cancel_until,o.id LIMIT 2000`,
     since,
@@ -86,7 +88,9 @@ function countOrders(cutoff: string) {
   );
   let volume = 0;
   for (const o of orders) {
-    const earlier = one("SELECT COUNT(*) n FROM p_card_orders WHERE user_id=?", o.user_id)!.n;
+    // Set by settleOrder using all paid history, inside the payment transaction.
+    // Refunding or maturing another order cannot re-open this one-time bonus.
+    const earlier = JSON.parse(o.policy).initialPaidPurchase === true ? 0 : 1;
     run("INSERT INTO p_card_orders VALUES(?,?,?,?,?)", o.id, o.user_id, o.amount, cutoff, now());
     volume += o.amount;
     const before = one("SELECT * FROM p_card_members WHERE user_id=?", o.user_id);
