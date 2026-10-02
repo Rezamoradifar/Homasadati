@@ -1,14 +1,14 @@
 "use client";
 
 import { Money, UsdNote } from "./currency";
-import {useSiteLocale} from "../i18n/SiteLocale";
-import {catalogCopy} from "../i18n/catalog";
+import { useSiteLocale } from "../i18n/SiteLocale";
+import { catalogCopy } from "../i18n/catalog";
 import Localized from "../i18n/Localized";
 import { useEffect, useState, useRef } from "react";
-import { api, amount, RecordData } from "../platform/client";
+import { api, RecordData } from "../platform/client";
 import { useBasket, writeBasket } from "./basket";
 export default function Cart() {
-  const {locale}=useSiteLocale();
+  const { locale } = useSiteLocale();
   const { items, ready } = useBasket(),
     [quote, setQuote] = useState<RecordData | null>(null),
     [error, setError] = useState(""),
@@ -20,10 +20,11 @@ export default function Cart() {
     [method, setMethod] = useState("zarinpal"),
     [baleEnabled, setBaleEnabled] = useState(false),
     [stage, setStage] = useState<"" | "redirecting">(""),
+    [botUrl, setBotUrl] = useState(""),
     [voucher, setVoucher] = useState(0),
     [useVoucher, setUseVoucher] = useState(false),
     [pending, setPending] = useState(""),
-    [done, setDone] = useState(false),
+    [done, setDone] = useState<false | "order" | "bale">(false),
     [revision, setRevision] = useState(0);
   const version = JSON.stringify(items),
     lock = useRef(false);
@@ -41,7 +42,9 @@ export default function Cart() {
       .then((r) => {
         setAddresses(r.rows);
         return api("seven-card-plan")
-          .then((plan) => setVoucher(Math.max(0, Number(plan.member?.voucherBalance) || 0)))
+          .then((plan) =>
+            setVoucher(Math.max(0, Number(plan.member?.voucherBalance) || 0)),
+          )
           .catch(() => setVoucher(0));
       })
       .catch((e) => {
@@ -87,19 +90,54 @@ export default function Cart() {
     }
   };
   const pay = async (id: string) => {
+    setBotUrl("");
+    setStage("");
     const state = await api(`checkouts/${id}`);
     if (state.status === "paid") {
-      setDone(true);
+      setDone(state.method === "bale" ? "bale" : "order");
       setPending("");
       sessionStorage.removeItem("homa-pending-checkout");
       return;
     }
     const result = await api(`checkouts/${id}/payment`, "POST", {});
     if (result.status === "paid") {
-      setDone(true);
+      setDone(state.method === "bale" ? "bale" : "order");
       setPending("");
       sessionStorage.removeItem("homa-pending-checkout");
       return;
+    }
+    if (
+      typeof result.url !== "string" ||
+      (state.method === "bale" && result.status !== "redirect")
+    ) {
+      throw new Error(
+        "پیوند پرداخت در دسترس نیست. وضعیت سفارش را دوباره بررسی کنید.",
+      );
+    }
+    if (state.method === "bale") {
+      let url: URL;
+      try {
+        url = new URL(result.url);
+      } catch {
+        throw new Error(
+          "پیوند پرداخت بله معتبر نیست. وضعیت سفارش را دوباره بررسی کنید.",
+        );
+      }
+      if (
+        url.protocol !== "https:" ||
+        url.hostname !== "ble.ir" ||
+        url.username ||
+        url.password ||
+        url.port ||
+        url.hash ||
+        !/^\/Homanets_bot\/?$/i.test(url.pathname) ||
+        !/^pay_[A-Za-z0-9_-]+$/.test(url.searchParams.get("start") || "")
+      ) {
+        throw new Error(
+          "پیوند پرداخت بله معتبر نیست. وضعیت سفارش را دوباره بررسی کنید.",
+        );
+      }
+      setBotUrl(url.href);
     }
     setStage("redirecting");
     window.location.assign(result.url);
@@ -144,221 +182,298 @@ export default function Cart() {
     }
   };
   return (
-    <Localized><div className="shop-wrap">
-      <div className="shop-heading">
-        <span className="commerce-eyebrow">یک سبد برای همهٔ خانوادهٔ همای</span>
-        <h1>سبد خرید شما</h1>
-        <p>تعداد، مشخصات و مبلغ را پیش از ثبت سفارش بررسی کنید.</p>
-      </div>
-      {error && (
-        <div className="shop-error" role="alert">
-          {error}
-          <button
-            className="commerce-button outline"
-            onClick={() => setRevision((x) => x + 1)}
-          >
-            بررسی دوباره
-          </button>
+    <Localized>
+      <div className="shop-wrap">
+        <div className="shop-heading">
+          <span className="commerce-eyebrow">
+            یک سبد برای همهٔ خانوادهٔ همای
+          </span>
+          <h1>سبد خرید شما</h1>
+          <p>تعداد، مشخصات و مبلغ را پیش از ثبت سفارش بررسی کنید.</p>
         </div>
-      )}
-      {done && (
-        <p role="status" className="shop-notice">
-          پرداخت ثبت شد. <a href="/account?tab=orders">مشاهده سفارش‌ها ←</a>
-        </p>
-      )}
-      {pending && !done && (
-        <section className="shop-notice">
-          <p>
-            یک سفارش ثبت‌شده برای ادامه پرداخت دارید. اقلام آن در بخش سفارش‌های
-            حساب قابل مشاهده‌اند.
-          </p>
-          <button
-            className="commerce-button"
-            disabled={busy || !me}
-            onClick={async () => {
-              setBusy(true);
-              setError("");
-              try {
-                await pay(pending);
-              } catch (e) {
-                setError((e as Error).message);
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            ادامه / بررسی پرداخت
-          </button>
-          <a href="/account?tab=orders"> پیگیری سفارش‌ها</a>
-          <button
-            className="cart-remove"
-            onClick={() => {
-              sessionStorage.removeItem("homa-pending-checkout");
-              setPending("");
-            }}
-          >
-            بستن این پیام
-          </button>
-        </section>
-      )}
-      {(!ready || loading) && <p role="status">در حال بررسی قیمت و موجودی…</p>}
-      {ready && !items.length && !loading && (
-        <div className="shop-empty">
-          <p>سبد خرید خالی است.</p>
-          <a href="/shop" className="commerce-button">
-            انتخاب از فروشگاه
-          </a>
-        </div>
-      )}
-      {items.length > 0 && (
-        <div className="cart-layout">
-          <section aria-label="اقلام سبد">
-            {items.map((item, i) => {
-              const p = quote?.rows.find(
-                  (r: RecordData) => r.id === item.productId,
-                ),
-                img = p ? JSON.parse(p.images)[0] : null;
-              const title=p?catalogCopy({title:p.title,details:p.details},locale).title:undefined;
-              return (
-                <Localized key={item.productId}><article className="cart-row">
-                  {img ? <img src={img} alt="" /> : <span>◇</span>}
-                  <div>
-                    <a href={`/shop/${item.productId}`}>
-                      <strong>
-                        {title || `مشاهده مشخصات کالای ${i + 1}`}
-                      </strong>
-                    </a>
-                    <p>
-                      {p
-                        ? <Money toman={p.price}/>
-                        : "قیمت نیازمند بررسی است"}
-                    </p>
-                    <button
-                      className="cart-remove"
-                      disabled={busy}
-                      onClick={() => edit(item.productId, 0)}
-                    >
-                      حذف از سبد
-                    </button>
-                  </div>
-                  <div>
-                    <label>
-                      تعداد{" "}
-                      <input
-                        aria-label={`تعداد ${title || i + 1}`}
-                        disabled={busy}
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={item.quantity}
-                        onChange={(e) => {
-                          const n = Number(e.target.value);
-                          if (Number.isInteger(n) && n >= 1 && n <= 100)
-                            edit(item.productId, n);
-                        }}
-                      />
-                    </label>
-                    {p && <p><Money toman={p.lineTotal}/></p>}
-                  </div>
-                </article></Localized>
-              );
-            })}
-            <a href="/shop">← ادامه خرید</a>
-          </section>
-          <aside className="cart-summary">
-            <h2>جمع سفارش</h2>
-            <strong>
-              {quote ? <><Money toman={quote.total}/><UsdNote/></> : "در انتظار بررسی"}
-            </strong>
-            <p>
-              هزینه جداگانه ارسال در این نسخه محاسبه نمی‌شود. مالیات یا هزینه‌ای
-              پنهان در مرحله پرداخت اضافه نمی‌شود.
-            </p>
-            {me ? (
+        {error && (
+          <div className="shop-error" role="alert">
+            {error}
+            <button
+              className="commerce-button outline"
+              onClick={() => setRevision((x) => x + 1)}
+            >
+              بررسی دوباره
+            </button>
+          </div>
+        )}
+        {done && (
+          <p role="status" className="shop-notice">
+            {done === "bale"
+              ? "این سفارش سابقهٔ پرداخت دارد. وضعیت سفارش و کیف پول را در حساب خود بررسی کنید."
+              : "پرداخت ثبت شد."}{" "}
+            <a href="/account?tab=orders">مشاهده سفارش‌ها ←</a>
+            {done === "bale" && (
               <>
-                <label>
-                  روش پرداخت
-                  <select
-                    disabled={busy}
-                    value={method}
-                    onChange={(e) => setMethod(e.target.value)}
-                  >
-                    <option value="zarinpal">درگاه بانکی</option>
-                    {baleEnabled && <option value="bale">پرداخت با بله</option>}
-                    <option value="wallet">کیف پول</option>
-                  </select>
-                </label>
-                {method === "bale" && (
-                  <p className="cart-method-note" role="status">
-                    <span>پرداخت امن از طریق بله</span>
-                    <span>{stage === "redirecting" ? "در حال انتقال به پرداخت…" : "آماده پرداخت"}</span>
-                  </p>
-                )}
-                {voucher > 0 && (
-                  <label className="cart-voucher">
-                    <input
-                      type="checkbox"
-                      disabled={busy}
-                      checked={useVoucher}
-                      onChange={(e) => setUseVoucher(e.target.checked)}
-                    />
-                    استفاده از موجودی ووچر خرید: <Money toman={voucher} />
-                  </label>
-                )}
-                {useVoucher && quote && voucher > 0 && (
-                  <p className="cart-voucher-note">
-                    مبلغ قابل پرداخت با روش انتخابی:{" "}
-                    <Money toman={Math.max(0, quote.total - voucher)} />
-                  </p>
-                )}
-                {quote?.requiresAddress && (
-                  <label>
-                    آدرس ارسال
-                    <select
-                      required
-                      disabled={busy}
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                    >
-                      <option value="">آدرس را انتخاب کنید</option>
-                      {addresses.map((a) => (
-                        <Localized key={a.id}><option translate="no" value={a.id}>
-                          {a.label} — {a.city} — {a.address}
-                        </option></Localized>
-                      ))}
-                    </select>
-                    <a href="/account?tab=addresses">ثبت / ویرایش آدرس</a>
-                  </label>
-                )}
-                <button
-                  className="commerce-button"
-                  disabled={
-                    busy || !quote || (quote.requiresAddress && !address)
-                  }
-                  onClick={checkout}
-                >
-                  {busy ? "در حال ثبت…" : "ثبت سفارش و پرداخت"}
-                </button>
-              </>
-            ) : (
-              <>
-                <p>
-                  برای پرداخت و پیگیری سفارش وارد حساب شوید؛ سبد شما در همین
-                  مرورگر باقی می‌ماند.
-                </p>
-                <a className="commerce-button" href="/account">
-                  ورود / ثبت‌نام
-                </a>
+                {" "}
+                · <a href="/account?tab=wallet">مشاهدهٔ کیف پول</a>
               </>
             )}
+          </p>
+        )}
+        {pending && !done && (
+          <section className="shop-notice">
             <p>
-              ثبت سفارش، قیمت و موجودی را دوباره کنترل می‌کند. سفارش بانکی
-              پرداخت‌نشده حداکثر یک ساعت رزرو می‌ماند. وجه لغو مجاز به کیف پول
-              بازمی‌گردد.
+              یک سفارش ثبت‌شده برای ادامه پرداخت دارید. اقلام آن در بخش
+              سفارش‌های حساب قابل مشاهده‌اند.
             </p>
-          </aside>
-        </div>
-      )}
-    </div></Localized>
+            {botUrl && (
+              <>
+                <p>
+                  ربات Homanets_bot را در بله باز کنید. اگر «شروع / Start» نمایش
+                  داده شد، آن را بزنید، صورتحساب را پرداخت کنید و از پیوند نتیجه
+                  به سایت برگردید.
+                </p>
+                <a
+                  className="commerce-button"
+                  href={botUrl}
+                  rel="noopener noreferrer"
+                >
+                  ادامهٔ پرداخت در بله
+                </a>
+                <p>
+                  اگر پرداخت را انجام داده‌اید، دوباره پرداخت نکنید؛ نتیجه را از
+                  همین سفارش پیگیری کنید.
+                </p>
+              </>
+            )}
+            <button
+              className="commerce-button"
+              disabled={busy || !me}
+              onClick={async () => {
+                if (lock.current || !me) return;
+                lock.current = true;
+                setBusy(true);
+                setError("");
+                try {
+                  await pay(pending);
+                } catch (e) {
+                  setError((e as Error).message);
+                } finally {
+                  lock.current = false;
+                  setBusy(false);
+                }
+              }}
+            >
+              ادامه / بررسی پرداخت
+            </button>
+            <a href="/account?tab=orders"> پیگیری سفارش‌ها</a>
+            <button
+              className="cart-remove"
+              onClick={() => {
+                sessionStorage.removeItem("homa-pending-checkout");
+                setPending("");
+              }}
+            >
+              بستن این پیام
+            </button>
+          </section>
+        )}
+        {(!ready || loading) && (
+          <p role="status">در حال بررسی قیمت و موجودی…</p>
+        )}
+        {ready && !items.length && !loading && (
+          <div className="shop-empty">
+            <p>سبد خرید خالی است.</p>
+            <a href="/shop" className="commerce-button">
+              انتخاب از فروشگاه
+            </a>
+          </div>
+        )}
+        {items.length > 0 && (
+          <div className="cart-layout">
+            <section aria-label="اقلام سبد">
+              {items.map((item, i) => {
+                const p = quote?.rows.find(
+                    (r: RecordData) => r.id === item.productId,
+                  ),
+                  img = p ? JSON.parse(p.images)[0] : null;
+                const title = p
+                  ? catalogCopy({ title: p.title, details: p.details }, locale)
+                      .title
+                  : undefined;
+                return (
+                  <Localized key={item.productId}>
+                    <article className="cart-row">
+                      {img ? <img src={img} alt="" /> : <span>◇</span>}
+                      <div>
+                        <a href={`/shop/${item.productId}`}>
+                          <strong>
+                            {title || `مشاهده مشخصات کالای ${i + 1}`}
+                          </strong>
+                        </a>
+                        <p>
+                          {p ? (
+                            <Money toman={p.price} />
+                          ) : (
+                            "قیمت نیازمند بررسی است"
+                          )}
+                        </p>
+                        <button
+                          className="cart-remove"
+                          disabled={busy}
+                          onClick={() => edit(item.productId, 0)}
+                        >
+                          حذف از سبد
+                        </button>
+                      </div>
+                      <div>
+                        <label>
+                          تعداد{" "}
+                          <input
+                            aria-label={`تعداد ${title || i + 1}`}
+                            disabled={busy}
+                            type="number"
+                            min="1"
+                            max="100"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const n = Number(e.target.value);
+                              if (Number.isInteger(n) && n >= 1 && n <= 100)
+                                edit(item.productId, n);
+                            }}
+                          />
+                        </label>
+                        {p && (
+                          <p>
+                            <Money toman={p.lineTotal} />
+                          </p>
+                        )}
+                      </div>
+                    </article>
+                  </Localized>
+                );
+              })}
+              <a href="/shop">← ادامه خرید</a>
+            </section>
+            <aside className="cart-summary">
+              <h2>جمع سفارش</h2>
+              <strong>
+                {quote ? (
+                  <>
+                    <Money toman={quote.total} />
+                    <UsdNote />
+                  </>
+                ) : (
+                  "در انتظار بررسی"
+                )}
+              </strong>
+              <p>
+                هزینه جداگانه ارسال در این نسخه محاسبه نمی‌شود. مالیات یا
+                هزینه‌ای پنهان در مرحله پرداخت اضافه نمی‌شود.
+              </p>
+              {me ? (
+                <>
+                  <label>
+                    روش پرداخت
+                    <select
+                      disabled={busy}
+                      aria-describedby={
+                        method === "bale" ? "bale-payment-help" : undefined
+                      }
+                      value={method}
+                      onChange={(e) => setMethod(e.target.value)}
+                    >
+                      <option value="zarinpal">درگاه بانکی</option>
+                      {baleEnabled && (
+                        <option value="bale">پرداخت با بله</option>
+                      )}
+                      <option value="wallet">کیف پول</option>
+                    </select>
+                  </label>
+                  {method === "bale" && (
+                    <>
+                      <p className="cart-method-note" role="status">
+                        <span>پرداخت از کیف پول بله در ربات هما نت</span>
+                        <span>
+                          {stage === "redirecting"
+                            ? "در حال باز کردن ربات بله…"
+                            : "آمادهٔ ادامه در بله"}
+                        </span>
+                      </p>
+                      <p id="bale-payment-help">
+                        پس از ثبت سفارش، ربات Homanets_bot در بله باز می‌شود.
+                        اگر «شروع / Start» نمایش داده شد، آن را بزنید، صورتحساب
+                        را پرداخت کنید و از پیوند نتیجه به سایت برگردید.
+                      </p>
+                    </>
+                  )}
+                  {voucher > 0 && (
+                    <label className="cart-voucher">
+                      <input
+                        type="checkbox"
+                        disabled={busy}
+                        checked={useVoucher}
+                        onChange={(e) => setUseVoucher(e.target.checked)}
+                      />
+                      استفاده از موجودی ووچر خرید: <Money toman={voucher} />
+                    </label>
+                  )}
+                  {useVoucher && quote && voucher > 0 && (
+                    <p className="cart-voucher-note">
+                      مبلغ قابل پرداخت با روش انتخابی:{" "}
+                      <Money toman={Math.max(0, quote.total - voucher)} />
+                    </p>
+                  )}
+                  {quote?.requiresAddress && (
+                    <label>
+                      آدرس ارسال
+                      <select
+                        required
+                        disabled={busy}
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                      >
+                        <option value="">آدرس را انتخاب کنید</option>
+                        {addresses.map((a) => (
+                          <Localized key={a.id}>
+                            <option translate="no" value={a.id}>
+                              {a.label} — {a.city} — {a.address}
+                            </option>
+                          </Localized>
+                        ))}
+                      </select>
+                      <a href="/account?tab=addresses">ثبت / ویرایش آدرس</a>
+                    </label>
+                  )}
+                  <button
+                    className="commerce-button"
+                    aria-describedby={
+                      method === "bale" ? "bale-payment-help" : undefined
+                    }
+                    disabled={
+                      busy || !quote || (quote.requiresAddress && !address)
+                    }
+                    onClick={checkout}
+                  >
+                    {busy ? "در حال ثبت…" : "ثبت سفارش و پرداخت"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p>
+                    برای پرداخت و پیگیری سفارش وارد حساب شوید؛ سبد شما در همین
+                    مرورگر باقی می‌ماند.
+                  </p>
+                  <a className="commerce-button" href="/account">
+                    ورود / ثبت‌نام
+                  </a>
+                </>
+              )}
+              <p>
+                ثبت سفارش، قیمت و موجودی را دوباره کنترل می‌کند. سفارش بانکی
+                پرداخت‌نشده حداکثر یک ساعت رزرو می‌ماند. وجه لغو مجاز به کیف پول
+                بازمی‌گردد.
+              </p>
+            </aside>
+          </div>
+        )}
+      </div>
+    </Localized>
   );
 }

@@ -1,145 +1,146 @@
+import { createHash, randomBytes } from "node:crypto";
 import { ApiError } from "../server/http";
-
-/**
- * BalePay provider adapter.
- *
- * Everything Bale-specific lives here, behind two calls: create a payment and
- * verify it server-to-server. The rest of the payment flow (bale-payments.ts)
- * only sees the typed results below, never a raw provider payload.
- *
- * No official BalePay documentation has been supplied to this project yet, so
- * the HTTP layer is deliberately NOT implemented: every place that needs an
- * official value is marked "TODO: BALEPAY OFFICIAL VALUE REQUIRED". Until those
- * are filled in from the official docs, `balePayEnabled()` is false, the
- * checkout option is shown as unavailable and no request is ever sent.
- * Nothing here guesses an endpoint, parameter, header or status value.
- */
+import { baleApi, BaleApiError } from "./bale-api";
+import { baleConfig, baleConfigValid } from "./bale-config";
+import { all, atomic, now, one, run, type Row } from "./schema";
 
 export type BaleCreateInput = {
-  /** Our payment attempt id (UUID); unique per attempt. */
   paymentId: string;
-  /** Amount in rial, computed on the server from the stored checkout. */
+  /** Rial, calculated from the checkout saved on the server. */
   amountRial: number;
-  /** Absolute HTTPS callback URL on homanets.com, carrying our payment id. */
   callbackUrl: string;
   description: string;
 };
-
-export type BaleCreateResult = {
-  /** The provider's identifier for this payment (token/reference). */
-  providerReference: string;
-  /** Where the customer is sent to pay. Must be an https URL on a Bale host. */
-  redirectUrl: string;
-};
-
-export type BaleVerifyInput = {
-  paymentId: string;
-  providerReference: string;
-  amountRial: number;
-};
-
-/** The provider's answer, normalised. "unknown" means the status could not be
- * established (timeout, 5xx, unexpected body): the payment stays pending. */
+export type BaleCreateResult = { providerReference: string; redirectUrl: string };
+export type BaleVerifyInput = { paymentId: string; providerReference: string; amountRial: number };
 export type BaleVerifyResult =
-  | {
-      outcome: "paid";
-      transactionId: string;
-      amountRial: number;
-      /** Merchant/account the money went to, when the provider reports it. */
-      merchantId?: string;
-      /** Our payment id / order reference as echoed by the provider, if any. */
-      reference?: string;
-    }
+  | { outcome: "paid"; transactionId: string; amountRial: number; reference?: string }
   | { outcome: "failed"; code: string }
   | { outcome: "cancelled"; code: string }
   | { outcome: "unknown"; code: string };
-
-/** What the callback request carried, before any verification. These values
- * are identifiers only; none of them is proof of payment. */
 export type BaleCallbackParams = {
   providerReference?: string;
   transactionId?: string;
-  /** The provider's own status hint (e.g. user cancelled). Never trusted as success. */
   statusHint?: "cancelled" | "other";
 };
-
 export interface BalePayClient {
   createPayment(input: BaleCreateInput): Promise<BaleCreateResult>;
   verifyPayment(input: BaleVerifyInput): Promise<BaleVerifyResult>;
-  /** Maps the callback's query/form fields to identifiers. */
   parseCallback(fields: URLSearchParams): BaleCallbackParams;
 }
 
-/** Server-only configuration. None of these may be NEXT_PUBLIC_*. */
-export function balePayConfig() {
-  return {
-    // TODO: BALEPAY OFFICIAL VALUE REQUIRED — the API base URL from the official docs.
-    apiBaseUrl: process.env.BALEPAY_API_BASE_URL || "",
-    // TODO: BALEPAY OFFICIAL VALUE REQUIRED — confirm the credential name/type (token, API key…).
-    token: process.env.BALEPAY_TOKEN || "",
-    // TODO: BALEPAY OFFICIAL VALUE REQUIRED — confirm whether a merchant/terminal id exists.
-    merchantId: process.env.BALEPAY_MERCHANT_ID || "",
-    // Hosts the customer may be redirected to; set from the official docs.
-    // TODO: BALEPAY OFFICIAL VALUE REQUIRED — the payment page host(s).
-    redirectHosts: (process.env.BALEPAY_REDIRECT_HOSTS || "")
-      .split(",")
-      .map((h) => h.trim().toLowerCase())
-      .filter(Boolean),
-  };
+export const balePayloadHash = (payload: string) => createHash("sha256").update(payload).digest("hex");
+export const validBalePayload = (payload: unknown): payload is string =>
+  typeof payload === "string" && /^pay_[a-f0-9]{32}_[A-Za-z0-9_-]{22}$/.test(payload);
+
+/** Call within the same immediate transaction that accepts a pre-checkout. */
+export function baleCheckoutActive(payment: Row) {
+  if (payment.status !== "pending") return false;
+  const at = now();
+  const checkout = one("SELECT status,method,amount,expires_at FROM p_checkouts WHERE id=?", payment.checkout_id);
+  if (!checkout || checkout.status !== "pending" || checkout.method !== "bale" ||
+      checkout.expires_at <= at || checkout.amount !== payment.amount ||
+      payment.amount_rial !== checkout.amount * 10 || !Number.isSafeInteger(payment.amount_rial)) return false;
+  const orders = all(
+    "SELECT o.status,o.expires_at,o.paid_at FROM p_orders o JOIN p_checkout_items i ON i.order_id=o.id WHERE i.checkout_id=?",
+    payment.checkout_id,
+  );
+  return orders.length > 0 && orders.every((order) => order.status === "pending" && !order.paid_at && order.expires_at > at);
 }
 
-/** The official HTTP client. Not implemented until the official BalePay
- * documentation is supplied; each method refuses rather than guessing. */
+/** Native wallet flow: issue an opaque bot link locally, then verify only the
+ * transaction durably accepted by the authenticated pre-checkout webhook.
+ * https://docs.bale.ai/ — sendInvoice, PreCheckoutQuery, inquireTransaction.
+ */
 export const officialBalePayClient: BalePayClient & { implemented: boolean } = {
-  implemented: false,
-  async createPayment() {
-    // TODO: BALEPAY OFFICIAL VALUE REQUIRED — endpoint, method, auth header,
-    // request fields (amount unit, callback field, reference field) and the
-    // response fields holding the provider reference and payment URL.
-    throw new ApiError(503, "payment_not_configured");
+  implemented: true,
+  async createPayment(input) {
+    if (!balePayEnabled()) throw new ApiError(503, "payment_not_configured");
+    const config = baleConfig();
+    if (!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(input.paymentId) ||
+        !Number.isSafeInteger(input.amountRial) || input.amountRial <= 0) throw new ApiError(400, "invalid_input");
+    return atomic(() => {
+      const payment = one("SELECT * FROM p_bale_payments WHERE id=?", input.paymentId);
+      if (!payment || payment.status !== "creating" || payment.amount_rial !== input.amountRial)
+        throw new ApiError(409, "invalid_state");
+      if (!baleCheckoutActive({ ...payment, status: "pending" })) throw new ApiError(409, "invalid_state");
+      const existing = one("SELECT * FROM p_bale_sessions WHERE payment_id=?", payment.id);
+      if (existing) {
+        if (existing.account_fingerprint !== config.accountFingerprint || !payment.redirect_url)
+          throw new ApiError(409, "payment_verification_pending");
+        return { providerReference: payment.id, redirectUrl: safeRedirect(payment.redirect_url) };
+      }
+      const payload = `pay_${payment.id.replaceAll("-", "")}_${randomBytes(16).toString("base64url")}`;
+      const redirectUrl = `https://ble.ir/${config.botUsername}?start=${payload}`;
+      run(
+        "INSERT INTO p_bale_sessions(payment_id,payload_hash,account_fingerprint,created_at) VALUES(?,?,?,?)",
+        payment.id, balePayloadHash(payload), config.accountFingerprint, now(),
+      );
+      // Persist the link atomically with its session so a process crash before
+      // the caller changes creating -> pending is recoverable.
+      run("UPDATE p_bale_payments SET provider_reference=?,redirect_url=?,updated_at=? WHERE id=? AND status='creating'",
+        payment.id, redirectUrl, now(), payment.id);
+      return { providerReference: payment.id, redirectUrl };
+    });
   },
-  async verifyPayment() {
-    // TODO: BALEPAY OFFICIAL VALUE REQUIRED — verify endpoint, request fields,
-    // the exact success status value(s), and where amount, merchant, reference
-    // and transaction id are returned. Map a timeout or 5xx to
-    // { outcome: "unknown" }, never to "failed".
-    throw new ApiError(503, "payment_not_configured");
+  async verifyPayment(input) {
+    const config = baleConfig();
+    // Disabling new payments must not disable recovery of money already paid.
+    if (!baleConfigValid(config)) return { outcome: "unknown", code: "payment_not_configured" };
+    const session = one("SELECT * FROM p_bale_sessions WHERE payment_id=?", input.paymentId);
+    if (!session || input.providerReference !== input.paymentId)
+      return { outcome: "unknown", code: "binding_missing" };
+    if (session.account_fingerprint !== config.accountFingerprint)
+      return { outcome: "unknown", code: "account_changed" };
+    if (!session.transaction_id || !session.accepted_at || !session.chat_id)
+      return { outcome: "unknown", code: "awaiting_payment" };
+    try {
+      const transaction = await baleApi(config).inquireTransaction(session.transaction_id);
+      if (transaction.id !== session.transaction_id || transaction.userID !== session.chat_id ||
+          transaction.amount !== input.amountRial)
+        return { outcome: "unknown", code: "transaction_mismatch" };
+      if (transaction.status === "paid")
+        return { outcome: "paid", transactionId: transaction.id, amountRial: transaction.amount, reference: input.paymentId };
+      if (transaction.status === "failed" || transaction.status === "rejected")
+        return { outcome: transaction.status === "rejected" ? "cancelled" : "failed", code: "bale_" + transaction.status };
+      return { outcome: "unknown", code: "awaiting_payment" };
+    } catch (error) {
+      return { outcome: "unknown", code: error instanceof BaleApiError ? error.code : "bale_unavailable" };
+    }
   },
-  parseCallback() {
-    // TODO: BALEPAY OFFICIAL VALUE REQUIRED — names of the callback fields for
-    // the provider reference, transaction id and cancel/failure status.
-    return {};
-  },
+  // Browser query/form fields are not wallet transaction evidence.
+  parseCallback() { return {}; },
 };
 
 let client: BalePayClient = officialBalePayClient;
-
-/** Tests swap in a mock; production always uses the official client. */
 export function setBalePayClient(next: BalePayClient | null) {
   if (process.env.NODE_ENV === "production") throw new Error("BalePay client cannot be replaced in production");
   client = next ?? officialBalePayClient;
 }
 export const balePayClient = () => client;
+export const nativeBaleClient = () => client === officialBalePayClient;
 
-/** Bale is offered only when the client is implemented and configured. */
+/** New invoices require an explicitly enabled, verified bot/webhook setup. */
 export function balePayEnabled() {
-  const c = balePayClient();
-  if (c === officialBalePayClient) {
-    const cfg = balePayConfig();
-    return officialBalePayClient.implemented && !!cfg.apiBaseUrl && !!cfg.token && cfg.redirectHosts.length > 0;
-  }
-  return true;
+  if (!nativeBaleClient()) return true;
+  const config = baleConfig();
+  if (!baleConfigValid(config, true)) return false;
+  return one("SELECT value FROM p_bale_runtime WHERE key='registered_config'")?.value === config.configFingerprint;
 }
 
-/** Only https URLs on the configured Bale hosts are followed. */
-export function safeRedirect(url: string, hosts = balePayConfig().redirectHosts) {
-  let parsed: URL;
+/** Production redirects are limited to this configured bot, with one opaque
+ * start payload. A test-only adapter can use a fixture HTTPS host. */
+export function safeRedirect(value: string) {
   try {
-    parsed = new URL(url);
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.username || url.password || url.port || url.hash)
+      throw new Error();
+    if (nativeBaleClient() && (url.hostname !== "ble.ir" ||
+        url.pathname !== "/" + baleConfig().botUsername ||
+        Array.from(url.searchParams.keys()).length !== 1 || !validBalePayload(url.searchParams.get("start"))))
+      throw new Error();
+    return url.toString();
   } catch {
     throw new ApiError(503, "provider_rejected");
   }
-  if (parsed.protocol !== "https:" || (hosts.length && !hosts.includes(parsed.hostname.toLowerCase())))
-    throw new ApiError(503, "provider_rejected");
-  return parsed.toString();
 }
