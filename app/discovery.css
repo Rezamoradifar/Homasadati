@@ -1,0 +1,151 @@
+/* Selected discovery concept. Uses the existing Homanet colour and type tokens. */
+.discovery-header {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  background: var(--hn-bg, #f7f1e5);
+  border-bottom: 1px solid var(--hn-border);
+  color: var(--hn-text);
+}
+.discovery-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(100% - 80px, 1280px);
+  min-height: 88px;
+  margin-inline: auto;
+}
+.discovery-brand { display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0; text-decoration: none; color: var(--hn-text); }
+.discovery-brand span { display: flex; flex-direction: column; gap: 2px; }
+.discovery-brand strong { font-size: 28px; font-weight: 800; line-height: 1.3; letter-spacing: -.6px; }
+.discovery-brand small { font-size: 12px; color: var(--hn-text-muted); line-height: 1.6; }
+.discovery-brand img { width: 46px; height: 46px; object-fit: contain; }
+.discovery-desktop-nav { display: flex; align-items: center; gap: clamp(16px, 2.2vw, 34px); }
+.discovery-desktop-nav a { position: relative; min-height: 44px; display: inline-flex; align-items: center; color: var(--hn-text); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.discovery-desktop-nav a:hover { color: var(--hn-turquoise); }
+.discovery-desktop-nav a[aria-current] { border-bottom: 2px solid var(--hn-turquoise); }
+.discovery-header-actions, .discovery-desktop-preferences { display: flex; align-items: center; gap: 8px; }
+.discovery-icon { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; flex-shrink: 0; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--hn-text); text-decoration: none; cursor: pointer; }
+.discovery-icon:hover { background: var(--hn-bg-alt); }
+.discovery-desktop-preferences .theme-toggle { min-height: 40px; padding: 6px 8px; border: 0; }
+.discovery-desktop-preferences .theme-label { display: none; }
+.discovery-desktop-preferences .site-language-picker select { max-width: 86px; padding: 8px 2px; border: 0; background: transparent; font-size: 12px; color: var(--hn-text); }
+.discovery-menu {
+  inset: 0;
+  width: min(460px, 100%);
+  max-width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 0;
+  background: var(--hn-bg);
+  color: var(--hn-text);
+  overflow: auto;
+}
+.discovery-menu::backdrop { background: rgb(20 28 48 / .52); backdrop-filter: blur(3px); }
+.discovery-menu-panel { padding: 24px; padding-bottom: max(28px, env(safe-area-inset-bottom)); }
+.discovery-menu-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.discovery-menu .discovery-menu-heading h2 { margin: 0; font-size: 24px; font-weight: 700; }
+.discovery-menu-services a { display: flex; align-items: center; justify-content: space-between; min-height: 56px; border-bottom: 1px solid var(--hn-border); font-size: 18px; font-weight: 600; text-decoration: none; color: var(--hn-text); }
+.discovery-menu-service-copy { display: flex; flex-direction: column; gap: 2px; padding-block: 10px; }
+.discovery-menu-service-copy strong { font: inherit; }
+.discovery-menu-service-copy small { color: var(--hn-text-muted); font-size: 12px; font-weight: 400; }
+.discovery-menu .discovery-menu-shop { display: flex; justify-content: space-between; align-items: center; min-height: 48px; margin-block: 22px; padding: 10px 16px; background: var(--hn-turquoise); color: var(--hn-text-inverse); border-radius: 7px; text-decoration: none; font-weight: 600; }
+.discovery-menu-links { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; }
+.discovery-menu-links :is(a, button) { display: flex; align-items: center; min-height: 44px; color: var(--hn-text); text-decoration: none; font-size: 14px; }
+.discovery-menu-tracking { border: 0; background: transparent; padding: 0; text-align: start; font-family: inherit; cursor: pointer; }
+.discovery-menu-preferences { display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid var(--hn-border); margin-top: 22px; padding-top: 22px; }
+.discovery-menu-preferences select { min-height: 44px; padding: 8px; border-radius: 6px; border: 1px solid var(--hn-border-strong); color: var(--hn-text); background: var(--hn-surface); }
+:is(.discovery-header, .discovery-menu, .discovery-opening) :is(a, button, select):focus-visible { outline: 3px solid var(--hn-focus); outline-offset: 4px; }
+.homa-redesign { background: var(--hn-bg); color: var(--hn-text); }
+.discovery-opening { width: min(100% - 80px, 1280px); margin-inline: auto; }
+.discovery-hero { position: relative; min-height: 390px; display: flex; align-items: center; margin-block: 36px 28px; isolation: isolate; }
+.discovery-hero-art { position: absolute; inset-inline-end: 0; inset-block: 0; width: 44%; overflow: hidden; border-start-start-radius: 250px; border-start-end-radius: 0; }
+.discovery-hero-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 56%; }
+.discovery-hero-copy { position: relative; width: 60%; padding-block: 22px; z-index: 1; }
+.discovery-opening .discovery-hero-copy h1 { margin: 0; color: var(--hn-text); font-family: var(--hn-font); font-size: clamp(42px, 4.9vw, 66px); line-height: 1.55; font-weight: 800; letter-spacing: -.9px; }
+.discovery-opening .discovery-hero-copy h1 span { display: block; }
+.discovery-opening .discovery-hero-copy h1::after, .discovery-opening .discovery-feature-copy h2::after { content: ""; display: block; width: 40px; border-bottom: 3px solid #cba269; margin-top: 13px; }
+.discovery-hero-copy p { margin: 20px 0 0; font-size: 18px; font-weight: 500; color: var(--hn-text-muted); line-height: 1.9; }
+.discovery-services { scroll-margin-top: 105px; }
+.discovery-service-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.discovery-service { display: block; color: var(--hn-text); text-decoration: none; min-width: 0; }
+.discovery-service-image { overflow: hidden; border-radius: 8px; aspect-ratio: 1.64; background: var(--hn-bg-alt); }
+.discovery-service-image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 320ms ease; }
+.discovery-opening .discovery-service h2 { margin: 8px 0 0; font-family: var(--hn-font); font-size: 22px; line-height: 1.7; text-align: center; font-weight: 700; }
+.discovery-service:hover .discovery-service-image img { transform: scale(1.035); }
+.discovery-service:hover h2 { color: var(--hn-turquoise); }
+.discovery-shop-button { display: flex; position: relative; align-items: center; justify-content: center; min-height: 54px; margin-top: 26px; border-radius: 8px; background: var(--hn-turquoise); color: var(--hn-text-inverse); text-decoration: none; font-size: 18px; font-weight: 700; padding: 12px 58px; transition: background 180ms ease; }
+.discovery-shop-button svg { position: absolute; inset-inline-end: 24px; }
+.discovery-shop-button:hover, .discovery-menu-shop:hover { background: var(--hn-turquoise-deep); }
+.discovery-feature { text-align: center; border-top: 1px solid var(--hn-border-strong); margin-top: 56px; padding-block: 38px 52px; }
+.discovery-opening .discovery-feature-copy h2 { margin: 0; font-family: var(--hn-font); font-size: 42px; line-height: 1.6; font-weight: 800; color: var(--hn-text); }
+.discovery-opening .discovery-feature-copy h2::after { margin-inline: auto; margin-top: 8px; width: 24px; }
+.discovery-feature-copy p { margin: 10px 0 24px; font-size: 17px; line-height: 1.8; color: var(--hn-text-muted); }
+.discovery-feature-image { display: block; overflow: hidden; border-radius: 8px; aspect-ratio: 2.12; }
+.discovery-feature-image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.discovery-text-link { display: inline-flex; align-items: center; gap: 16px; min-height: 44px; margin-top: 18px; color: var(--hn-turquoise-deep); border-bottom: 1px solid currentColor; text-decoration: none; font-size: 18px; font-weight: 600; }
+html[data-theme="dark"] .discovery-text-link { color: #99d8d4; }
+html[data-theme="dark"] .discovery-hero-art { opacity: .86; }
+.homa-redesign .editorial-section, .homa-redesign .content-section { max-width: 1360px; margin-inline: auto; }
+.homa-redesign .club-banner { max-width: 1280px; margin: 36px auto; }
+.homa-redesign .landing-faq { padding-block: 64px; }
+.homa-redesign .landing-footer { margin-top: 0; }
+html[dir="ltr"] .discovery-opening .discovery-hero-copy h1 { font-family: var(--hn-font-latin); font-size: clamp(38px, 4.4vw, 62px); line-height: 1.35; letter-spacing: -1.5px; }
+@media (max-width: 1199px) {
+  .discovery-desktop-preferences { display: none; }
+  .discovery-header-inner { gap: 18px; }
+}
+@media (max-width: 900px) {
+  .discovery-desktop-nav { gap: 16px; }
+  .discovery-header-inner, .discovery-opening { width: calc(100% - 40px); }
+  .discovery-brand strong { font-size: 24px; }
+  .discovery-hero { min-height: 300px; }
+  .discovery-opening .discovery-hero-copy h1 { font-size: 43px; }
+  .discovery-hero-copy p { font-size: 16px; }
+  .discovery-service-grid { gap: 16px; }
+  .discovery-opening .discovery-service h2 { font-size: 19px; }
+}
+@media (max-width: 767px) {
+  .discovery-header-inner { width: calc(100% - 24px); min-height: 50px; gap: 8px; }
+  .discovery-header { border-bottom-color: transparent; }
+  .discovery-brand { gap: 8px; }
+  .discovery-brand strong { font-size: 20px; letter-spacing: -.4px; line-height: 1.25; }
+  .discovery-brand small { font-size: 10px; line-height: 1.55; }
+  .discovery-brand img { width: 36px; height: 36px; }
+  .discovery-header-actions { gap: 0; }
+  .discovery-desktop-nav, .discovery-cart, .discovery-desktop-preferences { display: none; }
+  .discovery-opening { width: 100%; }
+  .discovery-hero { min-height: 156px; height: 40vw; max-height: 230px; margin: 0 0 7px; align-items: flex-start; }
+  .discovery-hero-art { width: 44%; border-start-start-radius: 160px; }
+  .discovery-hero-copy { width: 66%; padding: 14px 16px 6px; }
+  .discovery-opening .discovery-hero-copy h1 { font-size: clamp(23px, 6.9vw, 36px); line-height: 1.65; letter-spacing: -.55px; }
+  .discovery-opening .discovery-hero-copy h1::after { width: 34px; border-width: 4px; margin-top: 8px; }
+  .discovery-hero-copy p { font-size: clamp(11px, 3.25vw, 15px); font-weight: 500; line-height: 1.8; margin-top: 12px; }
+  .discovery-services, .discovery-feature { margin-inline: 17px; }
+  .discovery-services { scroll-margin-top: 66px; }
+  .discovery-service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; row-gap: 5px; }
+  .discovery-service-image { aspect-ratio: 1.64; border-radius: 6px; }
+  .discovery-opening .discovery-service h2 { font-size: clamp(15px, 4.25vw, 21px); font-weight: 700; line-height: 1.65; margin: 4px 0 0; }
+  .discovery-shop-button { min-height: 44px; margin-top: 12px; padding: 9px 48px; border-radius: 7px; font-size: 16px; }
+  .discovery-shop-button svg { inset-inline-end: 21px; width: 25px; }
+  .discovery-feature { margin-top: 28px; padding-top: 21px; padding-bottom: 25px; }
+  .discovery-opening .discovery-feature-copy h2 { font-size: clamp(25px, 7.2vw, 34px); line-height: 1.65; letter-spacing: -.55px; }
+  .discovery-opening .discovery-feature-copy h2::after { margin-top: 4px; width: 21px; border-width: 3px; }
+  .discovery-feature-copy p { font-size: 14px; line-height: 1.8; margin: 5px 0 11px; }
+  .discovery-feature-image { border-radius: 6px; aspect-ratio: 2.12; }
+  .discovery-text-link { min-height: 38px; margin-top: 10px; gap: 14px; font-size: 16px; }
+  .homa-redesign .club-banner { margin-inline: 17px; }
+  .homa-redesign .editorial-section { padding-inline: 20px; padding-block: 42px; }
+  .homa-redesign .editorial-heading h2 { font-size: 28px; line-height: 1.5; }
+  .homa-redesign .landing-faq { padding-block: 42px; }
+  html[dir="ltr"] .discovery-opening .discovery-hero-copy h1 { font-size: clamp(20px, 5.8vw, 31px); line-height: 1.35; letter-spacing: -.5px; }
+  html[dir="ltr"] .discovery-hero-copy p { font-size: 12px; line-height: 1.5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .discovery-service-image img, .discovery-shop-button { transition: none; }
+  .discovery-service:hover .discovery-service-image img { transform: none; }
+}
