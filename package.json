@@ -13,6 +13,7 @@
     "start": "next start",
     "setup": "node scripts/setup.mjs",
     "platform:setup": "tsx scripts/platform-setup.ts",
+    "platform:bale-setup": "node --import tsx scripts/bale-pay-setup.ts",
     "platform:worker": "tsx scripts/platform-worker.ts",
     "platform:backup": "tsx scripts/platform-backup.ts",
     "auth:preflight": "NODE_ENV=production tsx scripts/auth-preflight.ts",

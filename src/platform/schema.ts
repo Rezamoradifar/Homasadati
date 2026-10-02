@@ -189,6 +189,22 @@ export function platformDb() {
   -- At most one attempt in flight per checkout.
   CREATE UNIQUE INDEX IF NOT EXISTS p_bale_payments_open ON p_bale_payments(checkout_id) WHERE status IN ('creating','pending');
 
+  -- The wallet transaction is bound before approving pre-checkout. A receipt
+  -- cannot supply or replace this binding. No bot/provider secrets live here.
+  CREATE TABLE IF NOT EXISTS p_bale_sessions(
+    payment_id TEXT PRIMARY KEY REFERENCES p_bale_payments(id),
+    payload_hash TEXT NOT NULL UNIQUE,account_fingerprint TEXT NOT NULL,
+    chat_id INTEGER,invoice_message_id INTEGER,send_claim TEXT,send_started_at INTEGER,
+    transaction_id TEXT UNIQUE,accepted_at TEXT,successful_at TEXT,
+    last_error TEXT,created_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_bale_runtime(key TEXT PRIMARY KEY,value TEXT NOT NULL,updated_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_bale_updates(
+    account_fingerprint TEXT NOT NULL,update_id INTEGER NOT NULL,body_hash TEXT NOT NULL,
+    state TEXT NOT NULL CHECK(state IN ('processing','done','retry')),
+    lease_until INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,
+    PRIMARY KEY(account_fingerprint,update_id));
+  INSERT OR IGNORE INTO p_migrations VALUES(22,datetime('now'));
+
   `);
   migrateCardLevels(d);
   migratePaymentMethods(d);

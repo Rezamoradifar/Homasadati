@@ -1402,29 +1402,19 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
 }
 import { balePaymentSummary, handleBaleCallback, startBalePayment, verifyBalePayment } from "./bale-payments";
 import { balePayEnabled } from "./bale-pay";
+import { handleBaleWebhook } from "./bale-bot";
 import { effectiveCraft } from "../commerce/craft-taxonomy";
 
-/** Bale returns the customer here (GET) or calls back server-to-server
- * (POST, cross-origin, so before the same-origin guard). Nothing in the
- * request is proof of payment: it only names the attempt, which is then
- * verified with Bale server-to-server. */
+/** Compatibility return/status endpoint. Browser fields never establish a
+ * wallet transaction; the authenticated bot webhook is separate. */
 async function baleCallback(req: Request, url: URL) {
   limit("bale-callback:" + ipOf(req), 60, 60);
   const fields = new URLSearchParams(url.searchParams);
   if (req.method === "POST") {
-    const type = req.headers.get("content-type") || "";
-    const text = (await req.text()).slice(0, 8192);
-    if (type.includes("application/x-www-form-urlencoded"))
-      new URLSearchParams(text).forEach((v, k) => fields.set(k, v));
-    else if (type.includes("application/json")) {
-      try {
-        const parsed = JSON.parse(text);
-        if (parsed && typeof parsed === "object")
-          for (const [k, v] of Object.entries(parsed))
-            if (typeof v === "string" || typeof v === "number") fields.set(k, String(v));
-      } catch {}
-    }
-    // `pid` is ours and travels only in the callback URL we issued.
+    // Native Bale sends events to the authenticated webhook. This legacy
+    // status endpoint accepts only the URL identifier and never buffers a
+    // public callback body or obtains a transaction ID from it.
+    void req.body?.cancel().catch(() => {});
     fields.set("pid", url.searchParams.get("pid") || "");
   }
   const { outcome } = await handleBaleCallback(fields);
@@ -1456,6 +1446,8 @@ export async function handle(req: Request, path: string[]) {
       });
     if (path.join("/") === "payment/bale/callback" && (get || method === "POST"))
       return await baleCallback(req, url);
+    if (path.length === 4 && path[0] === "payment" && path[1] === "bale" && path[2] === "webhook")
+      return await handleBaleWebhook(req, path[3]);
     if (path.join("/") === "payment/methods" && get)
       return json({ wallet: true, zarinpal: true, bale: balePayEnabled() });
     if (!get) {
