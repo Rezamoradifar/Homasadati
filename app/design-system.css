@@ -948,3 +948,37 @@ html body .enamad-seal.enamad-failed > a {
     scroll-snap-align: start;
   }
 }
+
+/* Handicrafts grouped by material on the "all products" page. */
+.craft-groups {
+  display: grid;
+  gap: clamp(28px, 4vw, 48px);
+}
+.craft-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--hn-border);
+}
+.craft-group-head h2 {
+  margin: 0;
+  font-size: clamp(18px, 2.2vw, 24px) !important;
+  font-weight: 700;
+}
+.craft-group-head h2 span {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--hn-text-muted);
+}
+.craft-group-head a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--hn-turquoise);
+  font-weight: 600;
+  text-decoration: none;
+}

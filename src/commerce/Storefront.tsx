@@ -12,6 +12,15 @@ import { amount, RecordData } from "../platform/client";
 import { brands, menuLine, menuName, menuSectors, isSector } from "./brands";
 import AddToCart from "./AddToCart";
 import CraftNav from "./CraftNav";
+import { craftCategories, craftCategory, craftShopHref } from "./craft-taxonomy";
+
+/** The material shown on a handicraft card, e.g. "مس · خاتم‌کاری". */
+function craftLabel(p: RecordData) {
+  const c = p.craft?.category ? craftCategory(p.craft.category) : undefined;
+  if (!c) return "";
+  const t = c.techniques?.find((x) => x.id === p.craft.technique);
+  return t ? `${c.short} · ${t.name}` : c.short;
+}
 export default function Storefront({
   initialVertical = "",
   initialQuery = "",
@@ -36,6 +45,35 @@ export default function Storefront({
       (cat ? `&cat=${cat}&tech=${tech}&item=${item}` : ""),
     reload,
   );
+  const card = (p: RecordData) => {
+                  const images = JSON.parse(p.images), copy=catalogCopy({title:p.title,description:p.description,details:p.details},locale);
+                  return (
+                    <Localized key={p.id}><article className="shop-card">
+                      <a href={`/shop/${p.id}`}>
+                        {images[0] ? (
+                          <ResponsiveImage src={images[0]} sizes="(max-width: 700px) 90vw, (max-width: 1050px) 44vw, 400px" alt={copy.title} loading="lazy" />
+                        ) : (
+                          <div className="no-image">
+                            <img src="/assets/brand/homanet-horizontal-orange.png" alt="هما نت" loading="lazy" />
+                          </div>
+                        )}
+                      </a>
+                      <small>
+                        {craftLabel(p) || (isSector(p.vertical) ? menuName(p.vertical) : p.vertical)}
+                      </small>
+                      <h2>
+                        <a href={`/shop/${p.id}`}>{copy.title}</a>
+                      </h2>
+                      <p>
+                        {copy.description.slice(0, 180)}
+                        {copy.description.length > 180 ? "…" : ""}
+                      </p>
+                      <strong><Money toman={p.price}/></strong>
+                      <a href={`/shop/${p.id}`}>مشخصات کامل و شرایط خرید ←</a>
+                      <AddToCart id={p.id} stock={p.stock} />
+                    </article></Localized>
+                  );
+  };
   return (
     <Localized><div className="shop-wrap">
       <div className="shop-heading">
@@ -99,39 +137,37 @@ export default function Storefront({
       <DataState state={state}>
         {(d) => (
           <Localized><>
-            {d.rows.length ? (
-              <div className="shop-grid">
-                {d.rows.map((p: RecordData) => {
-                  const images = JSON.parse(p.images), copy=catalogCopy({title:p.title,description:p.description,details:p.details},locale);
+            {d.grouped && d.rows.length ? (
+              <div className="craft-groups">
+                {craftCategories.map((c) => {
+                  const rows = d.rows.filter((p: RecordData) => p.craft?.category === c.id);
+                  if (!rows.length) return null;
                   return (
-                    <Localized key={p.id}><article className="shop-card">
-                      <a href={`/shop/${p.id}`}>
-                        {images[0] ? (
-                          <ResponsiveImage src={images[0]} sizes="(max-width: 700px) 90vw, (max-width: 1050px) 44vw, 400px" alt={copy.title} loading="lazy" />
-                        ) : (
-                          <div className="no-image">
-                            <img src="/assets/brand/homanet-horizontal-orange.png" alt="هما نت" loading="lazy" />
-                          </div>
-                        )}
-                      </a>
-                      <small>
-                        {isSector(p.vertical)
-                          ? menuName(p.vertical)
-                          : p.vertical}
-                      </small>
-                      <h2>
-                        <a href={`/shop/${p.id}`}>{copy.title}</a>
-                      </h2>
-                      <p>
-                        {copy.description.slice(0, 180)}
-                        {copy.description.length > 180 ? "…" : ""}
-                      </p>
-                      <strong><Money toman={p.price}/></strong>
-                      <a href={`/shop/${p.id}`}>مشخصات کامل و شرایط خرید ←</a>
-                      <AddToCart id={p.id} stock={p.stock} />
-                    </article></Localized>
+                    <Localized key={c.id}>
+                      <section className="craft-group" aria-labelledby={`craft-group-${c.id}`}>
+                        <header className="craft-group-head">
+                          <h2 id={`craft-group-${c.id}`}>
+                            {c.name} <span>({amount(rows.length)} محصول)</span>
+                          </h2>
+                          <a href={craftShopHref(c.id)}>مشاهدهٔ همه ←</a>
+                        </header>
+                        <div className="shop-grid">{rows.slice(0, 4).map(card)}</div>
+                      </section>
+                    </Localized>
                   );
                 })}
+                {d.rows.some((p: RecordData) => !p.craft?.category) && (
+                  <section className="craft-group">
+                    <header className="craft-group-head">
+                      <h2>سایر محصولات</h2>
+                    </header>
+                    <div className="shop-grid">{d.rows.filter((p: RecordData) => !p.craft?.category).map(card)}</div>
+                  </section>
+                )}
+              </div>
+            ) : d.rows.length ? (
+              <div className="shop-grid">
+                {d.rows.map(card)}
               </div>
             ) : (
               <p className="shop-empty">
@@ -139,7 +175,7 @@ export default function Storefront({
                 انتشار محصول توسط مدیر، اینجا نمایش داده می‌شود.
               </p>
             )}
-            <div className="commerce-pager">
+            {!d.grouped && <div className="commerce-pager">
               <button
                 className="commerce-button"
                 disabled={page === 1}
@@ -155,7 +191,7 @@ export default function Storefront({
               >
                 بعدی
               </button>
-            </div>
+            </div>}
           </></Localized>
         )}
       </DataState>

@@ -1542,7 +1542,9 @@ export async function handle(req: Request, path: string[]) {
       const q = query(url);
       // Handicraft and leather pages filter by the product's effective category,
       // technique and item: what staff set, or what its type and title say.
-      if (["craft", "leather"].includes(q.vertical) && (q.cat || q.tech || q.item || q.vertical === "leather")) {
+      if (["craft", "leather"].includes(q.vertical)) {
+        // Handicrafts with no filter or search: every product, grouped by material on the page.
+        const grouped = q.vertical === "craft" && !q.cat && !q.tech && !q.item && !q.q && !q.family;
         const cat = q.cat || (q.vertical === "leather" ? "leather" : "");
         const matched = all(
           "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND p.vertical IN ('craft','leather') AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR d.family=?) ORDER BY p.created_at DESC",
@@ -1550,16 +1552,16 @@ export async function handle(req: Request, path: string[]) {
           "%" + q.q + "%",
           q.family,
           q.family,
-        ).filter((p) => {
-          const e = effectiveCraft(p as { vertical: string; subtype?: string; title?: string }, publicCatalogDetails(p.details) as Record<string, string>);
-          return (!cat || e.category === cat) && (!q.tech || e.technique === q.tech) && (!q.item || e.item === q.item);
-        });
+        )
+          .map((p) => ({
+            ...p,
+            details: publicCatalogDetails(p.details),
+            craft: effectiveCraft(p as { vertical: string; subtype?: string; title?: string }, publicCatalogDetails(p.details) as Record<string, string>),
+          }))
+          .filter(({ craft: e }) => (!cat || e.category === cat) && (!q.tech || e.technique === q.tech) && (!q.item || e.item === q.item));
+        if (grouped) return json({ rows: matched.slice(0, 600), hasMore: false, page: 1, grouped: true });
         const start = (q.page - 1) * 30;
-        return json({
-          rows: matched.slice(start, start + 30).map((p) => ({ ...p, details: publicCatalogDetails(p.details) })),
-          hasMore: matched.length > start + 30,
-          page: q.page,
-        });
+        return json({ rows: matched.slice(start, start + 30), hasMore: matched.length > start + 30, page: q.page });
       }
       const result = paged(
         "SELECT p.*,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (p.title LIKE ? OR d.sku LIKE ?) AND (?='' OR p.vertical=? OR (?='craft' AND p.vertical='leather')) AND (?='' OR d.family=?) AND (?='' OR IFNULL(json_extract(d.details,'$.craftCategory'),'')=? OR (?='leather' AND p.vertical='leather')) AND (?='' OR json_extract(d.details,'$.craftTechnique')=?) AND (?='' OR json_extract(d.details,'$.craftItem')=?) ORDER BY p.created_at DESC",
