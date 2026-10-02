@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
-import { createOrder, settleOrder } from "./finance";
+import { createOrder, ledger, settleOrder, wallet } from "./finance";
+import { spendVoucher, voucherBalance } from "./seven-card-engine";
 import { paymentRequest } from "./providers";
 import {publicCatalogDetails} from './catalog-model';
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
@@ -68,6 +69,18 @@ export function createCheckout(
       : null;
     if (quote.requiresAddress && !address)
       throw new ApiError(400, "address_required");
+    // Voucher credit covers part or all of the basket; the rest is paid by the chosen method.
+    const voucherUse = input.useVoucher
+      ? Math.max(0, Math.min(voucherBalance(user), quote.total))
+      : 0;
+    const cashDue = quote.total - voucherUse;
+    if (
+      voucherUse &&
+      input.method === "wallet" &&
+      cashDue > 0 &&
+      (wallet(user).debt > 0 || wallet(user).available < cashDue)
+    )
+      throw new ApiError(409, "insufficient_balance");
     const id = randomUUID(),
       created = now(),
       expires = new Date(Date.now() + 3600000).toISOString();
@@ -75,14 +88,15 @@ export function createCheckout(
       "INSERT INTO p_checkouts(id,user_id,amount,method,status,payload,created_at,expires_at,idem_key) VALUES(?,?,?,?,?,?,?,?,?)",
       id,
       user,
-      quote.total,
+      cashDue > 0 ? cashDue : quote.total,
       input.method,
-      input.method === "wallet" ? "paid" : "pending",
+      input.method === "wallet" && !voucherUse ? "paid" : "pending",
       canonical,
       created,
       expires,
       input.idempotencyKey,
     );
+    let voucherLeft = voucherUse;
     for (const item of input.items) {
       const order = createOrder(
         user,
@@ -90,7 +104,13 @@ export function createCheckout(
         item.quantity,
         input.method,
         randomUUID(),
+        !voucherUse,
       );
+      const part = Math.min(order.amount, voucherLeft);
+      if (part) {
+        spendVoucher(user, order.id, part);
+        voucherLeft -= part;
+      }
       const snapshot = JSON.parse(order.policy);
       if (address) snapshot.orderTerms.shippingAddress = address;
       run(
@@ -99,6 +119,11 @@ export function createCheckout(
         order.id,
       );
       run("INSERT INTO p_checkout_items VALUES(?,?)", id, order.id);
+    }
+    if (voucherUse && cashDue === 0) return settleCheckout(id, "voucher:" + id);
+    if (voucherUse && input.method === "wallet") {
+      ledger(user, "checkout-wallet:" + id, "purchase", id, -cashDue);
+      return settleCheckout(id, "wallet:" + id);
     }
     return one("SELECT * FROM p_checkouts WHERE id=?", id)!;
   });
@@ -146,7 +171,7 @@ export async function payCheckout(checkoutId: string, user: string) {
   )
     throw new ApiError(409, "payment_request_in_progress");
   try {
-    const authority = await paymentRequest(c.id, c.amount);
+    const authority = await paymentRequest(c.id, c.amount, { kind: "checkout", userId: c.user_id });
     if (
       !run(
         "UPDATE p_checkouts SET authority=?,claim=NULL WHERE id=? AND claim=? AND status='pending' AND expires_at>?",

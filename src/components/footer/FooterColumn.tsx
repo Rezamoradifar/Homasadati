@@ -10,7 +10,7 @@ export function FooterColumn({titleKey, links = [], children, defaultOpen = fals
   const id = useId();
   const [open, setOpen] = useState(defaultOpen);
   return <section className={`min-w-0 border-b border-white/15 py-2 md:border-0 md:py-0 ${className}`}>
-    <h2 className="text-base font-semibold text-[#F5EAD4]">
+    <h2 className="text-base font-semibold text-[#eee6db]">
       <span className="hidden md:block md:mb-4">{t(titleKey)}</span>
       <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls={`${id}-panel`}
         className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-sm text-start md:hidden ${focusRing}`}>

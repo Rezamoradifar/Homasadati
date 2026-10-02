@@ -21,3 +21,4 @@ backups/
 .env.development.local
 .env.*.local
 .env
+.next-*/

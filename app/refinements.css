@@ -1,16 +1,16 @@
 /* Shared editorial typography, comfortable Persian reading and robust small screens. */
 html body {
-  font-family: "Manrope", "Vazirmatn", sans-serif;
+  font-family: var(--font-fa), sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 html [dir="rtl"] {
-  font-family: "Vazirmatn", "Manrope", sans-serif;
+  font-family: var(--font-fa), sans-serif;
   letter-spacing: normal;
 }
 html [dir="rtl"] :is(h1, h2, h3) {
-  font-family: "Vazirmatn", sans-serif;
+  font-family: var(--font-fa), sans-serif;
   letter-spacing: normal;
   line-height: 1.65;
   font-weight: 600;
@@ -46,14 +46,14 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 }
 .civilization-thumbs {
   scrollbar-width: thin;
-  scrollbar-color: #b49a65 transparent;
+  scrollbar-color: #b49365 transparent;
 }
 .collection-rail {
   scrollbar-width: thin;
-  scrollbar-color: #b49a65 transparent;
+  scrollbar-color: #b49365 transparent;
 }
 .collection-rail img {
-  box-shadow: 0 14px 35px #07191615;
+  box-shadow: 0 14px 35px #0d0f1315;
 }
 .collection-section small {
   opacity: 1;
@@ -85,7 +85,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 }
 .commerce-footer {
   position: relative;
-  border-top: 2px solid #c7a46a;
+  border-top: 2px solid #bc9e75;
 }
 .commerce-footer h2 {
   font-size: clamp(23px, 3vw, 38px);
@@ -96,7 +96,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
   min-height: 38px;
 }
 .commerce-footer a:hover {
-  color: #e5c990;
+  color: #d2bea3;
 }
 .commerce-footer .footer-brand-mark {
   width: 64px;
@@ -107,7 +107,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 .commerce-footer details summary {
   font-weight: 600;
   cursor: pointer;
-  color: #e4c48a;
+  color: #d0bb9e;
   margin-bottom: 16px;
 }
 .commerce-footer details nav {
@@ -122,7 +122,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 20px;
-  border-top: 1px solid #a1b3a644;
+  border-top: 1px solid #bead9644;
   padding-top: 24px;
   font-size: 12px;
 }
@@ -132,8 +132,8 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 .landing-footer[data-variant="editorial"] {
   background: radial-gradient(
     ellipse at 85% 0%,
-    #254c40,
-    #0d2825 68%
+    #2d3644,
+    #151920 68%
   ) !important;
 }
 .landing-footer[data-variant="editorial"] .footer-introduction {
@@ -152,14 +152,14 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 }
 .landing-footer[data-variant="editorial"] [data-footer-columns] p {
   font-size: 14px;
-  color: #c4d2c6;
+  color: #d7cdbf;
 }
 .landing-footer[data-variant="editorial"] .footer-signature {
   padding-block: 24px;
 }
 .landing-footer[data-variant="editorial"] .footer-signature > span {
   font-size: clamp(40px, 9vw, 120px);
-  color: #bccaad65;
+  color: #ccbeab65;
 }
 .landing-footer[data-variant="editorial"] :is(input, select) {
   border-radius: 8px !important;
@@ -182,7 +182,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
   margin: 16px 0;
 }
 .rank-disclosure {
-  border-inline-start: 3px solid #bda16e;
+  border-inline-start: 3px solid #ba9c71;
   padding-inline-start: 20px;
   margin: 25px 0;
 }
@@ -192,13 +192,13 @@ html [dir="rtl"] :is(button, input, select, textarea) {
   gap: 28px;
 }
 .rank-card {
-  border: 1px solid #ad996f55;
+  border: 1px solid #ad936f55;
   border-radius: 16px;
   overflow: hidden;
 }
 .rank-art {
-  background: linear-gradient(120deg, var(--card-tone, #31594d), #081e1e);
-  color: #f1dfb8;
+  background: linear-gradient(120deg, var(--card-tone, #374253), #0f1217);
+  color: #e3d7c6;
   padding: 26px;
   position: relative;
   aspect-ratio: 1.6;
@@ -206,7 +206,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 }
 .rank-art > span {
   font:
-    11px "Manrope",
+    11px var(--font-fa),
     sans-serif;
   letter-spacing: 0.15em;
 }
@@ -247,9 +247,12 @@ html [dir="rtl"] :is(button, input, select, textarea) {
 .rank-obsidian {
   --card-tone: #353949;
 }
+.rank-lapis {
+  --card-tone: #1f3f7a;
+}
 .rank-description {
   padding: 24px;
-  background: #fffdf8;
+  background: #fdfcfa;
 }
 .rank-description strong {
   font-size: 13px;
@@ -299,7 +302,7 @@ html [dir="rtl"] :is(button, input, select, textarea) {
     padding: 38px 6%;
   }
   .commerce-footer details {
-    border-top: 1px solid #cad6c133;
+    border-top: 1px solid #d8cebf33;
     padding: 16px 0;
   }
   .commerce-footer details summary {
@@ -397,7 +400,7 @@ html .hero .civilization-caption button {
   min-height: 44px;
 }
 html .hero .hero-shade {
-  background: linear-gradient(90deg, #061a20ce, #061a2030 90%);
+  background: linear-gradient(90deg, #0f1217ce, #0f121730 90%);
 }
 html .collection-rail figure {
   flex-basis: calc((100% - 24px) / 2);
@@ -431,7 +434,7 @@ html .club-preview-grid .rank-card {
 }
 html .club-preview-grid .rank-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px #081e1e22;
+  box-shadow: 0 12px 30px #0f121722;
 }
 html .club-preview-grid .rank-art {
   min-height: 190px;
@@ -440,7 +443,7 @@ html .club-preview-grid .rank-art {
 }
 html .club-preview-grid .rank-art h3 {
   font-size: 26px;
-  color: #f4e5c4;
+  color: #e8ded0;
 }
 html .club-preview-grid .rank-art img {
   width: 48px;
@@ -449,7 +452,7 @@ html .club-preview-grid .rank-art img {
   left: 18px;
 }
 html .rank-jade {
-  --card-tone: #557556;
+  --card-tone: #516379;
 }
 html .club-preview-note {
   font-size: 14px;
@@ -592,7 +595,7 @@ html .rank-description strong {
 }
 html[dir="rtl"] body,
 html[dir="rtl"] :is(h1, h2, h3) {
-  font-family: "Vazirmatn", sans-serif;
+  font-family: var(--font-fa), sans-serif;
   letter-spacing: normal;
 }
 html .skip-link:not(:focus) {
@@ -604,7 +607,7 @@ html .skip-link:not(:focus) {
   white-space: nowrap;
 }
 html .skip-link:focus {
-  color: #173b35;
+  color: #212731;
   inset-inline-start: 16px;
 }
 @media (max-width: 600px) {
@@ -637,7 +640,7 @@ html .brand-hero.tourism .tourism-hero-video {
 html .brand-hero.tourism:after {
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(270deg, #071b20c7, #071b2029);
+  background: linear-gradient(270deg, #101317c7, #10131729);
 }
 html .brand-hero.tourism > div {
   z-index: 2;
@@ -658,8 +661,8 @@ html .tourism-video-controls button {
   padding: 10px 18px;
   min-height: 44px;
   min-width: 100px;
-  background: #102d2de6;
-  border: 1px solid #d7b879;
+  background: #181d25e6;
+  border: 1px solid #c6ad8a;
   border-radius: 6px;
   color: #fff;
   font: inherit;
@@ -678,10 +681,10 @@ html .tourism-video-controls [role="status"] {
 }
 html .commerce .club-preview {
   padding: 64px max(6vw, 20px);
-  background: #f7f5ef;
+  background: var(--homa-light-bg);
 }
 html[data-theme="dark"] .commerce .club-preview {
-  background: #101c1d;
+  background: var(--homa-dark-bg);
 }
 html .commerce .club-preview .section-heading {
   display: flex;
@@ -696,16 +699,16 @@ html .commerce .club-preview h2 {
 }
 html .commerce .club-preview .editorial-link {
   font-size: 14px;
-  border-bottom: 1px solid #b99d68;
+  border-bottom: 1px solid #b7976a;
   padding: 12px 0;
   white-space: nowrap;
 }
 html .commerce .club-preview .eyebrow {
   font-size: 14px;
-  color: #94713b;
+  color: #42648d;
 }
 html[data-theme="dark"] .commerce .club-preview .eyebrow {
-  color: #d9bb80;
+  color: #c9b190;
 }
 html .club-preview .rank-art {
   min-width: 0;
@@ -747,14 +750,14 @@ html .club-preview-grid {
 }
 html .rank-card {
   border-radius: 17px;
-  border: 1px solid #ad996f55;
-  box-shadow: 0 10px 25px #1230290b;
+  border: 1px solid #ad936f55;
+  box-shadow: 0 10px 25px #1a1f280b;
   scroll-margin-top: 110px;
 }
 .privilege-card {
-  --card-base: #152c24;
-  --card-glow: #62856a;
-  --card-foil: #e7d6ae;
+  --card-base: #1a1f27;
+  --card-glow: #5c718b;
+  --card-foil: #ddceb8;
   isolation: isolate;
   position: relative;
   overflow: hidden;
@@ -768,15 +771,15 @@ html .rank-card {
   color: var(--card-foil);
   background:
     radial-gradient(ellipse at 12% 0%, var(--card-glow), transparent 70%),
-    linear-gradient(130deg, var(--card-base), #0c171b);
+    linear-gradient(130deg, var(--card-base), #101317);
   box-shadow:
-    inset 0 0 0 1px #e7d6ae3d,
+    inset 0 0 0 1px #ddceb83d,
     inset 0 0 40px #0002;
 }
 .privilege-card.rank-jade {
-  --card-base: #234735;
-  --card-glow: #66896b;
-  --card-foil: #f2e7c8;
+  --card-base: #2a3240;
+  --card-glow: #60758f;
+  --card-foil: #e9dfd1;
 }
 .privilege-card.rank-forest {
   --card-base: #14251d;
@@ -808,11 +811,16 @@ html .rank-card {
   --card-glow: #3c4559;
   --card-foil: #e9c58d;
 }
+.privilege-card.rank-lapis {
+  --card-base: #0e1d3d;
+  --card-glow: #3b64b8;
+  --card-foil: #f3dca0;
+}
 .privilege-card:after {
   content: "";
   position: absolute;
   inset: 9px;
-  border: 1px solid #eddab42a;
+  border: 1px solid #e1d3c02a;
   border-radius: 10px;
   pointer-events: none;
   z-index: -1;
@@ -823,15 +831,15 @@ html .rank-card {
   height: 280px;
   left: -105px;
   bottom: -170px;
-  border: 1px solid #e8d4a744;
+  border: 1px solid #dbcbb444;
   border-radius: 50%;
   box-shadow:
     0 0 0 16px #0000,
-    0 0 0 17px #e8d4a72b,
+    0 0 0 17px #dbcbb42b,
     0 0 0 33px #0000,
-    0 0 0 34px #e8d4a71c,
+    0 0 0 34px #dbcbb41c,
     0 0 0 52px #0000,
-    0 0 0 53px #e8d4a713;
+    0 0 0 53px #dbcbb413;
   z-index: -1;
   transform: rotate(-25deg) scaleY(1.5);
 }
@@ -854,7 +862,7 @@ html .privilege-card .privilege-watermark {
 }
 .privilege-top > span {
   font:
-    500 12px Manrope,
+    500 12px var(--font-fa),
     sans-serif;
   letter-spacing: 0.11em;
 }
@@ -882,7 +890,7 @@ html .privilege-card .privilege-watermark {
 }
 .privilege-card .privilege-title h3 {
   font:
-    500 clamp(28px, 2.4vw, 36px)/1.4 Vazirmatn,
+    500 clamp(28px, 2.4vw, 36px)/1.4 var(--font-fa),
     sans-serif !important;
   margin: 3px 0 0 !important;
   color: var(--card-foil) !important;
@@ -912,7 +920,7 @@ html .privilege-card .privilege-watermark {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  font-family: Manrope, sans-serif;
+  font-family: var(--font-fa), sans-serif;
 }
 .privilege-level b {
   font-size: 26px;
@@ -930,7 +938,7 @@ html .rank-description {
 .rank-description > strong {
   display: inline-block;
   padding: 5px 10px;
-  border: 1px solid #ab8f573d;
+  border: 1px solid #577dab3d;
   border-radius: 5px;
   font-size: 11px !important;
   line-height: 1.8;
@@ -941,11 +949,11 @@ html .rank-description {
 html .travel-credit-card {
   display: block;
   padding: 0;
-  border: 1px solid #a8905b50;
+  border: 1px solid #5b7ea850;
   border-radius: 17px;
   overflow: hidden;
-  background: #fffdf8;
-  color: #173f37;
+  background: #fdfcfa;
+  color: #222934;
   min-width: 0;
 }
 .travel-credit-card > .travel-card-details {
@@ -973,8 +981,8 @@ html .travel-credit-card {
   margin-top: 15px;
 }
 html[data-theme="dark"] .travel-credit-card {
-  background: #182e2b;
-  color: #edf0e7;
+  background: var(--homa-dark-surface);
+  color: #e7eef0;
 }
 @media (min-width: 1001px) {
   html .club-preview-grid > .rank-card:last-child:nth-child(3n + 1) {
@@ -1035,12 +1043,12 @@ html .privilege-card .privilege-watermark {
   opacity: 0.08;
 }
 .privilege-card-lines {
-  border-color: #e8d4a72b;
+  border-color: #dbcbb42b;
   box-shadow:
     0 0 0 16px #0000,
-    0 0 0 17px #e8d4a710,
+    0 0 0 17px #dbcbb410,
     0 0 0 33px #0000,
-    0 0 0 34px #e8d4a70a;
+    0 0 0 34px #dbcbb40a;
 }
 .travel-credit-card .privilege-bottom strong {
   font-size: 11px;

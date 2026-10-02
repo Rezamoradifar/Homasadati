@@ -54,7 +54,7 @@ const quote = {
   budget: 100_000_000,
   voucherCountsTowardCap: true,
 };
-it("uses non-overlapping exact purchase boundaries and the new seven levels", () => {
+it("uses non-overlapping exact purchase boundaries and the eight levels", () => {
   expect(cardForPurchase(9_999_999)).toBeNull();
   for (let level = 1; level <= 7; level++) {
     const card = cardForPurchase(level * 10_000_000)!;
@@ -65,7 +65,10 @@ it("uses non-overlapping exact purchase boundaries and the new seven levels", ()
     if (level > 1)
       expect(cardForPurchase(level * 10_000_000 - 1)?.level).toBe(level - 1);
   }
-  expect(cardForPurchase(1_000_000_000_000)?.level).toBe(7);
+  // Simurgh runs from 70m up to the Aria card at 100m.
+  expect(cardForPurchase(99_999_999)?.level).toBe(7);
+  expect(cardForPurchase(100_000_000)).toMatchObject({ level: 8, desks: 8, weeklyCapToman: 120_000_000 });
+  expect(cardForPurchase(1_000_000_000_000)?.level).toBe(8);
   expect(() => cardForPurchase(10.5)).toThrow();
 });
 it("preserves the third whole match above the 15m desk cap", () => {
@@ -152,7 +155,7 @@ it("exposes public details, requires staff for changes and validates simulation 
     );
   const publicResponse = await call("card-plan");
   expect(publicResponse.status).toBe(200);
-  expect((await publicResponse.json()).cards).toHaveLength(7);
+  expect((await publicResponse.json()).cards).toHaveLength(8);
   expect((await call("admin/seven-card-plan", memberCookie)).status).toBe(403);
   expect(
     (await call("admin/seven-card-simulate", adminCookie, quote)).status,

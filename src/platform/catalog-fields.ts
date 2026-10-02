@@ -1,4 +1,5 @@
 import type { Field } from "./Widgets";
+import { craftCategories } from "../commerce/craft-taxonomy";
 const section = (name: string, label: string, sectors?: string[]): Field => ({
   name,
   label,
@@ -60,6 +61,22 @@ export const extendedCatalogFields: Field[] = [
   field("ingredients", "ترکیبات", "textarea", ["beauty"]),
   field("usage", "روش مصرف", "textarea", ["beauty"]),
   field("warnings", "هشدارهای مصرف", "textarea", ["beauty"]),
+  section("craftTaxonomy", "دسته‌بندی صنایع‌دستی", ["craft", "leather"]),
+  {
+    ...field("craftCategory", "دسته محصول", "select", ["craft", "leather"]),
+    options: [["", "بدون دسته"], ...craftCategories.map((c): [string, string] => [c.id, c.name])],
+  },
+  {
+    ...field("craftTechnique", "تکنیک کار مس", "select", ["craft"]),
+    options: [["", "—"], ...(craftCategories[0].techniques || []).map((t): [string, string] => [t.id, t.name])],
+  },
+  {
+    ...field("craftItem", "کاربری محصول", "select", ["craft", "leather"]),
+    options: [
+      ["", "—"],
+      ...[...new Map(craftCategories.flatMap((c) => c.items || []).map((i) => [i.id, i.name])).entries()],
+    ],
+  },
   section("craftsmanship", "شناسنامه صنایع‌دستی", ["craft", "leather"]),
   field("artisan", "نام هنرمند / کارگاه", "text", ["craft", "leather"]),
   field("technique", "تکنیک ساخت", "text", ["craft", "leather"]),

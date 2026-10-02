@@ -1,0 +1,812 @@
+{
+  "note": "Starter catalogue. Prices are in toman and are suggestions: the admin reviews price, stock and photos, then publishes. Loaded by scripts/seed-catalog.ts; products are matched by SKU, so re-running never duplicates or overwrites.",
+  "defaults": {
+    "craft": {
+      "stock": 5,
+      "cancel_hours": 24,
+      "duration_days": 30
+    },
+    "leather": {
+      "stock": 8,
+      "cancel_hours": 24,
+      "duration_days": 30
+    },
+    "beauty": {
+      "stock": 30,
+      "cancel_hours": 24,
+      "duration_days": 30
+    },
+    "tourism": {
+      "stock": 12,
+      "cancel_hours": 72,
+      "duration_days": 30
+    },
+    "ai": {
+      "stock": 100,
+      "cancel_hours": 24,
+      "duration_days": 30
+    }
+  },
+  "shipping": {
+    "craft": "ارسال با پست پیشتاز یا پیک، در بسته‌بندی ضدضربه و جعبهٔ هدیه؛ ۳ تا ۷ روز کاری پس از تأیید سفارش. هزینهٔ ارسال هنگام تأیید سفارش اعلام می‌شود.",
+    "beauty": "ارسال با پست پیشتاز؛ ۲ تا ۵ روز کاری. محصولات بهداشتی پس از باز شدن پلمب قابل مرجوع نیستند."
+  },
+  "warranty": {
+    "craft": "ضمانت اصالت و سلامت کالا؛ در صورت آسیب‌دیدگی در ارسال یا مغایرت با مشخصات، تا ۷ روز پس از تحویل تعویض یا مبلغ کامل برگردانده می‌شود.",
+    "leather": "ضمانت اصالت چرم طبیعی و ۱۲ ماه ضمانت دوخت و یراق؛ تا ۷ روز پس از تحویل در صورت مغایرت، تعویض یا بازگشت وجه.",
+    "beauty": "ضمانت اصالت و سلامت پلمب؛ کالای آسیب‌دیده یا مغایر با سفارش تا ۷ روز پس از تحویل تعویض می‌شود.",
+    "tourism": "تا ۷۲ ساعت پس از پرداخت و دست‌کم ۱۵ روز پیش از حرکت، لغو با بازگشت کامل وجه ممکن است؛ پس از آن طبق مقررات لغو تورهای داخلی.",
+    "ai": "تا ۲۴ ساعت پس از پرداخت و پیش از فعال‌سازی، لغو با بازگشت کامل وجه ممکن است."
+  },
+  "products": [
+    {
+      "sku": "HN-CU-TQ-SB-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 4800000,
+      "title": "قندان مسی فیروزه‌کوب",
+      "titleEn": "Turquoise-inlaid copper sugar bowl",
+      "description": "قندان مسی دست‌ساز اصفهان با فیروزه‌کوبی سنتی؛ هر قطعه با دست و سنگ فیروزهٔ طبیعی ساخته می‌شود و نقش و رنگ هر نمونه کمی متفاوت است.",
+      "descriptionEn": "Handmade Isfahan copper sugar bowl with traditional turquoise inlay; each piece is unique.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "turquoise",
+        "craftItem": "sugar-bowl",
+        "material": "مس، سنگ فیروزه",
+        "origin": "ایران، اصفهان",
+        "technique": "فیروزه‌کوبی",
+        "dimensions": "قطر ۱۲ × ارتفاع ۱۴",
+        "weightGrams": 900,
+        "features": "مس خالص با آبکاری داخلی\nفیروزهٔ طبیعی\nمناسب هدیه",
+        "care": "با دستمال نرم و خشک تمیز شود؛ از مواد شوینده و ضربه دور بماند."
+      }
+    },
+    {
+      "sku": "HN-CU-TQ-CD-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 6500000,
+      "title": "شکلات‌خوری پایه‌دار فیروزه‌کوب",
+      "titleEn": "Footed turquoise copper chocolate dish",
+      "description": "شکلات‌خوری پایه‌دار مسی با فیروزه‌کوبی کامل بدنه؛ مناسب پذیرایی رسمی و هدیهٔ سازمانی.",
+      "descriptionEn": "Footed copper chocolate dish fully inlaid with turquoise, for formal hosting and corporate gifts.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "turquoise",
+        "craftItem": "chocolate-dish",
+        "material": "مس، سنگ فیروزه",
+        "origin": "ایران، اصفهان",
+        "technique": "فیروزه‌کوبی",
+        "dimensions": "قطر ۱۸ × ارتفاع ۱۶",
+        "weightGrams": 1200,
+        "features": "کار کامل دست\nپایهٔ ثابت و محکم\nجعبهٔ هدیه",
+        "care": "با دستمال نرم و خشک تمیز شود؛ از مواد شوینده و ضربه دور بماند."
+      }
+    },
+    {
+      "sku": "HN-CU-TQ-SMT-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 68000000,
+      "title": "ست کامل سماور و چای‌خوری فیروزه‌کوب",
+      "titleEn": "Turquoise copper samovar and tea set",
+      "description": "ست کامل سماور برقی مسی با قوری، سینی و شش استکان‌نعلبکی، همه با فیروزه‌کوبی دست؛ شاهکاری برای پذیرایی و یادگاری ماندگار.",
+      "descriptionEn": "Complete electric copper samovar set with teapot, tray and six glasses, all hand-inlaid with turquoise.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "turquoise",
+        "craftItem": "samovar-tea-set",
+        "material": "مس، سنگ فیروزه، المنت برقی",
+        "origin": "ایران، اصفهان",
+        "technique": "فیروزه‌کوبی",
+        "dimensions": "ارتفاع سماور ۴۵",
+        "weightGrams": 9000,
+        "features": "سماور برقی با المنت استاندارد\nسینی، قوری و ۶ استکان‌نعلبکی\nجعبهٔ چوبی هدیه",
+        "care": "پیش از هر بار شست‌وشو برق را قطع کنید؛ بدنه با دستمال نرم و خشک تمیز شود."
+      }
+    },
+    {
+      "sku": "HN-CU-KH-VS-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 9500000,
+      "title": "گلدان مسی خاتم‌کاری",
+      "titleEn": "Khatam-inlaid copper vase",
+      "description": "گلدان مسی با نوار خاتم‌کاری ظریف؛ ترکیب هنر مس‌گری و خاتم شیراز.",
+      "descriptionEn": "Copper vase with fine khatam marquetry bands, joining copper work and Shiraz khatam.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "khatam",
+        "craftItem": "vase",
+        "material": "مس، چوب، استخوان",
+        "origin": "ایران، شیراز و اصفهان",
+        "technique": "خاتم‌کاری",
+        "dimensions": "ارتفاع ۲۵",
+        "weightGrams": 1400,
+        "features": "خاتم دست‌ساز\nرنگ ثابت و براق",
+        "care": "دور از رطوبت و نور مستقیم آفتاب نگهداری شود."
+      }
+    },
+    {
+      "sku": "HN-CU-KH-SMS-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 78000000,
+      "title": "ست کامل سماور خاتم‌کاری",
+      "titleEn": "Khatam copper samovar set",
+      "description": "ست سماور مسی با قوری و سینی، آراسته به خاتم‌کاری کامل؛ مناسب تالار پذیرایی و هدیهٔ ویژه.",
+      "descriptionEn": "Copper samovar set with teapot and tray, fully decorated with khatam marquetry.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "khatam",
+        "craftItem": "samovar-set",
+        "material": "مس، چوب، استخوان، المنت برقی",
+        "origin": "ایران",
+        "technique": "خاتم‌کاری",
+        "dimensions": "ارتفاع سماور ۴۵",
+        "weightGrams": 8500,
+        "features": "سماور برقی\nسینی و قوری خاتم\nجعبهٔ هدیه",
+        "care": "دور از رطوبت نگهداری شود؛ بدنه با دستمال نرم و خشک تمیز شود."
+      }
+    },
+    {
+      "sku": "HN-CU-DC-SH-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 12500000,
+      "title": "ست شربت‌خوری مسی الماس‌تراش",
+      "titleEn": "Diamond-cut copper sherbet set",
+      "description": "پارچ و شش لیوان مسی با نقش‌های الماس‌تراش که زیر نور می‌درخشد؛ داخل ظروف قلع‌اندود و مناسب نوشیدنی است.",
+      "descriptionEn": "Copper jug and six cups with light-catching diamond-cut patterns; tin-lined inside.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "diamond-cut",
+        "craftItem": "sherbet-set",
+        "material": "مس با داخل قلع‌اندود",
+        "origin": "ایران، اصفهان",
+        "technique": "الماس‌تراش",
+        "weightGrams": 2600,
+        "features": "پارچ و ۶ لیوان\nداخل قلع‌اندود",
+        "care": "با آب ولرم و بدون ساینده شسته و فوراً خشک شود."
+      }
+    },
+    {
+      "sku": "HN-CU-DC-NB-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 5900000,
+      "title": "آجیل‌خوری مسی الماس‌تراش",
+      "titleEn": "Diamond-cut copper nut bowl",
+      "description": "آجیل‌خوری مسی درب‌دار با تراش الماسی؛ زیبایی ساده برای میز پذیرایی.",
+      "descriptionEn": "Lidded copper nut bowl with diamond-cut finish.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "diamond-cut",
+        "craftItem": "nut-bowl",
+        "material": "مس",
+        "origin": "ایران، اصفهان",
+        "technique": "الماس‌تراش",
+        "weightGrams": 1100,
+        "care": "با دستمال نرم و خشک تمیز شود."
+      }
+    },
+    {
+      "sku": "HN-CU-PR-TS-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 14000000,
+      "title": "ست چای‌خوری مسی پرداز",
+      "titleEn": "Pardaz copper tea set",
+      "description": "قوری، قندان و شش جااستکانی مسی با پرداز دستی و جلای گرم؛ مناسب استفادهٔ روزانه و هدیه.",
+      "descriptionEn": "Copper teapot, sugar bowl and six glass holders with hand-burnished pardaz finish.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "pardaz",
+        "craftItem": "tea-set",
+        "material": "مس",
+        "origin": "ایران، زنجان",
+        "technique": "پرداز",
+        "weightGrams": 2800,
+        "features": "قوری، قندان، ۶ جااستکانی",
+        "care": "با آب ولرم و بدون ساینده شسته و فوراً خشک شود."
+      }
+    },
+    {
+      "sku": "HN-CU-PR-HY-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 3900000,
+      "title": "سنبلدان مسی پرداز",
+      "titleEn": "Pardaz copper hyacinth holder",
+      "description": "سنبلدان مسی دست‌ساز برای سفرهٔ هفت‌سین و دکور خانه.",
+      "descriptionEn": "Handmade copper hyacinth holder for the Haft-Sin table and home decor.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "pardaz",
+        "craftItem": "hyacinth-holder",
+        "material": "مس",
+        "origin": "ایران",
+        "technique": "پرداز",
+        "weightGrams": 500,
+        "care": "با دستمال نرم و خشک تمیز شود."
+      }
+    },
+    {
+      "sku": "HN-CU-SI-SB-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 5600000,
+      "title": "قندان مسی نقره‌کوب",
+      "titleEn": "Silver-inlaid copper sugar bowl",
+      "description": "قندان مسی دست‌ساز با نقش‌های نقره‌کوب ظریف؛ مفتول نقره با دست روی بدنهٔ مس کوبیده می‌شود و هر قطعه یکتاست.",
+      "descriptionEn": "Handmade copper sugar bowl with fine silver-inlay patterns hammered in by hand; each piece is unique.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "silver-inlay",
+        "craftItem": "sugar-bowl",
+        "material": "مس، نقره",
+        "origin": "ایران، اصفهان",
+        "technique": "نقره‌کوبی",
+        "dimensions": "قطر ۱۲ × ارتفاع ۱۴",
+        "weightGrams": 850,
+        "features": "نقره‌کوبی دست\nجعبهٔ هدیه",
+        "care": "با دستمال نرم و خشک تمیز شود؛ برای حفظ جلای نقره، دور از رطوبت و مواد شوینده نگهداری شود."
+      }
+    },
+    {
+      "sku": "HN-CU-SI-VS-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 11800000,
+      "title": "گلدان مسی نقره‌کوب",
+      "titleEn": "Silver-inlaid copper vase",
+      "description": "گلدان مسی با نقش اسلیمی نقره‌کوب؛ ترکیب گرمای مس و درخشش نقره برای دکور خانه و محل کار.",
+      "descriptionEn": "Copper vase with silver-inlaid arabesque patterns for home and office decor.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "silver-inlay",
+        "craftItem": "vase",
+        "material": "مس، نقره",
+        "origin": "ایران، اصفهان",
+        "technique": "نقره‌کوبی",
+        "dimensions": "ارتفاع ۲۸",
+        "weightGrams": 1500,
+        "features": "نقره‌کوبی دست\nشناسنامهٔ اثر",
+        "care": "با دستمال نرم و خشک تمیز شود؛ برای حفظ جلای نقره، دور از رطوبت و مواد شوینده نگهداری شود."
+      }
+    },
+    {
+      "sku": "HN-CU-SI-CD-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 7400000,
+      "title": "شکلات‌خوری پایه‌دار نقره‌کوب",
+      "titleEn": "Footed silver-inlaid chocolate dish",
+      "description": "شکلات‌خوری پایه‌دار مسی با حاشیهٔ نقره‌کوب؛ مناسب پذیرایی رسمی و هدیهٔ سازمانی.",
+      "descriptionEn": "Footed copper chocolate dish with a silver-inlaid rim, for formal hosting and corporate gifts.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "silver-inlay",
+        "craftItem": "chocolate-dish",
+        "material": "مس، نقره",
+        "origin": "ایران، اصفهان",
+        "technique": "نقره‌کوبی",
+        "dimensions": "قطر ۱۸ × ارتفاع ۱۶",
+        "weightGrams": 1150,
+        "care": "با دستمال نرم و خشک تمیز شود؛ برای حفظ جلای نقره، دور از رطوبت و مواد شوینده نگهداری شود."
+      }
+    },
+    {
+      "sku": "HN-CU-SI-TS-01",
+      "vertical": "craft",
+      "subtype": "ظروف مسی",
+      "price": 19500000,
+      "title": "ست چای‌خوری مسی نقره‌کوب",
+      "titleEn": "Silver-inlaid copper tea set",
+      "description": "قوری، قندان و شش جااستکانی مسی با نقره‌کوبی دست؛ ست کامل پذیرایی با جعبهٔ هدیه.",
+      "descriptionEn": "Copper teapot, sugar bowl and six glass holders, hand silver-inlaid, in a gift box.",
+      "details": {
+        "craftCategory": "copper",
+        "craftTechnique": "silver-inlay",
+        "craftItem": "tea-set",
+        "material": "مس، نقره",
+        "origin": "ایران، اصفهان",
+        "technique": "نقره‌کوبی",
+        "weightGrams": 2900,
+        "features": "قوری، قندان، ۶ جااستکانی\nجعبهٔ هدیه",
+        "care": "با دستمال نرم و خشک تمیز شود؛ برای حفظ جلای نقره، دور از رطوبت و مواد شوینده نگهداری شود."
+      }
+    },
+    {
+      "sku": "HN-LT-BG-W-01",
+      "vertical": "leather",
+      "subtype": "کیف",
+      "price": 7900000,
+      "title": "کیف دستی زنانه چرم طبیعی",
+      "titleEn": "Women's genuine leather handbag",
+      "description": "کیف دستی زنانه از چرم طبیعی گاوی با دوخت دست، آستر پارچه‌ای و یراق برنجی.",
+      "descriptionEn": "Women's handbag in genuine cowhide with hand stitching, fabric lining and brass hardware.",
+      "images": [
+        "/assets/collections/leather-women.webp"
+      ],
+      "details": {
+        "craftCategory": "leather",
+        "craftItem": "bag",
+        "brand": "همای",
+        "material": "چرم طبیعی گاوی",
+        "origin": "ایران، تبریز",
+        "color": "عسلی",
+        "dimensions": "۳۲ × ۲۴ × ۱۲",
+        "weightGrams": 900,
+        "features": "دوخت دست\nیراق برنجی\nجیب داخلی زیپ‌دار",
+        "care": "دور از آب و آفتاب مستقیم؛ هر چند ماه با واکس چرم بی‌رنگ تغذیه شود."
+      }
+    },
+    {
+      "sku": "HN-LT-BG-M-01",
+      "vertical": "leather",
+      "subtype": "کیف",
+      "price": 11500000,
+      "title": "کیف اداری مردانه چرم طبیعی",
+      "titleEn": "Men's genuine leather briefcase",
+      "description": "کیف اداری مردانه با جای لپ‌تاپ ۱۵ اینچ، از چرم طبیعی و دوخت دست.",
+      "descriptionEn": "Men's briefcase with a 15-inch laptop sleeve, genuine leather and hand stitching.",
+      "images": [
+        "/assets/collections/leather-bag.webp"
+      ],
+      "details": {
+        "craftCategory": "leather",
+        "craftItem": "bag",
+        "brand": "همای",
+        "material": "چرم طبیعی گاوی",
+        "origin": "ایران، تبریز",
+        "color": "قهوه‌ای",
+        "dimensions": "۴۰ × ۳۰ × ۹",
+        "weightGrams": 1500,
+        "features": "جای لپ‌تاپ ۱۵ اینچ\nبند دوشی جداشونده\nقفل برنجی",
+        "care": "دور از آب و آفتاب مستقیم؛ هر چند ماه با واکس چرم بی‌رنگ تغذیه شود."
+      }
+    },
+    {
+      "sku": "HN-LT-BT-01",
+      "vertical": "leather",
+      "subtype": "کمربند",
+      "price": 2400000,
+      "title": "کمربند چرم طبیعی",
+      "titleEn": "Genuine leather belt",
+      "description": "کمربند یک‌تکه از چرم طبیعی با سگک فلزی ضدزنگ؛ قابل تنظیم برای سایزهای ۸۵ تا ۱۱۰.",
+      "descriptionEn": "One-piece genuine leather belt with rust-proof buckle, adjustable 85–110.",
+      "images": [
+        "/assets/collections/leather-belt.webp"
+      ],
+      "details": {
+        "craftCategory": "leather",
+        "craftItem": "belt",
+        "brand": "همای",
+        "material": "چرم طبیعی گاوی",
+        "origin": "ایران",
+        "size": "۸۵ تا ۱۱۰",
+        "weightGrams": 250,
+        "care": "دور از آب نگهداری شود."
+      }
+    },
+    {
+      "sku": "HN-LT-WL-01",
+      "vertical": "leather",
+      "subtype": "کیف پول",
+      "price": 1850000,
+      "title": "کیف پول مردانه چرم طبیعی",
+      "titleEn": "Men's genuine leather wallet",
+      "description": "کیف پول جیبی با هشت جای کارت و جای اسکناس، از چرم طبیعی با دوخت دست.",
+      "descriptionEn": "Pocket wallet with eight card slots, genuine leather, hand stitched.",
+      "images": [
+        "/assets/collections/leather-wallet.webp"
+      ],
+      "details": {
+        "craftCategory": "leather",
+        "brand": "همای",
+        "material": "چرم طبیعی گاوی",
+        "origin": "ایران",
+        "dimensions": "۱۱ × ۹",
+        "weightGrams": 120,
+        "features": "۸ جای کارت\nجعبهٔ هدیه",
+        "care": "دور از آب نگهداری شود."
+      }
+    },
+    {
+      "sku": "HN-BG-KH-01",
+      "vertical": "craft",
+      "subtype": "تخته‌نرد",
+      "price": 24000000,
+      "title": "تخته‌نرد خاتم‌کاری",
+      "titleEn": "Khatam-inlaid backgammon board",
+      "description": "تخته‌نرد تمام‌خاتم شیراز با مهره‌های چوبی و تاس استخوانی؛ هم وسیلهٔ بازی و هم اثر هنری.",
+      "descriptionEn": "Fully khatam-inlaid Shiraz backgammon with wooden pieces and bone dice.",
+      "details": {
+        "craftCategory": "backgammon",
+        "material": "چوب، استخوان، فلز",
+        "origin": "ایران، شیراز",
+        "technique": "خاتم‌کاری",
+        "dimensions": "۵۰ × ۳۰ (باز)",
+        "weightGrams": 2500,
+        "features": "۳۰ مهره و ۲ جفت تاس\nلولا و قفل برنجی",
+        "care": "دور از رطوبت و گرما نگهداری شود."
+      }
+    },
+    {
+      "sku": "HN-BG-MQ-01",
+      "vertical": "craft",
+      "subtype": "تخته‌نرد",
+      "price": 9800000,
+      "title": "تخته‌نرد معرق چوب",
+      "titleEn": "Wood marquetry backgammon board",
+      "description": "تخته‌نرد با معرق چوب‌های رنگی طبیعی؛ سبک، محکم و مناسب هدیه.",
+      "descriptionEn": "Backgammon board with natural coloured-wood marquetry.",
+      "details": {
+        "craftCategory": "backgammon",
+        "material": "چوب طبیعی",
+        "origin": "ایران",
+        "technique": "معرق چوب",
+        "dimensions": "۴۸ × ۲۸ (باز)",
+        "weightGrams": 1800,
+        "care": "دور از رطوبت نگهداری شود."
+      }
+    },
+    {
+      "sku": "HN-CP-TF-01",
+      "vertical": "craft",
+      "subtype": "تابلوفرش",
+      "price": 18500000,
+      "title": "تابلوفرش دست‌باف نقش تخت‌جمشید",
+      "titleEn": "Hand-knotted Persepolis tapestry",
+      "description": "تابلوفرش دست‌باف تبریز با نقش سربازان هخامنشی، ۴۰ در ۶۰ سانتی‌متر، رج‌شمار ۵۰، همراه با قاب.",
+      "descriptionEn": "Hand-knotted Tabriz tapestry of Achaemenid guards, 40×60 cm, 50 raj, framed.",
+      "details": {
+        "craftCategory": "carpet",
+        "material": "پشم و ابریشم روی پود پنبه",
+        "origin": "ایران، تبریز",
+        "technique": "دست‌باف",
+        "size": "۴۰ × ۶۰ سانتی‌متر",
+        "weightGrams": 3000,
+        "features": "رج‌شمار ۵۰\nقاب چوبی",
+        "care": "دور از نور مستقیم آفتاب؛ گردگیری با برس نرم."
+      }
+    },
+    {
+      "sku": "HN-CP-KL-01",
+      "vertical": "craft",
+      "subtype": "گلیم",
+      "price": 13000000,
+      "title": "گلیم دست‌باف قشقایی",
+      "titleEn": "Hand-woven Qashqai kilim",
+      "description": "گلیم دست‌باف عشایر قشقایی با رنگ گیاهی، ابعاد ۱۰۰ در ۱۵۰ سانتی‌متر.",
+      "descriptionEn": "Hand-woven Qashqai nomad kilim with natural dyes, 100×150 cm.",
+      "details": {
+        "craftCategory": "carpet",
+        "material": "پشم با رنگ گیاهی",
+        "origin": "ایران، فارس",
+        "technique": "گلیم‌بافی",
+        "size": "۱۰۰ × ۱۵۰ سانتی‌متر",
+        "weightGrams": 4000,
+        "care": "شست‌وشو فقط در قالیشویی؛ دور از رطوبت."
+      }
+    },
+    {
+      "sku": "HN-EN-SB-01",
+      "vertical": "craft",
+      "subtype": "میناکاری",
+      "price": 5200000,
+      "title": "قندان میناکاری",
+      "titleEn": "Enamelled sugar bowl",
+      "description": "قندان مسی میناکاری‌شدهٔ اصفهان با نقش گل و مرغ روی زمینهٔ آبی لاجوردی.",
+      "descriptionEn": "Isfahan enamelled copper sugar bowl with bird-and-flower motifs on lapis blue.",
+      "details": {
+        "craftCategory": "enamel",
+        "craftItem": "sugar-bowl",
+        "material": "مس، لعاب مینا",
+        "origin": "ایران، اصفهان",
+        "technique": "میناکاری",
+        "weightGrams": 700,
+        "care": "با دستمال نرم تمیز شود؛ از ضربه و شوینده دور بماند."
+      }
+    },
+    {
+      "sku": "HN-EN-VS-01",
+      "vertical": "craft",
+      "subtype": "میناکاری",
+      "price": 12800000,
+      "title": "گلدان میناکاری",
+      "titleEn": "Enamelled vase",
+      "description": "گلدان مسی میناکاری‌شده با نقش اسلیمی و ختایی؛ هر قطعه امضای استادکار را دارد.",
+      "descriptionEn": "Enamelled copper vase with arabesque and khata'i motifs, signed by the master.",
+      "images": [
+        "/assets/craft.jpg"
+      ],
+      "details": {
+        "craftCategory": "enamel",
+        "craftItem": "vase",
+        "material": "مس، لعاب مینا",
+        "origin": "ایران، اصفهان",
+        "technique": "میناکاری",
+        "dimensions": "ارتفاع ۲۵",
+        "weightGrams": 1300,
+        "features": "امضای استادکار\nشناسنامهٔ اثر",
+        "care": "با دستمال نرم تمیز شود؛ از ضربه و شوینده دور بماند."
+      }
+    },
+    {
+      "sku": "HN-EN-RW-01",
+      "vertical": "craft",
+      "subtype": "میناکاری",
+      "price": 6900000,
+      "title": "گلاب‌پاش میناکاری",
+      "titleEn": "Enamelled rosewater sprinkler",
+      "description": "گلاب‌پاش مسی میناکاری‌شده، مناسب سفرهٔ عقد و پذیرایی.",
+      "descriptionEn": "Enamelled copper rosewater sprinkler for wedding spreads and hosting.",
+      "details": {
+        "craftCategory": "enamel",
+        "craftItem": "rosewater-sprinkler",
+        "material": "مس، لعاب مینا",
+        "origin": "ایران، اصفهان",
+        "technique": "میناکاری",
+        "weightGrams": 400,
+        "care": "با دستمال نرم تمیز شود."
+      }
+    },
+    {
+      "sku": "HN-EN-FB-01",
+      "vertical": "craft",
+      "subtype": "میناکاری",
+      "price": 15500000,
+      "title": "میوه‌خوری پایه‌دار میناکاری",
+      "titleEn": "Footed enamelled fruit bowl",
+      "description": "میوه‌خوری بزرگ پایه‌دار با میناکاری کامل؛ محور زیبایی میز پذیرایی.",
+      "descriptionEn": "Large footed fruit bowl, fully enamelled.",
+      "details": {
+        "craftCategory": "enamel",
+        "craftItem": "fruit-bowl",
+        "material": "مس، لعاب مینا",
+        "origin": "ایران، اصفهان",
+        "technique": "میناکاری",
+        "dimensions": "قطر ۲۸",
+        "weightGrams": 2000,
+        "care": "با دستمال نرم تمیز شود؛ از ضربه و شوینده دور بماند."
+      }
+    },
+    {
+      "sku": "HN-EN-TS-01",
+      "vertical": "craft",
+      "subtype": "میناکاری",
+      "price": 16500000,
+      "title": "ست چای‌خوری میناکاری",
+      "titleEn": "Enamelled tea set",
+      "description": "شش جااستکانی و نعلبکی میناکاری‌شده همراه با قندان؛ برای پذیرایی به سبک اصیل ایرانی.",
+      "descriptionEn": "Six enamelled glass holders and saucers with a sugar bowl.",
+      "details": {
+        "craftCategory": "enamel",
+        "craftItem": "tea-set",
+        "material": "مس، لعاب مینا",
+        "origin": "ایران، اصفهان",
+        "technique": "میناکاری",
+        "weightGrams": 1800,
+        "features": "۶ جااستکانی و نعلبکی\nقندان",
+        "care": "با دستمال نرم تمیز شود؛ از ضربه و شوینده دور بماند."
+      }
+    },
+    {
+      "sku": "HN-BT-CR-01",
+      "vertical": "beauty",
+      "subtype": "مراقبت پوست",
+      "price": 1450000,
+      "title": "کرم مرطوب‌کنندهٔ شب همای",
+      "titleEn": "Homay night moisturising cream",
+      "description": "کرم شب مرطوب‌کننده برای پوست‌های معمولی تا خشک؛ ۵۰ میلی‌لیتر.",
+      "descriptionEn": "Night moisturiser for normal to dry skin, 50 ml.",
+      "images": [
+        "/assets/collections/beauty-cream.webp"
+      ],
+      "details": {
+        "brand": "همای",
+        "origin": "ایران",
+        "skinType": "معمولی تا خشک",
+        "volume": "۵۰ میلی‌لیتر",
+        "usage": "شب‌ها پس از پاک‌سازی پوست، مقدار کمی روی صورت و گردن ماساژ دهید.",
+        "warnings": "فقط برای مصرف خارجی؛ در صورت حساسیت مصرف را قطع کنید. دور از دسترس کودکان."
+      }
+    },
+    {
+      "sku": "HN-BT-HS-01",
+      "vertical": "beauty",
+      "subtype": "مراقبت مو",
+      "price": 1980000,
+      "title": "ست شامپو و نرم‌کنندهٔ همای",
+      "titleEn": "Homay shampoo and conditioner set",
+      "description": "ست شامپو و نرم‌کنندهٔ ملایم برای مصرف روزانه؛ هر کدام ۴۰۰ میلی‌لیتر.",
+      "descriptionEn": "Gentle daily shampoo and conditioner, 400 ml each.",
+      "images": [
+        "/assets/collections/beauty-care.webp"
+      ],
+      "details": {
+        "brand": "همای",
+        "origin": "ایران",
+        "skinType": "همهٔ انواع مو",
+        "volume": "۲ × ۴۰۰ میلی‌لیتر",
+        "usage": "روی موی خیس ماساژ داده و آبکشی شود؛ سپس نرم‌کننده را روی ساقهٔ مو بزنید.",
+        "warnings": "از تماس با چشم خودداری شود. دور از دسترس کودکان."
+      }
+    },
+    {
+      "sku": "HN-BT-GS-01",
+      "vertical": "beauty",
+      "subtype": "ست هدیه",
+      "price": 3900000,
+      "title": "ست هدیهٔ مراقبت همای",
+      "titleEn": "Homay care gift set",
+      "description": "جعبهٔ هدیه شامل کرم شب، شامپو، نرم‌کننده و کیسهٔ پارچه‌ای؛ هدیه‌ای آماده برای مناسبت‌ها.",
+      "descriptionEn": "Gift box with night cream, shampoo, conditioner and a cloth pouch.",
+      "images": [
+        "/assets/collections/beauty-portrait.webp"
+      ],
+      "details": {
+        "brand": "همای",
+        "origin": "ایران",
+        "features": "کرم شب ۵۰ میلی‌لیتر\nشامپو و نرم‌کننده ۴۰۰ میلی‌لیتر\nجعبهٔ هدیه",
+        "warnings": "فقط برای مصرف خارجی. دور از دسترس کودکان."
+      }
+    },
+    {
+      "sku": "HN-TR-SHZ-01",
+      "vertical": "tourism",
+      "subtype": "تور",
+      "price": 28000000,
+      "title": "تور ۴ روزهٔ شیراز، تخت‌جمشید و پاسارگاد",
+      "titleEn": "4-day Shiraz, Persepolis and Pasargadae tour",
+      "description": "سه شب اقامت در شیراز با بازدید از تخت‌جمشید، نقش رستم، پاسارگاد، باغ ارم، حافظیه و مسجد نصیرالملک همراه با راهنمای متخصص. قیمت برای هر نفر در اتاق دوتخته است.",
+      "descriptionEn": "Three nights in Shiraz visiting Persepolis, Naqsh-e Rostam, Pasargadae, Eram Garden and Nasir al-Mulk with an expert guide. Price per person, double room.",
+      "images": [
+        "/assets/heritage/persepolis.webp"
+      ],
+      "details": {
+        "destination": "شیراز",
+        "departure": "شیراز (حرکت از تهران به‌صورت اختیاری)",
+        "nights": 3,
+        "accommodation": "هتل چهارستاره",
+        "meals": "صبحانه و ناهار",
+        "itinerary": "روز ۱: ورود، باغ ارم و حافظیه\nروز ۲: تخت‌جمشید و نقش رستم\nروز ۳: پاسارگاد\nروز ۴: مسجد نصیرالملک و بازار وکیل، پایان تور",
+        "inclusions": "اقامت، ترانسفر داخل شهر و بین‌شهری، راهنما، بلیت اماکن، بیمهٔ مسافرتی",
+        "exclusions": "بلیت رفت‌وبرگشت به شیراز، شام و هزینه‌های شخصی"
+      }
+    },
+    {
+      "sku": "HN-TR-ISF-01",
+      "vertical": "tourism",
+      "subtype": "تور",
+      "price": 26000000,
+      "title": "تور ۴ روزهٔ اصفهان، نصف جهان",
+      "titleEn": "4-day Isfahan tour",
+      "description": "سه شب اقامت در اصفهان با بازدید از میدان نقش جهان، مسجد شیخ لطف‌الله، کاخ چهلستون، کلیسای وانک و پل‌های تاریخی، به‌همراه بازدید از کارگاه میناکاری. قیمت برای هر نفر در اتاق دوتخته است.",
+      "descriptionEn": "Three nights in Isfahan: Naqsh-e Jahan Square, Sheikh Lotfollah, Chehel Sotoun, Vank Cathedral and historic bridges, plus an enamel workshop visit. Per person, double room.",
+      "images": [
+        "/assets/heritage/isfahan.webp"
+      ],
+      "details": {
+        "destination": "اصفهان",
+        "departure": "اصفهان",
+        "nights": 3,
+        "accommodation": "هتل سنتی چهارستاره",
+        "meals": "صبحانه و ناهار",
+        "itinerary": "روز ۱: ورود و پل‌های تاریخی\nروز ۲: میدان نقش جهان و مساجد\nروز ۳: چهلستون، وانک و کارگاه میناکاری\nروز ۴: بازار و پایان تور",
+        "inclusions": "اقامت، ترانسفر، راهنما، بلیت اماکن، بیمهٔ مسافرتی",
+        "exclusions": "بلیت رفت‌وبرگشت به اصفهان، شام و هزینه‌های شخصی"
+      }
+    },
+    {
+      "sku": "HN-TR-YZD-01",
+      "vertical": "tourism",
+      "subtype": "تور",
+      "price": 19500000,
+      "title": "تور ۳ روزهٔ یزد و کویر",
+      "titleEn": "3-day Yazd and desert tour",
+      "description": "دو شب اقامت در خانه‌ای سنتی در بافت تاریخی یزد، بازدید از مسجد جامع، باغ دولت‌آباد و آتشکده، و یک عصر کویرگردی. قیمت برای هر نفر.",
+      "descriptionEn": "Two nights in a traditional Yazd house, the Jameh Mosque, Dowlatabad Garden, the fire temple and a desert evening. Per person.",
+      "images": [
+        "/assets/heritage/yazd.webp"
+      ],
+      "details": {
+        "destination": "یزد",
+        "departure": "یزد",
+        "nights": 2,
+        "accommodation": "اقامتگاه سنتی",
+        "meals": "صبحانه و شام",
+        "itinerary": "روز ۱: بافت تاریخی و مسجد جامع\nروز ۲: باغ دولت‌آباد، آتشکده و کویرگردی عصر\nروز ۳: بازار و پایان تور",
+        "inclusions": "اقامت، ترانسفر، راهنما، کویرگردی، بیمهٔ مسافرتی",
+        "exclusions": "بلیت رفت‌وبرگشت به یزد، ناهار و هزینه‌های شخصی"
+      }
+    },
+    {
+      "sku": "HN-TR-TBZ-01",
+      "vertical": "tourism",
+      "subtype": "تور",
+      "price": 24000000,
+      "title": "تور ۴ روزهٔ تبریز و کندوان",
+      "titleEn": "4-day Tabriz and Kandovan tour",
+      "description": "سه شب اقامت در تبریز با بازدید از بازار تاریخی (ثبت جهانی)، مسجد کبود، ائل‌گلی و روستای صخره‌ای کندوان. قیمت برای هر نفر در اتاق دوتخته است.",
+      "descriptionEn": "Three nights in Tabriz: the World Heritage bazaar, Blue Mosque, El Goli and the cliff village of Kandovan. Per person, double room.",
+      "images": [
+        "/assets/heritage/tabriz.webp"
+      ],
+      "details": {
+        "destination": "تبریز",
+        "departure": "تبریز",
+        "nights": 3,
+        "accommodation": "هتل چهارستاره",
+        "meals": "صبحانه و ناهار",
+        "itinerary": "روز ۱: ورود و ائل‌گلی\nروز ۲: بازار تاریخی و مسجد کبود\nروز ۳: روستای کندوان\nروز ۴: پایان تور",
+        "inclusions": "اقامت، ترانسفر، راهنما، بلیت اماکن، بیمهٔ مسافرتی",
+        "exclusions": "بلیت رفت‌وبرگشت به تبریز، شام و هزینه‌های شخصی"
+      }
+    },
+    {
+      "sku": "HN-AI-CS-M1",
+      "vertical": "ai",
+      "subtype": "اشتراک",
+      "price": 2900000,
+      "duration_days": 30,
+      "title": "اشتراک ماهانهٔ استودیو محتوای هوشمند",
+      "titleEn": "AI content studio, monthly",
+      "description": "یک ماه دسترسی به استودیو تولید متن و تصویر با هوش مصنوعی برای کسب‌وکارها، با آموزش شروع کار و پشتیبانی فارسی.",
+      "descriptionEn": "One month of AI text and image studio access for businesses, with onboarding and Persian support.",
+      "images": [
+        "/assets/collections/ai-human.webp"
+      ],
+      "details": {
+        "seats": 1,
+        "quota": "طبق سیاست استفادهٔ منصفانه",
+        "delivery": "حداکثر ۲۴ ساعت پس از پرداخت، اطلاعات ورود به ایمیل شما ارسال می‌شود.",
+        "requirements": "ایمیل فعال و مرورگر به‌روز",
+        "features": "تولید متن تبلیغاتی و محتوای شبکه‌های اجتماعی\nتولید تصویر\nپشتیبانی فارسی"
+      }
+    },
+    {
+      "sku": "HN-AI-TEAM-Y1",
+      "vertical": "ai",
+      "subtype": "اشتراک",
+      "price": 29000000,
+      "duration_days": 365,
+      "title": "اشتراک سالانهٔ تیمی هوش مصنوعی (۵ کاربر)",
+      "titleEn": "AI team plan, yearly (5 seats)",
+      "description": "یک سال دسترسی پنج کاربر به استودیو هوش مصنوعی همراه با جلسهٔ آموزش تیمی و پشتیبانی اولویت‌دار.",
+      "descriptionEn": "One year of AI studio access for five users with a team training session and priority support.",
+      "images": [
+        "/assets/ai.jpg"
+      ],
+      "details": {
+        "seats": 5,
+        "quota": "طبق سیاست استفادهٔ منصفانه",
+        "delivery": "حداکثر ۲۴ ساعت پس از پرداخت فعال می‌شود؛ جلسهٔ آموزش با هماهنگی شما برگزار می‌شود.",
+        "requirements": "ایمیل فعال برای هر کاربر",
+        "features": "۵ کاربر\nجلسهٔ آموزش تیمی\nپشتیبانی اولویت‌دار"
+      }
+    },
+    {
+      "sku": "HN-AI-SETUP-01",
+      "vertical": "ai",
+      "subtype": "خدمت",
+      "price": 18000000,
+      "duration_days": 30,
+      "stock": 10,
+      "title": "مشاوره و راه‌اندازی هوش مصنوعی برای کسب‌وکار",
+      "titleEn": "AI consulting and setup for businesses",
+      "description": "بررسی فرایندهای کسب‌وکار شما، پیشنهاد و راه‌اندازی ابزارهای هوش مصنوعی مناسب و آموزش تیم در چهار جلسهٔ آنلاین.",
+      "descriptionEn": "Review of your processes, setup of suitable AI tools and team training over four online sessions.",
+      "images": [
+        "/assets/collections/ai-human.webp"
+      ],
+      "details": {
+        "delivery": "هماهنگی جلسهٔ اول حداکثر ۴۸ ساعت پس از پرداخت؛ چهار جلسهٔ آنلاین در یک ماه.",
+        "requirements": "معرفی یک نفر رابط از طرف کسب‌وکار",
+        "features": "تحلیل نیاز\nراه‌اندازی ابزار\n۴ جلسهٔ آموزش آنلاین"
+      }
+    }
+  ]
+}

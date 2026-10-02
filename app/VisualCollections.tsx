@@ -8,20 +8,11 @@ import { useAutoGallery } from "../src/commerce/useAutoGallery";
 import { useLocale } from "next-intl";
 export const heritageSlides = [
   ["persepolis", "تخت‌جمشید", "Persepolis"],
-  ["griffin", "شیردال", "Griffin"],
-  ["simurgh", "سیمرغ", "Simurgh"],
-  ["cyrus", "کوروش", "Cyrus"],
   ["darius", "داریوش", "Darius"],
-  ["pasargadae", "پاسارگاد", "Pasargadae"],
+  ["pasargadae", "آرامگاه کوروش، پاسارگاد", "Tomb of Cyrus, Pasargadae"],
   ["apadana", "آپادانا", "Apadana"],
   ["isfahan", "اصفهان", "Isfahan"],
-  ["lotfollah", "نقش و نور", "Light and pattern"],
-  ["shushtar", "شوشتر", "Shushtar"],
-  ["bam", "ارگ بم", "Bam"],
   ["yazd", "یزد", "Yazd"],
-  ["sassanid", "میراث ساسانی", "Sassanid heritage"],
-  ["tabriz", "بازار تبریز", "Tabriz"],
-  ["garden", "باغ ایرانی", "Persian garden"],
 ];
 export function CivilizationHero() {
   const locale = useLocale(),
@@ -29,12 +20,15 @@ export function CivilizationHero() {
   const [index, setIndex] = useState(0);
   const strip = useRef<HTMLDivElement>(null);
   const hero = useRef<HTMLImageElement>(null);
-  const auto = useAutoGallery(hero, () =>
-    setIndex((i) => (i + 1) % heritageSlides.length),
+  const auto = useAutoGallery(
+    hero,
+    () => setIndex((i) => (i + 1) % heritageSlides.length),
+    6500,
+    true,
   );
   function choose(n: number) {
     auto.pause();
-    const next = (n + 15) % 15;
+    const next = (n + heritageSlides.length) % heritageSlides.length;
     setIndex(next);
   }
   useEffect(() => {
@@ -56,7 +50,7 @@ export function CivilizationHero() {
       <ResponsiveImage
         ref={hero}
         className="hero-photo"
-        src={"/assets/heritage/" + heritageSlides[index][0] + ".webp"}
+        src={"/assets/backdrop/" + heritageSlides[index][0] + ".webp"}
         alt={heritageSlides[index][fa ? 1 : 2]}
         fetchPriority="high"
       />
@@ -64,7 +58,7 @@ export function CivilizationHero() {
         className="civilization-controls"
         role="region"
         aria-label={
-          fa ? "پانزده روایت از تمدن ایران" : "Fifteen visions of Iran"
+          fa ? "روایت‌هایی از تمدن ایران" : "Stories of Iranian civilisation"
         }
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") {
@@ -85,7 +79,8 @@ export function CivilizationHero() {
             ←
           </button>
           <span aria-live={auto.paused ? "polite" : "off"}>
-            {String(index + 1).padStart(2, "0")} / 15 ·{" "}
+            {String(index + 1).padStart(2, "0")} /{" "}
+            {String(heritageSlides.length).padStart(2, "0")} ·{" "}
             {heritageSlides[index][fa ? 1 : 2]}{" "}
             <small>{fa ? "بازآفرینی هنری" : "Artistic interpretation"}</small>
           </span>
@@ -137,19 +132,19 @@ export function CivilizationHero() {
 }
 const collections = {
   leather: [
-    ["leather-bag", "هما چرم؛ اصالت در جزئیات"],
+    ["leather-bag", "همای چرم؛ اصالت در جزئیات"],
     ["leather-wallet", "طراحی برای همراهی هر روز"],
     ["leather-craft", "هنر دست، دقت در دوخت"],
     ["leather-belt", "کمربند چرم؛ جزئیاتی برای هر روز"],
-    ["leather-women", "کیف زنانه؛ ظرافت با امضای هما"],
+    ["leather-women", "کیف زنانه؛ ظرافت با امضای همای"],
     ["leather-men", "کیف اداری و دوشی مردانه"],
   ],
   beauty: [
-    ["beauty-cream", "هما زیبا؛ آیین مراقبت روزانه"],
-    ["beauty-care", "مراقبت پوست و مو با هویت هما"],
+    ["beauty-cream", "همای زیبا؛ آیین مراقبت روزانه"],
+    ["beauty-care", "مراقبت پوست و مو با هویت همای"],
     ["beauty-portrait", "زیبایی آرام، انتخاب آگاهانه"],
   ],
-  ai: [["ai-human", "هما هوشمند؛ انسان، خلاقیت و فناوری"]],
+  ai: [["ai-human", "همای هوشمند؛ انسان، خلاقیت و فناوری"]],
 };
 export function BrandCollection({ sector }: { sector: string }) {
   const rail = useRef<HTMLDivElement>(null);
@@ -191,20 +186,20 @@ export function BrandCollection({ sector }: { sector: string }) {
   const items = collections[sector as keyof typeof collections];
   return (
     <Localized><section className={"collection-section collection-" + sector} dir="rtl">
-      <p className="commerce-eyebrow">THE HOMA COLLECTION</p>
+      <p className="commerce-eyebrow">مجموعهٔ همای</p>
       <h2>
         {sector === "leather"
-          ? "چرم اصیل ایرانی؛ امضای هما"
+          ? "چرم اصیل ایرانی؛ امضای همای"
           : sector === "beauty"
-            ? "زیبایی با امضای هما"
+            ? "زیبایی با امضای همای"
             : "هوش در خدمت انسان"}
       </h2>
       <p>
         {sector === "leather"
-          ? "کیف، اکسسوری و مصنوعات چرمی با هویت هما؛ نوع چرم، محل تولید، شرایط ضمانت‌نامه و خدمات پس از فروش را برای هر محصول در مشخصات فروشگاه بررسی کنید."
+          ? "کیف، اکسسوری و مصنوعات چرمی با هویت همای؛ نوع چرم، محل تولید، شرایط ضمانت‌نامه و خدمات پس از فروش را برای هر محصول در مشخصات فروشگاه بررسی کنید."
           : sector === "beauty"
-            ? "جهان مراقبت هما: کرم‌ها، مراقبت پوست و مو و محصولات بهداشتی. ترکیبات، مجوز، تولیدکننده، تاریخ مصرف و روش استفاده باید در صفحه هر محصول درج شود."
-            : "ابزارهای هوشمند برای محتوای بهتر، ارتباط با مشتری و رشد فروش در تمام جهان‌های هما."}
+            ? "جهان مراقبت همای: کرم‌ها، مراقبت پوست و مو و محصولات بهداشتی. ترکیبات، مجوز، تولیدکننده، تاریخ مصرف و روش استفاده باید در صفحه هر محصول درج شود."
+            : "ابزارهای هوشمند برای محتوای بهتر، ارتباط با مشتری و رشد فروش در تمام جهان‌های همای."}
       </p>
       <div className="collection-nav">
         <button type="button" onClick={auto.toggle} aria-pressed={!auto.paused}>
@@ -241,7 +236,7 @@ export function BrandCollection({ sector }: { sector: string }) {
         ref={rail}
         tabIndex={0}
         role="region"
-        aria-label="گالری محصولات هما؛ برای تصاویر بیشتر ورق بزنید"
+        aria-label="گالری محصولات همای؛ برای تصاویر بیشتر ورق بزنید"
         onScroll={() => setSlide(nearestSlide())}
         onKeyDown={(event) => {
           if (event.key === "ArrowLeft" || event.key === "ArrowRight") {

@@ -5,6 +5,7 @@ import { dirname, resolve, join } from "node:path";
 import { mkdir, readFile, writeFile, unlink, rename } from "node:fs/promises";
 import { ApiError, json, sameOrigin, limit } from "../server/http";
 import { userOf, audit } from "./security";
+import { stampLogo } from "./watermark";
 const maxBytes = 8 * 1024 * 1024;
 export const mediaDirectory = () =>
   join(
@@ -85,7 +86,7 @@ export async function media(req: Request, path: string[]) {
   } finally {
     reader.releaseLock();
   }
-  let image: Buffer;
+  let image: Buffer, original: Buffer;
   try {
     const input = sharp(Buffer.concat(chunks), {
       limitInputPixels: 25_000_000,
@@ -97,7 +98,7 @@ export async function media(req: Request, path: string[]) {
       (metadata.pages || 1) > 1
     )
       throw new Error("format");
-    image = await input
+    const resized = await input
       .rotate()
       .resize({
         width: 2400,
@@ -105,13 +106,20 @@ export async function media(req: Request, path: string[]) {
         fit: "inside",
         withoutEnlargement: true,
       })
-      .webp({ quality: 88 })
       .toBuffer();
+    // Every uploaded picture carries the site logo.
+    original = resized;
+    image = await (await stampLogo(resized)).webp({ quality: 88 }).toBuffer();
   } catch {
     throw new ApiError(400, "invalid_image");
   }
   const file = randomUUID() + ".webp";
-  await mkdir(mediaDirectory(), { recursive: true, mode: 0o700 });
+  await mkdir(join(mediaDirectory(), "originals"), { recursive: true, mode: 0o700 });
+  // The unstamped copy is never served; it lets the logo be re-applied later.
+  await writeFile(join(mediaDirectory(), "originals", file), await sharp(original).webp({ quality: 88 }).toBuffer(), {
+    flag: "wx",
+    mode: 0o600,
+  });
   await writeFile(join(mediaDirectory(), file), image, {
     flag: "wx",
     mode: 0o600,
@@ -123,6 +131,7 @@ export async function media(req: Request, path: string[]) {
     });
   } catch (e) {
     await unlink(join(mediaDirectory(), file));
+    await unlink(join(mediaDirectory(), "originals", file)).catch(() => {});
     throw e;
   }
   return json({ url: "/api/platform/media/" + file, bytes: image.length }, 201);

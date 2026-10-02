@@ -1,4 +1,6 @@
+import {Money} from '../src/commerce/currency';
 import {tierPriceRial,tomanToRial} from '../src/commerce/club-tiers';
+import {TOP_CARD_LEVEL} from '../src/platform/card-levels';
 
 import Localized from "../src/i18n/Localized";
 type Props = {
@@ -22,7 +24,8 @@ export default function PrivilegeCard({
   const fa = locale !== "en";
   const amountRial=creditToman!==undefined?tomanToRial(creditToman):holder || !showPurchaseMinimum ?undefined:tierPriceRial(level);
   return (
-    <Localized><div className={"privilege-card rank-" + tone}>
+    <Localized><div className={"privilege-card rank-" + tone + (holder ? " has-holder" : "")}>
+      <div className="privilege-material" aria-hidden="true" />
       <div className="privilege-card-lines" aria-hidden="true" />
       <img
         className="privilege-watermark"
@@ -32,7 +35,7 @@ export default function PrivilegeCard({
       />
       <div className="privilege-top">
         <span dir="ltr">
-          HOMA <b>PRIVILEGE</b>
+          HOMANET <b>CLUB</b>
         </span>
         <img src="/assets/brand-mark.png" alt="" loading="lazy" />
       </div>
@@ -40,7 +43,7 @@ export default function PrivilegeCard({
         <small>{fa ? "باشگاه مشتریان" : "CUSTOMERS CLUB"}</small>
         <h3>{name}</h3>
       </div>
-      {amountRial!==undefined&&<div className="privilege-price"><small>{creditToman!==undefined?"اعتبار اولیه کارت":"حداقل مبلغ خرید کارت"}</small><strong><bdi>{amountRial.toLocaleString("fa-IR")}</bdi> <span>ریال</span></strong></div>}
+      {amountRial!==undefined&&<div className="privilege-price"><small>{creditToman!==undefined?"اعتبار اولیه کارت":"حداقل مبلغ خرید کارت"}</small><strong><Money rial={amountRial}/></strong></div>}
       <div className="privilege-bottom">
         <div>
           <span>
@@ -52,16 +55,16 @@ export default function PrivilegeCard({
                 ? "مجموعه کارت‌های سفر"
                 : "TRAVEL COLLECTION"}
           </span>
-          <strong translate={holder ? "no" : undefined}>{holder || (fa ? "همای سعادت" : "HOMAY SAADAT")}</strong>
+          <strong translate={holder ? "no" : undefined}>{holder || (fa ? "هما نت" : "HOMANET")}</strong>
         </div>
         <span className="privilege-level" dir="ltr">
           {level ? (
             <>
               <b>{String(level).padStart(2, "0")}</b>
-              <i>/ 07</i>
+              <i>/ {String(TOP_CARD_LEVEL).padStart(2, "0")}</i>
             </>
           ) : (
-            <b>HOMA</b>
+            <b>HOMAY</b>
           )}
         </span>
       </div>

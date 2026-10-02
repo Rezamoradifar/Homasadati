@@ -4,6 +4,8 @@ import { CommerceShell } from "../../src/commerce/Shell";
 import ResponsiveImage from "../../src/components/media/ResponsiveImage";
 import Localized from "../../src/i18n/Localized";
 import { all } from "../../src/platform/schema";
+import { DEFAULT_ENAMAD } from "../../src/platform/site-defaults";
+import EnamadSeal from "../../src/commerce/EnamadSeal";
 const documents = [
   {
     file: "trade-license",
@@ -23,6 +25,11 @@ const documents = [
 export default async function About() {
   const locale=await siteLocale(),dictionary=await loadDictionary(locale);
   const t=(text:string)=>translateText(text,locale,dictionary);
+  const saved = Object.fromEntries(
+    all("SELECT key,value FROM p_settings WHERE secret=0 AND key IN ('enamad_id','enamad_code')").map((r) => [r.key, r.value]),
+  );
+  const enamad = saved.enamad_id && saved.enamad_code ? { id: saved.enamad_id, code: saved.enamad_code } : DEFAULT_ENAMAD;
+  const enamadQuery = `id=${encodeURIComponent(enamad.id)}&Code=${encodeURIComponent(enamad.code)}`;
   const ceo = all(
     "SELECT value FROM p_settings WHERE key='site_ceo_name' AND secret=0",
   )[0]?.value;
@@ -34,10 +41,10 @@ export default async function About() {
             <p className="commerce-eyebrow">ریشه در ایران، رو به جهان.</p>
             <h1>میراث جاویدان ایرانیان</h1>
             <p className="company-brand">
-              همای سعادت، برند شرکت میراث جاویدان ایرانیان
+              هما نت، برند شرکت میراث جاویدان ایرانیان
             </p>
             <p>
-              همای سعادت با کنار هم قرار دادن سفر، هنر ایرانی، صنایع‌دستی، چرم،
+              هما نت با کنار هم قرار دادن سفر، هنر ایرانی، صنایع‌دستی، چرم،
               زیبایی و فناوری، فضایی برای شناخت و انتخاب آگاهانه فراهم می‌کند.
             </p>
             <div className="company-actions">
@@ -59,8 +66,8 @@ export default async function About() {
             )}
             <p>
               رویکرد مدیریت میراث جاویدان ایرانیان، معرفی روشن محصولات و خدمات،
-              توجه به هنر و فرهنگ ایرانی و ارتباط پاسخ‌گو با مشتریان است. همای
-              سعادت این رویکرد را در تجربه خرید و خدمات باشگاه دنبال می‌کند.
+              توجه به هنر و فرهنگ ایرانی و ارتباط پاسخ‌گو با مشتریان است. هما
+              نت این رویکرد را در تجربه خرید و خدمات باشگاه دنبال می‌کند.
             </p>
             <div className="management-principles">
               <article>
@@ -114,6 +121,28 @@ export default async function About() {
                   </article>
                 </Localized>
               ))}
+              <article className="license-card enamad-card">
+                <div className="license-preview enamad-preview">
+                  <EnamadSeal id={enamad.id} code={enamad.code} />
+                </div>
+                <div className="license-copy">
+                  <span className="license-number" aria-hidden="true">
+                    {String(documents.length + 1).padStart(2, "0")}
+                  </span>
+                  <h3>{t("نماد اعتماد الکترونیکی (اینماد)")}</h3>
+                  <dl>
+                    <dt>{t("مرجع صادرکننده")}</dt>
+                    <dd>{t("مرکز توسعه تجارت الکترونیکی، وزارت صنعت، معدن و تجارت")}</dd>
+                    <dt>{t("شناسه نماد")}</dt>
+                    <dd dir="ltr">{enamad.id}</dd>
+                    <dt>{t("دامنه")}</dt>
+                    <dd dir="ltr">homanets.com</dd>
+                  </dl>
+                  <a className="license-open" href={`https://trustseal.enamad.ir/?${enamadQuery}`} target="_blank" rel="noopener" referrerPolicy="origin">
+                    {t("استعلام نماد در سایت اینماد")}
+                  </a>
+                </div>
+              </article>
             </div>
           </section>
         </main>

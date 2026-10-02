@@ -13,7 +13,22 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
     [codes, setCodes] = useState<string[]>([]),
     [action, setAction] = useState(""),
     [recovery, setRecovery] = useState(false),
-    [copied, setCopied] = useState(false);
+    [copied, setCopied] = useState(false),
+    [emailChallenge, setEmailChallenge] = useState(""),
+    [sending, setSending] = useState(false),
+    [sendError, setSendError] = useState("");
+  async function sendCode() {
+    setSending(true);
+    setSendError("");
+    try {
+      const r = await api("security/code", "POST", {});
+      setEmailChallenge(r.challenge);
+    } catch (e) {
+      setSendError((e as Error).message);
+    } finally {
+      setSending(false);
+    }
+  }
   if (codes.length)
     return (
       <Localized><div className="portal-card">
@@ -42,8 +57,9 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
               )}
             </p>
             <p>
-              برای تغییر تنظیمات امنیتی، رمز فعلی و در صورت فعال‌بودن رمزساز،
-              عامل دوم لازم است. پس از تأیید، همه دستگاه‌ها از حساب خارج
+              برای تغییر تنظیمات امنیتی، با رمز عبور فعلی یا کد تأییدی که به
+              ایمیل شما فرستاده می‌شود هویت خود را تأیید کنید؛ در صورت فعال‌بودن
+              رمزساز، کد آن هم لازم است. پس از تأیید، همه دستگاه‌ها از حساب خارج
               می‌شوند.
             </p>
             <div className="auth-actions">
@@ -70,6 +86,8 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
                     setAction(key);
                     setSetup(null);
                     setRecovery(false);
+                    setEmailChallenge("");
+                    setSendError("");
                   }}
                 >
                   {label}
@@ -122,16 +140,36 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
                     استفاده از کد بازیابی به‌جای رمزساز
                   </label>
                 )}
+                {!setup && (
+                  <div className="security-confirm">
+                    <button
+                      type="button"
+                      className="portal-button secondary"
+                      disabled={sending}
+                      onClick={sendCode}
+                    >
+                      {emailChallenge ? "ارسال دوبارهٔ کد به ایمیل من" : "تأیید با کد ایمیل (بدون رمز عبور)"}
+                    </button>
+                    {emailChallenge && <p role="status">کد شش‌رقمی به ایمیل شما فرستاده شد؛ ۵ دقیقه اعتبار دارد.</p>}
+                    {sendError && <p role="alert">{sendError}</p>}
+                  </div>
+                )}
                 <Form
-                  key={action + String(!!setup) + String(recovery)}
+                  key={action + String(!!setup) + String(recovery) + emailChallenge}
                   submit={setup ? "تأیید و فعال‌سازی" : "تأیید و ادامه"}
                   fields={
                     [
-                      {
-                        name: "currentPassword",
-                        label: "رمز عبور فعلی",
-                        type: "password",
-                      },
+                      ...(setup
+                        ? []
+                        : emailChallenge
+                          ? [{ name: "emailCode", label: "کد تأیید ایمیل", max: 6 }]
+                          : [
+                              {
+                                name: "currentPassword",
+                                label: "رمز عبور فعلی",
+                                type: "password",
+                              },
+                            ]),
                       ...(action === "password"
                         ? [
                             {
@@ -163,8 +201,10 @@ export default function SecurityPanel({ onReauth }: { onReauth: () => void }) {
                   onSubmit={async (values) => {
                     const r = await api("security", "POST", {
                       ...values,
+                      ...(emailChallenge && !setup ? { emailChallenge } : {}),
                       action: setup ? "totp-enable" : action,
                     });
+                    setEmailChallenge("");
                     if (r.secret) {
                       setSetup(r);
                       setCopied(false);

@@ -11,8 +11,6 @@ import {
   ShieldCheck,
   UserRound,
   ArrowLeft,
-  Eye,
-  EyeOff,
 } from "lucide-react";
 import { api, RecordData } from "./client";
 import {
@@ -23,7 +21,6 @@ import {
   registrationContact,
   referralCode,
 } from "./registration-model";
-import { password } from "./validation";
 import { Notice } from "./Widgets";
 import { useCaptcha } from "./Captcha";
 import { RecoveryCodes } from "./RecoveryCodes";
@@ -43,9 +40,9 @@ export default function Registration({
 }) {
   const [form, setForm] = useState({
     target: "",
-    password: "",
-    confirm: "",
     firstName: "",
+    nationalId: "",
+    mobile: "",
     lastName: "",
     country: "",
     city: "",
@@ -53,7 +50,6 @@ export default function Registration({
     language: "fa",
     referral: "",
     code: "",
-    totp: "",
     interests: [] as string[],
     termsAccepted: false,
     privacyAccepted: false,
@@ -72,12 +68,9 @@ export default function Registration({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
-    [cooldown, setCooldown] = useState(0),
-    [showPassword, setShowPassword] = useState(false),
-    [copied, setCopied] = useState(false);
+    [cooldown, setCooldown] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   const sendCaptcha = useCaptcha("otp"),
-    verifyCaptcha = useCaptcha("verify_email"),
     registerCaptcha = useCaptcha("register");
   useEffect(() => {
     const ref = new URLSearchParams(window.location.search).get("ref");
@@ -96,12 +89,12 @@ export default function Registration({
   }, [step]);
   const set = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
-  const fail = (e: unknown) =>
-    setError(
-      (e as Error).name === "ZodError"
-        ? "اطلاعات الزامی و قالب فیلدها را بررسی کنید."
-        : (e as Error).message,
-    );
+  const fail = (e: unknown) => {
+    if ((e as Error).name !== "ZodError") return setError((e as Error).message);
+    // Show the specific message when a field has one (e.g. invalid national code).
+    const issue = (e as { issues?: { message: string }[] }).issues?.find((i) => /[\u0600-\u06FF]/.test(i.message));
+    setError(issue?.message || "اطلاعات الزامی و قالب فیلدها را بررسی کنید.");
+  };
   const details = () => ({
     firstName: form.firstName,
     lastName: form.lastName,
@@ -118,8 +111,8 @@ export default function Registration({
       | "country"
       | "city"
       | "occupation"
-      | "password"
-      | "confirm",
+      | "nationalId"
+      | "mobile",
     label: string,
     autoComplete = "off",
     required = true,
@@ -128,16 +121,13 @@ export default function Registration({
       {label}
       <input
         name={key}
-        type={
-          (key === "password" || key === "confirm") && !showPassword
-            ? "password"
-            : "text"
-        }
+        type={key === "mobile" ? "tel" : "text"}
+        inputMode={key === "nationalId" || key === "mobile" ? "numeric" : undefined}
+        dir={key === "nationalId" || key === "mobile" ? "ltr" : undefined}
         required={required}
         autoComplete={autoComplete}
         value={form[key]}
-        maxLength={key === "password" || key === "confirm" ? 128 : 120}
-        minLength={key === "password" || key === "confirm" ? 12 : undefined}
+        maxLength={120}
         onChange={(e) => set(key, e.target.value)}
       />
     </label></Localized>
@@ -170,7 +160,7 @@ export default function Registration({
   }
   async function verifyEmail(e: FormEvent) {
     e.preventDefault();
-    if (busy || !verifyCaptcha.ready) return;
+    if (busy) return;
     setBusy(true);
     setError("");
     try {
@@ -178,7 +168,6 @@ export default function Registration({
         target: form.target,
         challenge,
         code: form.code,
-        captchaToken: verifyCaptcha.token,
       });
       setEnrollment(r);
       setStep(1);
@@ -188,18 +177,15 @@ export default function Registration({
     } catch (e) {
       fail(e);
     } finally {
-      verifyCaptcha.reset();
       setBusy(false);
     }
   }
-  async function completeDetails(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
+    if (busy || !registerCaptcha.ready || !enrollment) return;
     setError("");
     try {
       memberDetailsSchema.parse(details());
-      password.parse(form.password);
-      if (form.password !== form.confirm)
-        throw new Error("تکرار رمز عبور یکسان نیست.");
       if (invitationMode === "with-code") {
         referralCode.parse(form.referral);
         setBusy(true);
@@ -211,25 +197,12 @@ export default function Registration({
       }
       if (!form.termsAccepted || !form.privacyAccepted || !form.adultConfirmed)
         throw new Error("پذیرش قوانین، حریم خصوصی و تأیید سن لازم است.");
-      setStep(2);
-      setNotice("");
-    } catch (e) {
-      fail(e);
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    if (busy || !registerCaptcha.ready || !enrollment) return;
-    setBusy(true);
-    setError("");
-    try {
+      setBusy(true);
       const payload = registrationSchema.parse({
         target: form.target,
-        password: form.password,
         verificationToken: enrollment.verificationToken,
-        totp: form.totp,
+        nationalId: form.nationalId,
+        mobile: form.mobile,
         captchaToken: registerCaptcha.token,
         invitationMode,
         referral: invitationMode === "with-code" ? form.referral : "",
@@ -241,12 +214,10 @@ export default function Registration({
         marketingConsent: form.marketingConsent,
       });
       const r = await api("auth/register", "POST", payload);
-      setResult(r);
       setEnrollment(null);
-      set("password", "");
-      set("confirm", "");
-      set("totp", "");
       setNotice("");
+      if (r.recoveryCodes?.length) setResult(r);
+      else onLogin(r.user);
     } catch (e) {
       fail(e);
     } finally {
@@ -259,15 +230,14 @@ export default function Registration({
     setEnrollment(null);
     setChallenge("");
     set("code", "");
-    set("totp", "");
     setError("");
     setNotice("");
   }
   return (
     <Localized><div className="registration-shell" dir="rtl">
       <aside className="registration-story">
-        <a href="/" aria-label="صفحه اصلی همای سعادت">
-          <img src="/assets/brand-mark.png" alt="هما" />
+        <a href="/" aria-label="صفحه اصلی هما نت">
+          <img src="/assets/brand-mark.png" alt="همای" />
         </a>
         <p className="auth-eyebrow">HOMA · MEMBERS CLUB</p>
         <h2>
@@ -275,18 +245,18 @@ export default function Registration({
           <br />{" "}
           آغاز یک داستان.
         </h2>
-        <p>یک حساب برای تجربه‌های سفر، هنر و مجموعه‌های هما.</p>
+        <p>یک حساب برای تجربه‌های سفر، هنر و مجموعه‌های همای.</p>
         <div className="registration-story-foot">
           <ShieldCheck size={28} />
           <div>
-            <strong>دسترسی با تأیید دومرحله‌ای</strong>
-            <p>راه تماس تأییدشده، رمز شخصی و رمزساز</p>
+            <strong>عضویت سریع با کد ایمیل</strong>
+            <p>رمزساز را هر وقت خواستید از حساب فعال کنید؛ برای برداشت لازم است.</p>
           </div>
         </div>
       </aside>
       <div className="portal-card registration">
         <div className="registration-preferences"><LanguagePicker/><ThemeToggle/></div><div className="auth-topline">
-          <span>باشگاه مشتریان همای سعادت</span>
+          <span>باشگاه مشتریان هما نت</span>
           <button type="button" onClick={onBack} disabled={busy}>
             حساب دارید؟ ورود <ArrowLeft size={15} />
           </button>
@@ -302,7 +272,6 @@ export default function Registration({
               {[
                 [method === "sms" ? "تأیید موبایل" : "تأیید ایمیل", Mail],
                 ["مشخصات عضویت", UserRound],
-                ["امنیت حساب", ShieldCheck],
               ].map(([label, Icon], i) => {
                 const StepIcon = Icon as typeof Mail;
                 return (
@@ -323,16 +292,14 @@ export default function Registration({
                 [
                   method === "sms" ? "عضویت با پیامک" : "عضویت با ایمیل",
                   "عضویت به انتخاب شما",
-                  "حساب شما، با حفاظت بیشتر",
                 ][step]
               }
             </h1>
             <p>
               {
                 [
-                  "راه تماس خود را تأیید کنید و عضویت را در سه مرحله تکمیل کنید.",
-                  "با کد دعوت یا بدون آن، به جمع همراهان هما بپیوندید.",
-                  "رمزساز را متصل کنید تا فقط با رمز عبور نتوان وارد حسابتان شد.",
+                  "راه تماس خود را تأیید کنید و عضویت را در دو مرحله تکمیل کنید.",
+                  "با کد دعوت یا بدون آن، به جمع همراهان همای بپیوندید.",
                 ][step]
               }
             </p>
@@ -393,12 +360,11 @@ export default function Registration({
                         }
                       />
                     </label>
-                    {verifyCaptcha.element}
                     <div className="auth-actions">
                       <button
                         className="portal-button"
                         disabled={
-                          busy || !verifyCaptcha.ready || form.code.length !== 6
+                          busy || form.code.length !== 6
                         }
                       >
                         {method === "sms" ? "تأیید موبایل و ادامه" : "تأیید ایمیل و ادامه"}
@@ -420,7 +386,7 @@ export default function Registration({
               </>
             )}
             {step === 1 && (
-              <form onSubmit={completeDetails}>
+              <form onSubmit={submit}>
                 <div className="verified-email">
                   <Check size={16} />
                   <bdi>{form.target}</bdi>
@@ -481,6 +447,8 @@ export default function Registration({
                   <div className="registration-grid">
                     {field("firstName", "نام", "given-name")}
                     {field("lastName", "نام خانوادگی", "family-name")}
+                    {field("nationalId", "کد ملی (۱۰ رقم)")}
+                    {field("mobile", "شماره موبایل به نام خودتان (مثلاً ۰۹۱۲…)", "tel")}
                     {field("country", "کشور محل سکونت", "country-name")}
                     {field("city", "شهر محل سکونت", "address-level2")}
                     {field(
@@ -502,30 +470,6 @@ export default function Registration({
                       </select>
                     </label>
                   </div>
-                </fieldset>
-                <fieldset disabled={busy}>
-                  <legend>رمز عبور</legend>
-                  <div className="registration-grid">
-                    {field(
-                      "password",
-                      "رمز عبور؛ حداقل ۱۲ نویسه",
-                      "new-password",
-                    )}
-                    {field("confirm", "تکرار رمز عبور", "new-password")}
-                  </div>
-                  <button
-                    type="button"
-                    className="auth-text-button"
-                    aria-pressed={showPassword}
-                    onClick={() => setShowPassword((v) => !v)}
-                  >
-                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}{" "}
-                    {showPassword ? "پنهان‌کردن رمز" : "نمایش رمز"}
-                  </button>
-                  <p>
-                    یک عبارت طولانی و یکتا انتخاب کنید؛ فاصله، حروف فارسی و
-                    نمادها مجازند.
-                  </p>
                 </fieldset>
                 <fieldset disabled={busy}>
                   <legend>علاقه‌مندی‌ها (اختیاری)</legend>
@@ -595,12 +539,13 @@ export default function Registration({
                         set("marketingConsent", e.target.checked)
                       }
                     />
-                    پیشنهادها و خبرهای هما را دریافت می‌کنم (اختیاری).
+                    پیشنهادها و خبرهای همای را دریافت می‌کنم (اختیاری).
                   </label>
                 </div>
+                {registerCaptcha.element}
                 <div className="auth-actions">
-                  <button className="portal-button" disabled={busy}>
-                    ادامه و فعال‌سازی دومرحله‌ای
+                  <button className="portal-button" disabled={busy || !registerCaptcha.ready}>
+                    {busy ? "در حال ایجاد حساب…" : "ساخت حساب"}
                   </button>
                   <button
                     type="button"
@@ -613,107 +558,11 @@ export default function Registration({
                 </div>
               </form>
             )}
-            {step === 2 && enrollment && (
-              <form onSubmit={submit}>
-                <div className="authenticator-setup">
-                  <ShieldCheck size={32} />
-                  <h2>اتصال برنامه رمزساز</h2>
-                  <ol>
-                    <li>
-                      در برنامه‌ای مانند Google Authenticator یا Microsoft
-                      Authenticator، افزودن حساب با «کلید راه‌اندازی» را انتخاب
-                      کنید.
-                    </li>
-                    <li>
-                      کلید زیر را وارد کنید؛ نوع حساب «مبتنی بر زمان» است.
-                    </li>
-                    <li>کد شش‌رقمی برنامه را برای تأیید وارد کنید.</li>
-                  </ol>
-                  <code className="auth-secret" dir="ltr">
-                    {enrollment.secret}
-                  </code>
-                  <div className="auth-actions">
-                    <button
-                      className="portal-button secondary"
-                      type="button"
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(
-                            enrollment.secret,
-                          );
-                          setCopied(true);
-                        } catch {
-                          setError(
-                            "کپی خودکار ممکن نشد؛ کلید را دستی کپی کنید.",
-                          );
-                        }
-                      }}
-                    >
-                      {copied ? "کلید کپی شد" : "کپی کلید"}
-                    </button>
-                    <a
-                      href={enrollment.uri}
-                      className="portal-button secondary"
-                    >
-                      باز کردن برنامه رمزساز
-                    </a>
-                  </div>
-                  <p>این کلید خصوصی است؛ فقط در برنامه رمزساز خود وارد کنید.</p>
-                </div>
-                <label>
-                  کد شش‌رقمی رمزساز
-                  <input
-                    name="totp"
-                    className="otp-input"
-                    inputMode="numeric"
-                    pattern="[0-9]{6}"
-                    dir="ltr"
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    required
-                    value={form.totp}
-                    onChange={(e) =>
-                      set("totp", e.target.value.replace(/[^0-9]/g, ""))
-                    }
-                  />
-                </label>
-                {registerCaptcha.element}
-                <div className="auth-actions">
-                  <button
-                    className="portal-button"
-                    disabled={
-                      busy || !registerCaptcha.ready || form.totp.length !== 6
-                    }
-                  >
-                    {busy ? "در حال ایجاد حساب…" : "تأیید و ساخت حساب امن"}
-                  </button>
-                  <button
-                    type="button"
-                    className="portal-button secondary"
-                    disabled={busy}
-                    onClick={() => {
-                      setStep(1);
-                      setError("");
-                    }}
-                  >
-                    ویرایش مشخصات
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  className="auth-text-button"
-                  disabled={busy}
-                  onClick={restart}
-                >
-                  مهلت تمام شده؟ شروع دوباره تأیید
-                </button>
-              </form>
-            )}
           </>
         )}
         <div className="auth-footer">
           <ShieldCheck size={15} />
-          <span>تأیید راه تماس · رمزساز · حفاظت از اطلاعات</span>
+          <span>تأیید راه تماس · حفاظت از اطلاعات</span>
         </div>
       </div>
     </div></Localized>

@@ -3,6 +3,7 @@ export const memberGroups = [
     title: "حساب من",
     tabs: [
       ["dashboard", "نمای کلی"],
+      ["wishlist", "علاقه‌مندی‌ها"],
       ["notifications", "اعلان‌ها"],
       ["tickets", "پشتیبانی"],
     ],
@@ -19,7 +20,7 @@ export const memberGroups = [
   {
     title: "باشگاه و شبکه",
     tabs: [
-      ["seven-card-plan", "پلن هفت کارت"],
+      ["seven-card-plan", "پلن هشت کارت"],
       ["network", "شبکه و دعوت"],
       ["binary", "شبکه باینری"],
       ["loyalty", "امتیازات و مزایا"],
@@ -47,7 +48,7 @@ export function memberNavigation(merchant = false) {
   return merchant
     ? [
         ...memberGroups,
-        { title: "همکاری با همای سعادت", tabs: [["merchant", "پنل پذیرنده"]] },
+        { title: "همکاری با هما نت", tabs: [["merchant", "پنل پذیرنده"]] },
       ]
     : memberGroups;
 }

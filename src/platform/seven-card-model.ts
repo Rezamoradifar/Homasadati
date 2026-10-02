@@ -1,27 +1,7 @@
 import { z } from "zod";
 
-/** All amounts in this model are integer TOMAN, never rial. */
-export const CARD_PLAN_VERSION = "seven-cards-2026-09";
-export const MATCH_VOLUME = 30_000_000;
-export const MATCH_REWARD = 5_400_000;
-export const DESK_WEEKLY_CAP = 15_000_000;
-export const SIMURGH_CASHBACK = 6_000_000;
-export const sevenCards = [
-  { level: 1, name: "جوانه", english: "Javaneh", tone: "jade" },
-  { level: 2, name: "سرو", english: "Sarv", tone: "forest" },
-  { level: 3, name: "فیروزه", english: "Turquoise", tone: "turquoise" },
-  { level: 4, name: "یاقوت", english: "Ruby", tone: "ruby" },
-  { level: 5, name: "زمرد", english: "Emerald", tone: "emerald" },
-  { level: 6, name: "الماس", english: "Diamond", tone: "gold" },
-  { level: 7, name: "سیمرغ", english: "Simurgh", tone: "obsidian" },
-].map((card) => ({
-  ...card,
-  minToman: card.level * 10_000_000,
-  maxExclusiveToman: card.level === 7 ? null : (card.level + 1) * 10_000_000,
-  desks: card.level,
-  branches: card.level + 1,
-  weeklyCapToman: card.level * DESK_WEEKLY_CAP,
-}));
+export * from "./card-levels";
+import { CARD_PLAN_VERSION, DESK_WEEKLY_CAP, MATCH_REWARD, MATCH_VOLUME, SIMURGH_CASHBACK, TOP_CARD_LEVEL, cardMinimum, sevenCards } from "./card-levels";
 const money = z.number().int().nonnegative().max(1_000_000_000_000);
 export function cardForPurchase(amount: number) {
   money.parse(amount);
@@ -35,7 +15,7 @@ export const cardDecisionsSchema = z
     overflow: z.enum(["carry-whole", "split-reward"]).nullable(),
     counterScope: z.enum(["desk", "member"]).nullable(),
     voucherCountsTowardCap: z.boolean().nullable(),
-    topology: z.enum(["left-chain", "right-chain", "manual"]).nullable(),
+    topology: z.enum(["own-desks", "left-chain", "right-chain", "manual"]).nullable(),
     purchaseCredit: z.enum(["purchase-value", "additional-credit"]).nullable(),
     weekStart: z.number().int().min(0).max(6).nullable(),
   })

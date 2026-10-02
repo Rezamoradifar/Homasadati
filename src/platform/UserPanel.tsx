@@ -1,10 +1,15 @@
 "use client";
 
+import LiveChart from "./LiveChart";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
 import { MemberDetails } from "./MemberDetails";
 import { MemberOverview } from "./MemberOverview";
+import { PayoutProfileCard } from "./PayoutProfileCard";
+import { ReferralCard } from "./ReferralCard";
+import { WishButton } from "./Wishlist";
+import { Bell } from "lucide-react";
 import { extendedCatalogFields } from "./catalog-fields";
 import { useRef, useState } from "react";
 import { api, amount, date, labels, RecordData } from "./client";
@@ -46,13 +51,42 @@ export function Dashboard({ refresh, user, onNavigate }: {
     <Localized><DataState state={s}>
       {(d) => (
         <Localized><>
-          <MemberOverview user={user} activity={d.activity} onNavigate={onNavigate} />
-          <div className="portal-stats">
-            <Stat label="موجودی قابل برداشت" value={d.wallet.available} />
-            <Stat label="در انتظار تسویه" value={d.wallet.pending} />
-            <Stat label="فروش شخصی این ماه" value={d.sales.personal} />
-            <Stat label="فروش گروهی این ماه" value={d.sales.group} />
-          </div>
+          <MemberOverview
+            user={user}
+            activity={d.activity}
+            onNavigate={onNavigate}
+            notice={
+              d.latestNotice && (
+            <section className="portal-card member-notice" aria-label="جدیدترین اطلاعیه">
+              <span className="member-notice-icon" aria-hidden="true"><Bell size={22} /></span>
+              <div>
+                <h2>جدیدترین اطلاعیه</h2>
+                <strong>{d.latestNotice.title}</strong>
+                <p>{d.latestNotice.body}</p>
+                <small>
+                  {date(d.latestNotice.created_at)}
+                  {!d.latestNotice.read_at && " · خوانده‌نشده"}
+                </small>
+              </div>
+              <button className="portal-button secondary" onClick={() => onNavigate("notifications")}>
+                همهٔ اعلان‌ها
+              </button>
+            </section>
+          )
+            }
+            summary={
+              <>
+                <div className="portal-stats">
+                  <Stat label="موجودی قابل برداشت" value={d.wallet.available} />
+                  <Stat label="در انتظار تسویه" value={d.wallet.pending} />
+                  <Stat label="فروش شخصی این ماه" value={d.sales.personal} />
+                  <Stat label="فروش گروهی این ماه" value={d.sales.group} />
+                </div>
+                <LiveChart />
+              </>
+            }
+          />
+
           {d.wallet.debt > 0 && (
             <Notice
               error={`بدهی ناشی از برگشت پورسانت: ${amount(d.wallet.debt)} تومان؛ برداشت تا تسویه ممکن نیست.`}
@@ -108,7 +142,8 @@ export function Catalog({
     [page, setPage] = useState(1),
     [error, setError] = useState(""),
     [success, setSuccess] = useState("");
-  const s = useData("catalog?" + q + "&page=" + page, refresh);
+  const s = useData("catalog?" + q + "&page=" + page, refresh),
+    wished = useData("wishlist/ids", refresh);
   return (
     <Localized><>
       <p className="portal-notice">
@@ -131,6 +166,7 @@ export function Catalog({
                 {d.rows.map((p: RecordData) => (
                   <Localized key={p.id}><Product
                     product={p}
+                    wished={wished.loading ? null : (wished.data?.ids || []).includes(p.id)}
                     onFamily={(family: string) => {
                       setQ("family=" + encodeURIComponent(family));
                       setPage(1);
@@ -159,10 +195,12 @@ export function Catalog({
 }
 function Product({
   product: p,
+  wished,
   onDone,
   onError,
   onFamily,
 }: {
+  wished: boolean | null;
   onFamily: (family: string) => void;
   product: RecordData;
   onDone: () => void;
@@ -177,6 +215,7 @@ function Product({
       <div>
         <small>{labels[p.vertical]}</small>
         <h2>{copy.title}</h2>
+        {wished !== null && <WishButton productId={p.id} initial={wished} />}
         <p>{copy.description}</p>
         <strong>{amount(p.price)} تومان</strong>
         {p.details?.comparePrice > p.price && (
@@ -265,7 +304,7 @@ function Product({
               پرداخت{" "}
               <select
                 name="method"
-                style={{ padding: 10, border: "1px solid #bfccb9" }}
+                style={{ padding: 10, border: "1px solid #d1c5b4" }}
               >
                 <option value="zarinpal">درگاه بانکی</option>
                 <option value="wallet">کیف پول</option>
@@ -296,8 +335,18 @@ export function Orders({
   const [selected, setSelected] = useState<RecordData | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  const [payment] = useState(() =>
+    typeof window === "undefined" ? "" : new URLSearchParams(location.search).get("payment") || "",
+  );
   return (
     <Localized><>
+      {payment === "paid" && <Notice success="پرداخت با موفقیت تأیید شد و سفارش ثبت شد." />}
+      {payment === "cancelled" && (
+        <Notice error="پرداخت لغو شد یا از سوی بانک انجام نشد و سفارش پرداخت‌نشده باقی ماند. اگر مبلغی کسر شده باشد، بانک آن را حداکثر ظرف ۷۲ ساعت برمی‌گرداند. می‌توانید دوباره پرداخت کنید." />
+      )}
+      {payment === "failed" && (
+        <Notice error="تأیید پرداخت از سوی درگاه انجام نشد. اگر مبلغ از حساب شما کسر شده، طبق قوانین بانکی حداکثر ظرف ۷۲ ساعت برگشت داده می‌شود؛ در غیر این صورت با پشتیبانی تماس بگیرید." />
+      )}
       <Listing
         endpoint="orders"
         refresh={refresh}
@@ -425,7 +474,9 @@ export function Wallet({
   user: RecordData;
 }) {
   const s = useData("wallet", refresh),
+    payout = useData("payout-profile", refresh),
     key = useRef(crypto.randomUUID());
+  const profile = payout.data?.profile ?? null;
   return (
     <Localized><DataState state={s}>
       {(d) => (
@@ -436,13 +487,32 @@ export function Wallet({
             <Stat label="رزروشده برای برداشت" value={d.wallet.held} />
             <Stat label="بدهی برگشت پورسانت" value={d.wallet.debt} />
           </div>
+          {!payout.loading && (
+            <PayoutProfileCard
+              key={profile?.updatedAt || "new"}
+              profile={profile}
+              twoFactor={!!user.twoFactor}
+              onSaved={onChange}
+            />
+          )}
           <div className="portal-card">
             <h2>درخواست برداشت</h2>
-            {d.limits ? (
+            {d.limits && user.twoFactor && profile?.status !== "verified" ? (
+              <p className="portal-notice">
+                برداشت پس از تأیید اطلاعات بانکی شما فعال می‌شود.
+              </p>
+            ) : d.limits && !user.twoFactor ? (
+              <p className="portal-notice">
+                برای امنیت دارایی شما، برداشت فقط با تأیید دومرحله‌ای ممکن است.
+                ابتدا رمزساز را در بخش{" "}
+                <a href="?tab=security">امنیت حساب</a> فعال کنید.
+              </p>
+            ) : d.limits ? (
               <>
                 <p>
                   حداقل {amount(d.limits.min)} و حداکثر {amount(d.limits.max)}{" "}
-                  تومان برای هر درخواست
+                  تومان برای هر درخواست؛ واریز به شبای{" "}
+                  <span dir="ltr">{profile?.iban}</span>
                 </p>
                 <Form
                   fields={[
@@ -453,14 +523,7 @@ export function Wallet({
                       min: d.limits.min,
                       max: Math.min(d.limits.max, d.wallet.available),
                     },
-                    {
-                      name: "iban",
-                      label: "شماره شبا",
-                      hint: "IR به همراه ۲۴ رقم؛ متعلق به صاحب حساب",
-                    },
-                    ...(user.twoFactor
-                      ? [{ name: "totp", label: "کد دومرحله‌ای", max: 6 }]
-                      : []),
+                    { name: "totp", label: "کد دومرحله‌ای", max: 6 },
                   ]}
                   submit="ثبت درخواست برداشت"
                   onSubmit={async (v) => {
@@ -478,6 +541,20 @@ export function Wallet({
                 برداشت پس از تعیین حدود مالی توسط مدیر فعال می‌شود.
               </p>
             )}
+          </div>
+          <div className="portal-card">
+            <h2>پرداخت‌های بانکی من</h2>
+            <Listing
+              endpoint="payments"
+              refresh={refresh}
+              columns={[
+                ["amount", "مبلغ", "money"],
+                ["status", "وضعیت", "status"],
+                ["bank_reference", "شمارهٔ پیگیری بانکی"],
+                ["card_pan", "کارت"],
+                ["created_at", "تاریخ", "date"],
+              ]}
+            />
           </div>
           <div className="portal-card">
             <h2>تاریخچهٔ برداشت</h2>
@@ -523,8 +600,7 @@ export function Network({
   refresh: number;
 }) {
   const [root, setRootValue] = useState(user.id),
-    [page, setPage] = useState(1),
-    [copy, setCopy] = useState("");
+    [page, setPage] = useState(1);
   const setRoot = (id: string) => {
     setRootValue(id);
     setPage(1);
@@ -533,43 +609,20 @@ export function Network({
     (admin ? "admin/" : "") + "network?user=" + root + "&page=" + page,
     refresh,
   );
-  const link =
-    typeof window !== "undefined"
-      ? window.location.origin + "/account?ref=" + user.referral_code
-      : "";
   return (
     <Localized><>
-      <div className="portal-card">
-        <h2>{admin ? "مشاهدهٔ شبکه" : "دعوت به همای سعادت"}</h2>
-        {admin ? (
+      {admin ? (
+        <div className="portal-card">
+          <h2>مشاهدهٔ شبکه</h2>
           <Form
             fields={[{ name: "user", label: "شناسهٔ کاربر" }]}
             submit="نمایش شبکه"
             onSubmit={async (d) => setRoot(d.user)}
           />
-        ) : (
-          <>
-            <p>
-              کد معرف: <strong>{user.referral_code}</strong>
-            </p>
-            <div className="portal-code">{link}</div>
-            <button
-              className="portal-button"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(link);
-                  setCopy("لینک کپی شد.");
-                } catch {
-                  setCopy("کپی خودکار ممکن نشد؛ لینک را انتخاب و کپی کنید.");
-                }
-              }}
-            >
-              کپی لینک دعوت
-            </button>
-            <p role="status">{copy}</p>
-          </>
-        )}
-      </div>
+        </div>
+      ) : (
+        <ReferralCard refresh={refresh} />
+      )}
       <DataState state={s}>
         {(d) => (
           <Localized><div className="portal-card">
@@ -706,7 +759,7 @@ export function Profile({
           <input
             value={target}
             onChange={(e) => setTarget(e.target.value)}
-            style={{ padding: 10, border: "1px solid #b7c9b4" }}
+            style={{ padding: 10, border: "1px solid #cec1af" }}
           />
         </label>
         <button

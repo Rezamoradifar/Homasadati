@@ -18,15 +18,15 @@ export default async function ContentPage({
     <Localized><main
       dir="rtl"
       style={{
-        fontFamily: "Vazirmatn",
+        fontFamily: "var(--font-fa)",
         maxWidth: 900,
         margin: "50px auto",
         padding: 25,
         lineHeight: 2,
-        color: "#183f33",
+        color: "#232a34",
       }}
     >
-      <a href="/">همای سعادت</a>
+      <a href="/">هما نت</a>
       <h1 style={{ fontSize: 36, marginBlock: 30 }}>{p.title}</h1>
       {p.image && (
         <img

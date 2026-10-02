@@ -178,7 +178,7 @@ it("verifies one bank payment for the entire cart and settles every line exactly
     handle(
       new Request(
         "https://cart.test/api/platform/payment/callback?Authority=" +
-          authority,
+          authority + "&Status=OK",
       ),
       ["payment", "callback"],
     );

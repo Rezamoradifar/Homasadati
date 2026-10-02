@@ -5,14 +5,16 @@ import Localized from "../../../src/i18n/Localized";
 import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
 import { BrandCollection } from "../../VisualCollections";
 import TourismMedia from "../../TourismMedia";
-import TourismHeroVideo from "../../TourismHeroVideo";
+import HeroMotion from "../../HeroMotion";
 import ClubCards from "../../ClubCards";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { brands, isSector, sectorKeys } from "../../../src/commerce/brands";
+import { notFound, redirect } from "next/navigation";
+import { brands, isSector, menuLabel, menuName, menuSectors } from "../../../src/commerce/brands";
+import { craftShopHref } from "../../../src/commerce/craft-taxonomy";
 import { stories } from "../../../src/commerce/content";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import Economics from "../../../src/commerce/Economics";
+import { CraftCategoryGrid } from "../../../src/commerce/CraftNav";
 export async function generateMetadata({
   params: pendingParams,
 }: {
@@ -22,7 +24,7 @@ export async function generateMetadata({
   if (!isSector(params.sector)) return {};
   const b = brands[params.sector];
   return translatedMetadata({
-    title: `${b.name} | ${b.label} — همای سعادت`,
+    title: `${b.name} | ${b.label} — هما نت`,
     description: stories[params.sector].intro,
   });
 }
@@ -33,6 +35,7 @@ export default async function BrandPage({
 }) {
   const params = await pendingParams;
   if (!isSector(params.sector)) notFound();
+  if (params.sector === "leather") redirect(craftShopHref("leather"));
   const locale=await siteLocale(),dictionary=await loadDictionary(locale);
   const t=(text:string)=>translateText(text,locale,dictionary);
   const k = params.sector,
@@ -46,7 +49,7 @@ export default async function BrandPage({
           style={{ backgroundColor: b.tone }}
         >
           {k === "tourism" ? (
-            <TourismHeroVideo />
+            <HeroMotion />
           ) : (
             b.image && (
               <ResponsiveImage
@@ -82,11 +85,12 @@ export default async function BrandPage({
           <p>{s.intro}</p>
         </section>
         {k === "tourism" && <TourismMedia />}
+        {k === "craft" && <CraftCategoryGrid />}
         {k === "craft" && (
           <section className="tourism-media">
             <h2>هنر ایرانی، اعتبار سفر شما</h2>
             <p>
-              با عضویت در باشگاه و خرید واجد شرایط از هما تمدن، پس از پایان مهلت
+              با عضویت در باشگاه و خرید واجد شرایط از همای تمدن، پس از پایان مهلت
               لغو و احراز رتبه، کارت سفر به نام شما صادر می‌شود. اعتبار هر رتبه
               را مدیریت تعیین می‌کند؛ این اعتبار غیرنقدی است و درخواست استفاده
               باید حداقل هفت روز کاری کامل پیش از سفر به کارگزار برسد.
@@ -174,7 +178,7 @@ export default async function BrandPage({
             </details></Localized>
           ))}
           <p className="source-date">
-            آخرین بررسی محتوای مستند: ۲۰ سپتامبر ۲۰۲۶. تحلیل اقتصادی این صفحه
+            آخرین بررسی محتوای مستند: ۲۹ شهریور ۱۴۰۵. تحلیل اقتصادی این صفحه
             چارچوب پیشنهادی هماست؛ آمار عملکرد واقعی شرکت یا تضمین سود نیست.
           </p>
         </section>
@@ -186,14 +190,14 @@ export default async function BrandPage({
           </a>
         </section>
         <section className="brand-related">
-          <h2>دیگر جهان‌های هما</h2>
+          <h2>دیگر جهان‌های همای</h2>
           <div>
-            {sectorKeys
+            {menuSectors
               .filter((x) => x !== k)
               .map((x) => (
                 <Localized key={x}><a href={`/worlds/${x}`}>
-                  <strong>{brands[x].name}</strong>
-                  <span>{brands[x].label} ←</span>
+                  <strong>{menuName(x)}</strong>
+                  <span>{menuLabel(x)} ←</span>
                 </a></Localized>
               ))}
           </div>

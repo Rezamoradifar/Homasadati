@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { handle } from "./api";
+import { hash } from "../server/http";
+import { testIdentity } from "./test-identity";
 import { platformDb, run, one, now } from "./schema";
 import { saveSetting } from "./providers";
 import {
@@ -69,6 +71,7 @@ async function register(target: string, referral?: string) {
     privacyAccepted: true,
     adultConfirmed: true,
     termsVersion: "2026-09-20-v1",
+    ...testIdentity(),
     verificationToken: verification.verificationToken,
     totp: totp(verification.secret),
     invitationMode: referral ? "with-code" : "without-code",
@@ -116,7 +119,7 @@ beforeAll(() => {
       }
       if (url.includes("verify.json")) {
         expect(payload.amount).toBe(1000000);
-        return Response.json({ data: { code: 100, ref_id: 123456789 } });
+        return Response.json({ data: { code: 100, ref_id: 123456789, card_pan: "502229******5995", fee: 25000 } });
       }
       throw new Error("Unexpected provider endpoint");
     }),
@@ -214,11 +217,18 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
       buyer,
     );
     expect(payment.status).toBe(200);
-    const callback = await request("payment/callback?Authority=" + authority);
-    expect(callback.status).toBe(303);
     expect(
-      (await request("payment/callback?Authority=" + authority)).status,
+      one("SELECT status,ref_kind,user_id FROM p_gateway_transactions WHERE authority=?", authority),
+    ).toMatchObject({ status: "requested", ref_kind: "order" });
+    const callback = await request("payment/callback?Authority=" + authority + "&Status=OK");
+    expect(callback.status).toBe(303);
+    expect(callback.headers.get("location")).toContain("payment=paid");
+    expect(
+      (await request("payment/callback?Authority=" + authority + "&Status=OK")).status,
     ).toBe(303);
+    expect(
+      one("SELECT status,bank_reference,card_pan,fee FROM p_gateway_transactions WHERE authority=?", authority),
+    ).toEqual({ status: "paid", bank_reference: "123456789", card_pan: "502229******5995", fee: 2500 });
     expect(
       one("SELECT COUNT(*) n FROM p_commissions WHERE order_id=?", orderId)!.n,
     ).toBe(1);
@@ -236,19 +246,58 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     ).toBe("%PDF");
   });
   it("requests withdrawal and admin approval debits the held wallet atomically", async () => {
+    const secret = decrypt(
+      one("SELECT otp_secret FROM p_users WHERE id=?", sponsorId)!.otp_secret,
+    );
+    const step = Math.floor(Date.now() / 30000);
+    run("UPDATE p_users SET otp_last=? WHERE id=?", step - 2, sponsorId);
+    const blocked = await request(
+      "withdrawals",
+      "POST",
+      { totp: totp(secret, step - 1), amount: 9000, idempotencyKey: randomUUID() },
+      sponsor,
+    );
+    expect(blocked.status).toBe(403);
+    expect((await blocked.json()).error).toBe("payout_profile_required");
+    const bank = {
+      holderName: "Sponsor Member",
+      nationalId: "۰۰۱۲۳۴۵۶۷۹",
+      cardNumber: "6037-9912-3456-7893",
+      iban: "IR062960000000100324200001",
+    };
+    // The bank details belong to the member who signed up with this national code.
+    run("UPDATE p_identities SET national_hash=? WHERE user_id=?", hash("national:0012345679"), sponsorId);
+    const saved = await request(
+      "payout-profile",
+      "POST",
+      { ...bank, totp: totp(secret, step) },
+      sponsor,
+    );
+    expect(saved.status).toBe(200);
+    const view = (await saved.json()).profile;
+    expect(view).toMatchObject({ status: "pending", nationalId: "•••••••679" });
+    expect(JSON.stringify(view)).not.toContain("6037991234567893");
+    expect(
+      one("SELECT data FROM p_payout_profiles WHERE user_id=?", sponsorId)!.data,
+    ).not.toContain("0012345679");
+    const listed = await (await request("admin/payout-profiles", "GET", undefined, admin)).json();
+    expect(listed.rows[0]).toMatchObject({ nationalId: "0012345679", cardNumber: "6037991234567893" });
+    expect(
+      (
+        await request(
+          "admin/payout-profiles",
+          "PATCH",
+          { userId: sponsorId, status: "verified", reason: "" },
+          admin,
+        )
+      ).status,
+    ).toBe(200);
     const r = await request(
       "withdrawals",
       "POST",
       {
-        totp: totp(
-          decrypt(
-            one("SELECT otp_secret FROM p_users WHERE id=?", sponsorId)!
-              .otp_secret,
-          ),
-          Math.floor(Date.now() / 30000) + 1,
-        ),
+        totp: totp(secret, step + 1),
         amount: 9000,
-        iban: "IR062960000000100324200001",
         idempotencyKey: randomUUID(),
       },
       sponsor,
@@ -269,14 +318,24 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
       one("SELECT available,held FROM p_wallets WHERE user_id=?", sponsorId),
     ).toEqual({ available: 1000, held: 0 });
     expect(
-      one("SELECT status FROM p_withdrawals WHERE id=?", w.id)!.status,
-    ).toBe("approved");
+      one("SELECT status,iban FROM p_withdrawals WHERE id=?", w.id),
+    ).toEqual({ status: "approved", iban: "IR062960000000100324200001" });
     expect(
       one(
         "SELECT COUNT(*) n FROM p_audit WHERE action='withdrawal.approved' AND actor_id=?",
         adminId,
       )!.n,
     ).toBe(1);
+  });
+  it("saves, lists and removes wishlist items for the signed-in member only", async () => {
+    expect((await request("wishlist", "POST", { productId }, sponsor)).status).toBe(201);
+    expect((await request("wishlist", "POST", { productId }, sponsor)).status).toBe(201);
+    expect((await (await request("wishlist/ids", "GET", undefined, sponsor)).json()).ids).toEqual([productId]);
+    expect((await (await request("wishlist", "GET", undefined, sponsor)).json()).rows[0].id).toBe(productId);
+    expect((await (await request("wishlist/ids", "GET", undefined, admin)).json()).ids).toEqual([]);
+    expect((await request("wishlist", "POST", { productId: randomUUID() }, sponsor)).status).toBe(404);
+    expect((await request("wishlist/" + productId, "DELETE", undefined, sponsor)).status).toBe(200);
+    expect((await (await request("wishlist/ids", "GET", undefined, sponsor)).json()).ids).toEqual([]);
   });
   it("blocks IDOR, malicious amounts, insufficient roles, invalid input and cross-origin mutation", async () => {
     expect(

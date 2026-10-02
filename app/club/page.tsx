@@ -5,7 +5,7 @@ import { loyaltyPolicy } from "../../src/platform/loyalty-engine";
 import { all } from "../../src/platform/schema";
 import "../../src/platform/panel.css";
 export const dynamic = "force-dynamic";
-export async function generateMetadata() { return translatedMetadata({ title: "باشگاه مشتریان | همای سعادت" }); }
+export async function generateMetadata() { return translatedMetadata({ title: "باشگاه مشتریان | هما نت" }); }
 export default function ClubPage() {
   const policy = loyaltyPolicy(),
     levels = all(
@@ -20,7 +20,7 @@ export default function ClubPage() {
         <main id="commerce-main" className="portal">
           <div className="portal-main">
             <header className="portal-card">
-              <p>همای سعادت · باشگاه مشتریان</p>
+              <p>هما نت · باشگاه مشتریان</p>
               <h1>از هر همراهی، فرصتی برای تجربه‌ای تازه</h1>
               <p>
                 امتیاز خرید، مزایای فعال و سطح باشگاه خود را در یک حساب دنبال
@@ -58,8 +58,8 @@ export default function ClubPage() {
                 </>
               ) : (
                 <p>
-                  برنامه امتیاز خودکار خرید هنوز فعال نشده است. امتیازهای
-                  ثبت‌شده و مزایای موجود از پنل حساب قابل پیگیری‌اند.
+                  امتیازهای ثبت‌شده و مزایای موجود از پنل حساب قابل
+                  پیگیری‌اند.
                 </p>
               )}
               <p>

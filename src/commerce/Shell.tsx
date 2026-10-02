@@ -1,10 +1,10 @@
 import ContactDetails from "./ContactDetails";
-import {LanguagePicker} from '../i18n/SiteLocale';
 
+import {LanguagePicker} from '../i18n/SiteLocale';
 import Localized from "../i18n/Localized";
 import ThemeToggle from "./ThemeToggle";
 import type { ReactNode } from "react";
-import { brands, sectorKeys } from "./brands";
+import { menuLine, menuName, menuSectors } from "./brands";
 import "./commerce.css";
 import "../../app/heritage.css";
 export function CommerceShell({ children }: { children: ReactNode }) {
@@ -17,20 +17,27 @@ export function CommerceShell({ children }: { children: ReactNode }) {
         <a className="commerce-logo" href="/">
           <img src="/assets/brand-mark.png" alt="" />
           <span>
-            همای سعادت<small>باشگاه مشتریان</small>
+            هما نت<small>باشگاه مشتریان</small>
           </span>
         </a>
-        <nav aria-label="بخش‌های خانواده هما">
-          {sectorKeys.map((k) => (
+        {/* Phones: the links fold behind this button (CSS only, no script). */}
+        <input type="checkbox" id="commerce-menu-toggle" className="commerce-menu-toggle" aria-label="منو" />
+        <label htmlFor="commerce-menu-toggle" className="commerce-menu-button" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </label>
+        <nav aria-label="بخش‌های خانواده همای">
+          {menuSectors.map((k) => (
             <Localized key={k}><a href={`/worlds/${k}`}>
-              {brands[k].name}
+              {menuName(k)}
             </a></Localized>
           ))}
         </nav>
         <div>
           <LanguagePicker/><ThemeToggle />
           <a href="/club">باشگاه مشتریان</a>
-          <a href="/club/ranks">هفت رتبه باشگاه</a>
+          <a href="/club/ranks">هشت رتبه باشگاه</a>
           <a href="/merchants">پذیرندگان</a>
           <a href="/income-plan">طرح درآمد</a>
           <a href="/shop">فروشگاه</a>
@@ -42,13 +49,13 @@ export function CommerceShell({ children }: { children: ReactNode }) {
       {children}
       <footer
         className="commerce-footer"
-        aria-label="پیوندها و خدمات همای سعادت"
+        aria-label="پیوندها و خدمات هما نت"
       >
         <div>
           <img
             className="footer-brand-mark"
             src="/assets/brand-mark.png"
-            alt="همای سعادت"
+            alt="هما نت"
           />
           <h2>ریشه در ایران، رو به جهان.</h2><ContactDetails compact/>
           <p>
@@ -56,11 +63,11 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           </p>
         </div>
         <details open>
-          <summary>جهان‌های هما</summary>
+          <summary>جهان‌های همای</summary>
           <nav aria-label="برندها">
-            {sectorKeys.map((k) => (
+            {menuSectors.map((k) => (
               <Localized key={k}><a href={`/worlds/${k}`}>
-                {brands[k].name} · {brands[k].label}
+                {menuLine(k)}
               </a></Localized>
             ))}
           </nav>
@@ -74,7 +81,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
             <a href="/account?tab=addresses">آدرس‌های ارسال</a>
             <a href="/heritage">روایت ایران و نمادها</a>
             <a href="/club">باشگاه مشتریان</a>
-          <a href="/club/ranks">هفت رتبه باشگاه</a>
+          <a href="/club/ranks">هشت رتبه باشگاه</a>
           <a href="/merchants">پذیرندگان</a>
             <a href="/income-plan">طرح درآمد</a>
             <a href="/help">راهنمای خرید و پشتیبانی</a>
@@ -84,7 +91,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           </nav>
         </details>
         <div className="commerce-footer-bottom">
-          <p>© {new Date().getFullYear()} همای سعادت · از ایران، برای جهان</p>
+          <p>© {new Date().toLocaleDateString("fa-IR-u-ca-persian", { year: "numeric", timeZone: "Asia/Tehran" })} هما نت · از ایران، برای جهان</p>
           <a href="#page-top">بازگشت به بالا ↑</a>
         </div>
       </footer>

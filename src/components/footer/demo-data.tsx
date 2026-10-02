@@ -1,6 +1,6 @@
 import {CreditCard, BadgeCheck, Instagram, Linkedin, Youtube} from 'lucide-react';
 import type {FooterBadge, FooterSocial} from './types';
-/** Demonstration destinations only. Replace with verified Homay Saadat profiles. */
+/** Demonstration destinations only. Replace with verified Homanet profiles. */
 export const demoSocials: FooterSocial[] = [
   {id: 'instagram', labelKey: 'socials.instagram', href: 'https://www.instagram.com/', icon: <Instagram size={18} />},
   {id: 'linkedin', labelKey: 'socials.linkedin', href: 'https://www.linkedin.com/', icon: <Linkedin size={18} />},

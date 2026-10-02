@@ -120,13 +120,14 @@ it("expires automatically and rejects unset, invalid or excessively distant dead
     expect((await request()).status).toBe(503);
   }
 });
-it("keeps captcha on public login, email-code login and OTP sending", async () => {
+it("keeps captcha on password login and OTP sending, not on email-code login", async () => {
   for (const [action, payload] of [
     ["login", { adminPasswordLogin: false }],
-    ["login", { password: undefined }],
     ["otp", { purpose: "register" }],
   ] as const)
     expect((await request(action, payload)).status).toBe(503);
+  // The code was sent behind a captcha; the sign-in itself only checks the code.
+  expect((await request("login", { password: undefined })).status).not.toBe(503);
 });
 it("retains origin checks and login attempt limits", async () => {
   expect((await request("login", {}, "https://evil.test")).status).toBe(403);
