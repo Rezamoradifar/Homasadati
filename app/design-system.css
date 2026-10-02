@@ -975,3 +975,35 @@ html body .enamad-seal.enamad-failed > a {
   font-weight: 600;
   text-decoration: none;
 }
+
+/* Handicraft product types (sugar bowl, chocolate dish…): laid out in even
+ * rows like the techniques above, all visible, instead of a row that hides
+ * the last ones off-screen. */
+html body .craft-nav-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  overflow: visible;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+html body .craft-nav-items a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  text-align: center;
+}
+@media (max-width: 420px) {
+  html body .craft-nav-items {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  html body .craft-nav-items a {
+    padding: 6px 4px;
+  }
+}
+@media (min-width: 760px) {
+  html body .craft-nav-items {
+    grid-template-columns: repeat(auto-fill, minmax(104px, 128px));
+    justify-content: start;
+  }
+}
