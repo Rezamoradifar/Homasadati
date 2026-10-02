@@ -312,6 +312,29 @@ def approved_template(key):
     raise SetupError('الگوی HomanetsOTP در این حساب پیدا نشد؛ تنظیمی ذخیره نشد.')
 
 
+def require_private_terminal():
+    try:
+        # A terminal is not seekable: buffered text update mode ('r+') fails
+        # even for a healthy SSH PTY. Check the raw device descriptor instead.
+        descriptor = os.open('/dev/tty', os.O_RDWR | os.O_NOCTTY)
+        try:
+            if not os.isatty(descriptor):
+                raise OSError('not a terminal')
+        finally:
+            os.close(descriptor)
+    except OSError:
+        raise SetupError('ترمینال خصوصی برای دریافت کلید در دسترس نیست.') from None
+
+
+def read_api_key():
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('error', getpass.GetPassWarning)
+            return getpass.getpass('Kavenegar API key: ').strip()
+    except getpass.GetPassWarning:
+        raise SetupError('امکان دریافت پنهان کلید در این ترمینال وجود ندارد؛ در یک ترمینال SSH تعاملی دوباره اجرا کنید.') from None
+
+
 def main():
     if sys.version_info < (3, 9):
         raise SetupError('این ابزار به Python 3.9 یا جدیدتر نیاز دارد.')
@@ -323,11 +346,7 @@ def main():
         raise SetupError('این سرور هما نیست؛ دستور را روی vps-astra-1758 اجرا کنید.')
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         raise SetupError('این ابزار باید در ترمینال تعاملی SSH اجرا شود.')
-    try:
-        with open('/dev/tty', 'r+'):
-            pass
-    except OSError:
-        raise SetupError('ترمینال خصوصی برای دریافت کلید در دسترس نیست.') from None
+    require_private_terminal()
     os.umask(0o077)
     account = pwd.getpwnam('homay')
     print('در حال بررسی سرویس و دیتابیس فعلی هما…', flush=True)
@@ -338,9 +357,7 @@ def main():
     if inspection['notificationsConfigured']:
         print('شماره فرستنده اعلان از قبل تنظیم شده است؛ ذخیره کلید، ارسال عادی اعلان‌های موجود را هم فعال می‌کند.')
     print('کلید را اینجا بچسبانید؛ هنگام تایپ چیزی نمایش داده نمی‌شود. سپس Enter بزنید.')
-    with warnings.catch_warnings():
-        warnings.simplefilter('error', getpass.GetPassWarning)
-        key = getpass.getpass('Kavenegar API key: ').strip()
+    key = read_api_key()
     print('در حال بررسی الگوی HomanetsOTP در کاوه‌نگار؛ پیامک آزمایشی ارسال نمی‌شود…', flush=True)
     approved_template(key)
     # Reconstruct again after human input/network delay. Reject service or env drift.

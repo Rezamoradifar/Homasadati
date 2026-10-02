@@ -1,13 +1,19 @@
 """Offline tests. All credentials/DBs/provider responses here are synthetic."""
 
 import importlib.util
+import errno
 import io
 import json
 import os
 from pathlib import Path
+import pty
+import select
+import signal
 import sqlite3
 import subprocess
 import tempfile
+import termios
+import time
 import unittest
 from unittest import mock
 import urllib.error
@@ -202,6 +208,73 @@ class ProviderTests(unittest.TestCase):
             with self.assertRaises(setup.SetupError):
                 setup.approved_template('invalid/key')
             build.assert_not_called()
+
+
+class TerminalTests(unittest.TestCase):
+    def test_real_controlling_pty_accepts_preflight_and_hides_input(self):
+        synthetic = b'terminal-fixture-only'
+        pid, master = pty.fork()
+        if pid == 0:
+            try:
+                original = termios.tcgetattr(0)
+                setup.require_private_terminal()
+                result = setup.read_api_key()
+                restored = termios.tcgetattr(0) == original
+                passed = result == synthetic.decode() and restored
+                print('TTY_TEST_OK' if passed else 'TTY_TEST_FAILED', flush=True)
+                os._exit(0 if passed else 1)
+            except BaseException:
+                print('TTY_TEST_FAILED', flush=True)
+                os._exit(1)
+        output = b''
+        sent = False
+        deadline = time.monotonic() + 8
+        try:
+            while time.monotonic() < deadline:
+                if not select.select([master], [], [], max(0, deadline - time.monotonic()))[0]:
+                    self.fail('terminal regression test timed out')
+                try:
+                    block = os.read(master, 4096)
+                except OSError as error:
+                    if error.errno == errno.EIO:
+                        break
+                    raise
+                if not block:
+                    break
+                output += block
+                if not sent and b'Kavenegar API key:' in output:
+                    self.assertFalse(termios.tcgetattr(master)[3] & termios.ECHO)
+                    os.write(master, synthetic + b'\n')
+                    sent = True
+            self.assertTrue(sent)
+            self.assertIn(b'TTY_TEST_OK', output)
+            self.assertNotIn(synthetic, output)
+            waited, status = os.waitpid(pid, 0)
+            self.assertEqual(waited, pid)
+            pid = None
+            self.assertTrue(os.WIFEXITED(status))
+            self.assertEqual(os.WEXITSTATUS(status), 0)
+        finally:
+            os.close(master)
+            if pid is not None:
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                os.waitpid(pid, 0)
+
+    def test_missing_controlling_terminal_stops_before_input(self):
+        with mock.patch.object(setup.os, 'open', side_effect=OSError('fixture unavailable')):
+            with self.assertRaises(setup.SetupError):
+                setup.require_private_terminal()
+
+    def test_echo_fallback_is_rejected_before_any_input_read(self):
+        with mock.patch.object(setup.getpass.os, 'open', side_effect=OSError('fixture no tty')), \
+             mock.patch.object(setup.getpass.termios, 'tcgetattr', side_effect=termios.error('fixture no echo control')), \
+             mock.patch.object(setup.getpass, '_raw_input') as raw_input:
+            with self.assertRaises(setup.SetupError):
+                setup.read_api_key()
+            raw_input.assert_not_called()
 
 
 class ContextTests(unittest.TestCase):

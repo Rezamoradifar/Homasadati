@@ -17,7 +17,7 @@ curl --fail --location --proto '=https' --tlsv1.2 --connect-timeout 15 --max-tim
   'https://raw.githubusercontent.com/Rezamoradifar/Homasadati/codex/homay-kavenegar-setup/scripts/kavenegar-setup.py' \
   -o "$homay_sms_dir/kavenegar-setup.py" &&
 printf '%s  %s\n' \
-  '4237ec2a47dcf7af5e55fef1573e5fea550889c50317555d20f13129c13821b7' \
+  '95839a964c98555a201f00c129281f9e994762ad48fcd047333868868cc51881' \
   "$homay_sms_dir/kavenegar-setup.py" | sha256sum -c - &&
 sudo python3 "$homay_sms_dir/kavenegar-setup.py"
 ```
