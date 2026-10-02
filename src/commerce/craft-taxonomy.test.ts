@@ -28,6 +28,8 @@ describe("handicraft categories", () => {
     expect(craft("جعبه جواهر", "جعبه جواهر منبت‌کاری")).toMatchObject({ category: "wood" });
     expect(craft("خاتم کاری", "جعبه خاتم بزرگ")).toMatchObject({ category: "wood" });
     expect(craft("میناکاری", "ساعت مینا و خاتم روی چوب سایز ۴۰")).toMatchObject({ category: "enamel" });
+    expect(craft("میناکاری", "شاه‌نشین مینا و خاتم")).toMatchObject({ category: "shahneshin" });
+    expect(craft("", "شاه نشین چوبی منبت")).toMatchObject({ category: "shahneshin" });
   });
 
   it("moves old copper silver-inlay products to the silver-inlay category and keeps them editable", () => {

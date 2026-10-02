@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { CookingPot, DiceFive, FlowerLotus, Handbag, Rug, Sparkle, Tree } from "@phosphor-icons/react";
+import { CookingPot, Crown, DiceFive, FlowerLotus, Handbag, Rug, Sparkle, Tree } from "@phosphor-icons/react";
 import Localized from "../i18n/Localized";
 import { craftCategories, craftCategory, craftShopHref, itemsFor } from "./craft-taxonomy";
 
@@ -12,6 +12,7 @@ const categoryIcons: Record<string, typeof CookingPot> = {
   enamel: FlowerLotus,
   "silver-inlay": Sparkle,
   wood: Tree,
+  shahneshin: Crown,
 };
 
 /** Handicraft category tree. With `active` values it marks the current

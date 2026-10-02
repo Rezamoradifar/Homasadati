@@ -78,14 +78,16 @@ export const craftCategories: CraftCategory[] = [
     items: copperItems.filter((i) => !i.onlyWith),
   },
   { id: "wood", name: "محصولات چوبی، منبت و جعبه", short: "چوب و منبت", vertical: "craft" },
+  { id: "shahneshin", name: "محصولات شاه‌نشین", short: "شاه‌نشین", vertical: "craft" },
 ];
 
 export const craftCategory = (id: string) => craftCategories.find((c) => c.id === id);
 
 /** Keyword rules for products saved without a category: the product's type
  * (subtype) and title say what it is. Order matters — enamel on wood with
- * khatam is enamel; silver work is its own category. */
+ * khatam is enamel, and a shahneshin is one whatever it is made of; silver work is its own category. */
 const categoryRules: [string, RegExp][] = [
+  ["shahneshin", /شاه[\s\u200c]?نشین/],
   ["enamel", /مینا/],
   ["silver-inlay", /نقره/],
   ["leather", /چرم|کیف|کمربند/],

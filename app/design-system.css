@@ -932,7 +932,7 @@ html body .enamad-seal.enamad-failed > a {
   z-index: 1;
 }
 
-/* Handicraft categories on phones: two rows of four, so all seven tiles are
+/* Handicraft categories on phones: two rows of four, so all eight tiles are
  * visible at once without scrolling sideways. */
 @media (max-width: 640px) {
   html body .craft-nav-cats {
