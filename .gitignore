@@ -22,3 +22,4 @@ backups/
 .env.*.local
 .env
 .next-*/
+__pycache__/
