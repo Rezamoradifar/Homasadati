@@ -1,4 +1,5 @@
 "use client";
+import { BankPayment } from "./BankPayment";
 
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
@@ -232,6 +233,8 @@ function Product({
               if (o.payment_method === "zarinpal" && !o.paid_at) {
                 const r = await api(`orders/${o.id}/payment`, "POST");
                 window.location.assign(r.url);
+              } else if (o.payment_method === "bank_transfer" && !o.paid_at) {
+                window.location.assign("/account?tab=orders");
               } else {
                 key.current = crypto.randomUUID();
                 onDone();
@@ -261,7 +264,8 @@ function Product({
                 name="method"
                 style={{ padding: 10, border: "1px solid #bfccb9" }}
               >
-                <option value="zarinpal">درگاه بانکی</option>
+                <option value="bank_transfer">واریز بانکی با رسید</option>
+                <option value="zarinpal">زرین‌پال</option>
                 <option value="wallet">کیف پول</option>
               </select>
             </label>
@@ -342,6 +346,7 @@ export function Orders({
             ))}
           </dl>
           <Notice error={error} />
+          {selected.payment_method === "bank_transfer" && <BankPayment orderId={selected.id} onChange={onChange}/>}
           <div className="portal-row" style={{ marginTop: 25 }}>
             {selected.paid_at && (
               <DownloadButton
@@ -865,7 +870,7 @@ export function Subscriptions({
                 label: "انتخاب عملیات",
                 type: "select",
                 options: [
-                  ["renew", "تمدید با درگاه بانکی"],
+                  ["renew", "تمدید با واریز بانکی و رسید"],
                   ["cancel", "لغو اشتراک"],
                 ],
               },
@@ -880,11 +885,10 @@ export function Subscriptions({
                 const o = await api("orders", "POST", {
                   productId: selected.product_id,
                   quantity: 1,
-                  method: "zarinpal",
+                  method: "bank_transfer",
                   idempotencyKey: key.current,
                 });
-                const r = await api("orders/" + o.id + "/payment", "POST");
-                window.location.assign(r.url);
+                window.location.assign("/account?tab=orders");
               }
             }}
           />

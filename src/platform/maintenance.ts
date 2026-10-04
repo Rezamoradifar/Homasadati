@@ -14,7 +14,7 @@ export async function maintenance() {
       now(),
     );
     for (const order of all(
-      "SELECT * FROM p_orders WHERE status='pending' AND checkout_claim IS NULL AND expires_at<?",
+      "SELECT * FROM p_orders o WHERE status='pending' AND checkout_claim IS NULL AND expires_at<? AND NOT EXISTS(SELECT 1 FROM p_bank_receipts r WHERE r.status='pending' AND (r.order_id=o.id OR r.checkout_id IN (SELECT checkout_id FROM p_checkout_items WHERE order_id=o.id)))",
       now(),
     ))
       refundOrder(order.id, order.user_id, false, "انقضای سفارش پرداخت‌نشده");
