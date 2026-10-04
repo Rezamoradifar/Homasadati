@@ -78,7 +78,7 @@ export function validateClient(path: string, method: string, data: unknown) {
       schema = z.object({
         productId: id,
         quantity: z.number().int().min(1).max(100),
-        method: z.enum(["wallet", "zarinpal"]),
+        method: z.enum(["wallet", "zarinpal", "bank_transfer"]),
         idempotencyKey: id,
       });
     else {
@@ -168,6 +168,9 @@ export function validateClient(path: string, method: string, data: unknown) {
               reference: z.string().trim().min(3).max(200).optional(),
             })
             .refine((v) => v.status !== "paid" || !!v.reference);
+          break;
+        case "bank-receipts":
+          schema = z.object({id,status:z.enum(["approved","rejected"]),reason:text,bankReference:z.string().trim().regex(/^[A-Za-z0-9-]{3,80}$/).optional(),verifiedAmountRial:z.number().int().positive().max(1e13).optional(),confirmedInBank:z.boolean().optional()}).strict().refine(v=>v.status!=="approved" || (!!v.bankReference && !!v.verifiedAmountRial && v.confirmedInBank===true));
           break;
         case "orders":
           schema = z.object({

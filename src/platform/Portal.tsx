@@ -1,4 +1,5 @@
 "use client";
+import { AdminBankReceipts } from "./BankPayment";
 
 import Localized from "../i18n/Localized";
 import { useEffect, useState } from "react";
@@ -63,6 +64,7 @@ const adminTabs: [string, string, string[]][] = [
   ["products", "محصولات و تورها", ["superadmin", "content"]],
   ["taxonomy", "دسته‌ها و برچسب‌ها", ["superadmin", "content"]],
   ["orders", "سفارش‌ها", ["superadmin", "finance", "support"]],
+  ["bank-receipts", "رسیدهای واریز", ["superadmin", "finance"]],
   ["withdrawals", "درخواست‌های برداشت", ["superadmin", "finance"]],
   ["users", "اعضای مجموعه", ["superadmin", "support"]],
   ["network", "مدیریت شبکه", ["superadmin"]],
@@ -250,6 +252,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     role={user.role}
                   />
                 )}{" "}
+                {tab === "bank-receipts" && <AdminBankReceipts refresh={refresh} onChange={update}/>}
                 {tab === "withdrawals" && (
                   <AdminWithdrawals refresh={refresh} onChange={update} />
                 )}{" "}

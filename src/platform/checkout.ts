@@ -70,7 +70,7 @@ export function createCheckout(
       throw new ApiError(400, "address_required");
     const id = randomUUID(),
       created = now(),
-      expires = new Date(Date.now() + 3600000).toISOString();
+      expires = new Date(Date.now() + (input.method === "bank_transfer" ? 86400000 : 3600000)).toISOString();
     run(
       "INSERT INTO p_checkouts(id,user_id,amount,method,status,payload,created_at,expires_at,idem_key) VALUES(?,?,?,?,?,?,?,?,?)",
       id,

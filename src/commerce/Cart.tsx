@@ -1,4 +1,5 @@
 "use client";
+import { BankPayment } from "../platform/BankPayment";
 
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy} from "../i18n/catalog";
@@ -16,9 +17,10 @@ export default function Cart() {
     [me, setMe] = useState<RecordData | null>(null),
     [addresses, setAddresses] = useState<RecordData[]>([]),
     [address, setAddress] = useState(""),
-    [method, setMethod] = useState("zarinpal"),
+    [method, setMethod] = useState("bank_transfer"),
     [pending, setPending] = useState(""),
     [done, setDone] = useState(false),
+    [bankOrder, setBankOrder] = useState(""),
     [revision, setRevision] = useState(0);
   const version = JSON.stringify(items),
     lock = useRef(false);
@@ -79,6 +81,7 @@ export default function Cart() {
       sessionStorage.removeItem("homa-pending-checkout");
       return;
     }
+    if (state.method === "bank_transfer") { setBankOrder(state.order_id); return; }
     const result = await api(`checkouts/${id}/payment`, "POST", {});
     window.location.assign(result.url);
   };
@@ -178,6 +181,7 @@ export default function Cart() {
           </button>
         </section>
       )}
+      {bankOrder && <BankPayment orderId={bankOrder}/>}
       {(!ready || loading) && <p role="status">در حال بررسی قیمت و موجودی…</p>}
       {ready && !items.length && !loading && (
         <div className="shop-empty">
@@ -260,7 +264,8 @@ export default function Cart() {
                     value={method}
                     onChange={(e) => setMethod(e.target.value)}
                   >
-                    <option value="zarinpal">درگاه بانکی</option>
+                    <option value="bank_transfer">واریز بانکی با رسید</option>
+                    <option value="zarinpal">زرین‌پال</option>
                     <option value="wallet">کیف پول</option>
                   </select>
                 </label>

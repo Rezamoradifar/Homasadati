@@ -1,6 +1,11 @@
 import { validateClient } from "./client-validation";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
+  receipt_pending: "رسید این سفارش در انتظار بررسی است.",
+  receipt_duplicate: "این رسید یا شماره پیگیری قبلاً استفاده شده است.",
+  receipt_amount_mismatch: "مبلغ واریز با مبلغ دقیق سفارش برابر نیست.",
+  payment_expired: "مهلت ارسال رسید تمام شده است؛ قبل از واریز با پشتیبانی تماس بگیرید.",
+  cannot_review_self: "امکان بررسی رسید حساب خودتان وجود ندارد.",
   google_not_configured:"ورود گوگل هنوز تنظیم نشده است.",
   google_verification_failed:"تأیید گوگل نامعتبر یا منقضی است؛ دوباره تلاش کنید.",
   google_already_linked:"این حساب قبلاً به گوگل متصل شده است.",
@@ -138,6 +143,7 @@ export const labels: Record<string, string> = {
   finance: "مدیر مالی",
   wallet: "کیف پول",
   zarinpal: "زرین‌پال",
+  bank_transfer: "واریز بانکی با رسید",
   personal_sales: "فروش شخصی",
   group_sales: "فروش گروهی",
   referrals: "دعوت موفق",

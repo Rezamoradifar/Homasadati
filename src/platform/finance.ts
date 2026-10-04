@@ -487,7 +487,7 @@ export function createOrder(
           durationDays: product.duration_days,
         },
       }),
-      new Date(Date.now() + 3600000).toISOString(),
+      new Date(Date.now() + (method === "bank_transfer" ? 86400000 : 3600000)).toISOString(),
       now(),
       idem,
     );
@@ -535,6 +535,8 @@ export function refundOrder(
         (o.paid_at && now() > o.cancel_until))
     )
       throw new ApiError(409, "cancellation_expired");
+    const pendingReceipt = one("SELECT id FROM p_bank_receipts WHERE status='pending' AND (order_id=? OR checkout_id IN (SELECT checkout_id FROM p_checkout_items WHERE order_id=?))",orderId,orderId);
+    if (!o.paid_at && pendingReceipt) throw new ApiError(409,"receipt_pending");
     const checkout=one("SELECT c.status,c.expires_at FROM p_checkouts c JOIN p_checkout_items i ON i.checkout_id=c.id WHERE i.order_id=?",orderId);
     if(!o.paid_at && checkout?.status==='pending' && checkout.expires_at>now())throw new ApiError(409,"payment_reconciliation_required");
     // A payment with an issued authority must be reconciled before inventory can be released.

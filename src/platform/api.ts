@@ -1,3 +1,4 @@
+import { bankPayments } from "./bank-payments";
 import { serviceReadiness, recordServiceFailure } from "./readiness";
 import { googleClientId, googleChallenge, googleIdentity } from "./google-auth";
 import { installTravelPresets } from "./travel-presets";
@@ -1217,6 +1218,7 @@ export async function handle(req: Request, path: string[]) {
       method = req.method,
       get = method === "GET";
     if (path[0] === "media") return await media(req, path);
+    if (path[0] === "bank-payments" || (path[0] === "admin" && path[1] === "bank-receipts")) return await bankPayments(req,path);
     let data: Row = {};
     if (path.join("/") === "auth/config" && get)
       return json({
@@ -1601,7 +1603,7 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "checkouts") {
       if (get) {
         const c = one(
-          "SELECT id,amount,status,method,expires_at FROM p_checkouts WHERE id=? AND user_id=?",
+          "SELECT id,amount,status,method,expires_at,(SELECT order_id FROM p_checkout_items WHERE checkout_id=p_checkouts.id LIMIT 1) order_id FROM p_checkouts WHERE id=? AND user_id=?",
           id.parse(path[1]),
           u.id,
         );
@@ -1722,7 +1724,7 @@ export async function handle(req: Request, path: string[]) {
         .object({
           productId: id,
           quantity: z.number().int().min(1).max(100),
-          method: z.enum(["wallet", "zarinpal"]),
+          method: z.enum(["wallet", "zarinpal", "bank_transfer"]),
           idempotencyKey: id,
         })
         .parse(data);
