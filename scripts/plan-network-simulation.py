@@ -4,8 +4,8 @@ Answers one question: as the network grows, do the plan's payouts stay below
 the money that comes in, or does the math turn "inverse" (payouts > sales)?
 
 Rules (from src/platform/card-levels.ts and seven-card-model.ts), in toman:
-  * card level L: minimum purchase L×10m (Aria, L=8: 100m); desks = L
-  * a match = 30m volume on BOTH legs → reward 5.4m; volume is consumed
+  * card level L: minimum purchase L×10m (Aria, L=8: 100m); desks = min(7, floor(purchase / 10m))
+  * a match = 30m volume on BOTH legs → reward 4.9m; volume is consumed
   * weekly cap 15m per desk → at most 2 matches per desk per week
   * every 8th lifetime match is paid as a purchase voucher instead of cash
   * Simurgh cashback 6m for a single initial purchase ≥ 70m
@@ -27,8 +27,8 @@ import sys
 
 import numpy as np
 
-MV, RW, DESK_CAP, CASHBACK, VOUCHER_EVERY = 30_000_000, 5_400_000, 15_000_000, 6_000_000, 8
-MATCHES_PER_DESK = DESK_CAP // RW  # 2
+MV, RW, DESK_CAP, CASHBACK, VOUCHER_EVERY = 30_000_000, 4_900_000, 15_000_000, 6_000_000, 8
+MATCHES_PER_DESK = DESK_CAP // RW  # 3
 PRICES = np.array([0, 10, 20, 30, 40, 50, 60, 70, 100], dtype=np.int64) * 1_000_000
 
 
@@ -49,7 +49,7 @@ def simulate(name, mix, total=1_000_000, growth_weeks=104, tail_weeks=52, seed=7
     rng = np.random.default_rng(seed)
     levels = rng.choice(np.arange(1, 9), size=total, p=np.array(mix) / sum(mix)).astype(np.int64)
     price = PRICES[levels]
-    cap = levels * MATCHES_PER_DESK
+    cap = np.minimum(7, price // 10_000_000) * MATCHES_PER_DESK
     left = np.zeros(total, dtype=np.int64)
     right = np.zeros(total, dtype=np.int64)
     lifetime = np.zeros(total, dtype=np.int64)

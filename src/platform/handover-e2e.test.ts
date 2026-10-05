@@ -154,7 +154,7 @@ it("runs the business end to end: setup, sign-ups, purchases, settlement, withdr
   const weeks = runCardSettlement(Date.now() + 8 * DAY);
   expect(weeks.length).toBeGreaterThan(0);
   expect(memberCardStatus(company.user.id)).toMatchObject({ level: 1, desks: 1, leftVolume: 70 * M, rightVolume: 0 });
-  expect(wallet(company.user.id).available).toBe(5_400_000);
+  expect(wallet(company.user.id).available).toBe(4_900_000);
   expect(memberCardStatus(c.user.id).level).toBe(7);
   expect(wallet(c.user.id).available).toBe(6 * M); // Simurgh cashback
   expect(voucherBalance(company.user.id)).toBe(0);
@@ -187,7 +187,7 @@ it("runs the business end to end: setup, sign-ups, purchases, settlement, withdr
   }, cookie));
   await ok(request("admin/payout-profiles", "PATCH", { userId: company.user.id, status: "verified", reason: "" }, admin));
   run("UPDATE p_users SET otp_last=? WHERE id=?", step - 2, company.user.id);
-  const w = await ok(request("withdrawals", "POST", { amount: 5 * M, idempotencyKey: randomUUID(), totp: totp(setup.secret, step - 1) }, cookie), 201);
+  const w = await ok(request("withdrawals", "POST", { amount: 4_500_000, idempotencyKey: randomUUID(), totp: totp(setup.secret, step - 1) }, cookie), 201);
   expect(w.iban).toBe("IR062960000000100324200001");
   await ok(request("admin/withdrawals", "PATCH", { id: w.id, status: "approved", reason: "checked" }, admin));
   await ok(request("admin/withdrawals", "PATCH", { id: w.id, status: "paid", reason: "transferred", reference: "PAYA-" + Date.now() }, payer));
@@ -217,6 +217,6 @@ it("runs the business end to end: setup, sign-ups, purchases, settlement, withdr
 
   // 8. Refund of B's order reverses the match behind the paid reward: the rest becomes debt.
   await ok(request("admin/orders", "PATCH", { id: bOrder, action: "refund", reason: "customer returned the item" }, admin));
-  expect(wallet(company.user.id)).toMatchObject({ available: 0, debt: 5_000_000 });
+  expect(wallet(company.user.id)).toMatchObject({ available: 0, debt: 4_500_000 });
   expect(memberCardStatus(company.user.id)).toMatchObject({ rightVolume: 0 });
 });

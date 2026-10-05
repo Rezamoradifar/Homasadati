@@ -121,6 +121,9 @@ describe("Panels use actual APIs and SQLite", () => {
     await screen.findByText("الماس");
     expect(screen.getByText(/پرداخت، فعال‌سازی جایگاه و صدور ووچر/)).toBeTruthy();
     expect(screen.queryByText("تصمیم‌های اجرایی پلن")).toBeNull();
+    const slots = await screen.findByRole("list", { name: "وضعیت هفت جایگاه" });
+    expect(within(slots).getAllByRole("listitem")).toHaveLength(7);
+    expect(within(slots).getAllByText("خاموش")).toHaveLength(7);
   });
   it("saves card decisions and previews whole-match rewards through real admin APIs", async () => {
     authCookie = admin;
@@ -133,7 +136,7 @@ describe("Panels use actual APIs and SQLite", () => {
     await waitFor(() => expect(JSON.parse(one("SELECT value FROM p_settings WHERE key='seven_card_plan_draft'")!.value).decisions.counterScope).toBe("desk"));
     await user.click(screen.getByRole("button", { name: "محاسبه" }));
     await screen.findByText("تعداد تعادل قابل پرداخت");
-    expect(screen.getByText("پاداش نقدی").nextElementSibling?.textContent).toContain("۱۰٬۸۰۰٬۰۰۰");
+    expect(screen.getByText("پاداش نقدی").nextElementSibling?.textContent).toContain("۱۴٬۷۰۰٬۰۰۰");
   });
 
   it("loads the member account and wallet in English while preserving the member name", async () => {

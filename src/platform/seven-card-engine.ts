@@ -8,6 +8,7 @@ import {
   DESK_WEEKLY_CAP,
   MATCH_REWARD,
   MATCH_VOLUME,
+  DESKS_PER_MEMBER,
   cardForPurchase,
   simurghCashbackEligibility,
   type CardDecisions,
@@ -20,13 +21,14 @@ import {
  * - Volume: a paid order counts once its cancellation window has ended and it
  *   has not been refunded. Its amount becomes a volume lot on the left/right
  *   leg of every ancestor in the placement tree (p_users.parent_id/leg).
- * - Card: level = cardForPurchase(total counted purchases); level n gives n
- *   desks. Only enrolled members (level >= 1) earn; volume still flows up.
+ * - Card: level = cardForPurchase(total counted purchases); every complete
+ *   10m of counted purchases enables the next of seven fixed desks.
+ *   Only enrolled members (level >= 1) earn; volume still flows up.
  * - Desks are the member's own capacity under their first desk, filled in
  *   order (desk 1, then 2, ...). Each desk has its own weekly cap and its own
  *   lifetime match counter; every eighth match of a desk is a voucher.
  * - Weekly settlement at the configured week start (Tehran time): every
- *   30m/30m match pays 5.4m. A match that fits no desk's remaining cap, or the
+ *   30m/30m match pays 4.9m. A match that fits no desk's remaining cap, or the
  *   week's funding budget, is carried whole to a later week.
  * - Initial purchase credit is the purchase value itself (no extra credit);
  *   a single first purchase of 70m or more earns the Simurgh cashback.
@@ -97,7 +99,7 @@ function countOrders(cutoff: string) {
        ON CONFLICT(user_id) DO UPDATE SET total=excluded.total,level=excluded.level,desks=excluded.desks,updated_at=excluded.updated_at`,
       o.user_id, total, card?.level || 0, card?.desks || 0, now(),
     );
-    if (card && (before?.level || 0) < card.level)
+    if (card && ((before?.level || 0) < card.level || (before?.desks || 0) < card.desks))
       notify(o.user_id, "کارت باشگاه شما به‌روز شد", `کارت ${card.name} با ${card.desks.toLocaleString("fa-IR")} میز فعال شد.`);
     const cashback = simurghCashbackEligibility(o.amount, earlier);
     if (cashback && wallet(o.user_id)) {
@@ -105,7 +107,8 @@ function countOrders(cutoff: string) {
       ledger(o.user_id, "card-cashback:" + o.id, "card_cashback", o.id, cashback);
       notify(o.user_id, "بازگشت وجه کارت سیمرغ", `${cashback.toLocaleString("fa-IR")} تومان به کیف پول شما اضافه شد.`);
     }
-    const seen = new Set<string>();
+    // A buyer's own order never creates commission volume on any of their desks.
+    const seen = new Set<string>([o.user_id]);
     let child = one("SELECT id,parent_id,leg FROM p_users WHERE id=?", o.user_id);
     while (child?.parent_id && !seen.has(child.parent_id)) {
       seen.add(child.parent_id);
@@ -333,6 +336,7 @@ export function reverseCardOrder(orderId: string) {
 
 export function memberCardStatus(user: string) {
   const m = one("SELECT * FROM p_card_members WHERE user_id=?", user);
+  const counters = all("SELECT desk,matches FROM p_card_desks WHERE user_id=? ORDER BY desk", user);
   const leg = (l: string) =>
     one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0", user, l)!.n;
   return {
@@ -342,7 +346,13 @@ export function memberCardStatus(user: string) {
     totalPurchase: m?.total || 0,
     leftVolume: leg("left"),
     rightVolume: leg("right"),
-    deskCounters: all("SELECT desk,matches FROM p_card_desks WHERE user_id=? ORDER BY desk", user),
+    deskCounters: counters,
+    slots: Array.from({ length: DESKS_PER_MEMBER }, (_, index) => ({
+      desk: index + 1,
+      active: index < (m?.desks || 0),
+      purchaseRequiredToman: (index + 1) * 10_000_000,
+      matches: counters.find((counter) => counter.desk === index + 1)?.matches || 0,
+    })),
     voucherBalance: voucherBalance(user),
     recent: all(
       "SELECT week,desk,sequence,kind,amount,void FROM p_card_matches WHERE user_id=? ORDER BY created_at DESC LIMIT 20",

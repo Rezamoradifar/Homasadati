@@ -137,7 +137,8 @@ export function sales(user: string, since = "0000", until = "9999") {
     until,
   )!.n;
   const group = one(
-    `WITH RECURSIVE team(id) AS (SELECT id FROM p_users WHERE sponsor_id=? UNION ALL SELECT u.id FROM p_users u JOIN team t ON u.sponsor_id=t.id) SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id IN (SELECT id FROM team) AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL`,
+    `WITH RECURSIVE team(id) AS (SELECT id FROM p_users WHERE sponsor_id=? UNION SELECT u.id FROM p_users u JOIN team t ON u.sponsor_id=t.id) SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id IN (SELECT id FROM team WHERE id!=?) AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL`,
+    user,
     user,
     since,
     until,
@@ -220,7 +221,7 @@ function award(
   key: string,
   availableAt = order.cancel_until,
 ) {
-  if (amount <= 0) return null;
+  if (amount <= 0 || user === order.user_id) return null;
   const id = randomUUID();
   run(
     "INSERT INTO p_commissions VALUES(?,?,?,?,?,?,?,?,?)",
@@ -248,7 +249,7 @@ export function calculateCommissions(order: Row) {
   const buyer = one("SELECT * FROM p_users WHERE id=?", order.user_id)!;
   let sponsor = buyer.sponsor_id,
     depth = 0;
-  const seen = new Set<string>();
+  const seen = new Set<string>([order.user_id]);
   const rankAwards: { user: string; rate: number }[] = [];
   while (sponsor && depth <= p.levels.length && !seen.has(sponsor)) {
     seen.add(sponsor);
@@ -279,7 +280,7 @@ export function calculateCommissions(order: Row) {
   if (setting("seven_card_live") === "1") return;
   const rules = JSON.parse(order.policy).binaryRules || legacyBinaryRules;
   let child = buyer;
-  const parents = new Set<string>();
+  const parents = new Set<string>([order.user_id]);
   while (child.parent_id && !parents.has(child.parent_id)) {
     parents.add(child.parent_id);
     const parent = one("SELECT * FROM p_users WHERE id=?", child.parent_id)!;

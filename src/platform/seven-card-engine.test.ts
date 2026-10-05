@@ -91,34 +91,67 @@ it("does nothing until every rule is decided and the plan is switched on", () =>
   expect(() => setCardLive(admin, { live: true, fundingBps: 5000, reason: "x" })).toThrow();
 });
 
-it("pays one 5.4m reward per 30m/30m match to an enrolled member", () => {
+it("pays one 4.9m reward per 30m/30m match to an enrolled member", () => {
   buy(root, 10 * M); buy(left, 30 * M); buy(right, 30 * M);
   const [week] = settleAfter(8);
-  expect(week).toMatchObject({ matches: 1, cash: 5_400_000, voucher: 0 });
-  expect(wallet(root).available).toBe(5_400_000);
+  expect(week).toMatchObject({ matches: 1, cash: 4_900_000, voucher: 0 });
+  expect(wallet(root).available).toBe(4_900_000);
   expect(memberCardStatus(root)).toMatchObject({ level: 1, desks: 1, leftVolume: 0, rightVolume: 0 });
   expect(cardPlan()).toMatchObject({ status: "live", liveSettlement: true });
   expect(settleAfter(8)).toEqual([]); // a settled week is never paid twice
 });
 
-it("respects the 15m desk cap and carries the whole next match to the following week", () => {
-  buy(root, 10 * M); buy(left, 90 * M); buy(right, 90 * M);
-  const [week] = settleAfter(8);
-  expect(week.matches).toBe(2);
-  expect(wallet(root).available).toBe(10_800_000);
-  expect(memberCardStatus(root)).toMatchObject({ leftVolume: 30 * M, rightVolume: 30 * M });
+it("starts with seven dark slots and lights them sequentially for cumulative 10m purchases", () => {
+  expect(memberCardStatus(root).slots).toHaveLength(7);
+  expect(memberCardStatus(root).slots.every((slot) => !slot.active)).toBe(true);
+  buy(root, 6 * M); buy(root, 4 * M);
+  settleAfter(8);
+  expect(memberCardStatus(root).slots.map((slot) => slot.active)).toEqual([true, false, false, false, false, false, false]);
+  buy(root, 9 * M);
   settleAfter(15);
-  expect(wallet(root).available).toBe(16_200_000);
+  expect(memberCardStatus(root).desks).toBe(1);
+  buy(root, 1 * M);
+  settleAfter(22);
+  expect(memberCardStatus(root).slots.map((slot) => slot.active)).toEqual([true, true, false, false, false, false, false]);
+  buy(root, 50 * M);
+  settleAfter(29);
+  expect(memberCardStatus(root).desks).toBe(7);
+  buy(root, 30 * M);
+  settleAfter(36);
+  expect(memberCardStatus(root).desks).toBe(7);
+  expect(memberCardStatus(root).slots.every((slot) => slot.active)).toBe(true);
+  expect(wallet(root).available).toBe(0);
+  expect(one("SELECT COUNT(*) n FROM p_card_lots WHERE user_id=?", root)!.n).toBe(0);
 });
 
-it("fills extra desks in order: a Sarv card fits two 5.4m matches per desk", () => {
-  buy(root, 20 * M); buy(left, 150 * M); buy(right, 150 * M);
+it("switches the last slot off when an eligible purchase is refunded", () => {
+  buy(root, 10 * M);
+  const second = buy(root, 10 * M);
   settleAfter(8);
-  expect(wallet(root).available).toBe(4 * 5_400_000);
+  expect(memberCardStatus(root).desks).toBe(2);
+  refundOrder(second.id, admin, true, "return second purchase");
+  expect(memberCardStatus(root).desks).toBe(1);
+  expect(memberCardStatus(root).slots[1].active).toBe(false);
+});
+
+it("respects the 15m desk cap and carries the whole next match to the following week", () => {
+  buy(root, 10 * M); buy(left, 120 * M); buy(right, 120 * M);
+  const [week] = settleAfter(8);
+  expect(week.matches).toBe(3);
+  expect(wallet(root).available).toBe(14_700_000);
+  expect(memberCardStatus(root)).toMatchObject({ leftVolume: 30 * M, rightVolume: 30 * M });
+  settleAfter(15);
+  expect(wallet(root).available).toBe(19_600_000);
+});
+
+it("fills extra desks in order: a Sarv card fits three 4.9m matches per desk", () => {
+  buy(root, 20 * M); buy(left, 210 * M); buy(right, 210 * M);
+  settleAfter(8);
+  expect(wallet(root).available).toBe(6 * 4_900_000);
   const desks = memberCardStatus(root).deskCounters;
-  expect(desks).toEqual([{ desk: 1, matches: 2 }, { desk: 2, matches: 2 }]);
-  // a third match on either desk would reach 16.2m > 15m, so the fifth waits
-  expect(all("SELECT desk FROM p_card_matches WHERE user_id=? ORDER BY sequence,desk", root).length).toBe(4);
+  expect(desks).toEqual([{ desk: 1, matches: 3 }, { desk: 2, matches: 3 }]);
+  // A fourth match on either desk would exceed 15m, so the seventh waits.
+  expect(all("SELECT desk FROM p_card_matches WHERE user_id=? ORDER BY sequence,desk", root).length).toBe(6);
 });
 
 it("makes every eighth match of a desk a voucher that counts toward the cap", () => {
@@ -126,8 +159,8 @@ it("makes every eighth match of a desk a voucher that counts toward the cap", ()
   run("INSERT INTO p_card_members VALUES(?,?,?,?,?) ON CONFLICT(user_id) DO NOTHING", root, 0, 0, 0, now());
   run("INSERT INTO p_card_desks VALUES(?,1,6)", root);
   settleAfter(8);
-  expect(wallet(root).available).toBe(5_400_000);
-  expect(voucherBalance(root)).toBe(5_400_000);
+  expect(wallet(root).available).toBe(4_900_000);
+  expect(voucherBalance(root)).toBe(4_900_000);
   expect(memberCardStatus(root).deskCounters).toEqual([{ desk: 1, matches: 8 }]);
 });
 
@@ -139,7 +172,7 @@ it("counts every eighth match across all of a member's desks when the counter is
   run("INSERT INTO p_card_desks VALUES(?,2,3)", root);
   settleAfter(8);
   // desk counters are 4 and 3; per desk this would be cash, per member it is the 8th
-  expect(voucherBalance(root)).toBe(5_400_000);
+  expect(voucherBalance(root)).toBe(4_900_000);
   expect(wallet(root).available).toBe(0);
   expect(one("SELECT sequence,kind FROM p_card_matches WHERE user_id=?", root)).toEqual({ sequence: 8, kind: "voucher" });
 });
@@ -150,7 +183,7 @@ it("pays every match with no weekly budget when the budget is unlimited", () => 
   expect(previewCardSettlement()).toMatchObject({ matches: 0 });
   setCardLive(admin, { live: true, unlimitedBudget: true, reason: "plan text: no budget" });
   const [week] = settleAfter(8);
-  expect(week).toMatchObject({ matches: 1, cash: 5_400_000, unlimited: true, carriedBudget: 0 });
+  expect(week).toMatchObject({ matches: 1, cash: 4_900_000, unlimited: true, carriedBudget: 0 });
 });
 
 it("reverses a paid match when an order behind it is refunded", () => {
@@ -158,7 +191,7 @@ it("reverses a paid match when an order behind it is refunded", () => {
   const l = buy(left, 30 * M);
   buy(right, 30 * M);
   settleAfter(8);
-  expect(wallet(root).available).toBe(5_400_000);
+  expect(wallet(root).available).toBe(4_900_000);
   refundOrder(l.id, admin, true, "customer return");
   expect(wallet(root).available).toBe(0);
   expect(one("SELECT void FROM p_card_matches WHERE user_id=?", root)!.void).toBe(1);
@@ -173,14 +206,14 @@ it("pays the Simurgh cashback once for a single 70m first purchase", () => {
   expect(memberCardStatus(buyer)).toMatchObject({ level: 7, desks: 7 });
 });
 
-it("gives the 100m Aria card eight desks and a 120m weekly cap", () => {
-  buy(root, 100 * M); buy(left, 600 * M); buy(right, 600 * M);
+it("keeps all seven slots active above 70m without creating an eighth", () => {
+  buy(root, 100 * M); buy(left, 900 * M); buy(right, 900 * M);
   settleAfter(8);
-  expect(memberCardStatus(root)).toMatchObject({ level: 8, desks: 8 });
-  // two 5.4m matches fit under each desk's 15m cap: 16 matches, plus the
+  expect(memberCardStatus(root)).toMatchObject({ level: 8, desks: 7 });
+  // Three 4.9m matches on each of seven desks: 21 matches, plus the
   // one-time cashback for a single first purchase of 70m or more
-  expect(wallet(root).available).toBe(16 * 5_400_000 + 6 * M);
-  expect(memberCardStatus(root).deskCounters).toHaveLength(8);
+  expect(wallet(root).available).toBe(21 * 4_900_000 + 6 * M);
+  expect(memberCardStatus(root).deskCounters).toHaveLength(7);
 });
 
 it("stops the legacy binary engine while the card plan is live", () => {
@@ -196,15 +229,15 @@ it("previews the coming settlement without saving anything", () => {
   expect(one("SELECT COUNT(*) n FROM p_card_weeks")!.n).toBe(0);
 });
 
-it("in split mode pays up to exactly 15m a week and the rest of the third match next week", () => {
+it("in split mode pays up to exactly 15m a week and the rest of the fourth match next week", () => {
   saveSetting("seven_card_plan_draft", JSON.stringify({ decisions: { ...decisions, overflow: "split-reward" }, revision: 2 }));
-  buy(root, 10 * M); buy(left, 90 * M); buy(right, 90 * M);
+  buy(root, 10 * M); buy(left, 120 * M); buy(right, 120 * M);
   const [week] = settleAfter(8);
-  expect(week).toMatchObject({ matches: 3, cash: 15 * M });
+  expect(week).toMatchObject({ matches: 4, cash: 15 * M });
   expect(wallet(root).available).toBe(15 * M);
   const [next] = settleAfter(15);
-  expect(next.cash).toBe(1_200_000);
-  expect(wallet(root).available).toBe(16_200_000);
+  expect(next.cash).toBe(4_600_000);
+  expect(wallet(root).available).toBe(19_600_000);
 });
 
 it("reverses every split payment of a refunded match", () => {
@@ -234,16 +267,16 @@ function checkout(user: string, price: number, method: "wallet" | "zarinpal") {
 }
 
 it("pays part of a basket with voucher credit and the rest from the wallet", () => {
-  giveVoucher(root, 5_400_000);
+  giveVoucher(root, 4_900_000);
   ledger(root, "test-topup:" + randomUUID(), "test", "test", 10 * M);
   const c = checkout(root, 10 * M, "wallet");
   expect(c.status).toBe("paid");
   expect(voucherBalance(root)).toBe(0);
-  expect(wallet(root).available).toBe(10 * M - 4_600_000);
+  expect(wallet(root).available).toBe(10 * M - 5_100_000);
   const order = one("SELECT o.* FROM p_orders o JOIN p_checkout_items i ON i.order_id=o.id WHERE i.checkout_id=?", c.id)!;
   expect(order.paid_at).toBeTruthy();
   refundOrder(order.id, admin, true, "return");
-  expect(voucherBalance(root)).toBe(5_400_000); // voucher share goes back as voucher, never cash
+  expect(voucherBalance(root)).toBe(4_900_000); // voucher share goes back as voucher, never cash
   expect(wallet(root).available).toBe(10 * M);
 });
 

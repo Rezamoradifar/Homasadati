@@ -4,6 +4,10 @@ import { setting, saveSetting } from "./providers";
 import { audit } from "./security";
 import {
   CARD_PLAN_VERSION,
+  DESKS_PER_MEMBER,
+  PURCHASE_PER_DESK,
+  MATCH_REWARD,
+  MATCH_VOLUME,
   cardDecisionsSchema,
   cardRulesUpdateSchema,
   sevenCards,
@@ -22,6 +26,11 @@ export function cardPlan() {
     liveSettlement: setting("seven_card_live") === "1",
     revision: stored?.revision ?? 0,
     cards: sevenCards,
+    desksPerMember: DESKS_PER_MEMBER,
+    purchasePerDeskToman: PURCHASE_PER_DESK,
+    matchVolumeToman: MATCH_VOLUME,
+    matchRewardToman: MATCH_REWARD,
+    ownPurchaseCommission: false,
     decisions,
     unresolved: Object.entries(decisions)
       .filter(([, value]) => value === null)

@@ -1,9 +1,12 @@
 /** The eight club cards and their constants, without validation code, so
  * pages that only show the cards don't ship the schema library. */
 /** All amounts in this model are integer TOMAN, never rial. */
-export const CARD_PLAN_VERSION = "seven-cards-2026-09";
+export const CARD_PLAN_VERSION = "eight-cards-2026-10-05";
 export const MATCH_VOLUME = 30_000_000;
-export const MATCH_REWARD = 5_400_000;
+export const MATCH_REWARD = 4_900_000;
+export const PURCHASE_PER_DESK = 10_000_000;
+export const DESKS_PER_MEMBER = 7;
+export const desksForPurchase = (amount: number) => Math.min(DESKS_PER_MEMBER, Math.floor(amount / PURCHASE_PER_DESK));
 export const DESK_WEEKLY_CAP = 15_000_000;
 export const SIMURGH_CASHBACK = 6_000_000;
 export const TOP_CARD_LEVEL = 8;
@@ -25,7 +28,7 @@ export const sevenCards = [
   ...card,
   minToman: cardMinimum(card.level),
   maxExclusiveToman: i === list.length - 1 ? null : cardMinimum(card.level + 1),
-  desks: card.level,
+  desks: desksForPurchase(cardMinimum(card.level)),
   branches: card.level + 1,
-  weeklyCapToman: card.level * DESK_WEEKLY_CAP,
+  weeklyCapToman: desksForPurchase(cardMinimum(card.level)) * DESK_WEEKLY_CAP,
 }));

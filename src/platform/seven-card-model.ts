@@ -1,13 +1,14 @@
 import { z } from "zod";
 
 export * from "./card-levels";
-import { CARD_PLAN_VERSION, DESK_WEEKLY_CAP, MATCH_REWARD, MATCH_VOLUME, SIMURGH_CASHBACK, TOP_CARD_LEVEL, cardMinimum, sevenCards } from "./card-levels";
+import { CARD_PLAN_VERSION, DESK_WEEKLY_CAP, MATCH_REWARD, MATCH_VOLUME, SIMURGH_CASHBACK, TOP_CARD_LEVEL, cardMinimum, sevenCards, desksForPurchase } from "./card-levels";
 const money = z.number().int().nonnegative().max(1_000_000_000_000);
 export function cardForPurchase(amount: number) {
   money.parse(amount);
-  return (
-    [...sevenCards].reverse().find((card) => amount >= card.minToman) ?? null
-  );
+  const card = [...sevenCards].reverse().find((card) => amount >= card.minToman);
+  if (!card) return null;
+  const desks = desksForPurchase(amount);
+  return { ...card, desks, weeklyCapToman: desks * DESK_WEEKLY_CAP };
 }
 // Nullable decisions are deliberate: an unanswered business rule is not a payout default.
 export const cardDecisionsSchema = z

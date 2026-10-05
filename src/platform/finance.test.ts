@@ -292,3 +292,13 @@ describe("Financial invariants", () => {
     );
   });
 });
+
+it("never awards the buyer their own purchase commission even through a corrupt referral cycle", () => {
+  const ancestor = member();
+  const buyer = member(ancestor);
+  run("UPDATE p_users SET sponsor_id=? WHERE id=?", buyer, ancestor);
+  buy(buyer);
+  expect(one("SELECT COUNT(*) n FROM p_commissions WHERE user_id=? AND order_id IN (SELECT id FROM p_orders WHERE user_id=?)", buyer, buyer)!.n).toBe(0);
+  expect(wallet(buyer).pending).toBe(0);
+  expect(wallet(ancestor).pending).toBe(10000);
+});

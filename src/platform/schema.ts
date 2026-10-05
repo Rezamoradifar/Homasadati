@@ -1,4 +1,5 @@
 import { migrateZibal } from "./migrate-zibal";
+import { migrateCardDesks } from "./migrate-card-desks";
 import { migrateLeather } from "./migrate-leather";
 import { migrateCardLevels } from "./migrate-card-levels";
 import { migratePaymentMethods } from "./migrate-payment-methods";
@@ -194,6 +195,7 @@ export function platformDb() {
   migrateCardLevels(d);
   migratePaymentMethods(d);
   migrateZibal(d);
+  migrateCardDesks(d);
   ready = d;
   return d;
 }

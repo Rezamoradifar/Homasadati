@@ -131,6 +131,16 @@ function MemberStatus({ status }: { status: RecordData }) {
           <dt>موجودی ووچر</dt>
           <dd>{amount(status.voucherBalance)} تومان</dd>
         </dl>
+        <h4>هفت جایگاه شما</h4>
+        <p>هر ۱۰ میلیون تومان خرید تجمعی محاسبه‌شده، جایگاه بعدی را روشن می‌کند.</p>
+        <ol aria-label="وضعیت هفت جایگاه">
+          {status.slots?.map((slot: RecordData) => (
+            <Localized key={slot.desk}><li>
+              <span>جایگاه {amount(slot.desk)}</span>{" — "}
+              <strong>{slot.active ? "روشن" : "خاموش"}</strong>
+            </li></Localized>
+          ))}
+        </ol>
         {status.recent?.length ? (
           <table className="portal-table">
             <thead>

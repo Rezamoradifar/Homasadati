@@ -67,21 +67,23 @@ it("uses non-overlapping exact purchase boundaries and the eight levels", () => 
   }
   // Simurgh runs from 70m up to the Aria card at 100m.
   expect(cardForPurchase(99_999_999)?.level).toBe(7);
-  expect(cardForPurchase(100_000_000)).toMatchObject({ level: 8, desks: 8, weeklyCapToman: 120_000_000 });
+  expect(cardForPurchase(100_000_000)).toMatchObject({ level: 8, desks: 7, weeklyCapToman: 105_000_000 });
+  expect(cardForPurchase(25_000_000)?.desks).toBe(2);
+  expect(cardForPurchase(80_000_000)?.desks).toBe(7);
   expect(cardForPurchase(1_000_000_000_000)?.level).toBe(8);
   expect(() => cardForPurchase(10.5)).toThrow();
 });
-it("preserves the third whole match above the 15m desk cap", () => {
-  expect(previewCardMatches(quote)).toMatchObject({
-    matches: 2,
-    cash: 10_800_000,
+it("preserves the fourth whole match above the 15m desk cap", () => {
+  expect(previewCardMatches({ ...quote, left: 120_000_000, right: 120_000_000 })).toMatchObject({
+    matches: 3,
+    cash: 14_700_000,
     voucher: 0,
     leftCarry: 30_000_000,
     rightCarry: 30_000_000,
-    remainingWeeklyAllowance: 4_200_000,
+    remainingWeeklyAllowance: 300_000,
   });
   expect(
-    previewCardMatches({ ...quote, earnedThisWeek: 10_800_000 }).matches,
+    previewCardMatches({ ...quote, earnedThisWeek: 14_700_000 }).matches,
   ).toBe(0);
   expect(previewCardMatches({ ...quote, left: 29_999_999 }).matches).toBe(0);
 });
@@ -102,8 +104,8 @@ it("pays seven whole cash rewards and the eighth whole voucher across four weeks
   }
   expect({ previousMatches, cash, voucher }).toEqual({
     previousMatches: 8,
-    cash: 37_800_000,
-    voucher: 5_400_000,
+    cash: 34_300_000,
+    voucher: 4_900_000,
   });
 });
 it("honors voucher cap choice, funding budget, and asymmetric carry", () => {
@@ -111,8 +113,8 @@ it("honors voucher cap choice, funding budget, and asymmetric carry", () => {
   expect(previewCardMatches(d).matches).toBe(0);
   expect(
     previewCardMatches({ ...d, voucherCountsTowardCap: false }),
-  ).toMatchObject({ matches: 1, cash: 0, voucher: 5_400_000 });
-  expect(previewCardMatches({ ...quote, budget: 5_399_999 }).matches).toBe(0);
+  ).toMatchObject({ matches: 1, cash: 0, voucher: 4_900_000 });
+  expect(previewCardMatches({ ...quote, budget: 4_899_999 }).matches).toBe(0);
   expect(previewCardMatches({ ...quote, right: 35_000_000 })).toMatchObject({
     leftCarry: 60_000_000,
     rightCarry: 5_000_000,
