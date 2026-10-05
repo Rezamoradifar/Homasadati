@@ -274,7 +274,7 @@ function Product({
                 method: form.get("method"),
                 idempotencyKey: key.current,
               });
-              if (o.payment_method === "zarinpal" && !o.paid_at) {
+              if (["zarinpal", "zibal"].includes(o.payment_method) && !o.paid_at) {
                 const r = await api(`orders/${o.id}/payment`, "POST");
                 window.location.assign(r.url);
               } else {
@@ -306,7 +306,8 @@ function Product({
                 name="method"
                 style={{ padding: 10, border: "1px solid #d1c5b4" }}
               >
-                <option value="zarinpal">درگاه بانکی</option>
+                <option value="zibal">زیبال</option>
+                    <option value="zarinpal">زرین‌پال</option>
                 <option value="wallet">کیف پول</option>
               </select>
             </label>
@@ -409,7 +410,7 @@ export function Orders({
               </DownloadButton>
             )}
             {selected.status === "pending" &&
-              selected.payment_method === "zarinpal" && (
+              ["zarinpal", "zibal"].includes(selected.payment_method) && (
                 <button
                   disabled={busy}
                   className="portal-button primary"
@@ -941,7 +942,7 @@ export function Subscriptions({
                 const o = await api("orders", "POST", {
                   productId: selected.product_id,
                   quantity: 1,
-                  method: "zarinpal",
+                  method: "zibal",
                   idempotencyKey: key.current,
                 });
                 const r = await api("orders/" + o.id + "/payment", "POST");

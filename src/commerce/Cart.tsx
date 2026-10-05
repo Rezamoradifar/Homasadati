@@ -17,7 +17,7 @@ export default function Cart() {
     [me, setMe] = useState<RecordData | null>(null),
     [addresses, setAddresses] = useState<RecordData[]>([]),
     [address, setAddress] = useState(""),
-    [method, setMethod] = useState("zarinpal"),
+    [method, setMethod] = useState("zibal"),
     [baleEnabled, setBaleEnabled] = useState(false),
     [stage, setStage] = useState<"" | "redirecting">(""),
     [voucher, setVoucher] = useState(0),
@@ -283,7 +283,8 @@ export default function Cart() {
                     value={method}
                     onChange={(e) => setMethod(e.target.value)}
                   >
-                    <option value="zarinpal">درگاه بانکی</option>
+                    <option value="zibal">زیبال</option>
+                    <option value="zarinpal">زرین‌پال</option>
                     {baleEnabled && <option value="bale">پرداخت با بله</option>}
                     <option value="wallet">کیف پول</option>
                   </select>

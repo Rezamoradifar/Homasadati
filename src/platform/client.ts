@@ -189,6 +189,7 @@ export const labels: Record<string, string> = {
   finance: "مدیر مالی",
   wallet: "کیف پول",
   zarinpal: "زرین‌پال",
+  zibal: "زیبال",
   personal_sales: "فروش شخصی",
   group_sales: "فروش گروهی",
   referrals: "دعوت موفق",

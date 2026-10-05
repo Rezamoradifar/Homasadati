@@ -16,7 +16,7 @@ it("upgrades an existing database so orders and checkouts accept Bale, keeping e
   db.pragma("foreign_keys = OFF");
   for (const table of ["p_checkouts", "p_orders"]) {
     const sql = (db.prepare("SELECT sql FROM sqlite_master WHERE name=?").get(table) as { sql: string }).sql;
-    db.exec(sql.replace(table, table + "_old").replace(",'bale'", ""));
+    db.exec(sql.replace(table, table + "_old").replace(",'bale'", "").replace(",'zibal'", ""));
     db.exec(`INSERT INTO ${table}_old SELECT * FROM ${table}; DROP TABLE ${table}; ALTER TABLE ${table}_old RENAME TO ${table};`);
   }
   const user = randomUUID();
@@ -34,7 +34,7 @@ it("upgrades an existing database so orders and checkouts accept Bale, keeping e
   schema = await import("./schema");
   const upgraded = schema.platformDb();
   for (const table of ["p_checkouts", "p_orders"])
-    expect(schema.one("SELECT sql FROM sqlite_master WHERE name=?", table)!.sql).toContain("'wallet','zarinpal','bale'");
+    expect(schema.one("SELECT sql FROM sqlite_master WHERE name=?", table)!.sql).toContain("'wallet','zarinpal','zibal','bale'");
   expect(schema.one("SELECT method FROM p_checkouts WHERE id='c1'")!.method).toBe("zarinpal");
   schema.run("UPDATE p_checkouts SET method='bale' WHERE id='c1'");
   expect(schema.one("SELECT version FROM p_migrations WHERE version=21")).toBeTruthy();

@@ -56,7 +56,7 @@ function product(vertical: string, price: number) {
   );
   return id;
 }
-function payload(method: "wallet" | "zarinpal" = "wallet") {
+function payload(method: "wallet" | "zarinpal" | "zibal" = "wallet") {
   return checkoutSchema.parse({
     items: [
       { productId: first, quantity: 1 },
@@ -270,4 +270,33 @@ it('includes only published title translations in a quote without changing money
   expect(quote.rows[0].details).toEqual({titleEn:'Bag',titleAr:'حقيبة'});
   expect(JSON.stringify(quote)).not.toContain('private supplier');
   expect(one('SELECT stock FROM p_products WHERE id=?',first)?.stock).toBe(10);
+});
+
+it("settles a Zibal cart only after server verification and handles repeated callbacks once", async () => {
+  saveSetting("zibal_merchant", "private-fixture", true);
+  const c = createCheckout(buyer, payload("zibal"));
+  const f = vi.fn(async (url: string) => Response.json(url.endsWith("/request")
+    ? {result:100,trackId:123456789}
+    : {result:100,status:1,amount:4000000}));
+  vi.stubGlobal("fetch", f);
+  expect(await payCheckout(c.id, buyer)).toEqual({url:"https://gateway.zibal.ir/start/123456789"});
+  const callback = () => handle(new Request("https://cart.test/api/platform/payment/callback?gateway=zibal&success=1&trackId=123456789"), ["payment","callback"]);
+  expect((await callback()).status).toBe(303);
+  expect((await callback()).status).toBe(303);
+  expect(f).toHaveBeenCalledTimes(2);
+  expect(one("SELECT status FROM p_checkouts WHERE id=?", c.id)!.status).toBe("paid");
+  expect(wallet(sponsor).pending).toBe(40000);
+});
+it("ignores a forged Zibal success flag when verification amount differs", async () => {
+  saveSetting("zibal_merchant", "private-fixture", true);
+  const c = createCheckout(buyer, payload("zibal"));
+  vi.stubGlobal("fetch", vi.fn(async (url: string) => Response.json(url.endsWith("/request")
+    ? {result:100,trackId:987654321}
+    : {result:100,status:1,amount:1})));
+  await payCheckout(c.id,buyer);
+  const r = await handle(new Request("https://cart.test/api/platform/payment/callback?gateway=zibal&success=1&trackId=987654321"), ["payment","callback"]);
+  expect(r.status).toBe(303);
+  expect(r.headers.get("location")).toContain("payment=failed");
+  expect(one("SELECT status FROM p_checkouts WHERE id=?",c.id)!.status).toBe("pending");
+  expect(wallet(sponsor).pending).toBe(0);
 });

@@ -114,6 +114,7 @@ import {
   saveSetting,
   policy,
   paymentRequest,
+  paymentUrl,
   verifyPayment,
   logGatewayCancel,
 } from "./providers";
@@ -900,6 +901,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "sms_template",
           "sms_sender",
           "zarinpal_merchant",
+          "zibal_merchant",
           "site_name",
           "site_logo",
           "site_contact",
@@ -935,6 +937,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       "turnstile_secret_key",
       "kavenegar_key",
       "zarinpal_merchant",
+          "zibal_merchant",
       "fx_source_url",
     ].includes(d.key);
     atomic(() => {
@@ -1457,7 +1460,7 @@ export async function handle(req: Request, path: string[]) {
     if (path.join("/") === "payment/bale/callback" && (get || method === "POST"))
       return await baleCallback(req, url);
     if (path.join("/") === "payment/methods" && get)
-      return json({ wallet: true, zarinpal: true, bale: balePayEnabled() });
+      return json({ wallet: true, zarinpal: true, zibal: !!setting("zibal_merchant"), bale: balePayEnabled() });
     if (!get) {
       sameOrigin(req);
       data = await body(req, 65536);
@@ -1499,11 +1502,10 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "auth" && method === "POST")
       return await auth(req, path, data);
     if (path.join("/") === "payment/callback" && get) {
-      const authority = z
-        .string()
-        .min(10)
-        .max(100)
-        .parse(url.searchParams.get("Authority"));
+      const gateway = url.searchParams.get("gateway") === "zibal" ? "zibal" : "zarinpal";
+      const authority = gateway === "zibal"
+        ? "zibal:" + z.string().regex(/^[1-9]\d{0,15}$/).parse(url.searchParams.get("trackId"))
+        : z.string().min(10).max(100).parse(url.searchParams.get("Authority"));
       const back = (result: string) =>
         Response.redirect(
           new URL("/account?tab=orders&payment=" + result, process.env.APP_ORIGIN!),
@@ -1517,15 +1519,16 @@ export async function handle(req: Request, path: string[]) {
         ? undefined
         : one("SELECT * FROM p_orders WHERE authority=?", authority);
       if (!checkout && !order) throw new ApiError(404, "not_found");
+      if ((checkout ? checkout.method : order!.payment_method) !== gateway) throw new ApiError(409,"payment_unverified");
       const alreadyPaid = checkout ? checkout.status === "paid" : !!order!.paid_at;
       if (alreadyPaid) return back("paid");
       // The member pressed cancel at the bank, or the bank declined the card.
-      if (url.searchParams.get("Status") !== "OK") {
+      if (gateway === "zibal" ? url.searchParams.get("success") !== "1" : url.searchParams.get("Status") !== "OK") {
         logGatewayCancel(authority, String(url.searchParams.get("Status") || "NOK").slice(0, 20));
         return back("cancelled");
       }
       try {
-        const ref = await verifyPayment(authority, checkout ? checkout.amount : order!.amount);
+        const ref = await verifyPayment(authority, checkout ? checkout.amount : order!.amount, gateway);
         if (checkout) settleCheckout(checkout.id, ref);
         else settleOrder(order!.id, ref);
       } catch (e) {
@@ -2049,7 +2052,7 @@ export async function handle(req: Request, path: string[]) {
           u.id,
         );
         if (!order) throw new ApiError(404, "not_found");
-        if (order.payment_method !== "zarinpal" || order.status !== "pending")
+        if (!["zarinpal", "zibal"].includes(order.payment_method) || order.status !== "pending")
           throw new ApiError(409, "invalid_state");
         if (order.expires_at < now()) {
           refundOrder(order.id, u.id, false, "انقضای درخواست پرداخت");
@@ -2057,7 +2060,7 @@ export async function handle(req: Request, path: string[]) {
         }
         if (order.authority)
           return json({
-            url: "https://www.zarinpal.com/pg/StartPay/" + order.authority,
+            url: paymentUrl(order.authority, order.payment_method),
           });
         const claim = randomUUID();
         if (
@@ -2069,7 +2072,7 @@ export async function handle(req: Request, path: string[]) {
         )
           throw new ApiError(409, "payment_request_in_progress");
         try {
-          const authority = await paymentRequest(order.id, order.amount, { kind: "order", userId: order.user_id });
+          const authority = await paymentRequest(order.id, order.amount, { kind: "order", userId: order.user_id }, order.payment_method);
           if (
             !run(
               "UPDATE p_orders SET authority=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
@@ -2080,7 +2083,7 @@ export async function handle(req: Request, path: string[]) {
           )
             throw new ApiError(409, "invalid_state");
           return json({
-            url: "https://www.zarinpal.com/pg/StartPay/" + authority,
+            url: paymentUrl(authority, order.payment_method),
           });
         } catch (e) {
           run(
@@ -2095,7 +2098,7 @@ export async function handle(req: Request, path: string[]) {
         .object({
           productId: id,
           quantity: z.number().int().min(1).max(100),
-          method: z.enum(["wallet", "zarinpal"]),
+          method: z.enum(["wallet", "zarinpal", "zibal"]),
           idempotencyKey: id,
         })
         .parse(data);

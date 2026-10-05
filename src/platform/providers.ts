@@ -1,3 +1,5 @@
+import { zibalRequest, zibalVerify } from "./zibal";
+export { paymentUrl } from "./zibal";
 import { randomInt, randomUUID } from "node:crypto";
 import { hash, ApiError, limit } from "../server/http";
 import { one, run, now, atomic } from "./schema";
@@ -196,7 +198,20 @@ export async function paymentRequest(
   orderId: string,
   amount: number,
   ref: { kind: "order" | "checkout"; userId: string } = { kind: "order", userId: "" },
+  method: string = "zarinpal",
 ) {
+  if (method === "zibal") {
+    const base = { gateway: "zibal", ref_kind: ref.kind, ref_id: orderId, user_id: ref.userId || null, amount };
+    try {
+      const authority = await zibalRequest(orderId, amount);
+      logGateway({...base, authority, status:"requested", code:"100"});
+      return authority;
+    } catch(e) {
+      logGateway({...base,status:"request_failed",code:e instanceof ApiError ? e.code : "error"});
+      throw e;
+    }
+  }
+  if (method !== "zarinpal") throw new ApiError(409,"invalid_state");
   const merchant = setting("zarinpal_merchant");
   const origin = process.env.APP_ORIGIN;
   if (!merchant || !origin || !origin.startsWith("https://"))
@@ -228,7 +243,18 @@ export async function paymentRequest(
   logGateway({ ...base, authority: r.data.authority, status: "requested", code: "100" });
   return r.data.authority as string;
 }
-export async function verifyPayment(authority: string, amount: number) {
+export async function verifyPayment(authority: string, amount: number, method: string = "zarinpal") {
+  if (method === "zibal") {
+    try {
+      const reference = await zibalVerify(authority,amount);
+      logGateway({authority,status:"paid",bank_reference:reference,code:"100"});
+      return reference;
+    } catch(e) {
+      logGateway({authority,status:"failed",code:e instanceof ApiError ? e.code : "error"});
+      throw e;
+    }
+  }
+  if (method !== "zarinpal") throw new ApiError(409,"invalid_state");
   const merchant = setting("zarinpal_merchant");
   if (!merchant) throw new ApiError(503, "payment_not_configured");
   const r = await providerFetch(
