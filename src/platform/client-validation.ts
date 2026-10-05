@@ -78,7 +78,7 @@ export function validateClient(path: string, method: string, data: unknown) {
       schema = z.object({
         productId: id,
         quantity: z.number().int().min(1).max(100),
-        method: z.enum(["wallet", "zarinpal", "bank_transfer"]),
+        method: z.enum(["wallet", "zarinpal", "zibal", "bank_transfer"]),
         idempotencyKey: id,
       });
     else {
@@ -255,6 +255,7 @@ export function validateClient(path: string, method: string, data: unknown) {
                 "sms_template",
                 "sms_sender",
                 "zarinpal_merchant",
+                "zibal_merchant",
                 "site_name",
                 "site_logo",
                 "site_contact",

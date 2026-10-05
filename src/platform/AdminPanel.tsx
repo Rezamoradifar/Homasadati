@@ -1087,6 +1087,7 @@ export function Settings({
                 ["sms_template", "نام الگوی OTP پیامک"],
                 ["sms_sender", "شماره فرستنده پیامک اعلان"],
                 ["zarinpal_merchant", "شناسه پذیرنده زرین‌پال"],
+                ["zibal_merchant", "مرچنت درگاه زیبال"],
                 ["site_name", "نام سایت"],
                 ["site_logo", "نشانی لوگو"],
                 ["site_contact", "اطلاعات تماس"],

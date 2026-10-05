@@ -14,6 +14,7 @@
     "platform:setup": "tsx scripts/platform-setup.ts",
     "platform:worker": "tsx scripts/platform-worker.ts",
     "platform:backup": "tsx scripts/platform-backup.ts",
+    "services:check": "tsx scripts/services-check.ts",
     "auth:preflight": "NODE_ENV=production tsx scripts/auth-preflight.ts"
   },
   "dependencies": {
