@@ -3,7 +3,7 @@ import { z } from "zod";
 import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
 import { createOrder, settleOrder } from "./finance";
-import { paymentRequest } from "./providers";
+import { paymentRequest, paymentUrl } from "./providers";
 import {publicCatalogDetails} from './catalog-model';
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
@@ -129,13 +129,13 @@ export async function payCheckout(checkoutId: string, user: string) {
   );
   if (!c) throw new ApiError(404, "not_found");
   if (
-    c.method !== "zarinpal" ||
+    !["zarinpal", "zibal"].includes(c.method) ||
     c.status !== "pending" ||
     c.expires_at <= now()
   )
     throw new ApiError(409, "invalid_state");
   if (c.authority)
-    return { url: "https://www.zarinpal.com/pg/StartPay/" + c.authority };
+    return { url: paymentUrl(c.authority, c.method) };
   const claim = randomUUID();
   if (
     !run(
@@ -146,7 +146,7 @@ export async function payCheckout(checkoutId: string, user: string) {
   )
     throw new ApiError(409, "payment_request_in_progress");
   try {
-    const authority = await paymentRequest(c.id, c.amount);
+    const authority = await paymentRequest(c.id, c.amount, c.method);
     if (
       !run(
         "UPDATE p_checkouts SET authority=?,claim=NULL WHERE id=? AND claim=? AND status='pending' AND expires_at>?",
@@ -157,7 +157,7 @@ export async function payCheckout(checkoutId: string, user: string) {
       ).changes
     )
       throw new ApiError(409, "invalid_state");
-    return { url: "https://www.zarinpal.com/pg/StartPay/" + authority };
+    return { url: paymentUrl(authority, c.method) };
   } catch (e) {
     run(
       "UPDATE p_checkouts SET claim=NULL WHERE id=? AND claim=?",
