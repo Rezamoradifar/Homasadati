@@ -16,11 +16,12 @@ import { api, RecordData } from "./client";
 import {
   TERMS_VERSION,
   registrationSchema,
-  memberDetailsSchema,
-  registrationEmail,
-  registrationContact,
-  referralCode,
 } from "./registration-model";
+import {
+  normalizeRegistrationDigits,
+  parseRegistrationTarget,
+  registrationFormError,
+} from "./registration-form";
 import { Notice } from "./Widgets";
 import { useCaptcha } from "./Captcha";
 import { RecoveryCodes } from "./RecoveryCodes";
@@ -70,6 +71,8 @@ export default function Registration({
     [notice, setNotice] = useState(""),
     [cooldown, setCooldown] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
+  const formRoot = useRef<HTMLDivElement>(null);
+  const [invalidField, setInvalidField] = useState<string>();
   const sendCaptcha = useCaptcha("otp"),
     registerCaptcha = useCaptcha("register");
   useEffect(() => {
@@ -87,13 +90,18 @@ export default function Registration({
   useEffect(() => {
     if (step) heading.current?.focus();
   }, [step]);
+  useEffect(() => {
+    if (busy || !error || !invalidField) return;
+    const name = invalidField === "target" ? (method === "sms" ? "phone" : "email")
+      : invalidField === "code" ? "emailCode" : invalidField;
+    formRoot.current?.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`)?.focus();
+  }, [busy, error, invalidField, method]);
   const set = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
-  const fail = (e: unknown) => {
-    if ((e as Error).name !== "ZodError") return setError((e as Error).message);
-    // Show the specific message when a field has one (e.g. invalid national code).
-    const issue = (e as { issues?: { message: string }[] }).issues?.find((i) => /[\u0600-\u06FF]/.test(i.message));
-    setError(issue?.message || "اطلاعات الزامی و قالب فیلدها را بررسی کنید.");
+  const fail = (e: unknown, fallbackField?: string) => {
+    const issue = registrationFormError(e, method, fallbackField);
+    setInvalidField(issue.field);
+    setError(issue.message);
   };
   const details = () => ({
     firstName: form.firstName,
@@ -125,6 +133,7 @@ export default function Registration({
         inputMode={key === "nationalId" || key === "mobile" ? "numeric" : undefined}
         dir={key === "nationalId" || key === "mobile" ? "ltr" : undefined}
         required={required}
+        aria-invalid={!!error && invalidField === key}
         autoComplete={autoComplete}
         value={form[key]}
         maxLength={120}
@@ -138,7 +147,7 @@ export default function Registration({
     setError("");
     setNotice("");
     try {
-      const target = (method === "email" ? registrationEmail : registrationContact).parse(form.target);
+      const target = parseRegistrationTarget(form.target, method);
       const r = await api("auth/otp", "POST", {
         target,
         purpose: "register",
@@ -152,7 +161,7 @@ export default function Registration({
         method === "email" ? "کد شش‌رقمی به ایمیل شما ارسال شد؛ ۵ دقیقه اعتبار دارد. پوشه هرزنامه را هم بررسی کنید." : "کد شش‌رقمی پیامک شد؛ ۵ دقیقه اعتبار دارد.",
       );
     } catch (e) {
-      fail(e);
+      fail(e, "target");
     } finally {
       sendCaptcha.reset();
       setBusy(false);
@@ -185,18 +194,6 @@ export default function Registration({
     if (busy || !registerCaptcha.ready || !enrollment) return;
     setError("");
     try {
-      memberDetailsSchema.parse(details());
-      if (invitationMode === "with-code") {
-        referralCode.parse(form.referral);
-        setBusy(true);
-        const r = await api("referrals/check", "POST", { code: form.referral });
-        if (!r.valid)
-          throw new Error(
-            "کد دعوت معتبر یا فعال نیست؛ آن را اصلاح کنید یا ثبت‌نام بدون کد را انتخاب کنید.",
-          );
-      }
-      if (!form.termsAccepted || !form.privacyAccepted || !form.adultConfirmed)
-        throw new Error("پذیرش قوانین، حریم خصوصی و تأیید سن لازم است.");
       setBusy(true);
       const payload = registrationSchema.parse({
         target: form.target,
@@ -213,6 +210,13 @@ export default function Registration({
         termsVersion: TERMS_VERSION,
         marketingConsent: form.marketingConsent,
       });
+      if (payload.invitationMode === "with-code") {
+        const r = await api("referrals/check", "POST", { code: payload.referral });
+        if (!r.valid)
+          throw new Error(
+            "کد دعوت معتبر یا فعال نیست؛ آن را اصلاح کنید یا ثبت‌نام بدون کد را انتخاب کنید.",
+          );
+      }
       const r = await api("auth/register", "POST", payload);
       setEnrollment(null);
       setNotice("");
@@ -234,7 +238,7 @@ export default function Registration({
     setNotice("");
   }
   return (
-    <Localized><div className="registration-shell" dir="rtl">
+    <Localized><div className="registration-shell" dir="rtl" ref={formRoot}>
       <aside className="registration-story">
         <a href="/" aria-label="صفحه اصلی هما نت">
           <img src="/assets/brand-mark.png" alt="همای" />
@@ -315,7 +319,7 @@ export default function Registration({
                   }}
                 >
                   <label>
-                    {method === "sms" ? "شماره موبایل با پیش‌شماره کشور" : "ایمیل"}
+                    {method === "sms" ? "شماره موبایل (۰۹… یا +۹۸…)" : "ایمیل"}
                     <input
                       name={method === "sms" ? "phone" : "email"}
                       type={method === "sms" ? "tel" : "email"}
@@ -323,6 +327,7 @@ export default function Registration({
                       autoComplete={method === "sms" ? "tel" : "email"}
                       placeholder={method === "sms" ? "+989121234567" : "name@example.com"}
                       required
+                      aria-invalid={!!error && invalidField === "target"}
                       maxLength={254}
                       value={form.target}
                       disabled={!!challenge || busy}
@@ -356,7 +361,7 @@ export default function Registration({
                         required
                         value={form.code}
                         onChange={(e) =>
-                          set("code", e.target.value.replace(/[^0-9]/g, ""))
+                          set("code", normalizeRegistrationDigits(e.target.value).replace(/[^0-9]/g, ""))
                         }
                       />
                     </label>
@@ -431,6 +436,7 @@ export default function Registration({
                       کد دعوت
                       <input
                         name="referral"
+                        aria-invalid={!!error && invalidField === "referral"}
                         dir="ltr"
                         required
                         maxLength={40}
@@ -461,6 +467,7 @@ export default function Registration({
                       زبان ترجیحی
                       <select
                         name="language"
+                        aria-invalid={!!error && invalidField === "language"}
                         value={form.language}
                         onChange={(e) => set("language", e.target.value)}
                       >
@@ -499,6 +506,8 @@ export default function Registration({
                       required
                       type="checkbox"
                       checked={form.termsAccepted}
+                      name="termsAccepted"
+                      aria-invalid={!!error && invalidField === "termsAccepted"}
                       onChange={(e) => set("termsAccepted", e.target.checked)}
                     />
                     <span>
@@ -513,6 +522,8 @@ export default function Registration({
                       required
                       type="checkbox"
                       checked={form.privacyAccepted}
+                      name="privacyAccepted"
+                      aria-invalid={!!error && invalidField === "privacyAccepted"}
                       onChange={(e) => set("privacyAccepted", e.target.checked)}
                     />
                     <span>
@@ -527,6 +538,8 @@ export default function Registration({
                       required
                       type="checkbox"
                       checked={form.adultConfirmed}
+                      name="adultConfirmed"
+                      aria-invalid={!!error && invalidField === "adultConfirmed"}
                       onChange={(e) => set("adultConfirmed", e.target.checked)}
                     />
                     حداقل ۱۸ سال دارم و اطلاعات من صحیح است.
