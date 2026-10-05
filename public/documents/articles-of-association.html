@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <title>اساسنامه شرکت | همای سعادت</title>
+  <style>
+    :root{color-scheme:light}
+    *{box-sizing:border-box}
+    body{margin:0;background:#eef1f5;color:#18263d;font-family:Tahoma,Arial,sans-serif}
+    .toolbar{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 18px;background:#18263d;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+    .toolbar strong{font-size:14px;line-height:1.8}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .toolbar a,.toolbar button{border:1px solid #dcc38a;background:transparent;color:#f5ead4;padding:9px 12px;border-radius:8px;text-decoration:none;cursor:pointer;font:inherit;white-space:nowrap}
+    .wrap{max-width:900px;margin:24px auto;padding:0 14px}
+    .intro{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:18px;line-height:1.9;box-shadow:0 6px 20px rgba(24,38,61,.06)}
+    .page{display:block;width:min(100%,760px);height:auto;margin:0 auto 22px;background:#fff;box-shadow:0 8px 22px rgba(24,38,61,.12)}
+    @media(max-width:640px){.toolbar{align-items:flex-start;flex-direction:column}.actions{width:100%}.toolbar a,.toolbar button{flex:1;text-align:center}}
+    @media print{
+      .toolbar,.intro{display:none}
+      .wrap{max-width:none;margin:0;padding:0}
+      .page{width:100%;margin:0;box-shadow:none;break-after:page;page-break-after:always}
+      .page:last-child{break-after:auto;page-break-after:auto}
+      body{background:#fff}
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <strong>اساسنامه شرکت میراث جاویدان و ماندگار ایرانیان</strong>
+    <div class="actions">
+      <a href="/about">بازگشت به درباره ما</a>
+      <button type="button" onclick="window.print()">چاپ / ذخیره PDF</button>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="intro">نسخه تصویری ۶ صفحه‌ای اساسنامه شرکت. برای دریافت نسخه PDF از گزینه «چاپ / ذخیره PDF» استفاده کنید.</div>
+    <img class="page" src="/assets/licenses/articles-of-association-page-1.svg" alt="اساسنامه شرکت - صفحه ۱">
+    <img class="page" src="/assets/licenses/articles-of-association-page-2.svg" alt="اساسنامه شرکت - صفحه ۲" loading="lazy">
+    <img class="page" src="/assets/licenses/articles-of-association-page-3.svg" alt="اساسنامه شرکت - صفحه ۳" loading="lazy">
+    <img class="page" src="/assets/licenses/articles-of-association-page-4.svg" alt="اساسنامه شرکت - صفحه ۴" loading="lazy">
+    <img class="page" src="/assets/licenses/articles-of-association-page-5.svg" alt="اساسنامه شرکت - صفحه ۵" loading="lazy">
+    <img class="page" src="/assets/licenses/articles-of-association-page-6.svg" alt="اساسنامه شرکت - صفحه ۶" loading="lazy">
+  </main>
+</body>
+</html>
