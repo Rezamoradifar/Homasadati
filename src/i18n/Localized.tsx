@@ -22,6 +22,8 @@ export function localizeNode(
   locale: SiteLocale,
   dictionary: Dictionary,
 ): ReactNode {
+  // Persian is the authored UI: preserve its tree without translation work.
+  if (locale === "fa") return node;
   if (typeof node === "string") return translateText(node, locale, dictionary);
   if (Array.isArray(node)) {
     // React splits sentences around interpolated numbers. Translate a known
@@ -31,7 +33,7 @@ export function localizeNode(
     const flush = () => {
       if (!text.length) return;
       const sentence = text.join("");
-      if (locale !== "fa" && hasTranslation(sentence, dictionary))
+      if (hasTranslation(sentence, dictionary))
         result.push(translateText(sentence, locale, dictionary));
       else
         result.push(
@@ -39,7 +41,7 @@ export function localizeNode(
         );
       text = [];
     };
-    Children.forEach(Children.toArray(node), (child) => {
+    Children.forEach(node, (child) => {
       if (typeof child === "string" || typeof child === "number")
         text.push(child);
       else {

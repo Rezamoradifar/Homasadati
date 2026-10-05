@@ -19,7 +19,7 @@ const ResponsiveImage = forwardRef<HTMLImageElement, Props>(
       loading = "lazy",
       width,
       height,
-      quality = 85,
+      quality = 75,
       ...rest
     },
     ref,

@@ -18,9 +18,12 @@ if [[ -n "$(g status --porcelain --untracked-files=normal | sed '/^ M next-env\.
 fi
 systemctl is-active --quiet homay.service
 systemctl is-active --quiet homay-worker.service
-read -r -s -p 'Paste the Zibal merchant (hidden): ' merchant </dev/tty
-printf '\n' >/dev/tty
-[[ "$merchant" =~ ^[A-Za-z0-9_-]{6,200}$ && "$merchant" != zibal ]] || { echo 'Invalid production merchant.'; exit 1; }
+merchant=""
+if [[ "${2:-}" != --skip-merchant ]]; then
+  read -r -s -p 'Paste the Zibal merchant (hidden): ' merchant </dev/tty
+  printf '\n' >/dev/tty
+  [[ "$merchant" =~ ^[A-Za-z0-9_-]{6,200}$ && "$merchant" != zibal ]] || { echo 'Invalid production merchant.'; exit 1; }
+fi
 old_head="$(g rev-parse HEAD)"
 deploy_dir="$(mktemp -d /opt/homay/zibal-release.XXXXXXXX)"
 stage="$deploy_dir/stage"
@@ -74,7 +77,7 @@ for config in .env .env.local .env.production .env.production.local; do
 done
 chown -R homay:homay "$deploy_dir"
 chmod 700 "$deploy_dir"
-runuser -u homay -- bash -c 'cd "$1" && npm ci --include=dev --no-audit --no-fund && npm run typecheck && npm run build' bash "$stage"
+runuser -u homay -- nice -n 10 bash -c 'cd "$1" && npm ci --include=dev --no-audit --no-fund && npm run typecheck && npm run build' bash "$stage"
 [[ "$(g rev-parse HEAD)" == "$old_head" && "$(config_hash)" == "$initial_config" ]] || { echo 'STOP: source or config changed during build.'; exit 1; }
 systemctl stop homay.service homay-worker.service
 stopped=1
@@ -91,12 +94,14 @@ new_node=1
 mv "$stage/.next" "$app/.next"
 new_build=1
 runuser -u homay -- bash -c 'cd "$1" && npm run platform:setup' bash "$app"
+if [[ -n "$merchant" ]]; then
 printf '%s' "$merchant" | runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production npx tsx scripts/configure-zibal.ts' bash "$app"
+fi
 unset merchant
 systemctl start homay.service homay-worker.service
 systemctl is-active --quiet homay.service
 systemctl is-active --quiet homay-worker.service
 stopped=0
 runuser -u homay -- bash -c 'cd "$1" && npm run services:check' bash "$app"
-echo "Zibal release installed and merchant stored encrypted. Backups: $deploy_dir"
+echo "Homay release installed. Existing service settings preserved. Backups: $deploy_dir"
 echo 'Live payment and OTP delivery still require an end-to-end test.'

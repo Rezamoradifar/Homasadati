@@ -5,6 +5,7 @@ const nextConfig = {
   // only known crawlers, so previews and audits always see them.
   htmlLimitedBots: /.*/,
   images: {
+    minimumCacheTTL: 3600,
     deviceSizes: [320, 480, 640, 750, 828, 1080, 1200, 1600, 1920, 2560, 3840],
     imageSizes: [32, 48, 64, 96, 128, 192, 256],
     formats: ["image/webp"],
@@ -35,6 +36,10 @@ const nextConfig = {
               "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",
           },
         ],
+      },
+      {
+        source: "/assets/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }],
       },
       {
         source: "/api/:path*",
