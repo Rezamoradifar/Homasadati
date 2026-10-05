@@ -114,6 +114,26 @@ export default async function About() {
                   </article>
                 </Localized>
               ))}
+              <Localized>
+                <article className="license-card">
+                  <a className="license-preview" href="/documents/articles-of-association.html" target="_blank" rel="noopener noreferrer" aria-label={t("مشاهده اساسنامه شرکت")}>
+                    <img src="/assets/licenses/articles-of-association-page-1.svg" alt={t("اساسنامه شرکت")} loading="lazy" style={{width:"100%",height:"auto",display:"block"}} />
+                  </a>
+                  <div className="license-copy">
+                    <span className="license-number" aria-hidden="true">03</span>
+                    <h3>{t("اساسنامه شرکت")}</h3>
+                    <dl>
+                      <dt>{t("نام شرکت")}</dt>
+                      <dd>{t("میراث جاویدان و ماندگار ایرانیان")}</dd>
+                      <dt>{t("نوع سند")}</dt>
+                      <dd>{t("اساسنامه ثبت تأسیس")}</dd>
+                      <dt>{t("تعداد صفحات")}</dt>
+                      <dd>{t("۶ صفحه")}</dd>
+                    </dl>
+                    <a className="license-open" href="/documents/articles-of-association.html" target="_blank" rel="noopener noreferrer">{t("مشاهده اساسنامه شرکت")}</a>
+                  </div>
+                </article>
+              </Localized>
             </div>
           </section>
         </main>
