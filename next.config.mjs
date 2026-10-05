@@ -51,7 +51,9 @@ const nextConfig = {
       },
       {
         source: "/account",
-        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
+        // Payments start here too: send only the HTTPS origin to gateways,
+        // never account paths or query parameters (including referral tokens).
+        headers: [{ key: "Referrer-Policy", value: "strict-origin" }],
       },
     ];
   },
