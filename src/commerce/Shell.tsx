@@ -51,6 +51,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
           <a href="/club/ranks">هشت رتبه باشگاه</a>
           <a href="/merchants">پذیرندگان</a>
             <a href="/income-plan">طرح درآمد</a>
+            <a href="/support">پشتیبانی و تیکت</a>
             <a href="/help">راهنمای خرید و پشتیبانی</a>
             <a href="/about">درباره شرکت و مدیریت</a><a href="/about#licenses">مجوزها و اسناد</a><a href="/contact">ارتباط با ما</a><a href="/legal/terms">قوانین و مقررات</a>
             <a href="/legal/privacy">حریم خصوصی</a>

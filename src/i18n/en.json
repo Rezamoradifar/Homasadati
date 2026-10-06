@@ -3283,5 +3283,22 @@
   "این مجوز مستقل از رتبه مالی است؛ فقط مدیر اصلی می‌تواند آن را فعال یا لغو کند.": "This permission is separate from financial rank. Only the primary administrator can grant or revoke it.",
   "دسترسی ذخیره شد": "Access saved",
   "— نمایش تا عمق": "— display up to depth",
-  "ذخیره دسترسی": "Save access"
+  "ذخیره دسترسی": "Save access",
+  "مرکز پشتیبانی": "Support centre",
+  "برای پیگیری خرید، پرداخت یا حساب کاربری، درخواست خود را ثبت کنید.": "Submit a request about your purchase, payment or account.",
+  "ثبت و پیگیری تیکت": "Submit and track a ticket",
+  "درخواست شما در حساب کاربری ذخیره می‌شود. پاسخ‌های پشتیبانی و وضعیت رسیدگی را در همان گفت‌وگو ببینید.": "Your request is saved in your account. View support replies and its status in the same conversation.",
+  "ثبت تیکت و مشاهده پاسخ‌ها": "Submit a ticket and view replies",
+  "برای ثبت تیکت، ابتدا وارد حساب خود شوید.": "Sign in to your account to submit a ticket.",
+  "چه اطلاعاتی بنویسم؟": "What information should I include?",
+  "موضوع درخواست و شرح مسئله": "The subject and a description of the issue",
+  "شناسه سفارش، اگر درخواست مربوط به خرید است": "The order ID if your request concerns a purchase",
+  "متن خطایی که مشاهده می‌کنید": "The error message you see",
+  "رمز عبور، کد تأیید و اطلاعات کامل کارت بانکی را در تیکت ننویسید.": "Do not include passwords, verification codes or full bank card details in a ticket.",
+  "درخواست‌های قبلی": "Previous requests",
+  "برای ادامه پیگیری، در همان تیکت پاسخ دهید تا سابقه گفت‌وگو یکجا بماند.": "Reply in the same ticket to keep your conversation together.",
+  "مشاهده تیکت‌های من": "View my tickets",
+  "پشتیبانی و تیکت": "Support and tickets",
+  "ثبت تیکت پشتیبانی": "Submit a support ticket",
+  "مرکز پشتیبانی | همانت": "Support centre | Homanet"
 }

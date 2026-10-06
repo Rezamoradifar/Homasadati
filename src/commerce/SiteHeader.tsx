@@ -230,6 +230,7 @@ export default function SiteHeader({
               <a href="/merchants">پذیرندگان</a>
               <a href="/about">درباره ما</a>
               <a href="/contact">ارتباط با ما</a>
+              <a href="/support">پشتیبانی و تیکت</a>
               <a href="/help">راهنمای خرید</a>
               <a href="/account?tab=orders">پیگیری سفارش‌ها</a>
               <a href="/#partnership">همکاری با ما</a>

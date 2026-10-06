@@ -12,6 +12,7 @@ export default function Help() {
             <p>از انتخاب محصول تا دریافت سفارش، مسیر خود را اینجا پیدا کنید.</p>
           </header>
           <nav className="help-actions" aria-label="دسترسی سریع">
+            <a href="/account?tab=tickets">ثبت تیکت پشتیبانی</a>
             <a href="/account?tab=orders">پیگیری سفارش</a>
             <a href="/account?tab=addresses">نشانی‌های ارسال</a>
             <a href="/account?tab=security">امنیت حساب</a>

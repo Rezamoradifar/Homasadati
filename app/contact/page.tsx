@@ -19,6 +19,7 @@ export default function Contact() {
             <ContactDetails />
             <p>برای پیگیری خرید، شناسه سفارش را آماده داشته باشید.</p>
             <div className="company-actions">
+              <a className="commerce-button" href="/account?tab=tickets">ثبت تیکت پشتیبانی</a>
               <a className="commerce-button" href="/account?tab=orders">
                 پیگیری سفارش
               </a>
