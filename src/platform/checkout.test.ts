@@ -296,7 +296,7 @@ it("ignores a forged Zibal success flag when verification amount differs", async
   await payCheckout(c.id,buyer);
   const r = await handle(new Request("https://cart.test/api/platform/payment/callback?gateway=zibal&success=1&trackId=987654321"), ["payment","callback"]);
   expect(r.status).toBe(303);
-  expect(r.headers.get("location")).toContain("payment=failed");
+  expect(r.headers.get("location")).toBe(`https://cart.test/payment/result?checkout=${c.id}`);
   expect(one("SELECT status FROM p_checkouts WHERE id=?",c.id)!.status).toBe("pending");
   expect(wallet(sponsor).pending).toBe(0);
 });

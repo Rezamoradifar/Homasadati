@@ -414,6 +414,7 @@ export function memberCardStatus(user: string) {
     level: m?.level || 0,
     desks: m?.desks || 0,
     totalPurchase: m?.total || 0,
+    paidPurchaseTotal: one("SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND refunded_at IS NULL AND status NOT IN ('refunded','cancelled')",user)!.n,
     pendingRewards: one("SELECT COALESCE(SUM(amount),0) n FROM p_card_due WHERE user_id=? AND status='pending'",user)!.n,
     weeklyCapToman: (m?.desks || 0) * (updatedCardSchedule()? UPDATED_DESK_WEEKLY_CAP: DESK_WEEKLY_CAP),
     leftVolume: leg("left"),

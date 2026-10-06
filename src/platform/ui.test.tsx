@@ -627,6 +627,7 @@ describe("Panels use actual APIs and SQLite", () => {
     await screen.findByText("به سبد خرید اضافه شد.");
     view.unmount();
     render(<Cart />);
+    await user.click(await screen.findByRole("button", {name:"ادامه و اطلاعات خرید"}));
     await screen.findByRole("option", { name: /خانه — تهران/ });
     await user.selectOptions(screen.getByLabelText("روش پرداخت"), "wallet");
     const addressSelect = screen.getByRole("combobox", { name: /آدرس ارسال/ });
@@ -634,6 +635,7 @@ describe("Panels use actual APIs and SQLite", () => {
       addressSelect,
       one("SELECT id FROM p_addresses WHERE user_id=?", buyer)!.id,
     );
+    await user.click(screen.getByRole("button", {name:"بررسی نهایی سفارش"}));
     await user.click(
       screen.getByRole("button", { name: "ثبت سفارش و پرداخت" }),
     );

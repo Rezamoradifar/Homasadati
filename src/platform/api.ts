@@ -1461,7 +1461,7 @@ export async function handle(req: Request, path: string[]) {
     if (path.join("/") === "payment/bale/callback" && (get || method === "POST"))
       return await baleCallback(req, url);
     if (path.join("/") === "payment/methods" && get)
-      return json({ wallet: true, zarinpal: true, zibal: !!setting("zibal_merchant"), bale: balePayEnabled() });
+      return json({ wallet: true, zarinpal: !!setting("zarinpal_merchant"), zibal: !!setting("zibal_merchant"), bale: balePayEnabled() });
     if (!get) {
       sameOrigin(req);
       data = await body(req, 65536);
@@ -1509,7 +1509,7 @@ export async function handle(req: Request, path: string[]) {
         : z.string().min(10).max(100).parse(url.searchParams.get("Authority"));
       const back = (result: string) =>
         Response.redirect(
-          new URL("/account?tab=orders&payment=" + result, process.env.APP_ORIGIN!),
+          new URL(checkout ? "/payment/result?checkout=" + encodeURIComponent(checkout.id) : "/account?tab=orders&payment=" + result, process.env.APP_ORIGIN!),
           303,
         );
       const checkout = one(
@@ -1962,12 +1962,13 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "checkouts") {
       if (get) {
         const c = one(
-          "SELECT id,amount,status,method,expires_at FROM p_checkouts WHERE id=? AND user_id=?",
+          "SELECT id,amount,status,method,expires_at,payment_ref FROM p_checkouts WHERE id=? AND user_id=?",
           id.parse(path[1]),
           u.id,
         );
         if (!c) throw new ApiError(404, "not_found");
-        return json(c);
+        const orders=all("SELECT o.id,o.status,o.amount,o.paid_at,o.refunded_at FROM p_orders o JOIN p_checkout_items i ON i.order_id=o.id WHERE i.checkout_id=?",c.id);
+        return json({...c, orders, paidPurchaseVolume:orders.filter(o=>o.paid_at&&!o.refunded_at&&!["cancelled","refunded"].includes(o.status)).reduce((n,o)=>n+o.amount,0)});
       }
       if (path[2] === "payment") {
         const checkoutId = id.parse(path[1]);
@@ -2266,7 +2267,7 @@ export async function handle(req: Request, path: string[]) {
         d.postal_code,
         d.address,
       );
-      return json({ ok: true });
+      return json({ ok: true, id: key });
     }
     if (path[0] === "subscriptions") {
       if (get)

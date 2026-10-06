@@ -29,3 +29,12 @@ State: preview fixture, 25m counted purchases, Sarv, two active positions, 4.9m 
 Authenticated production dashboard cannot be visually checked without a user session. Narrow content was checked inside the desktop browser, rather than browser-device emulation. Full mobile viewport and all-active visual state remain follow-up checks. No server deployment has occurred.
 
 final result: passed
+
+## Checkout release — 2026-10-06
+- Replaced the one-screen basket with item selection, address/payment, final review, and a server-confirmed receipt. Inline address creation, stock-aware quantity controls, voucher totals, configured gateway selection, resumable pending payments, and submission idempotency retained.
+- Desktop and 390px iframe viewport inspected in cloud browser. At 390px body clientWidth and scrollWidth both 390. Product rows and summary stack; step labels and quantity buttons remain visible. Selected an address and voucher and reached final review. No real payment was submitted.
+- Preview fixtures are local only, not shipped. Production cart was inspected before changes and showed the old design; deployment is not confirmed.
+- Real SQLite integration verifies paid multi-item checkout contributes once, pending purchases do not contribute, refunds remove paid purchase volume, and own purchases produce no own commission. Eligible plan counting retains cancellation windows and weekly settlement/live controls.
+- Paid purchase total displayed separately from counted plan volume on membership card. Existing duplicate slot display removed from historical details.
+- Validation: all 276 tests across 43 files passed; TypeScript passed; isolated-database production build passed; 2884 source messages with zero missing English translations; new Arabic translations added.
+- Production marker: data-checkout-version="2026-10-06". Requires deployment of this release on the Homay server and authenticated production checkout verification. Gateway credentials/provider approval and live financial settings are preserved.

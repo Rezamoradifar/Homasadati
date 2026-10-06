@@ -8,7 +8,7 @@ import { randomUUID } from "node:crypto";
 import { platformDb, run, one, all, now } from "./schema";
 import { saveSetting } from "./providers";
 import { createOrder, settleOrder, refundOrder, wallet, ledger } from "./finance";
-import { createCheckout } from "./checkout";
+import { createCheckout, settleCheckout } from "./checkout";
 import {
   memberCardStatus,
   previewCardSettlement,
@@ -345,4 +345,25 @@ it("closes purchases at Monday midnight until the previous week is calculated",(
  runCardSettlement(boundary);
  expect(()=>assertPurchasesOpen(boundary)).not.toThrow();
  expect(()=>assertPurchasesOpen(boundary+7*DAY)).toThrow("weekly_calculation_in_progress");
+});
+
+
+it("counts paid multi-item baskets once and excludes pending and refunded orders", () => {
+  run("UPDATE p_products SET vertical='tourism', price=? WHERE id=?", 6*M, product);
+  const other=randomUUID();
+  run("INSERT INTO p_products(id,title,description,vertical,subtype,price,stock,duration_days,cancel_hours,published,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,1,?,?)", other,"Other","Other","tourism","tour",4*M,10,30,0,now(),now());
+  const input={items:[{productId:product,quantity:1},{productId:other,quantity:1}],method:"zarinpal" as const,idempotencyKey:randomUUID(),expectedTotal:10*M,useVoucher:false};
+  const c=createCheckout(root,input);
+  expect(memberCardStatus(root).paidPurchaseTotal).toBe(0);
+  settleCheckout(c.id,"verified-basket");
+  settleCheckout(c.id,"verified-basket");
+  expect(createCheckout(root,input).id).toBe(c.id);
+  expect(memberCardStatus(root).paidPurchaseTotal).toBe(10*M);
+  settleAfter(8);
+  expect(memberCardStatus(root)).toMatchObject({totalPurchase:10*M,desks:1,leftVolume:0,rightVolume:0});
+  expect(wallet(root).available).toBe(0);
+  const order=one("SELECT i.order_id FROM p_checkout_items i JOIN p_orders o ON o.id=i.order_id WHERE i.checkout_id=? AND o.product_id=?",c.id,other)!;
+  refundOrder(order.order_id,admin,true,"return basket item");
+  expect(memberCardStatus(root).paidPurchaseTotal).toBe(6*M);
+  expect(memberCardStatus(root).desks).toBe(0);
 });

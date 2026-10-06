@@ -24,11 +24,13 @@ export function writeBasket(items: BasketItem[]) {
   localStorage.setItem(key, JSON.stringify(items));
   window.dispatchEvent(new Event("homa-basket"));
 }
-export function addToBasket(productId: string, quantity: number) {
+export function addToBasket(productId: string, quantity: number, stock = 100) {
   const items = read(),
     old = items.find((x) => x.productId === productId);
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100)
     throw new Error("تعداد معتبر وارد کنید.");
+  if ((old?.quantity || 0) + quantity > stock)
+    throw new Error("تعداد بیشتر از موجودی است.");
   if (old) {
     if (old.quantity + quantity > 100)
       throw new Error("حداکثر ۱۰۰ واحد از هر کالا مجاز است.");
