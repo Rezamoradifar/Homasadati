@@ -1,3 +1,4 @@
+import { positionMode } from "./card-positions";
 import { UPDATED_DESK_WEEKLY_CAP, updatedCardSchedule } from "./card-schedule";
 import { ApiError } from "../server/http";
 import { atomic } from "./schema";
@@ -24,6 +25,7 @@ export function cardPlan() {
   return {
     version: CARD_PLAN_VERSION,
     status: setting("seven_card_live") === "1" ? "live" : "draft",
+    positionVersion: positionMode() ? "aa-2026-10-06" : null,
     liveSettlement: setting("seven_card_live") === "1",
     revision: stored?.revision ?? 0,
     cards: sevenCards,

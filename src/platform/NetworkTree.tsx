@@ -22,6 +22,18 @@ type TreeNode = {
   children: { left: TreeNode | null; right: TreeNode | null } | null;
 };
 
+export function PersonalPositions({data,onOpen}:{data:RecordData;onOpen:(id:string)=>void}) {
+  const flat=(n:RecordData):RecordData[]=>[n,...(n.left?flat(n.left):[]),...(n.right?flat(n.right):[])];
+  const nodes=flat(data.tree);
+  return <section className="personal-positions" dir="ltr" data-position-version="aa-2026-10-06">
+    <div className="personal-position-summary" dir="rtl"><strong>جایگاه‌های من</strong><span>{data.desks.toLocaleString("fa-IR")} / ۷</span><small>ظرفیت معرفی مستقیم: {data.directCapacity.toLocaleString("fa-IR")}</small></div>
+    {[ [1], [2,3], [4,5,6,7] ].map((row,i)=><div key={i}>{i>0 && <svg className="personal-connectors" viewBox="0 0 400 20" preserveAspectRatio="none" aria-hidden="true"><path d={i===1?"M200 0 L100 20 M200 0 L300 20":"M100 0 L50 20 M100 0 L150 20 M300 0 L250 20 M300 0 L350 20"}/></svg>}<div className={"personal-position-row row-"+i}>{row.map(desk=>{const n=nodes.find(n=>n.desk===desk)!;return <div key={desk} className={"personal-position "+(n.active?"lit":"dark")} dir="rtl" aria-label={"جایگاه "+desk+" "+(n.active?"فعال":"خاموش")}><strong>{desk.toLocaleString("fa-IR")}</strong><small>{n.active?"فعال":"خاموش"}</small><details><summary>حجم و سیوینگ</summary><span>فروش هفته: {amount(n.weeklySales || 0)}</span><span>مجموع فروش: {amount(n.totalSales || 0)}</span><span>چپ: {amount(n.leftVolume)}</span><span>راست: {amount(n.rightVolume)}</span><span>سیوینگ چپ: {amount(n.savings.left)}</span><span>سیوینگ راست: {amount(n.savings.right)}</span></details></div>})}</div></div>)}
+    <svg className="personal-connectors" viewBox="0 0 400 20" preserveAspectRatio="none" aria-hidden="true"><path d="M50 0 L25 20 M50 0 L75 20 M150 0 L125 20 M150 0 L175 20 M250 0 L225 20 M250 0 L275 20 M350 0 L325 20 M350 0 L375 20"/></svg>
+    <div className="personal-direct-row">{[1,5,3,6,4,7,8,2].map(ordinal=>{const d=data.directs.find((x:RecordData)=>x.ordinal===ordinal);return <button key={ordinal} className={"personal-direct "+(d.enabled?"enabled":"locked")} disabled={!d.member} onClick={()=>onOpen(d.member.child_id)} title={d.path} dir="rtl"><strong>دایرکت {ordinal.toLocaleString("fa-IR")}</strong><small>{d.member?.name || (d.enabled?"جای خالی":"قفل")}</small></button>})}</div>
+    <p dir="rtl">هر ۱۰ میلیون تومان خرید واجد شرایط و پرداخت‌شده، یک جایگاه را روشن می‌کند. محاسبهٔ پورسانت پس از پایان مهلت برگشت خرید انجام می‌شود.</p>
+  </section>;
+}
+
 const initials = (name: string) =>
   name
     .split(/\s+/)
@@ -199,6 +211,8 @@ export function NetworkTree({ user, refresh, admin = false }: { user: RecordData
                   ))}
                 </nav>
               )}
+              {d.positions && <PersonalPositions data={d.positions} onOpen={setRoot}/>}
+              {!d.positions && <>
               <div className="network-tree-summary" dir="ltr">
                 <LegSummary label="شاخهٔ چپ" leg={d.tree.left} />
                 <div className="tree-root-stats" dir="rtl">
@@ -217,6 +231,7 @@ export function NetworkTree({ user, refresh, admin = false }: { user: RecordData
                 عضو «فعال» در {Number(d.activeDays).toLocaleString("fa-IR")} روز گذشته خرید پرداخت‌شده دارد. حجم هر
                 شاخه جمع خریدهای پرداخت‌شده و برگشت‌نخوردهٔ همهٔ اعضای آن شاخه است.
               </p>
+              </>}
             </>
           )}
         </DataState>

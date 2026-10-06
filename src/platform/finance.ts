@@ -1,3 +1,4 @@
+import { positionMode } from "./card-positions";
 import { verifiedIban } from "./payout-profile";
 import { updatedCardSchedule } from "./card-schedule";
 import { assertPurchasesOpen } from "./card-schedule";
@@ -886,6 +887,8 @@ export function moveMember(
           null;
       }
     }
+    if (positionMode() && (u.sponsor_id !== sponsor || u.parent_id !== parent || u.leg !== leg))
+      throw new ApiError(409,"direct_position_locked");
     // Historical settled sales stay attached to their original commission beneficiaries.
     run(
       "UPDATE p_users SET sponsor_id=?,parent_id=?,leg=? WHERE id=?",

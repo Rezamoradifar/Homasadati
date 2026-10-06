@@ -1,3 +1,4 @@
+import { positionMode, positionPath, personalPositionTree } from "./card-positions";
 import { mondayStart } from "./card-schedule";
 import { ApiError } from "../server/http";
 import { all, one, Row } from "./schema";
@@ -97,12 +98,12 @@ export function placementPath(top: string, target: string) {
 
 export function placementTree(viewer: string, root: string, depth = 3, admin = false) {
   const d = Math.min(Math.max(Math.trunc(depth) || 3, 1), 5);
-  const path = admin ? placementPath(root, root) : placementPath(viewer, root);
+  const path = admin ? placementPath(root, root) : positionMode() ? positionPath(viewer, root) : placementPath(viewer, root);
   if (!path) throw new ApiError(403, "forbidden");
   const row = one("SELECT id,name,created_at,leg,sponsor_id FROM p_users WHERE id=?", root);
   if (!row) throw new ApiError(404, "not_found");
   const activeSince = new Date(Date.now() - ACTIVE_DAYS * 86400000).toISOString();
-  return { path, depth: d, activeDays: ACTIVE_DAYS, tree: node(row, viewer, d, activeSince) };
+  return { path, positions: positionMode() ? personalPositionTree(root) : null, depth: d, activeDays: ACTIVE_DAYS, tree: node(row, viewer, d, activeSince) };
 }
 
 /** Finds members in the viewer's placement subtree by name or referral code. */
@@ -116,6 +117,7 @@ export function searchTree(viewer: string, query: string, admin = false) {
       like,
       q,
     );
+  if(positionMode()) return all(`WITH RECURSIVE sub(id) AS (SELECT child_id FROM p_card_direct_positions WHERE sponsor_id=? UNION SELECT d.child_id FROM p_card_direct_positions d JOIN sub ON d.sponsor_id=sub.id) SELECT u.id,u.name,u.referral_code,u.created_at FROM p_users u JOIN sub ON sub.id=u.id WHERE lower(u.name) LIKE ? ESCAPE '\\' OR u.referral_code=? ORDER BY u.created_at LIMIT 20`,viewer,like,q);
   return all(
     `WITH RECURSIVE sub(id) AS (SELECT id FROM p_users WHERE parent_id=? UNION ALL SELECT u.id FROM p_users u JOIN sub s ON u.parent_id=s.id)
      SELECT u.id,u.name,u.referral_code,u.created_at FROM p_users u JOIN sub ON sub.id=u.id

@@ -3,6 +3,8 @@ import { formatDate } from "../i18n/core";
 export type RecordData = Record<string, any>;
 export const errors: Record<string, string> = {
   self_payment_review: "نمی‌توانید پرداخت مربوط به حساب خودتان را بررسی کنید.",
+  direct_capacity_reached: "ظرفیت معرفی مستقیم شما تکمیل است. با خرید و فعال‌شدن جایگاه بعدی، ظرفیت افزایش می‌یابد.",
+  direct_position_locked: "جانمایی این عضو ثبت شده است؛ تغییر آن به بررسی سابقهٔ شبکه نیاز دارد.",
   second_approver_required: "این پرداخت باید توسط مدیر مجاز دیگری تأیید شود.",
   first_approval_required: "ابتدا یک مدیر مجاز باید تأیید نخست را ثبت کند.",
   ticket_limit:

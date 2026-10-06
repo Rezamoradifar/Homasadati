@@ -30,6 +30,6 @@ export const sevenCards = [
   minToman: cardMinimum(card.level),
   maxExclusiveToman: i === list.length - 1 ? null : cardMinimum(card.level + 1),
   desks: desksForPurchase(cardMinimum(card.level)),
-  branches: card.level + 1,
+  branches: Math.min(8, desksForPurchase(cardMinimum(card.level)) + 1),
   weeklyCapToman: desksForPurchase(cardMinimum(card.level)) * UPDATED_DESK_WEEKLY_CAP,
 }));

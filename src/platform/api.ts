@@ -1,3 +1,4 @@
+import { positionMode, assertDirectCapacity, bindDirect } from "./card-positions";
 import { parseAmount, validRate } from "./fx";
 import { cardPlan } from "./seven-card";
 import { operationsApi } from "./operations-api";
@@ -217,6 +218,7 @@ function signup(data: Row, ip: string) {
     if (data.referral) {
       sponsor = sponsorByCode(data.referral);
       if (!sponsor) throw new ApiError(400, "invalid_referral");
+      if (positionMode()) assertDirectCapacity(sponsor.id);
       const queue = [sponsor];
       for (let i = 0; i < queue.length && i < 10000; i++) {
         const candidate = queue[i];
@@ -250,6 +252,7 @@ function signup(data: Row, ip: string) {
       now(),
       ip,
     );
+    if (sponsor && positionMode()) bindDirect(sponsor.id,user);
     run("INSERT INTO p_wallets(user_id) VALUES(?)", user);
     run(
       "INSERT INTO p_identities VALUES(?,?,?,?)",

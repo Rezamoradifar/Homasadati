@@ -3234,5 +3234,20 @@
   "همانت": "Homanet",
   "خرید و سفارش‌ها": "Shopping and orders",
   "سفارش‌های من": "My orders",
-  "جزئیات خرید و سقف": "Purchase and cap details"
+  "جزئیات خرید و سقف": "Purchase and cap details",
+  "جایگاه‌های من": "My positions",
+  "ظرفیت معرفی مستقیم:": "Direct referral capacity:",
+  "جایگاه {0} {1}": "Position {0}: {1}",
+  "حجم و سیوینگ": "Volume and carryover",
+  "چپ:": "Left:",
+  "راست:": "Right:",
+  "سیوینگ راست:": "Right carryover:",
+  "دایرکت": "Direct referral",
+  "قفل": "Locked",
+  "هر ۱۰ میلیون تومان خرید واجد شرایط و پرداخت‌شده، یک جایگاه را روشن می‌کند. محاسبهٔ پورسانت پس از پایان مهلت برگشت خرید انجام می‌شود.": "Every 10 million toman in eligible paid purchases activates one position. Commissions are calculated after the purchase cancellation period ends.",
+  "با فعال‌سازی، محاسبه از بامداد دوشنبه به وقت تهران انجام می‌شود؛ پاداش هر هفته، هفتهٔ بعد آزاد می‌شود و موتور باینری قدیمی متوقف می‌شود. فقط خریدهایی حساب می‌شوند که بعد از فعال‌سازی پرداخت شده‌اند. پیش از فعال‌سازی، پیش‌نمایش را بررسی کنید.": "Once enabled, calculation starts at midnight on Monday in Tehran time. Each week's rewards are released the following week and the legacy binary engine stops. Only purchases paid after activation qualify. Review the preview before activation.",
+  "ظرفیت معرفی مستقیم شما تکمیل است. با خرید و فعال‌شدن جایگاه بعدی، ظرفیت افزایش می‌یابد.": "Your direct referral capacity is full. Activate the next position with a purchase to increase capacity.",
+  "جانمایی این عضو ثبت شده است؛ تغییر آن به بررسی سابقهٔ شبکه نیاز دارد.": "This member's placement is recorded. Changes require a review of the network history.",
+  "فروش هفته:": "Weekly sales:",
+  "مجموع فروش:": "Total sales:"
 }

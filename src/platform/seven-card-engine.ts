@@ -1,3 +1,4 @@
+import { positionMode, positionAncestors, positionVolume, positionDesks } from "./card-positions";
 import { updatedCardSchedule, mondayStart, UPDATED_DESK_WEEKLY_CAP } from "./card-schedule";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
@@ -109,6 +110,11 @@ function countOrders(cutoff: string) {
       notify(o.user_id, "بازگشت وجه کارت سیمرغ", `${cashback.toLocaleString("fa-IR")} تومان به کیف پول شما اضافه شد.`);
     }
     // A buyer's own order never creates commission volume on any of their desks.
+    if(positionMode()) {
+      for(const p of positionAncestors(o.user_id))
+        run("INSERT OR IGNORE INTO p_card_position_lots VALUES(?,?,?,?,?,?,?,0,?)",randomUUID(),o.id,p.user,p.desk,p.leg,o.amount,o.amount,now());
+      continue;
+    }
     const seen = new Set<string>([o.user_id]);
     let child = one("SELECT id,parent_id,leg FROM p_users WHERE id=?", o.user_id);
     while (child?.parent_id && !seen.has(child.parent_id)) {
@@ -123,15 +129,16 @@ function countOrders(cutoff: string) {
   return volume;
 }
 
-function takeVolume(user: string, leg: string, amount: number) {
+function takeVolume(user: string, leg: string, amount: number, desk?: number) {
+  const table = desk ? "p_card_position_lots" : "p_card_lots";
   const taken: { lot: string; volume: number }[] = [];
   for (const lot of all(
-    "SELECT id,remaining FROM p_card_lots WHERE user_id=? AND leg=? AND void=0 AND remaining>0 ORDER BY created_at,rowid",
-    user, leg,
+    `SELECT id,remaining FROM ${table} WHERE user_id=? AND leg=? ${desk ? "AND desk=?" : ""} AND void=0 AND remaining>0 ORDER BY created_at,rowid`,
+    user, leg, ...(desk ? [desk] : []),
   )) {
     if (!amount) break;
     const v = Math.min(amount, lot.remaining);
-    run("UPDATE p_card_lots SET remaining=remaining-? WHERE id=?", v, lot.id);
+    run(`UPDATE ${table} SET remaining=remaining-? WHERE id=?`, v, lot.id);
     taken.push({ lot: lot.id, volume: v });
     amount -= v;
   }
@@ -259,8 +266,8 @@ function settleUpdatedWeek(startMs: number) {
       const id = randomUUID();
       run("INSERT INTO p_card_matches VALUES(?,?,?,?,?,?,?,0,?)",id,m.user_id,desk,key,sequence,kind,gross,now());
       for (const leg of ["left","right"])
-        for (const t of takeVolume(m.user_id,leg,count * MATCH_VOLUME))
-          run("INSERT INTO p_card_match_allocations VALUES(?,?,?)",id,t.lot,t.volume);
+        for (const t of takeVolume(m.user_id,leg,count * MATCH_VOLUME,positionMode()?desk:undefined))
+          run(`INSERT INTO ${positionMode()?"p_card_position_allocations":"p_card_match_allocations"} VALUES(?,?,?)`,id,t.lot,t.volume);
       if (pay) {
         run("INSERT INTO p_card_due(match_id,user_id,kind,amount,release_at) VALUES(?,?,?,?,?)",id,m.user_id,kind,pay,new Date(cutoffMs + WEEK_MS).toISOString());
         if(kind === "cash") {ledger(m.user_id,"card-due:"+id,"card_reward_pending",id,0,pay);result.cash+=pay;}
@@ -269,11 +276,13 @@ function settleUpdatedWeek(startMs: number) {
       if (gross>pay) {run("INSERT INTO p_card_flush VALUES(?,?,?)",id,gross-pay,"weekly-cap");result.flushed+=gross-pay;}
       left -= count * MATCH_VOLUME;right -= count * MATCH_VOLUME;
     };
+    for(let pool=0;pool<(positionMode()?m.desks:1);pool++) {
+    if(positionMode()) {left=positionVolume(m.user_id,pool+1,"left");right=positionVolume(m.user_id,pool+1,"right");}
     while (left>=MATCH_VOLUME && right>=MATCH_VOLUME) {
-      const desk = allowance.findIndex((v)=>v>0);
+      const desk = positionMode() ? (allowance[pool]>0 ? pool : -1) : allowance.findIndex((v)=>v>0);
       if (desk<0) {
         const n = Math.floor(Math.min(left,right)/MATCH_VOLUME);
-        record(1,0,"cash",n*MATCH_REWARD,0,n);
+        record(positionMode()?pool+1:1,0,"cash",n*MATCH_REWARD,0,n);
         break;
       }
       const pay=Math.min(MATCH_REWARD,allowance[desk]);
@@ -283,6 +292,7 @@ function settleUpdatedWeek(startMs: number) {
       counters[desk]++;
       record(desk+1,sequence,kind,MATCH_REWARD,pay,1);
       allowance[desk]-=pay;budget-=pay;result.matches++;
+    }
     }
     counters.forEach((v,i)=>run("INSERT INTO p_card_desks VALUES(?,?,?) ON CONFLICT(user_id,desk) DO UPDATE SET matches=excluded.matches",m.user_id,i+1,v));
   }
@@ -371,8 +381,10 @@ export function reverseCardOrder(orderId: string) {
   if (!counted) return;
   const matches = all(
     `SELECT DISTINCT m.* FROM p_card_matches m JOIN p_card_match_allocations a ON a.match_id=m.id
-     JOIN p_card_lots l ON l.id=a.lot_id WHERE l.order_id=? AND m.void=0`,
-    orderId,
+     JOIN p_card_lots l ON l.id=a.lot_id WHERE l.order_id=? AND m.void=0
+     UNION SELECT DISTINCT m.* FROM p_card_matches m JOIN p_card_position_allocations a ON a.match_id=m.id
+     JOIN p_card_position_lots l ON l.id=a.lot_id WHERE l.order_id=? AND m.void=0`,
+    orderId, orderId,
   );
   for (const m of matches) {
     const due = one("SELECT * FROM p_card_due WHERE match_id=? AND status='pending'",m.id);
@@ -387,7 +399,10 @@ export function reverseCardOrder(orderId: string) {
     }
     for (const a of all("SELECT * FROM p_card_match_allocations WHERE match_id=?", m.id))
       run("UPDATE p_card_lots SET remaining=remaining+? WHERE id=? AND void=0", a.volume, a.lot_id);
+    for(const a of all("SELECT * FROM p_card_position_allocations WHERE match_id=?",m.id))
+      run("UPDATE p_card_position_lots SET remaining=remaining+? WHERE id=? AND void=0",a.volume,a.lot_id);
   }
+  run("UPDATE p_card_position_lots SET void=1,remaining=0 WHERE order_id=?",orderId);
   run("UPDATE p_card_lots SET void=1,remaining=0 WHERE order_id=?", orderId);
   const member = one("SELECT * FROM p_card_members WHERE user_id=?", counted.user_id);
   if (member) {
@@ -408,21 +423,21 @@ export function memberCardStatus(user: string) {
   const m = one("SELECT * FROM p_card_members WHERE user_id=?", user);
   const counters = all("SELECT desk,matches FROM p_card_desks WHERE user_id=? ORDER BY desk", user);
   const leg = (l: string) =>
-    one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0", user, l)!.n;
+    positionMode() ? positionVolume(user,1,l) : one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0", user, l)!.n;
   return {
     live: cardLive(),
     level: m?.level || 0,
-    desks: m?.desks || 0,
+    desks: positionMode() ? positionDesks(user) : m?.desks || 0,
     totalPurchase: m?.total || 0,
     paidPurchaseTotal: one("SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND refunded_at IS NULL AND status NOT IN ('refunded','cancelled')",user)!.n,
     pendingRewards: one("SELECT COALESCE(SUM(amount),0) n FROM p_card_due WHERE user_id=? AND status='pending'",user)!.n,
-    weeklyCapToman: (m?.desks || 0) * (updatedCardSchedule()? UPDATED_DESK_WEEKLY_CAP: DESK_WEEKLY_CAP),
+    weeklyCapToman: (positionMode() ? positionDesks(user) : m?.desks || 0) * (updatedCardSchedule()? UPDATED_DESK_WEEKLY_CAP: DESK_WEEKLY_CAP),
     leftVolume: leg("left"),
     rightVolume: leg("right"),
     deskCounters: counters,
     slots: Array.from({ length: DESKS_PER_MEMBER }, (_, index) => ({
       desk: index + 1,
-      active: index < (m?.desks || 0),
+      active: index < (positionMode() ? positionDesks(user) : m?.desks || 0),
       purchaseRequiredToman: (index + 1) * 10_000_000,
       matches: counters.find((counter) => counter.desk === index + 1)?.matches || 0,
     })),
