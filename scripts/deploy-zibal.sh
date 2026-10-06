@@ -74,14 +74,28 @@ cleanup() {
 }
 trap cleanup EXIT
 g worktree add --detach "$stage" "$old_head"
-git -c safe.directory="$stage" -C "$stage" -c user.name='Homay Deploy' -c user.email='deploy@homanets.com' merge --no-ff --no-edit "$release"
+if ! git -c safe.directory="$stage" -C "$stage" -c user.name='Homay Deploy' -c user.email='deploy@homanets.com' merge --no-ff --no-edit "$release"; then
+  conflicts="$(git -c safe.directory="$stage" -C "$stage" diff --name-only --diff-filter=U)"
+  # This file contains tests only. Preserve the server copy and use the release
+  # tests to validate the merged financial implementation before stopping services.
+  if [[ "$conflicts" != src/platform/seven-card-engine.test.ts ]]; then
+    echo 'STOP: merge requires review outside the known test file.'
+    exit 1
+  fi
+  cp "$stage/src/platform/seven-card-engine.test.ts" "$deploy_dir/seven-card-test-conflict.txt"
+  git -c safe.directory="$stage" -C "$stage" show "${old_head}:src/platform/seven-card-engine.test.ts" > "$deploy_dir/seven-card-server-test.ts"
+  git -c safe.directory="$stage" -C "$stage" show "${release}:src/platform/seven-card-engine.test.ts" > "$stage/src/platform/seven-card-engine.test.ts"
+  git -c safe.directory="$stage" -C "$stage" add -- src/platform/seven-card-engine.test.ts
+  git -c safe.directory="$stage" -C "$stage" -c user.name='Homay Deploy' -c user.email='deploy@homanets.com' commit --no-edit
+  echo 'Resolved test-only conflict; financial source merged without replacement.'
+fi
 target="$(git -c safe.directory="$stage" -C "$stage" rev-parse HEAD)"
 for config in .env .env.local .env.production .env.production.local; do
   if [[ -f "$app/$config" ]]; then cp "$app/$config" "$stage/$config"; chmod 600 "$stage/$config"; fi
 done
 chown -R homay:homay "$deploy_dir"
 chmod 700 "$deploy_dir"
-runuser -u homay -- nice -n 10 bash -c 'cd "$1" && npm ci --include=dev --no-audit --no-fund && npm run typecheck && DATABASE_PATH="$1/.deploy-validation.sqlite" npm run build' bash "$stage"
+runuser -u homay -- nice -n 10 bash -c 'cd "$1" && npm ci --include=dev --no-audit --no-fund && npm run typecheck && npm exec -- vitest run src/platform/seven-card-engine.test.ts src/platform/checkout.test.ts && DATABASE_PATH="$1/.deploy-validation.sqlite" npm run build' bash "$stage"
 [[ "$(g rev-parse HEAD)" == "$old_head" && "$(config_hash)" == "$initial_config" ]] || { echo 'STOP: source or config changed during build.'; exit 1; }
 systemctl stop homay.service homay-worker.service
 stopped=1
