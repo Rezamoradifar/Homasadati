@@ -1,3 +1,4 @@
+import { assertPurchasesOpen } from "./card-schedule";
 import { zibalRequest, zibalVerify } from "./zibal";
 export { paymentUrl } from "./zibal";
 import { randomInt, randomUUID } from "node:crypto";
@@ -200,6 +201,7 @@ export async function paymentRequest(
   ref: { kind: "order" | "checkout"; userId: string } = { kind: "order", userId: "" },
   method: string = "zarinpal",
 ) {
+  assertPurchasesOpen();
   if (method === "zibal") {
     const base = { gateway: "zibal", ref_kind: ref.kind, ref_id: orderId, user_id: ref.userId || null, amount };
     try {

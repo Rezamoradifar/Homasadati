@@ -84,11 +84,13 @@ export function AdminPayoutProfiles({ refresh, onChange }: { refresh: number; on
         {selected && (
           <Modal title="بررسی اطلاعات بانکی" onClose={() => setSelected(null)}>
             <p>
+              {selected.recipientType === "heir" ? "حساب وارث — " + selected.inheritanceReference : "حساب شخص — "}
               {selected.holderName} · کد ملی <span dir="ltr">{selected.nationalId}</span> · شبا{" "}
               <span dir="ltr">{selected.iban}</span>
             </p>
             <Form
               fields={[
+                {name:"ownershipReference",label:"مرجع بررسی تطابق کد ملی، نام و مالکیت حساب"},
                 {
                   name: "status",
                   label: "نتیجهٔ بررسی",

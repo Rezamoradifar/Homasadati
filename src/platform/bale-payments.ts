@@ -1,3 +1,4 @@
+import { assertPurchasesOpen } from "./card-schedule";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
 import { balePayClient, balePayConfig, balePayEnabled, safeRedirect, type BaleVerifyResult } from "./bale-pay";
@@ -42,6 +43,7 @@ function mark(id: string, from: string[], fields: Record<string, string | number
 /** Opens (or resumes) a Bale payment for the member's own pending checkout
  * and returns only the URL to send the customer to. */
 export async function startBalePayment(checkoutId: string, userId: string) {
+  assertPurchasesOpen();
   if (!balePayEnabled()) throw new ApiError(503, "payment_not_configured");
   const c = one("SELECT * FROM p_checkouts WHERE id=? AND user_id=?", checkoutId, userId);
   if (!c) throw new ApiError(404, "not_found");

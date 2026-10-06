@@ -1,3 +1,4 @@
+import { assertPurchasesOpen } from "./card-schedule";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { ApiError } from "../server/http";
@@ -41,6 +42,7 @@ export function createCheckout(
   input: z.infer<typeof checkoutSchema>,
 ) {
   return atomic(() => {
+    assertPurchasesOpen();
     const canonical = JSON.stringify({
       ...input,
       items: [...input.items].sort((a, b) =>
@@ -147,6 +149,7 @@ export function settleCheckout(checkoutId: string, reference: string) {
   });
 }
 export async function payCheckout(checkoutId: string, user: string) {
+  assertPurchasesOpen();
   const c = one(
     "SELECT * FROM p_checkouts WHERE id=? AND user_id=?",
     checkoutId,

@@ -11,6 +11,10 @@ type TreeNode = {
   joinedAt: string;
   active: boolean;
   personalVolume: number;
+  weeklyPersonalVolume: number;
+  weeklySales: number;
+  totalSales: number;
+  savings: {left:number;right:number};
   level: number;
   sponsoredByRoot: boolean;
   left: Leg;
@@ -44,6 +48,10 @@ function NodeCard({ n, onOpen, root }: { n: TreeNode; onOpen: (id: string) => vo
         {n.level ? " · کارت " + n.level.toLocaleString("fa-IR") : ""}
         {n.sponsoredByRoot && !root ? " · معرفی مستقیم" : ""}
       </small>
+      <small>خرید شخصی هفته: {amount(n.weeklyPersonalVolume)}</small>
+      <small>فروش شبکه این هفته: {amount(n.weeklySales)}</small>
+      <small>مجموع فروش شبکه: {amount(n.totalSales)}</small>
+      <small>سیوینگ چپ: {amount(n.savings.left)} · سیوینگ راست: {amount(n.savings.right)}</small>
       <span className="tree-legs">
         <span>چپ {n.left.members.toLocaleString("fa-IR")}</span>
         <span>راست {n.right.members.toLocaleString("fa-IR")}</span>

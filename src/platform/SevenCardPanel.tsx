@@ -13,6 +13,7 @@ const fields: Field[] = [
     required: false,
     options: [
       pending,
+      ["flush", "سوختن پورسانت مازاد سقف"],
       ["carry-whole", "انتقال تعادل کامل به هفته بعد"],
       ["split-reward", "تقسیم پاداش بین هفته‌ها"],
     ],
@@ -128,6 +129,10 @@ function MemberStatus({ status }: { status: RecordData }) {
           <dd>{amount(status.leftVolume)} تومان</dd>
           <dt>حجم سمت راست</dt>
           <dd>{amount(status.rightVolume)} تومان</dd>
+          <dt>پاداش در انتظار پرداخت</dt>
+          <dd>{amount(status.pendingRewards || 0)} تومان</dd>
+          <dt>سقف هفتگی جایگاه‌های روشن</dt>
+          <dd>{amount(status.weeklyCapToman || 0)} تومان</dd>
           <dt>موجودی ووچر</dt>
           <dd>{amount(status.voucherBalance)} تومان</dd>
         </dl>
@@ -249,6 +254,8 @@ function LivePanel({ plan, changed }: { plan: RecordData; changed: () => void })
                     <dd>{amount(preview.cash)} تومان</dd>
                     <dt>ووچر</dt>
                     <dd>{amount(preview.voucher)} تومان</dd>
+                    <dt>پورسانت سوختهٔ مازاد سقف</dt>
+                    <dd>{amount(preview.flushed || 0)} تومان</dd>
                   </dl>
                 )}
                 {d.weeks?.length ? (
@@ -392,6 +399,8 @@ export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
                           <dd>{amount(result.cash)}</dd>
                           <dt>ووچر خرید</dt>
                           <dd>{amount(result.voucher)}</dd>
+                          <dt>پورسانت سوختهٔ مازاد سقف</dt>
+                          <dd>{amount(result.flushed || 0)}</dd>
                           <dt>مانده سمت چپ</dt>
                           <dd>{amount(result.leftCarry)}</dd>
                           <dt>مانده سمت راست</dt>

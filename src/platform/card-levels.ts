@@ -1,13 +1,14 @@
 /** The eight club cards and their constants, without validation code, so
  * pages that only show the cards don't ship the schema library. */
 /** All amounts in this model are integer TOMAN, never rial. */
-export const CARD_PLAN_VERSION = "eight-cards-2026-10-05";
+export const CARD_PLAN_VERSION = "eight-cards-2026-10-06";
 export const MATCH_VOLUME = 30_000_000;
 export const MATCH_REWARD = 4_900_000;
 export const PURCHASE_PER_DESK = 10_000_000;
 export const DESKS_PER_MEMBER = 7;
 export const desksForPurchase = (amount: number) => Math.min(DESKS_PER_MEMBER, Math.floor(amount / PURCHASE_PER_DESK));
-export const DESK_WEEKLY_CAP = 15_000_000;
+export const DESK_WEEKLY_CAP = 15_000_000; // Legacy settlements retain their original rules.
+export const UPDATED_DESK_WEEKLY_CAP = 10_500_000;
 export const SIMURGH_CASHBACK = 6_000_000;
 export const TOP_CARD_LEVEL = 8;
 /** Cards 1–7 start every 10m toman; the Aria card starts at 100m. */
@@ -30,5 +31,5 @@ export const sevenCards = [
   maxExclusiveToman: i === list.length - 1 ? null : cardMinimum(card.level + 1),
   desks: desksForPurchase(cardMinimum(card.level)),
   branches: card.level + 1,
-  weeklyCapToman: desksForPurchase(cardMinimum(card.level)) * DESK_WEEKLY_CAP,
+  weeklyCapToman: desksForPurchase(cardMinimum(card.level)) * UPDATED_DESK_WEEKLY_CAP,
 }));

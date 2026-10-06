@@ -1,3 +1,4 @@
+import { assertPurchasesOpen } from "./card-schedule";
 // @vitest-environment node
 import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -15,6 +16,7 @@ import {
   setCardLive,
   voucherBalance,
   weekStartAt,
+  releaseCardRewards,
 } from "./seven-card-engine";
 import { cardPlan } from "./seven-card";
 
@@ -58,7 +60,7 @@ afterAll(() => {
   rmSync(directory, { recursive: true, force: true });
 });
 beforeEach(() => {
-  for (const t of ["p_card_payouts", "p_card_match_allocations", "p_card_matches", "p_card_lots", "p_card_desks", "p_card_members", "p_card_cashbacks", "p_card_orders", "p_card_weeks"])
+  for (const t of ["p_card_due", "p_card_flush", "p_card_payouts", "p_card_match_allocations", "p_card_matches", "p_card_lots", "p_card_desks", "p_card_members", "p_card_cashbacks", "p_card_orders", "p_card_weeks"])
     run(`DELETE FROM ${t}`);
   run("DELETE FROM p_settings WHERE key LIKE 'seven_card%'");
   saveSetting("commission_policy", JSON.stringify({
@@ -303,4 +305,44 @@ it("charges the gateway only the part vouchers do not cover, and returns the vou
 it("starts weeks on Saturday 00:00 Tehran time", () => {
   const start = weekStartAt(Date.parse("2026-09-23T12:00:00Z"), 6);
   expect(new Date(start).toISOString()).toBe("2026-09-18T20:30:00.000Z");
+});
+
+
+it("applies 10.5m cap, burns balanced surplus, releases only the following week and reverses pending rewards", () => {
+  saveSetting("seven_card_schedule_version","2026-10-06");
+  buy(root,10*M);
+  buy(left,120*M);
+  const rightOrder=buy(right,120*M);
+  const monday=weekStartAt(Date.now(),1);
+  const result=runCardSettlement(monday+7*DAY+3600000) as any[];
+  expect(result[0]).toMatchObject({cash:10_500_000,flushed:9_100_000});
+  expect(wallet(root)).toMatchObject({available:0,pending:10_500_000});
+  expect(memberCardStatus(root)).toMatchObject({leftVolume:0,rightVolume:0});
+  expect(releaseCardRewards(monday+14*DAY-1)).toBe(0);
+  refundOrder(rightOrder.id,admin,true,"refund before payout");
+  expect(wallet(root)).toMatchObject({available:0,pending:0,debt:0});
+  expect(releaseCardRewards(monday+14*DAY)).toBe(0);
+});
+it("counts every eighth reward across desks as voucher and releases both kinds exactly once", () => {
+  saveSetting("seven_card_schedule_version","2026-10-06");
+  buy(root,30*M);buy(left,300*M);buy(right,300*M);
+  const monday=weekStartAt(Date.now(),1);
+  const result=runCardSettlement(monday+7*DAY+3600000) as any[];
+  expect(result[0]).toMatchObject({cash:26_600_000,voucher:4_900_000,flushed:17_500_000});
+  expect(voucherBalance(root)).toBe(0);
+  expect(wallet(root).available).toBe(0);
+  expect(releaseCardRewards(monday+14*DAY)).toBe(9);
+  expect(wallet(root)).toMatchObject({pending:0,available:26_600_000});
+  expect(voucherBalance(root)).toBe(4_900_000);
+  expect(releaseCardRewards(monday+14*DAY)).toBe(0);
+});
+
+it("closes purchases at Monday midnight until the previous week is calculated",()=>{
+ saveSetting("seven_card_schedule_version","2026-10-06");
+ const monday=weekStartAt(Date.now(),1), boundary=monday+7*DAY;
+ expect(()=>assertPurchasesOpen(boundary-1)).not.toThrow();
+ expect(()=>assertPurchasesOpen(boundary)).toThrow("weekly_calculation_in_progress");
+ runCardSettlement(boundary);
+ expect(()=>assertPurchasesOpen(boundary)).not.toThrow();
+ expect(()=>assertPurchasesOpen(boundary+7*DAY)).toThrow("weekly_calculation_in_progress");
 });

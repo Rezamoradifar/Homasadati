@@ -1,3 +1,6 @@
+import { verifiedIban } from "./payout-profile";
+import { updatedCardSchedule } from "./card-schedule";
+import { assertPurchasesOpen } from "./card-schedule";
 import { restoreOrderVoucher, reverseCardOrder } from "./seven-card-engine";
 import {
   paymentActor,
@@ -525,6 +528,7 @@ export function createOrder(
   charge = true, // false: the checkout collects payment itself (voucher + wallet)
 ) {
   return atomic(() => {
+    assertPurchasesOpen();
     const existing = one(
       "SELECT * FROM p_orders WHERE user_id=? AND idem_key=?",
       user,
@@ -742,6 +746,7 @@ export function requestWithdrawal(
         throw new ApiError(409, "idempotency_conflict");
       return old;
     }
+    if(updatedCardSchedule() && verifiedIban(user)!==iban) throw new ApiError(403,"payout_profile_required");
     const p = policy();
     payoutGuard();
     mature();
@@ -775,6 +780,7 @@ export function reviewWithdrawal(
   return atomic(() => {
     const w = one("SELECT * FROM p_withdrawals WHERE id=?", id);
     if (!w) throw new ApiError(404, "not_found");
+    if(updatedCardSchedule() && action!=="rejected" && verifiedIban(w.user_id)!==w.iban) throw new ApiError(403,"payout_profile_required");
     paymentActor(actor, "withdrawals", w.user_id);
     if (w.status === action) {
       if (action === "paid" && w.bank_reference !== reference)

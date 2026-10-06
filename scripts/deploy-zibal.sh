@@ -42,11 +42,15 @@ old_node=0
 old_build=0
 new_node=0
 new_build=0
+schedule_changed=0
 cleanup() {
   result=$?
   trap - EXIT
   unset merchant
   if ((result != 0 && stopped == 1)); then
+    if ((schedule_changed)) && [[ -f "$deploy_dir/card-schedule-before.json" ]]; then
+      runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production node --import tsx scripts/configure-card-schedule.ts --restore "$2"' bash "$app" "$deploy_dir/card-schedule-before.json" || { echo 'Schedule rollback needs review; services remain stopped.'; exit "$result"; }
+    fi
     if ((advanced)); then
       g reset --merge "$old_head" || { echo 'Source rollback needs review; services remain stopped.'; exit "$result"; }
     fi
@@ -94,6 +98,8 @@ new_node=1
 mv "$stage/.next" "$app/.next"
 new_build=1
 runuser -u homay -- bash -c 'cd "$1" && npm run platform:setup' bash "$app"
+schedule_changed=1
+runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production node --import tsx scripts/configure-card-schedule.ts "$2"' bash "$app" "$deploy_dir/card-schedule-before.json"
 if [[ -n "$merchant" ]]; then
 printf '%s' "$merchant" | runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production npx tsx scripts/configure-zibal.ts' bash "$app"
 fi

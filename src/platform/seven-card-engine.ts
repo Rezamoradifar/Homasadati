@@ -1,3 +1,4 @@
+import { updatedCardSchedule, mondayStart, UPDATED_DESK_WEEKLY_CAP } from "./card-schedule";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
@@ -239,6 +240,70 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
   return result;
 }
 
+/** Updated weekly rules. Historical settlements remain immutable. */
+function settleUpdatedWeek(startMs: number) {
+  const key = weekKey(startMs), cutoffMs = startMs + WEEK_MS;
+  const cutoff = new Date(cutoffMs).toISOString();
+  if (one("SELECT week FROM p_card_weeks WHERE week=?", key)) return null;
+  let sales = 0, batchSales = 0;
+  do {batchSales = countOrders(cutoff);sales += batchSales;} while(batchSales > 0);
+  const unlimited = unlimitedBudget();
+  let budget = unlimited ? Number.MAX_SAFE_INTEGER : Math.floor(sales * fundingBps() / 10000) + Number(setting("seven_card_budget_carry") || 0);
+  const result = { week:key,sales,budget:unlimited ? 0 : budget,matches:0,cash:0,voucher:0,flushed:0 };
+  for (const m of all("SELECT m.* FROM p_card_members m JOIN p_users u ON u.id=m.user_id WHERE m.desks>0 AND u.blocked=0 ORDER BY m.user_id")) {
+    const volume = (leg: string) => one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0",m.user_id,leg)!.n;
+    let left = volume("left"), right = volume("right");
+    const allowance = Array.from({length:m.desks},()=>UPDATED_DESK_WEEKLY_CAP);
+    const counters = Array.from({length:m.desks},(_,i)=>one("SELECT matches FROM p_card_desks WHERE user_id=? AND desk=?",m.user_id,i+1)?.matches || 0);
+    const record = (desk:number, sequence:number, kind:string, gross:number, pay:number, count:number) => {
+      const id = randomUUID();
+      run("INSERT INTO p_card_matches VALUES(?,?,?,?,?,?,?,0,?)",id,m.user_id,desk,key,sequence,kind,gross,now());
+      for (const leg of ["left","right"])
+        for (const t of takeVolume(m.user_id,leg,count * MATCH_VOLUME))
+          run("INSERT INTO p_card_match_allocations VALUES(?,?,?)",id,t.lot,t.volume);
+      if (pay) {
+        run("INSERT INTO p_card_due(match_id,user_id,kind,amount,release_at) VALUES(?,?,?,?,?)",id,m.user_id,kind,pay,new Date(cutoffMs + WEEK_MS).toISOString());
+        if(kind === "cash") {ledger(m.user_id,"card-due:"+id,"card_reward_pending",id,0,pay);result.cash+=pay;}
+        else result.voucher+=pay;
+      }
+      if (gross>pay) {run("INSERT INTO p_card_flush VALUES(?,?,?)",id,gross-pay,"weekly-cap");result.flushed+=gross-pay;}
+      left -= count * MATCH_VOLUME;right -= count * MATCH_VOLUME;
+    };
+    while (left>=MATCH_VOLUME && right>=MATCH_VOLUME) {
+      const desk = allowance.findIndex((v)=>v>0);
+      if (desk<0) {
+        const n = Math.floor(Math.min(left,right)/MATCH_VOLUME);
+        record(1,0,"cash",n*MATCH_REWARD,0,n);
+        break;
+      }
+      const pay=Math.min(MATCH_REWARD,allowance[desk]);
+      if(budget<pay) break; // Funding shortage is never mislabeled as a cap flush.
+      const sequence=counters.reduce((a,b)=>a+b,0)+1;
+      const kind=sequence%8===0 ? "voucher":"cash";
+      counters[desk]++;
+      record(desk+1,sequence,kind,MATCH_REWARD,pay,1);
+      allowance[desk]-=pay;budget-=pay;result.matches++;
+    }
+    counters.forEach((v,i)=>run("INSERT INTO p_card_desks VALUES(?,?,?) ON CONFLICT(user_id,desk) DO UPDATE SET matches=excluded.matches",m.user_id,i+1,v));
+  }
+  saveSetting("seven_card_budget_carry",String(unlimited?0:budget));
+  run("INSERT INTO p_card_weeks VALUES(?,?,?,?,?,?,?,?)",key,cutoff,sales,result.budget,result.matches,result.cash,result.voucher,now());
+  return result;
+}
+export function releaseCardRewards(nowMs=Date.now()) {
+  return atomic(()=>{
+    let released=0;
+    for(const due of all("SELECT d.*,m.week FROM p_card_due d JOIN p_card_matches m ON m.id=d.match_id JOIN p_users u ON u.id=d.user_id WHERE d.status='pending' AND d.release_at<=? AND m.void=0 AND u.blocked=0",new Date(nowMs).toISOString())) {
+      const id=randomUUID();
+      run("INSERT INTO p_card_payouts VALUES(?,?,?,?,?,?,?)",id,due.match_id,due.user_id,due.week,due.kind,due.amount,now());
+      if(due.kind==='voucher') voucherEntry(due.user_id,"card-payout:"+id,"earn",due.match_id,due.amount);
+      else {const debt=Math.min(wallet(due.user_id).debt,due.amount);ledger(due.user_id,"card-release:"+due.match_id,"card_reward",due.match_id,due.amount-debt,-due.amount,0,-debt);}
+      run("UPDATE p_card_due SET status='released' WHERE match_id=?",due.match_id);released++;
+    }
+    return released;
+  });
+}
+
 /** Members owed a split remainder who are not already in this week's list. */
 function owedMembers(listed: Row[]) {
   const seen = new Set(listed.map((m) => m.user_id));
@@ -271,13 +336,16 @@ export function runCardSettlement(nowMs = Date.now()) {
   if (!cardLive()) return [];
   const d = decisions();
   if (!d) return [];
-  const current = weekStartAt(nowMs, d.weekStart!);
+  if (updatedCardSchedule()) releaseCardRewards(nowMs);
+  const weekday = updatedCardSchedule() ? 1 : d.weekStart!;
+  const current = weekStartAt(nowMs, weekday);
   const since = Number(setting("seven_card_live_since") || current);
   const out = [];
-  for (let start = weekStartAt(since, d.weekStart!); start < current && out.length < 4; start += WEEK_MS) {
-    const r = atomic(() => settleWeekTx(start, d));
+  for (let start = weekStartAt(since, weekday); start < current && out.length < 4; start += WEEK_MS) {
+    const r = atomic(() => updatedCardSchedule() ? settleUpdatedWeek(start) : settleWeekTx(start, d));
     if (r) out.push(r);
   }
+  if (updatedCardSchedule()) releaseCardRewards(nowMs);
   return out;
 }
 
@@ -285,10 +353,10 @@ export function runCardSettlement(nowMs = Date.now()) {
 export function previewCardSettlement(nowMs = Date.now()) {
   const d = decisions();
   if (!d) throw new ApiError(409, "plan_rules_incomplete");
-  const start = weekStartAt(nowMs, d.weekStart!);
+  const start = weekStartAt(nowMs, updatedCardSchedule() ? 1 : d.weekStart!);
   try {
     atomic(() => {
-      throw new DryRun(settleWeekTx(start, d));
+      throw new DryRun(updatedCardSchedule() ? settleUpdatedWeek(start) : settleWeekTx(start, d));
     });
   } catch (e) {
     if (e instanceof DryRun) return e.result;
@@ -307,6 +375,8 @@ export function reverseCardOrder(orderId: string) {
     orderId,
   );
   for (const m of matches) {
+    const due = one("SELECT * FROM p_card_due WHERE match_id=? AND status='pending'",m.id);
+    if(due) {if(due.kind==='cash') ledger(due.user_id,"card-due-cancel:"+m.id,"card_reward_reversal",m.id,0,-due.amount);run("UPDATE p_card_due SET status='cancelled' WHERE match_id=?",m.id);}
     run("UPDATE p_card_matches SET void=1 WHERE id=?", m.id);
     for (const p of all("SELECT * FROM p_card_payouts WHERE match_id=?", m.id)) {
       if (p.kind === "voucher") voucherEntry(p.user_id, "card-payout-reverse:" + p.id, "reverse", m.id, -p.amount);
@@ -344,6 +414,8 @@ export function memberCardStatus(user: string) {
     level: m?.level || 0,
     desks: m?.desks || 0,
     totalPurchase: m?.total || 0,
+    pendingRewards: one("SELECT COALESCE(SUM(amount),0) n FROM p_card_due WHERE user_id=? AND status='pending'",user)!.n,
+    weeklyCapToman: (m?.desks || 0) * (updatedCardSchedule()? UPDATED_DESK_WEEKLY_CAP: DESK_WEEKLY_CAP),
     leftVolume: leg("left"),
     rightVolume: leg("right"),
     deskCounters: counters,
@@ -388,6 +460,6 @@ export function setCardLive(
 }
 
 export function cardWeeks() {
-  return all("SELECT * FROM p_card_weeks ORDER BY week DESC LIMIT 52");
+  return all("SELECT w.*,COALESCE((SELECT SUM(f.amount) FROM p_card_flush f JOIN p_card_matches m ON m.id=f.match_id WHERE m.week=w.week AND m.void=0),0) flushed FROM p_card_weeks w ORDER BY week DESC LIMIT 52");
 }
 export type { Row };

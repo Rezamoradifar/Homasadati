@@ -1,3 +1,4 @@
+import { mondayStart } from "./card-schedule";
 import { ApiError } from "../server/http";
 import { all, one, Row } from "./schema";
 
@@ -13,6 +14,10 @@ export type TreeNode = {
   sponsoredByRoot: boolean;
   active: boolean;
   personalVolume: number;
+  weeklyPersonalVolume: number;
+  weeklySales: number;
+  totalSales: number;
+  savings: {left:number;right:number};
   level: number;
   left: LegStats;
   right: LegStats;
@@ -29,7 +34,7 @@ function legStats(parent: string, leg: "left" | "right", carry: number): LegStat
   const child = one("SELECT id FROM p_users WHERE parent_id=? AND leg=?", parent, leg);
   if (!child) return { members: 0, volume: 0, carry };
   const r = one(
-    `WITH RECURSIVE sub(id) AS (SELECT ? UNION ALL SELECT u.id FROM p_users u JOIN sub s ON u.parent_id=s.id)
+    `WITH RECURSIVE sub(id) AS (SELECT ? UNION SELECT u.id FROM p_users u JOIN sub s ON u.parent_id=s.id)
      SELECT (SELECT COUNT(*) FROM sub) members,
             (SELECT COALESCE(SUM(amount),0) FROM p_orders WHERE ${PAID} AND user_id IN (SELECT id FROM sub)) volume`,
     child.id,
@@ -51,6 +56,8 @@ function node(row: Row, rootId: string, depth: number, activeSince: string): Tre
     row.id,
   )!;
   const level = one("SELECT level FROM p_card_members WHERE user_id=?", row.id)?.level || 0;
+  const leftStats=legStats(row.id,"left",carryOf(row.id,"left"));
+  const rightStats=legStats(row.id,"right",carryOf(row.id,"right"));
   const kids = depth > 0 ? all("SELECT id,name,created_at,leg,sponsor_id FROM p_users WHERE parent_id=?", row.id) : [];
   const kid = (leg: string) => {
     const k = kids.find((c) => c.leg === leg);
@@ -64,9 +71,13 @@ function node(row: Row, rootId: string, depth: number, activeSince: string): Tre
     sponsoredByRoot: row.sponsor_id === rootId,
     active: !!personal.last && personal.last >= activeSince,
     personalVolume: personal.total,
+    weeklyPersonalVolume: one(`SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND ${PAID} AND paid_at>=?`,row.id,new Date(mondayStart(Date.now())).toISOString())!.n,
+    weeklySales: one(`WITH RECURSIVE sub(id) AS (SELECT ? UNION SELECT u.id FROM p_users u JOIN sub s ON u.parent_id=s.id) SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE ${PAID} AND user_id IN (SELECT id FROM sub) AND user_id!=? AND paid_at>=?`,row.id,row.id,new Date(mondayStart(Date.now())).toISOString())!.n,
+    totalSales: leftStats.volume + rightStats.volume,
+    savings: {left:carryOf(row.id,"left"),right:carryOf(row.id,"right")},
     level,
-    left: legStats(row.id, "left", carryOf(row.id, "left")),
-    right: legStats(row.id, "right", carryOf(row.id, "right")),
+    left: leftStats,
+    right: rightStats,
     children: depth > 0 ? { left: kid("left"), right: kid("right") } : null,
   };
 }

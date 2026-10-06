@@ -68,6 +68,8 @@ export function PayoutProfileCard({
         ) : editing ? (
           <Form
             fields={[
+              {name:"recipientType",label:"صاحب حساب",type:"select",options:[["self","خود شخص"],["heir","وارث قانونی"]]},
+              {name:"inheritanceReference",label:"مرجع مدرک وراثت (فقط برای وارث)",required:false},
               { name: "holderName", label: "نام و نام خانوادگی صاحب حساب" },
               { name: "nationalId", label: "کد ملی", hint: "۱۰ رقم", max: 10 },
               { name: "cardNumber", label: "شماره کارت", hint: "۱۶ رقم روی کارت بانکی", max: 19 },

@@ -1,3 +1,4 @@
+import { UPDATED_DESK_WEEKLY_CAP, updatedCardSchedule } from "./card-schedule";
 import { ApiError } from "../server/http";
 import { atomic } from "./schema";
 import { setting, saveSetting } from "./providers";
@@ -31,6 +32,10 @@ export function cardPlan() {
     matchVolumeToman: MATCH_VOLUME,
     matchRewardToman: MATCH_REWARD,
     ownPurchaseCommission: false,
+    deskWeeklyCapToman: UPDATED_DESK_WEEKLY_CAP,
+    scheduleVersion: updatedCardSchedule() ? "2026-10-06" : "legacy",
+    paymentDelayWeeks: updatedCardSchedule() ? 1 : 0,
+    officialIdentityInquiry: "not_configured",
     decisions,
     unresolved: Object.entries(decisions)
       .filter(([, value]) => value === null)
@@ -40,6 +45,7 @@ export function cardPlan() {
 export function saveCardPlan(actor: string, input: unknown) {
   const d = cardRulesUpdateSchema.parse(input);
   return atomic(() => {
+    if(updatedCardSchedule() && (d.decisions.overflow!=="flush" || d.decisions.counterScope!=="member" || d.decisions.voucherCountsTowardCap!==true || d.decisions.topology!=="own-desks" || d.decisions.purchaseCredit!=="purchase-value" || d.decisions.weekStart!==1)) throw new ApiError(409,"approved_plan_rules_required");
     const before = cardPlan();
     if (before.revision !== d.revision)
       throw new ApiError(409, "idempotency_conflict");

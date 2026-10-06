@@ -206,6 +206,7 @@ export function validateClient(path: string, method: string, data: unknown) {
             userId: id,
             status: z.enum(["verified", "rejected"]),
             reason: z.string().trim().max(500).default(""),
+            ownershipReference: z.string().trim().max(500).optional(),
           });
           break;
         case "withdrawals":

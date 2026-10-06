@@ -1141,9 +1141,10 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         userId: id,
         status: z.enum(["verified", "rejected"]),
         reason: z.string().trim().max(500).default(""),
+        ownershipReference: z.string().trim().max(500).optional(),
       })
       .parse(data);
-    return json(reviewPayoutProfile(u.id, d.userId, d.status, d.reason));
+    return json(reviewPayoutProfile(u.id, d.userId, d.status, d.reason, d.ownershipReference));
   }
   if (resource === "withdrawals") {
     if (get)

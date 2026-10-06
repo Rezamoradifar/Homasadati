@@ -136,7 +136,7 @@ describe("Panels use actual APIs and SQLite", () => {
     await waitFor(() => expect(JSON.parse(one("SELECT value FROM p_settings WHERE key='seven_card_plan_draft'")!.value).decisions.counterScope).toBe("desk"));
     await user.click(screen.getByRole("button", { name: "محاسبه" }));
     await screen.findByText("تعداد تعادل قابل پرداخت");
-    expect(screen.getByText("پاداش نقدی").nextElementSibling?.textContent).toContain("۱۴٬۷۰۰٬۰۰۰");
+    expect(screen.getByText("پاداش نقدی").nextElementSibling?.textContent).toContain("۱۰٬۵۰۰٬۰۰۰");
   });
 
   it("loads the member account and wallet in English while preserving the member name", async () => {

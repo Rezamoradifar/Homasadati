@@ -61,29 +61,30 @@ it("uses non-overlapping exact purchase boundaries and the eight levels", () => 
     expect(card.level).toBe(level);
     expect(card.desks).toBe(level);
     expect(card.branches).toBe(level + 1);
-    expect(card.weeklyCapToman).toBe(level * 15_000_000);
+    expect(card.weeklyCapToman).toBe(level * 10_500_000);
     if (level > 1)
       expect(cardForPurchase(level * 10_000_000 - 1)?.level).toBe(level - 1);
   }
   // Simurgh runs from 70m up to the Aria card at 100m.
   expect(cardForPurchase(99_999_999)?.level).toBe(7);
-  expect(cardForPurchase(100_000_000)).toMatchObject({ level: 8, desks: 7, weeklyCapToman: 105_000_000 });
+  expect(cardForPurchase(100_000_000)).toMatchObject({ level: 8, desks: 7, weeklyCapToman: 73_500_000 });
   expect(cardForPurchase(25_000_000)?.desks).toBe(2);
   expect(cardForPurchase(80_000_000)?.desks).toBe(7);
   expect(cardForPurchase(1_000_000_000_000)?.level).toBe(8);
   expect(() => cardForPurchase(10.5)).toThrow();
 });
-it("preserves the fourth whole match above the 15m desk cap", () => {
+it("caps the third reward at 10.5m and burns all balanced excess", () => {
   expect(previewCardMatches({ ...quote, left: 120_000_000, right: 120_000_000 })).toMatchObject({
     matches: 3,
-    cash: 14_700_000,
+    cash: 10_500_000,
     voucher: 0,
-    leftCarry: 30_000_000,
-    rightCarry: 30_000_000,
-    remainingWeeklyAllowance: 300_000,
+    leftCarry: 0,
+    rightCarry: 0,
+    remainingWeeklyAllowance: 0,
+    flushed: 9_100_000,
   });
   expect(
-    previewCardMatches({ ...quote, earnedThisWeek: 14_700_000 }).matches,
+    previewCardMatches({ ...quote, earnedThisWeek: 10_500_000 }).matches,
   ).toBe(0);
   expect(previewCardMatches({ ...quote, left: 29_999_999 }).matches).toBe(0);
 });
@@ -109,7 +110,7 @@ it("pays seven whole cash rewards and the eighth whole voucher across four weeks
   });
 });
 it("honors voucher cap choice, funding budget, and asymmetric carry", () => {
-  const d = { ...quote, previousMatches: 7, earnedThisWeek: 15_000_000 };
+  const d = { ...quote, previousMatches: 7, earnedThisWeek: 10_500_000 };
   expect(previewCardMatches(d).matches).toBe(0);
   expect(
     previewCardMatches({ ...d, voucherCountsTowardCap: false }),

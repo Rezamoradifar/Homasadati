@@ -1,3 +1,4 @@
+import { migrateCardSchedule } from "./migrate-card-schedule";
 import { migrateZibal } from "./migrate-zibal";
 import { migrateCardDesks } from "./migrate-card-desks";
 import { migrateLeather } from "./migrate-leather";
@@ -196,6 +197,7 @@ export function platformDb() {
   migratePaymentMethods(d);
   migrateZibal(d);
   migrateCardDesks(d);
+  migrateCardSchedule(d);
   ready = d;
   return d;
 }

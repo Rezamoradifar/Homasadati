@@ -57,6 +57,10 @@ it("counts members and paid volume per leg of the placement subtree", () => {
   expect(t.left).toMatchObject({ members: 3, volume: 3000 });
   expect(t.right).toMatchObject({ members: 1, volume: 4000 });
   expect(t.personalVolume).toBe(300);
+  expect(t.weeklyPersonalVolume).toBe(300);
+  expect(t.weeklySales).toBe(7000);
+  expect(t.totalSales).toBe(7000);
+  expect(t.savings).toEqual({left:0,right:0});
   expect(t.children!.left!.name).toBe("Ali");
   expect(t.children!.left!.children!.left!.sponsoredByRoot).toBe(true);
   expect(t.children!.left!.children!.right!.active).toBe(false);
