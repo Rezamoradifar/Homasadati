@@ -460,7 +460,7 @@ export function Listing({
 }) {
   const [q, setQ] = useState(""),
     [page, setPage] = useState(1);
-  const state = useData(endpoint + "?" + q + "&page=" + page, refresh);
+  const state = useData(endpoint + (endpoint.includes("?")?"&":"?") + q + "&page=" + page, refresh);
   return (
     <Localized><>
       <Filter

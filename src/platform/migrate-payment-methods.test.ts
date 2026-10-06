@@ -16,7 +16,7 @@ it("upgrades an existing database so orders and checkouts accept Bale, keeping e
   db.pragma("foreign_keys = OFF");
   for (const table of ["p_checkouts", "p_orders"]) {
     const sql = (db.prepare("SELECT sql FROM sqlite_master WHERE name=?").get(table) as { sql: string }).sql;
-    db.exec(sql.replace(table, table + "_old").replace(",'bale'", "").replace(",'zibal'", ""));
+    db.exec(sql.replace(table, table + "_old").replace(",'company_credit'", "").replace(",'bale'", "").replace(",'zibal'", ""));
     db.exec(`INSERT INTO ${table}_old SELECT * FROM ${table}; DROP TABLE ${table}; ALTER TABLE ${table}_old RENAME TO ${table};`);
   }
   const user = randomUUID();

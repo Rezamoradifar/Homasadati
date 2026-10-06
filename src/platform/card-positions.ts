@@ -1,3 +1,4 @@
+import {companyPositionStatus} from "./company-members";
 import { mondayStart, updatedCardSchedule } from "./card-schedule";
 import { ApiError } from "../server/http";
 import { all, one, run, now, atomic } from "./schema";
@@ -6,8 +7,8 @@ import { desksForPurchase } from "./card-levels";
 import { POSITION_PATHS, DIRECT_PATHS, directCapacity, directRoutes } from "./card-position-model";
 export const positionMode = () => setting("seven_card_position_version") === "aa-2026-10-06";
 /** Confirmed purchases light positions immediately; income waits for maturity. */
-export function positionDesks(user: string) {
-  return desksForPurchase(one("SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND paid_at>=? AND refunded_at IS NULL AND status NOT IN ('cancelled','refunded')",user,new Date(Number(setting("seven_card_live_since") || 0)).toISOString())!.n);
+export function positionDesks(user: string, at=Date.now()) {
+  return Math.max(companyPositionStatus(user,at)?.activeDesks || 0,desksForPurchase(one("SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND paid_at>=? AND refunded_at IS NULL AND status NOT IN ('cancelled','refunded') AND payment_method!='company_credit' AND paid_at<=?",user,new Date(Number(setting("seven_card_live_since") || 0)).toISOString(),new Date(at).toISOString())!.n));
 }
 export function assertDirectCapacity(sponsor: string, excluding?: string) {
   const count = one("SELECT COUNT(*) n FROM p_users WHERE sponsor_id=? AND id!=?",sponsor,excluding || "")!.n;
@@ -73,6 +74,6 @@ export function personalPositionTree(user: string) {
     weeklySales:one("SELECT COALESCE(SUM(l.volume),0) n FROM p_card_position_lots l JOIN p_orders o ON o.id=l.order_id WHERE l.user_id=? AND l.desk=? AND l.void=0 AND o.paid_at>=?",user,desk,new Date(mondayStart(Date.now())).toISOString())!.n,
     totalSales:positionVolume(user,desk,"left","volume")+positionVolume(user,desk,"right","volume"),
     savings:{left:positionVolume(user,desk,"left"),right:positionVolume(user,desk,"right")}});
-  return {version:"aa-2026-10-06",desks,directCapacity:directCapacity(desks),tree:build(1),
+  return {version:"aa-2026-10-06",member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),desks,directCapacity:directCapacity(desks),tree:build(1),
     directs:DIRECT_PATHS.map((path,i)=>({ordinal:i+1,path,enabled:i<directCapacity(desks),member:directs.find(d=>d.ordinal===i+1) || null}))};
 }

@@ -1,3 +1,4 @@
+import {companyCredit,companyPositionStatus,companyMemberView,manageCompanyMember} from "./company-members";
 import { officeAccess, grantOffice, officeChart, officeNetwork, requireOffice } from "./marketer-office";
 import { positionMode, assertDirectCapacity, bindDirect } from "./card-positions";
 import { parseAmount, validRate } from "./fx";
@@ -785,6 +786,12 @@ export function reports(from: string, to: string) {
 }
 async function admin(req: Request, path: string[], data: Row, url: URL) {
   const resource = path[1];
+  if (resource === "company-members") {
+    const owner=userOf(req,["superadmin"]);
+    if(req.method==="GET") return json(companyMemberView(id.parse(url.searchParams.get("userId"))));
+    if(req.method!=="POST") throw new ApiError(405,"method_not_allowed");
+    return json(manageCompanyMember(owner.id,data));
+  }
   if (resource === "marketer-office") {
     const owner = userOf(req, ["superadmin"]);
     if (req.method === "GET") { const target = id.parse(url.searchParams.get("userId")); return json(officeAccess(target)); }
@@ -1207,8 +1214,8 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     if (get)
       return json(
         paged(
-          "SELECT id,name,email,phone,role,blocked,created_at,last_seen,referral_code FROM p_users WHERE name LIKE ? OR email LIKE ? OR phone LIKE ? ORDER BY created_at DESC",
-          ["%" + q.q + "%", "%" + q.q + "%", "%" + q.q + "%"],
+          "SELECT id,name,email,phone,role,blocked,created_at,last_seen,referral_code FROM p_users WHERE (name LIKE ? OR email LIKE ? OR phone LIKE ?) AND (?=1 OR NOT EXISTS(SELECT 1 FROM p_archived_users a WHERE a.user_id=p_users.id)) ORDER BY created_at DESC",
+          ["%" + q.q + "%", "%" + q.q + "%", "%" + q.q + "%",Number(url.searchParams.get("archived")==="1")],
           q.page,
         ),
       );
@@ -1234,6 +1241,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         u.role !== "superadmin"
       )
         throw new ApiError(403, "forbidden");
+      if(d.blocked===false && one("SELECT user_id FROM p_archived_users WHERE user_id=?",d.id)) throw new ApiError(409,"invalid_state");
       run(
         "UPDATE p_users SET blocked=?,role=? WHERE id=?",
         d.blocked === undefined ? before.blocked : Number(d.blocked),
@@ -1471,7 +1479,7 @@ export async function handle(req: Request, path: string[]) {
     if (path.join("/") === "payment/bale/callback" && (get || method === "POST"))
       return await baleCallback(req, url);
     if (path.join("/") === "payment/methods" && get)
-      return json({ wallet: true, zarinpal: !!setting("zarinpal_merchant"), zibal: !!setting("zibal_merchant"), bale: balePayEnabled() });
+      return json({ company_credit:true, wallet: true, zarinpal: !!setting("zarinpal_merchant"), zibal: !!setting("zibal_merchant"), bale: balePayEnabled() });
     if (!get) {
       sameOrigin(req);
       data = await body(req, 65536);
@@ -1742,7 +1750,7 @@ export async function handle(req: Request, path: string[]) {
         return json(redeemReward(u.id, data), 201);
       throw new ApiError(405, "method_not_allowed");
     }
-    if (path[0] === "me" && get) return json({ user: { ...publicUser(u), marketerOffice: officeAccess(u.id) } });
+    if (path[0] === "me" && get) return json({ user: { ...publicUser(u), companyCreditToman:companyCredit(u.id),companyPositions:companyPositionStatus(u.id),marketerOffice: officeAccess(u.id) } });
     if (path[0] === "dashboard" && get) {
       const start = persianMonthStart();
       return json({
@@ -2110,7 +2118,7 @@ export async function handle(req: Request, path: string[]) {
         .object({
           productId: id,
           quantity: z.number().int().min(1).max(100),
-          method: z.enum(["wallet", "zarinpal", "zibal"]),
+          method: z.enum(["wallet", "zarinpal", "zibal", "company_credit"]),
           idempotencyKey: id,
         })
         .parse(data);

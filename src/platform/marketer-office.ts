@@ -38,7 +38,7 @@ export function officeChart(userId: string, input: unknown, now = Date.now()) {
   const relation = positionMode()
     ? "SELECT child_id id FROM p_card_direct_positions WHERE sponsor_id=? UNION SELECT d.child_id FROM p_card_direct_positions d JOIN sub ON d.sponsor_id=sub.id"
     : "SELECT id FROM p_users WHERE parent_id=? UNION SELECT u.id FROM p_users u JOIN sub ON u.parent_id=sub.id";
-  const orders = all(`WITH RECURSIVE sub(id) AS (${relation}) SELECT amount,paid_at,refunded_at FROM p_orders WHERE paid_at IS NOT NULL AND user_id IN (SELECT id FROM sub)`, userId);
+  const orders = all(`WITH RECURSIVE sub(id) AS (${relation}) SELECT amount,paid_at,refunded_at FROM p_orders WHERE payment_method!='company_credit' AND paid_at IS NOT NULL AND user_id IN (SELECT id FROM sub)`, userId);
   const events = q.series === "sales"
     ? orders.flatMap(row => [ {t: Date.parse(row.paid_at), d: row.amount}, ...(row.refunded_at ? [{t:Date.parse(row.refunded_at),d:-row.amount}] : []) ])
     : all("SELECT created_at,available_delta,pending_delta,debt_delta FROM p_ledger WHERE user_id=? AND kind IN ('commission','reversal','card_reward_pending','card_reward','card_reward_reversal')", userId).map(row => ({t:Date.parse(row.created_at),d:row.available_delta+row.pending_delta-row.debt_delta}));
@@ -58,7 +58,7 @@ export function officeNetwork(userId: string, root: string, depth: number) {
   // LIMIT inside the recursive CTE bounds traversal, not only the final response.
   const rows = all(`WITH RECURSIVE sub(id,depth) AS (SELECT ?,0 UNION ALL ${join} LIMIT 201)
     SELECT u.id,u.name,u.referral_code,sub.depth,
-    (SELECT COALESCE(SUM(amount),0) FROM p_orders WHERE user_id=u.id AND paid_at IS NOT NULL AND refunded_at IS NULL) personalVolume
+    (SELECT COALESCE(SUM(amount),0) FROM p_orders WHERE user_id=u.id AND paid_at IS NOT NULL AND refunded_at IS NULL AND payment_method!='company_credit') personalVolume
     FROM sub JOIN p_users u ON u.id=sub.id ORDER BY sub.depth,u.id`,root,d);
   return { ...access,root,depth:d,path,rows:rows.slice(0,200),truncated:rows.length>200 };
 }

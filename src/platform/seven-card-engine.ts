@@ -81,7 +81,7 @@ function countOrders(cutoff: string) {
   // sales are not paid out retroactively.
   const since = new Date(Number(setting("seven_card_live_since") || 0)).toISOString();
   const orders = all(
-    `SELECT o.* FROM p_orders o WHERE o.paid_at IS NOT NULL AND o.paid_at>=? AND o.refunded_at IS NULL
+    `SELECT o.* FROM p_orders o WHERE o.payment_method!='company_credit' AND o.paid_at IS NOT NULL AND o.paid_at>=? AND o.refunded_at IS NULL
      AND o.status NOT IN ('refunded','cancelled') AND o.cancel_until IS NOT NULL AND o.cancel_until<=?
      AND NOT EXISTS(SELECT 1 FROM p_card_orders c WHERE c.order_id=o.id)
      ORDER BY o.cancel_until,o.id LIMIT 2000`,
@@ -257,7 +257,9 @@ function settleUpdatedWeek(startMs: number) {
   const unlimited = unlimitedBudget();
   let budget = unlimited ? Number.MAX_SAFE_INTEGER : Math.floor(sales * fundingBps() / 10000) + Number(setting("seven_card_budget_carry") || 0);
   const result = { week:key,sales,budget:unlimited ? 0 : budget,matches:0,cash:0,voucher:0,flushed:0 };
-  for (const m of all("SELECT m.* FROM p_card_members m JOIN p_users u ON u.id=m.user_id WHERE m.desks>0 AND u.blocked=0 ORDER BY m.user_id")) {
+  for (const m of all("SELECT u.id user_id,COALESCE(m.desks,0) desks FROM p_users u LEFT JOIN p_card_members m ON m.user_id=u.id WHERE u.blocked=0 AND (m.desks>0 OR EXISTS(SELECT 1 FROM p_company_positions g WHERE g.user_id=u.id)) ORDER BY u.id")) {
+    if(positionMode()) m.desks=positionDesks(m.user_id,Math.min(cutoffMs,Date.now()));
+    if(!m.desks) continue;
     const volume = (leg: string) => one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0",m.user_id,leg)!.n;
     let left = volume("left"), right = volume("right");
     const allowance = Array.from({length:m.desks},()=>UPDATED_DESK_WEEKLY_CAP);

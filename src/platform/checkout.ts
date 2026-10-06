@@ -59,6 +59,7 @@ export function createCheckout(
         throw new ApiError(409, "idempotency_conflict");
       return old;
     }
+    if(input.method==="company_credit" && input.useVoucher) throw new ApiError(400,"invalid_input");
     const quote = quoteCart(input.items);
     if (quote.total !== input.expectedTotal)
       throw new ApiError(409, "price_changed");
@@ -92,7 +93,7 @@ export function createCheckout(
       user,
       cashDue > 0 ? cashDue : quote.total,
       input.method,
-      input.method === "wallet" && !voucherUse ? "paid" : "pending",
+      ["wallet","company_credit"].includes(input.method) && !voucherUse ? "paid" : "pending",
       canonical,
       created,
       expires,

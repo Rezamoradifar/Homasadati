@@ -17,7 +17,7 @@ export const cartItemsSchema = z
 export const checkoutSchema = z
   .object({
     items: cartItemsSchema,
-    method: z.enum(["wallet", "zarinpal", "zibal", "bale"]),
+    method: z.enum(["wallet", "zarinpal", "zibal", "bale", "company_credit"]),
     idempotencyKey: z.string().uuid(),
     expectedTotal: z.number().int().min(1).max(1e12),
     addressId: z.string().uuid().optional(),

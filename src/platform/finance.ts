@@ -1,3 +1,4 @@
+import {creditEntry} from "./company-members";
 import { positionMode } from "./card-positions";
 import { verifiedIban } from "./payout-profile";
 import { updatedCardSchedule } from "./card-schedule";
@@ -135,13 +136,13 @@ export function descendants(root: string) {
 }
 export function sales(user: string, since = "0000", until = "9999") {
   const personal = one(
-    "SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL",
+    "SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE payment_method!='company_credit' AND user_id=? AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL",
     user,
     since,
     until,
   )!.n;
   const group = one(
-    `WITH RECURSIVE team(id) AS (SELECT id FROM p_users WHERE sponsor_id=? UNION SELECT u.id FROM p_users u JOIN team t ON u.sponsor_id=t.id) SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id IN (SELECT id FROM team WHERE id!=?) AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL`,
+    `WITH RECURSIVE team(id) AS (SELECT id FROM p_users WHERE sponsor_id=? UNION SELECT u.id FROM p_users u JOIN team t ON u.sponsor_id=t.id) SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE payment_method!='company_credit' AND user_id IN (SELECT id FROM team WHERE id!=?) AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL`,
     user,
     user,
     since,
@@ -174,7 +175,7 @@ export function rankProgress(user: string) {
 }
 export function health(from = "0000", to = "9999") {
   const revenue = one(
-    "SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE paid_at>=? AND paid_at<=? AND refunded_at IS NULL",
+    "SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE payment_method!='company_credit' AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL",
     from,
     to,
   )!.n;
@@ -469,16 +470,16 @@ export function settleOrder(orderId: string, reference: string) {
       o.id,
     );
     const saved = one("SELECT * FROM p_orders WHERE id=?", o.id)!;
-    calculateCommissions(saved);
+    if(saved.payment_method!=="company_credit") calculateCommissions(saved);
     const schedule = JSON.parse(saved.policy).binarySchedule;
-    if (schedule && schedule.mode !== "immediate")
+    if (saved.payment_method!=="company_credit" && schedule && schedule.mode !== "immediate")
       run(
         "INSERT OR IGNORE INTO p_binary_scheduled_orders(order_id,schedule,paid_at) VALUES(?,?,?)",
         saved.id,
         JSON.stringify(schedule),
         saved.paid_at,
       );
-    accrueOrderPoints(saved);
+    if(saved.payment_method!=="company_credit") accrueOrderPoints(saved);
     recordMerchantSale(saved);
     if (o.vertical === "ai") {
       const last = one(
@@ -603,6 +604,10 @@ export function createOrder(
       now(),
       idem,
     );
+    if(charge && method === "company_credit") {
+      creditEntry(user,"purchase:"+id,-amount,id);
+      return settleOrder(id,"company-credit:"+id);
+    }
     if (charge && method === "wallet") {
       ledger(user, "purchase:" + id, "purchase", id, -amount);
       return settleOrder(id, "wallet:" + id);
@@ -700,7 +705,8 @@ export function refundOrder(
     reverseMerchantSale(orderId);
     reverseCardOrder(orderId);
     const voucherPart = restoreOrderVoucher(orderId);
-    if (o.paid_at && o.amount > voucherPart)
+    if(o.paid_at && o.payment_method==="company_credit") creditEntry(o.user_id,"refund:"+orderId,o.amount,orderId);
+    else if (o.paid_at && o.amount > voucherPart)
       credit(o.user_id, "refund:" + orderId, "refund", orderId, o.amount - voucherPart);
     run(
       "UPDATE p_products SET stock=stock+? WHERE id=?",

@@ -1,3 +1,4 @@
+import {reviewCompanyPositions} from "./company-members";
 import { runBinaryCycles } from "./binary-schedule";
 import { matureMerchantSales } from "./merchant-operations";
 import { matureLoyalty, expirePoints } from "./loyalty-engine";
@@ -15,6 +16,7 @@ import { recheckPendingBalePayments } from "./bale-payments";
 import { isWelcomeJob, welcomeEmail } from "./welcome";
 export async function maintenance() {
   await refreshUsdRate();
+  reviewCompanyPositions();
   runCardSettlement();
   runBinaryCycles();
   atomic(() => {

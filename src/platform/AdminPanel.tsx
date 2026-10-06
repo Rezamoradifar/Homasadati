@@ -1,4 +1,5 @@
 "use client";
+import {CompanyMemberControls} from "./CompanyMemberControls";
 
 import { OfficeAccessEditor } from "./MarketerOffice";
 import { AdminPayoutProfiles } from "./AdminPayoutProfiles";
@@ -948,6 +949,7 @@ export function AdminUsers({
   const { locale } = useSiteLocale();
 
   const [selected, setSelected] = useState<RecordData | null>(null);
+  const [showArchived,setShowArchived]=useState(false);
   const detail = useData(
     selected?.id ? "admin/users/" + selected.id : "",
     refresh,
@@ -955,8 +957,9 @@ export function AdminUsers({
   return (
     <Localized>
       <>
+        <label><input type="checkbox" checked={showArchived} onChange={e=>setShowArchived(e.target.checked)}/>نمایش حساب‌های حذف‌شده همراه کاربران</label>
         <Listing
-          endpoint="admin/users"
+          endpoint={showArchived?"admin/users?archived=1":"admin/users"}
           refresh={refresh}
           columns={[
             ["name", "نام"],
@@ -976,6 +979,7 @@ export function AdminUsers({
         />
         {selected && (
           <Modal title={selected.name} onClose={() => setSelected(null)}>
+            {role === "superadmin" && <CompanyMemberControls key={"company-"+selected.id} userId={selected.id} onChange={onChange}/> }
             {role === "superadmin" && <OfficeAccessEditor key={selected.id} userId={selected.id} onChange={onChange} />}
             <DataState state={detail}>
               {(d) => (

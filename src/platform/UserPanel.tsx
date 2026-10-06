@@ -412,6 +412,7 @@ export function Wallet({
           <div className="portal-stats">
             <Stat label="قابل برداشت" value={d.wallet.available} />
             <Stat label="در انتظار تسویه" value={d.wallet.pending} />
+            <Stat label="اعتبار خرید شرکت" value={user.companyCreditToman || 0} />
             <Stat label="رزروشده برای برداشت" value={d.wallet.held} />
             <Stat label="بدهی برگشت پورسانت" value={d.wallet.debt} />
           </div>

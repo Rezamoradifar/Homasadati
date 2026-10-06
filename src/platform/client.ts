@@ -193,6 +193,7 @@ export const labels: Record<string, string> = {
   content: "مدیر محتوا",
   support: "پشتیبانی",
   finance: "مدیر مالی",
+  company_credit: "اعتبار خرید شرکت",
   wallet: "کیف پول",
   zarinpal: "زرین‌پال",
   zibal: "زیبال",

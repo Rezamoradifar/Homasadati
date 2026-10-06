@@ -29,7 +29,7 @@ type LegStats = { members: number; volume: number; carry: number };
 const ACTIVE_DAYS = 30;
 
 /** Paid, not refunded orders; the same filter the commission engine uses. */
-const PAID = "paid_at IS NOT NULL AND refunded_at IS NULL";
+const PAID = "paid_at IS NOT NULL AND refunded_at IS NULL AND payment_method!='company_credit'";
 
 function legStats(parent: string, leg: "left" | "right", carry: number): LegStats {
   const child = one("SELECT id FROM p_users WHERE parent_id=? AND leg=?", parent, leg);

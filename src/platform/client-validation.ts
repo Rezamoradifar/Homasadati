@@ -112,7 +112,7 @@ export function validateClient(path: string, method: string, data: unknown) {
       schema = z.object({
         productId: id,
         quantity: z.number().int().min(1).max(100),
-        method: z.enum(["wallet", "zarinpal", "zibal"]),
+        method: z.enum(["wallet", "zarinpal", "zibal", "company_credit"]),
         idempotencyKey: id,
       });
     else {

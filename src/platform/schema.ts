@@ -1,3 +1,4 @@
+import {migrateCompanyCredit} from "./migrate-company-credit";
 import { migrateCardSchedule } from "./migrate-card-schedule";
 import { migrateZibal } from "./migrate-zibal";
 import { migrateCardDesks } from "./migrate-card-desks";
@@ -32,9 +33,16 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_ledger(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),event_key TEXT NOT NULL UNIQUE,kind TEXT NOT NULL,available_delta INTEGER NOT NULL,pending_delta INTEGER NOT NULL,held_delta INTEGER NOT NULL,debt_delta INTEGER NOT NULL,reference TEXT NOT NULL,created_at TEXT NOT NULL);
   CREATE TRIGGER IF NOT EXISTS p_ledger_no_update BEFORE UPDATE ON p_ledger BEGIN SELECT RAISE(ABORT,'immutable ledger'); END;
   CREATE TRIGGER IF NOT EXISTS p_ledger_no_delete BEFORE DELETE ON p_ledger BEGIN SELECT RAISE(ABORT,'immutable ledger'); END;
+  CREATE TABLE IF NOT EXISTS p_company_credit(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),event_key TEXT NOT NULL UNIQUE,delta INTEGER NOT NULL,reference TEXT NOT NULL,created_at TEXT NOT NULL);
+  CREATE TRIGGER IF NOT EXISTS p_company_credit_no_update BEFORE UPDATE ON p_company_credit BEGIN SELECT RAISE(ABORT,'immutable company credit'); END;
+  CREATE TRIGGER IF NOT EXISTS p_company_credit_no_delete BEFORE DELETE ON p_company_credit BEGIN SELECT RAISE(ABORT,'immutable company credit'); END;
+  CREATE INDEX IF NOT EXISTS p_company_credit_user ON p_company_credit(user_id);
+  CREATE TABLE IF NOT EXISTS p_company_positions(user_id TEXT PRIMARY KEY REFERENCES p_users(id),desks INTEGER NOT NULL CHECK(desks BETWEEN 1 AND 7),granted_at TEXT NOT NULL,deadline TEXT NOT NULL,actor_id TEXT NOT NULL REFERENCES p_users(id),last_status TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_company_actions(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),actor_id TEXT NOT NULL REFERENCES p_users(id),payload TEXT NOT NULL,created_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_archived_users(user_id TEXT PRIMARY KEY REFERENCES p_users(id),archived_at TEXT NOT NULL,actor_id TEXT NOT NULL REFERENCES p_users(id));
   CREATE TABLE IF NOT EXISTS p_categories(id TEXT PRIMARY KEY,name TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('category','tag')),vertical TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_products(id TEXT PRIMARY KEY,title TEXT NOT NULL,description TEXT NOT NULL,vertical TEXT NOT NULL CHECK(vertical IN ('tourism','beauty','craft','ai','leather')),subtype TEXT NOT NULL,price INTEGER NOT NULL CHECK(price>0),stock INTEGER NOT NULL CHECK(stock>=0),images TEXT NOT NULL DEFAULT '[]',taxonomy TEXT NOT NULL DEFAULT '[]',published INTEGER NOT NULL DEFAULT 0,duration_days INTEGER NOT NULL DEFAULT 30 CHECK(duration_days>0),cancel_hours INTEGER NOT NULL DEFAULT 24 CHECK(cancel_hours>=0),created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
-  CREATE TABLE IF NOT EXISTS p_orders(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),title TEXT NOT NULL,vertical TEXT NOT NULL,quantity INTEGER NOT NULL CHECK(quantity>0),unit_price INTEGER NOT NULL CHECK(unit_price>0),amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','processing','shipped','delivered','cancelled','refunded')),payment_method TEXT NOT NULL CHECK(payment_method IN ('wallet','zarinpal','zibal','bale')),payment_ref TEXT UNIQUE,authority TEXT UNIQUE,checkout_claim TEXT,policy TEXT NOT NULL,cancel_until TEXT,expires_at TEXT NOT NULL,created_at TEXT NOT NULL,paid_at TEXT,refunded_at TEXT,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
+  CREATE TABLE IF NOT EXISTS p_orders(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),title TEXT NOT NULL,vertical TEXT NOT NULL,quantity INTEGER NOT NULL CHECK(quantity>0),unit_price INTEGER NOT NULL CHECK(unit_price>0),amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','processing','shipped','delivered','cancelled','refunded')),payment_method TEXT NOT NULL CHECK(payment_method IN ('wallet','zarinpal','zibal','bale','company_credit')),payment_ref TEXT UNIQUE,authority TEXT UNIQUE,checkout_claim TEXT,policy TEXT NOT NULL,cancel_until TEXT,expires_at TEXT NOT NULL,created_at TEXT NOT NULL,paid_at TEXT,refunded_at TEXT,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
   CREATE INDEX IF NOT EXISTS p_orders_user ON p_orders(user_id,created_at);
   CREATE TABLE IF NOT EXISTS p_ranks(id TEXT PRIMARY KEY,name TEXT NOT NULL,personal_threshold INTEGER NOT NULL CHECK(personal_threshold>=0),group_threshold INTEGER NOT NULL CHECK(group_threshold>=0),bonus_bps INTEGER NOT NULL CHECK(bonus_bps BETWEEN 0 AND 10000));
   CREATE TABLE IF NOT EXISTS p_commissions(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),order_id TEXT NOT NULL REFERENCES p_orders(id),kind TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','available','reversed')),available_at TEXT NOT NULL,created_at TEXT NOT NULL,event_key TEXT UNIQUE NOT NULL);
@@ -60,7 +68,7 @@ export function platformDb() {
   CREATE INDEX IF NOT EXISTS p_product_family ON p_product_details(family);
   INSERT OR IGNORE INTO p_migrations VALUES(1,datetime('now'));
   INSERT OR IGNORE INTO p_migrations VALUES(2,datetime('now'));
-  CREATE TABLE IF NOT EXISTS p_checkouts(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),method TEXT NOT NULL CHECK(method IN ('wallet','zarinpal','zibal','bale')),status TEXT NOT NULL CHECK(status IN ('pending','paid')),authority TEXT UNIQUE,claim TEXT,payment_ref TEXT UNIQUE,payload TEXT NOT NULL,created_at TEXT NOT NULL,expires_at TEXT NOT NULL,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
+  CREATE TABLE IF NOT EXISTS p_checkouts(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),method TEXT NOT NULL CHECK(method IN ('wallet','zarinpal','zibal','bale','company_credit')),status TEXT NOT NULL CHECK(status IN ('pending','paid')),authority TEXT UNIQUE,claim TEXT,payment_ref TEXT UNIQUE,payload TEXT NOT NULL,created_at TEXT NOT NULL,expires_at TEXT NOT NULL,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
   CREATE TABLE IF NOT EXISTS p_checkout_items(checkout_id TEXT NOT NULL REFERENCES p_checkouts(id),order_id TEXT NOT NULL UNIQUE REFERENCES p_orders(id),PRIMARY KEY(checkout_id,order_id));
   INSERT OR IGNORE INTO p_migrations VALUES(3,datetime('now'));
   CREATE TABLE IF NOT EXISTS p_member_details(user_id TEXT PRIMARY KEY REFERENCES p_users(id),details TEXT NOT NULL,contact_verified_at TEXT NOT NULL,updated_at TEXT NOT NULL);
@@ -202,6 +210,7 @@ export function platformDb() {
   migrateZibal(d);
   migrateCardDesks(d);
   migrateCardSchedule(d);
+  migrateCompanyCredit(d);
   ready = d;
   return d;
 }
