@@ -76,18 +76,36 @@ trap cleanup EXIT
 g worktree add --detach "$stage" "$old_head"
 if ! git -c safe.directory="$stage" -C "$stage" -c user.name='Homay Deploy' -c user.email='deploy@homanets.com' merge --no-ff --no-edit "$release"; then
   conflicts="$(git -c safe.directory="$stage" -C "$stage" diff --name-only --diff-filter=U)"
-  # This file contains tests only. Preserve the server copy and use the release
-  # tests to validate the merged financial implementation before stopping services.
-  if [[ "$conflicts" != src/platform/seven-card-engine.test.ts ]]; then
-    echo 'STOP: merge requires review outside the known test file.'
-    exit 1
-  fi
-  cp "$stage/src/platform/seven-card-engine.test.ts" "$deploy_dir/seven-card-test-conflict.txt"
-  git -c safe.directory="$stage" -C "$stage" show "${old_head}:src/platform/seven-card-engine.test.ts" > "$deploy_dir/seven-card-server-test.ts"
-  git -c safe.directory="$stage" -C "$stage" show "${release}:src/platform/seven-card-engine.test.ts" > "$stage/src/platform/seven-card-engine.test.ts"
-  git -c safe.directory="$stage" -C "$stage" add -- src/platform/seven-card-engine.test.ts
+  while IFS= read -r conflict; do
+    case "$conflict" in
+      src/platform/finance.ts)
+        cp "$stage/$conflict" "$deploy_dir/finance-conflict.txt"
+        node - "$stage/$conflict" <<'HOMAY_FINANCE_FIX'
+const fs = require('node:fs');
+const path = process.argv[2];
+const source = fs.readFileSync(path, 'utf8');
+const blocks = [...source.matchAll(/^<<<<<<<[^\n]*\n([\s\S]*?)^=======\n([\s\S]*?)^>>>>>>>[^\n]*\n/gm)];
+const compact = value => value.replace(/\s+/g, '');
+const server = 'if (JSON.parse(saved.policy).binaryEngine !== "cards-v1" && schedule && schedule.mode !== "immediate")';
+const release = 'if (saved.payment_method!=="company_credit" && schedule && schedule.mode !== "immediate")';
+if (blocks.length !== 1 || compact(blocks[0][1]) !== compact(server) || compact(blocks[0][2]) !== compact(release)) {
+  throw new Error('Unrecognized financial conflict; manual review required');
+}
+const result = source.replace(blocks[0][0], '    if (saved.payment_method !== "company_credit" && JSON.parse(saved.policy).binaryEngine !== "cards-v1" && schedule && schedule.mode !== "immediate")\n');
+if (/^(<<<<<<<|=======|>>>>>>>)/m.test(result)) throw new Error('Remaining conflict');
+fs.writeFileSync(path, result);
+HOMAY_FINANCE_FIX
+        ;;
+      src/platform/seven-card-engine.test.ts)
+        cp "$stage/$conflict" "$deploy_dir/seven-card-test-conflict.txt"
+        git -c safe.directory="$stage" -C "$stage" show "${release}:$conflict" > "$stage/$conflict"
+        ;;
+      *) echo "STOP: unrecognized merge conflict: $conflict"; exit 1 ;;
+    esac
+    git -c safe.directory="$stage" -C "$stage" add -- "$conflict"
+  done <<< "$conflicts"
   git -c safe.directory="$stage" -C "$stage" -c user.name='Homay Deploy' -c user.email='deploy@homanets.com' commit --no-edit
-  echo 'Resolved test-only conflict; financial source merged without replacement.'
+  echo 'Resolved reviewed conflict; preserved cards-v1 and company-credit exclusions.' 
 fi
 target="$(git -c safe.directory="$stage" -C "$stage" rev-parse HEAD)"
 for config in .env .env.local .env.production .env.production.local; do
