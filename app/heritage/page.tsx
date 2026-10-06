@@ -1,11 +1,101 @@
 import { translatedMetadata } from "../../src/i18n/server";
 
 import Localized from "../../src/i18n/Localized";
+import ImageBrandMark from "../../src/components/media/ImageBrandMark";
 import ResponsiveImage from "../../src/components/media/ResponsiveImage";
-import {CommerceShell} from '../../src/commerce/Shell';
-export async function generateMetadata() { return translatedMetadata({title:'روایت ایران؛ کوروش، شیردال و سیمرغ | هما نت'}); }
-const chapters=[{id:'persepolis',title:'تخت‌جمشید؛ شکوهی از معماری و همکاری',body:'تخت‌جمشید از روزگار داریوش اول شکل گرفت؛ آن را بنای ساخته‌شده به‌دست کوروش معرفی نمی‌کنیم. نقش‌برجسته‌ها، ستون‌ها و ترکیب هنرهای گوناگون، فرصتی برای خواندن تاریخ از مسیر معماری‌اند. در سفر فرهنگی، راهنمای آگاه، زمان کافی برای بازدید و رعایت حفاظت اثر، از تعداد عکس‌ها مهم‌تر است.',href:'https://whc.unesco.org/en/list/114/',source:'یونسکو · تخت‌جمشید'},
-{id:'cyrus',title:'کوروش و پاسارگاد؛ تاریخ را دقیق روایت کنیم',body:'پاسارگاد، پایتخت نخستین دودمانی هخامنشی، در سده ششم پیش از میلاد به فرمان کوروش شکل گرفت. آرامگاه، باغ‌ها و بقایای کاخ‌ها در روایت معماری ایرانی جایگاه مهمی دارند. تصویر این صفحه بازآفرینی هنری است؛ چهره مستند تاریخی یا عکس یک اثر باستانی نیست. برای ما ارزش این میراث، دعوت به مطالعه، احترام به تنوع فرهنگی و آشنایی با سرزمین است.',href:'https://whc.unesco.org/en/list/1106/',source:'یونسکو · پاسارگاد'},
-{id:'griffin',title:'شیردال؛ گفت‌وگوی قدرت و ظرافت',body:'در این مجموعه تصویری، شیردال با بدن شیر، بال و سر عقاب بازآفرینی شده است. این نقش، الهام گرافیکی برای پیوند استواری و ظرافت است؛ هر پیکره بال‌دار ایرانی را نباید شیردال یا همای نامید. تصویر حاضر یک اثر هنری جدید است و به‌عنوان شیء باستانی، نشان رسمی یا مدرک مالکیت فرهنگی ارائه نمی‌شود.',href:'https://www.britishmuseum.org/collection/galleries/ancient-iran',source:'موزه بریتانیا · ایران باستان'},
-{id:'simurgh',title:'سیمرغ؛ خرد، یاری و همراهی',body:'سیمرغ در ادبیات فارسی پرنده‌ای اساطیری با نقش‌های گوناگون است؛ از روایت زال تا جهان عرفانی عطار. در هویت تصویری هما نت، از این پرنده برای بیان یادگیری و همراهی الهام می‌گیریم. همای و سیمرغ دو نام برای یک پرنده واحد نیستند؛ نام برند «هما نت» حفظ شده و سیمرغ به‌عنوان نقش هنری همراه آن حضور دارد.',href:'https://www.iranicaonline.org/articles/simorg/',source:'دانشنامه ایرانیکا · سیمرغ'}];
-export default function Page(){return <Localized><CommerceShell><main id="commerce-main" className="brand-body"><header className="brand-chapter"><p>دفتر فرهنگ هما نت</p><h1>ریشه‌ها را بشناسیم؛ آینده را بسازیم.</h1><p>این مجموعه میان محتوای تاریخی مستند و تصویرسازی معاصر تفاوت می‌گذارد. نمادها برای تزئین صرف نیستند؛ فرصتی‌اند برای گفت‌وگو درباره هنر، اصالت و مسئولیت ما در حفظ میراث.</p></header>{chapters.map(c=><Localized key={c.id}><section className="brand-chapter heritage-chapter" id={c.id}><ResponsiveImage src={'/assets/heritage/'+c.id+'.webp'} alt={'بازآفرینی هنری؛ '+c.title} loading="lazy"/><h2>{c.title}</h2><p>{c.body}</p><a href={c.href} target="_blank" rel="noreferrer">{c.source}</a></section></Localized>)}<section className="brand-chapter"><h2>از میراث تا ارزش اقتصادی پایدار</h2><p>سفر با راهنمای محلی، سفارش اثر با نام هنرمند، پرداخت منصفانه و بسته‌بندی مسئولانه، راه‌هایی عملی برای تبدیل علاقه فرهنگی به فعالیت اقتصادی‌اند. هر خرید باید مشخصات روشن، منشأ قابل پیگیری و خدمات پس از فروش داشته باشد. فروش تصویر یا محصول الهام‌گرفته از میراث، به‌خودی‌خود به معنی کمک مالی به حفاظت اثر نیست؛ چنین حمایتی تنها با اعلام برنامه، مبلغ و گزارش قابل سنجش معنا پیدا می‌کند.</p><a href="/worlds/craft">شناخت همای تمدن و صنایع‌دستی</a> · <a href="/worlds/tourism">سفر با هما نت</a></section><section className="brand-chapter" id="media-credit"><h2>درباره تصاویر</h2><p>تصاویر این مجموعه بازآفرینی هنری‌اند، نه عکس یا سند باستان‌شناسی.</p></section></main></CommerceShell></Localized>}
+import { CommerceShell } from "../../src/commerce/Shell";
+export async function generateMetadata() {
+  return translatedMetadata({
+    title: "روایت ایران؛ کوروش، شیردال و سیمرغ | هما نت",
+  });
+}
+const chapters = [
+  {
+    id: "persepolis",
+    title: "تخت‌جمشید",
+    body: "تخت‌جمشید از روزگار داریوش اول شکل گرفت. ستون‌ها و نقش‌برجسته‌های آن، بخشی از میراث معماری هخامنشی را نشان می‌دهند. برای بازدید، زمانی برای دیدن جزئیات و همراهی با راهنمای محلی در نظر بگیرید.",
+    href: "https://whc.unesco.org/en/list/114/",
+    source: "یونسکو · تخت‌جمشید",
+  },
+  {
+    id: "cyrus",
+    title: "کوروش و پاسارگاد",
+    body: "پاسارگاد با نام کوروش پیوند دارد. آرامگاه، باغ‌ها و بقایای کاخ‌ها، بخش‌هایی از این مجموعه تاریخی هستند. در سفر به فارس، می‌توانید درباره بازدید از پاسارگاد هم پرس‌وجو کنید.",
+    href: "https://whc.unesco.org/en/list/1106/",
+    source: "یونسکو · پاسارگاد",
+  },
+  {
+    id: "griffin",
+    title: "شیردال در هنر ایران",
+    body: "شیردال در این تصویر با پیکر شیر، بال و سر عقاب نشان داده شده است. این ترکیب در تصویرسازی و نقش‌های الهام‌گرفته از هنر کهن دیده می‌شود.",
+    href: "https://www.britishmuseum.org/collection/galleries/ancient-iran",
+    source: "موزه بریتانیا · ایران باستان",
+  },
+  {
+    id: "simurgh",
+    title: "سیمرغ در داستان‌های ایرانی",
+    body: "سیمرغ در داستان‌های ایرانی، از روایت زال تا آثار عطار، حضور دارد. نقش این پرنده در هنر و تصویرسازی ایرانی همچنان دیده می‌شود.",
+    href: "https://www.iranicaonline.org/articles/simorg/",
+    source: "دانشنامه ایرانیکا · سیمرغ",
+  },
+];
+export default function Page() {
+  return (
+    <Localized>
+      <CommerceShell>
+        <main id="commerce-main" className="brand-body">
+          <header className="brand-chapter">
+            <p>دفتر فرهنگ هما نت</p>
+            <h1>آشنایی با فرهنگ ایران</h1>
+            <p>
+              چند یادداشت کوتاه درباره بناها و نمادهای ایران. برای مطالعه بیشتر،
+              منابع هر بخش در پایان همان یادداشت آمده است.
+            </p>
+          </header>
+          {chapters.map((c) => (
+            <Localized key={c.id}>
+              <section className="brand-chapter heritage-chapter" id={c.id}>
+                <div className="heritage-visual">
+                  <ResponsiveImage
+                    src={
+                      "/assets/heritage/" +
+                      c.id +
+                      (["cyrus", "simurgh"].includes(c.id)
+                        ? "-editorial-v2"
+                        : "") +
+                      ".webp"
+                    }
+                    alt={c.title}
+                    loading="lazy"
+                  />
+                  {["cyrus", "simurgh"].includes(c.id) && <ImageBrandMark />}
+                </div>
+                <h2>{c.title}</h2>
+                <p>{c.body}</p>
+                <a href={c.href} target="_blank" rel="noreferrer">
+                  {c.source}
+                </a>
+              </section>
+            </Localized>
+          ))}
+          <section className="brand-chapter">
+            <h2>سفر و هنر دست</h2>
+            <p>
+              برای دیدن خدمات سفر یا انتخاب صنایع‌دستی، به بخش مربوط سر بزنید.
+              مشخصات و شرایط هر محصول را پیش از سفارش بررسی کنید.
+            </p>
+            <a href="/worlds/craft">شناخت همای تمدن و صنایع‌دستی</a> ·{" "}
+            <a href="/worlds/tourism">سفر با هما نت</a>
+          </section>
+          <section className="brand-chapter" id="media-credit">
+            <h2>درباره تصاویر</h2>
+            <p>
+              تصاویر این مجموعه، تصویرسازی‌هایی با الهام از تاریخ و داستان‌های
+              ایرانی هستند.
+            </p>
+          </section>
+        </main>
+      </CommerceShell>
+    </Localized>
+  );
+}

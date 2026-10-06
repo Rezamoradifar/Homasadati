@@ -22,6 +22,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import Portal from "./Portal";
+import {Catalog} from "./UserPanel";
 import Storefront from "../commerce/Storefront";
 import Cart from "../commerce/Cart";
 import Registration from "./Registration";
@@ -589,15 +590,17 @@ describe("Panels use actual APIs and SQLite", () => {
     );
     expect(screen.queryByText("هنوز موردی ثبت نشده است.")).toBeNull();
   });
-  it("adds a real catalog item to the basket and completes wallet checkout through the UI", async () => {
+  it.each(["storefront","account"])("adds a real catalog item from %s and completes wallet checkout through the UI", async (entry) => {
     authCookie = member;
     localStorage.clear();
     sessionStorage.clear();
     const buyer = one("SELECT id FROM p_users WHERE role='user'")!.id;
     run("UPDATE p_wallets SET available=1000000 WHERE user_id=?", buyer);
+    const checkoutCount=one("SELECT COUNT(*) n FROM p_checkouts WHERE user_id=?",buyer)!.n;
+    const addressId=randomUUID();
     run(
       "INSERT INTO p_addresses VALUES(?,?,?,?,?,?,?)",
-      randomUUID(),
+      addressId,
       buyer,
       "خانه",
       "ایران",
@@ -620,7 +623,7 @@ describe("Panels use actual APIs and SQLite", () => {
       }),
     );
     const user = userEvent.setup(),
-      view = render(<Storefront />);
+      view = render(entry === "account" ? <Catalog refresh={0} onChange={()=>{}}/> : <Storefront />);
     await user.click(
       await screen.findByRole("button", { name: "افزودن به سبد خرید" }),
     );
@@ -628,12 +631,12 @@ describe("Panels use actual APIs and SQLite", () => {
     view.unmount();
     render(<Cart />);
     await user.click(await screen.findByRole("button", {name:"ادامه و اطلاعات خرید"}));
-    await screen.findByRole("option", { name: /خانه — تهران/ });
+    await screen.findAllByRole("option", { name: /خانه — تهران/ });
     await user.selectOptions(screen.getByLabelText("روش پرداخت"), "wallet");
     const addressSelect = screen.getByRole("combobox", { name: /آدرس ارسال/ });
     await user.selectOptions(
       addressSelect,
-      one("SELECT id FROM p_addresses WHERE user_id=?", buyer)!.id,
+      addressId,
     );
     await user.click(screen.getByRole("button", {name:"بررسی نهایی سفارش"}));
     await user.click(
@@ -646,6 +649,7 @@ describe("Panels use actual APIs and SQLite", () => {
     expect(
       one("SELECT status FROM p_checkouts WHERE user_id=?", buyer)!.status,
     ).toBe("paid");
+    expect(one("SELECT COUNT(*) n FROM p_checkouts WHERE user_id=?",buyer)!.n).toBe(checkoutCount+1);
     expect(JSON.parse(localStorage.getItem("homa-basket-v1")!)).toEqual([]);
   });
 });

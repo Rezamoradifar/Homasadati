@@ -383,11 +383,11 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
             <main className="portal-main">
               <div className="portal-title">
                 <div>
-                  <h1>{current?.[1] || "پنل هما نت"}</h1>
+                  <h1>{!admin && tab === "dashboard" ? "حساب من" : current?.[1] || "پنل هما نت"}</h1>
                   <p>
                     {connectionError
                       ? "ارتباط قطع است؛ اطلاعات ممکن است قدیمی باشد."
-                      : "اطلاعات حساب · بررسی به‌روزرسانی هر ۱۵ ثانیه"}
+                      : admin ? "اطلاعات حساب · بررسی به‌روزرسانی هر ۱۵ ثانیه" : "خلاصه حساب شما"}
                   </p>
                 </div>
                 <button

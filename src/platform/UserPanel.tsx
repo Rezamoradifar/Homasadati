@@ -1,5 +1,8 @@
 "use client";
 
+import AddToCart from "../commerce/AddToCart";
+import {Money} from "../commerce/currency";
+import {useBasket} from "../commerce/basket";
 import LiveChart from "./LiveChart";
 import { ClubAccountOverview } from "./ClubAccountCard";
 import {useSiteLocale} from "../i18n/SiteLocale";
@@ -141,17 +144,14 @@ export function Catalog({
   onChange: () => void;
 }) {
   const [q, setQ] = useState(""),
-    [page, setPage] = useState(1),
-    [error, setError] = useState(""),
-    [success, setSuccess] = useState("");
+    [page, setPage] = useState(1);
+  const {items:basketItems}=useBasket();
+  const basketCount=basketItems.reduce((n,item)=>n+item.quantity,0);
   const s = useData("catalog?" + q + "&page=" + page, refresh),
     wished = useData("wishlist/ids", refresh);
   return (
     <Localized><>
-      <p className="portal-notice">
-        قیمت، موجودی و مهلت لغو از محصول منتشرشدهٔ مدیر خوانده می‌شود. سفارش فقط
-        پس از تأیید پرداخت نهایی می‌شود.
-      </p>
+      <div className="member-shopbar"><div><h2>خرید از همانت</h2><p>محصول را انتخاب کنید و خرید را از سبد ادامه دهید.</p></div><a href="/cart">سبد خرید <span>{amount(basketCount)}</span></a></div>
       <Filter
         vertical
         onChange={(v) => {
@@ -159,7 +159,6 @@ export function Catalog({
           setPage(1);
         }}
       />
-      <Notice error={error} success={success} />
       <DataState state={s}>
         {(d) => (
           <Localized><>
@@ -173,13 +172,6 @@ export function Catalog({
                       setQ("family=" + encodeURIComponent(family));
                       setPage(1);
                     }}
-                    onDone={() => {
-                      setSuccess(
-                        "سفارش ثبت شد. جزئیات در بخش سفارش‌ها قابل مشاهده است.",
-                      );
-                      onChange();
-                    }}
-                    onError={setError}
                   /></Localized>
                 ))}
               </div>
@@ -198,30 +190,24 @@ export function Catalog({
 function Product({
   product: p,
   wished,
-  onDone,
-  onError,
   onFamily,
 }: {
   wished: boolean | null;
   onFamily: (family: string) => void;
   product: RecordData;
-  onDone: () => void;
-  onError: (s: string) => void;
 }) {
-  const key = useRef(crypto.randomUUID()),
-    [busy, setBusy] = useState(false);
   const images = JSON.parse(p.images),{locale}=useSiteLocale(),copy=catalogCopy({title:p.title,description:p.description,details:p.details},locale);
   return (
     <Localized><article className="portal-product">
-      {images[0] && <img src={images[0]} alt={copy.title} />}
+      <a className="member-product-image" href={`/shop/${p.id}`}><img src={images[0] || "/assets/brand/homanet-mark-orange.png"} alt={copy.title} loading="lazy"/></a>
       <div>
         <small>{labels[p.vertical]}</small>
-        <h2>{copy.title}</h2>
+        <h2><a href={`/shop/${p.id}`}>{copy.title}</a></h2>
         {wished !== null && <WishButton productId={p.id} initial={wished} />}
         <p>{copy.description}</p>
-        <strong>{amount(p.price)} تومان</strong>
+        <strong className="member-product-price"><Money toman={p.price}/></strong>
         {p.details?.comparePrice > p.price && (
-          <del>{amount(p.details.comparePrice)} تومان</del>
+          <del><Money toman={p.details.comparePrice}/></del>
         )}
         {p.details?.family && (
           <button
@@ -259,69 +245,8 @@ function Product({
         <p>
           موجودی: {amount(p.stock)} · مهلت لغو: {amount(p.cancel_hours)} ساعت
         </p>
-        <form
-          onChange={() => {
-            key.current = crypto.randomUUID();
-          }}
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (busy) return;
-            const form = new FormData(e.currentTarget);
-            setBusy(true);
-            onError("");
-            try {
-              const o = await api("orders", "POST", {
-                productId: p.id,
-                quantity: Number(form.get("quantity")),
-                method: form.get("method"),
-                idempotencyKey: key.current,
-              });
-              if (["zarinpal", "zibal"].includes(o.payment_method) && !o.paid_at) {
-                const r = await api(`orders/${o.id}/payment`, "POST");
-                window.location.assign(r.url);
-              } else {
-                key.current = crypto.randomUUID();
-                onDone();
-              }
-            } catch (e) {
-              onError((e as Error).message);
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <div className="portal-row">
-            <label>
-              تعداد{" "}
-              <input
-                name="quantity"
-                type="number"
-                min={1}
-                max={Math.min(p.stock, 100)}
-                defaultValue={1}
-                required
-              />
-            </label>
-            <label>
-              پرداخت{" "}
-              <select
-                name="method"
-                style={{ padding: 10, border: "1px solid #d1c5b4" }}
-              >
-                <option value="zibal">زیبال</option>
-                    <option value="zarinpal">زرین‌پال</option>
-                <option value="wallet">کیف پول</option>
-              </select>
-            </label>
-          </div>
-          <button
-            disabled={busy || p.stock === 0}
-            className="portal-button primary"
-            style={{ marginTop: 16, width: "100%" }}
-          >
-            {busy ? "در حال ثبت…" : "ثبت سفارش و پرداخت"}
-          </button>
-        </form>
+        <AddToCart id={p.id} stock={p.stock}/>
+
       </div>
     </article></Localized>
   );

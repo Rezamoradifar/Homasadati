@@ -1,5 +1,7 @@
 // Intrinsic dimensions of existing local assets; used to reserve image space.
 export const imageDimensions: Record<string, readonly [number, number]> = {
+  "/assets/heritage/cyrus-editorial-v2.webp": [1672,941],
+  "/assets/heritage/simurgh-editorial-v2.webp": [1672,941],
   "/assets/licenses/trade-license.jpg": [1080,763],
   "/assets/licenses/craft-house-permit.jpg": [1280,853],
   "/assets/ai.jpg": [1086, 1448],

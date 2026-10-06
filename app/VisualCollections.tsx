@@ -82,7 +82,6 @@ export function CivilizationHero() {
             {String(index + 1).padStart(2, "0")} /{" "}
             {String(heritageSlides.length).padStart(2, "0")} ·{" "}
             {heritageSlides[index][fa ? 1 : 2]}{" "}
-            <small>{fa ? "بازآفرینی هنری" : "Artistic interpretation"}</small>
           </span>
           <button
             onClick={() => choose(index + 1)}

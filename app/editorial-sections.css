@@ -59,7 +59,7 @@ html body .heritage-section .heritage-grid article {
   color: inherit !important;
 }
 html body .heritage-section .heritage-grid article:nth-child(2) {
-  margin-top: clamp(0px, 9vw, 140px);
+  margin-top: 0;
 }
 html body .heritage-section .heritage-grid a {
   display: block;
@@ -70,12 +70,12 @@ html body .heritage-section .heritage-visual {
   position: relative;
   overflow: hidden;
   border-radius: var(--hn-radius-lg);
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 2;
   background: #0b1120;
   box-shadow: var(--hn-shadow-lg);
 }
 html body .heritage-section .heritage-grid article:nth-child(2) .heritage-visual {
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 3 / 2;
 }
 html body .heritage-section .heritage-visual img {
   position: absolute;
@@ -158,7 +158,7 @@ html body .heritage-section > .editorial-link:hover {
   }
   html body .heritage-section .heritage-visual,
   html body .heritage-section .heritage-grid article:nth-child(2) .heritage-visual {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 16 / 10;
   }
 }
 
