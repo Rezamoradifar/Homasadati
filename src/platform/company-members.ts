@@ -16,6 +16,7 @@ export function creditEntry(user:string,key:string,delta:number,reference:string
 }
 export function companyPositionStatus(user:string,at=Date.now()){
   const g=one("SELECT * FROM p_company_positions WHERE user_id=?",user);if(!g)return null;
+  if(one("SELECT value FROM p_settings WHERE key='company_position_permanent_owner'")?.value===user && one("SELECT role,blocked FROM p_users WHERE id=?",user)?.role==='superadmin' && !one("SELECT blocked FROM p_users WHERE id=?",user)?.blocked) return {...g,status:"qualified",exempt:true,deadline:null,realPurchaseToman:0,requiredToman:0,remainingDays:0,activeDesks:g.desks};
   // A gift is not bank payment. Voucher-funded shares are excluded as well.
   const total=one(`SELECT COALESCE(SUM(o.amount-COALESCE(v.amount,0)),0) n FROM p_orders o LEFT JOIN p_order_vouchers v ON v.order_id=o.id WHERE o.user_id=? AND o.payment_method IN ('zibal','zarinpal','bale','bank_transfer') AND o.paid_at>=? AND o.paid_at<=? AND o.paid_at<=? AND o.refunded_at IS NULL AND o.status NOT IN ('cancelled','refunded')`,user,g.granted_at,g.deadline,new Date(at).toISOString())!.n;
   const status=at<Date.parse(g.granted_at)?"not_started":total>=20000000?"qualified":at<Date.parse(g.deadline)?"grace":"suspended";
