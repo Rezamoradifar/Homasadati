@@ -9,7 +9,9 @@ it.each([1,2,3,4,5,6,7])("shows the fixed 1–2–4 diagram with %s active posit
  expect(container.querySelectorAll('.personal-position')).toHaveLength(7);
  expect(container.querySelectorAll('.personal-position.lit')).toHaveLength(desks);
  expect(container.querySelectorAll('.personal-direct.enabled')).toHaveLength(desks+1);
- expect(Array.from(container.querySelectorAll('.personal-direct')).map(n=>n.textContent!.match(/[۱-۸]/)![0])).toEqual(['۱','۵','۳','۶','۴','۷','۸','۲']);
+ expect(Array.from(container.querySelectorAll('.personal-direct')).map(n=>n.getAttribute('aria-label')!.match(/[۱-۸]/)![0])).toEqual(['۱','۵','۳','۶','۴','۷','۸','۲']);
  fireEvent.click(screen.getByRole('button',{name:/دایرکت ۱/}));expect(open).toHaveBeenCalledWith('first');
  expect((screen.getByRole('button',{name:/دایرکت ۲/}) as HTMLButtonElement).disabled).toBe(true);
 });
+
+it("opens details in one shared inspector without growing the diagram",()=>{const{container}=render(<PersonalPositions data={fixture(3)} onOpen={()=>{}}/>);const diagram=container.querySelector('.position-diagram')!;const before=diagram.textContent;fireEvent.click(screen.getByRole('button',{name:'جایگاه 3 فعال'}));expect(screen.getByRole('button',{name:'جایگاه 3 فعال'}).getAttribute('aria-pressed')).toBe('true');expect(container.querySelectorAll('.position-inspector')).toHaveLength(1);expect(container.querySelector('.position-inspector-title')!.textContent).toContain('جایگاه ۳');expect(diagram.textContent).toBe(before);fireEvent.click(screen.getByRole('button',{name:'جایگاه 7 خاموش'}));expect(container.querySelector('.position-badge')!.textContent).toBe('خاموش');});

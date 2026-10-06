@@ -3249,5 +3249,20 @@
   "ظرفیت معرفی مستقیم شما تکمیل است. با خرید و فعال‌شدن جایگاه بعدی، ظرفیت افزایش می‌یابد.": "Your direct referral capacity is full. Activate the next position with a purchase to increase capacity.",
   "جانمایی این عضو ثبت شده است؛ تغییر آن به بررسی سابقهٔ شبکه نیاز دارد.": "This member's placement is recorded. Changes require a review of the network history.",
   "فروش هفته:": "Weekly sales:",
-  "مجموع فروش:": "Total sales:"
+  "مجموع فروش:": "Total sales:",
+  "باشگاه همانت": "Homanet Club",
+  "نمای شبکه و وضعیت جایگاه‌ها": "Your network and position status",
+  "جایگاه فعال": "Active positions",
+  "برای دیدن جزئیات، یک جایگاه را لمس کنید.": "Tap a position to view its details.",
+  "جایگاه {0}": "Position {0}",
+  "جایگاه اصلی": "Main position",
+  "چپ · چپ": "Left · Left",
+  "چپ · راست": "Left · Right",
+  "راست · چپ": "Right · Left",
+  "راست · راست": "Right · Right",
+  "سیوینگ:": "Carryover:",
+  "دایرکت {0} {1}": "Direct referral {0}: {1}",
+  "فروش این هفته": "Sales this week",
+  "مجموع فروش": "Total sales",
+  "معرفی‌های مستقیم": "Direct referrals"
 }
