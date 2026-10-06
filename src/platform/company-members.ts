@@ -18,8 +18,8 @@ export function companyPositionStatus(user:string,at=Date.now()){
   const g=one("SELECT * FROM p_company_positions WHERE user_id=?",user);if(!g)return null;
   // A gift is not bank payment. Voucher-funded shares are excluded as well.
   const total=one(`SELECT COALESCE(SUM(o.amount-COALESCE(v.amount,0)),0) n FROM p_orders o LEFT JOIN p_order_vouchers v ON v.order_id=o.id WHERE o.user_id=? AND o.payment_method IN ('zibal','zarinpal','bale','bank_transfer') AND o.paid_at>=? AND o.paid_at<=? AND o.paid_at<=? AND o.refunded_at IS NULL AND o.status NOT IN ('cancelled','refunded')`,user,g.granted_at,g.deadline,new Date(at).toISOString())!.n;
-  const status=at<Date.parse(g.granted_at)?"not_started":total>=30000000?"qualified":at<Date.parse(g.deadline)?"grace":"suspended";
-  return {...g,status,realPurchaseToman:total,requiredToman:30000000,remainingDays:Math.max(0,Math.ceil((Date.parse(g.deadline)-at)/DAY)),activeDesks:["suspended","not_started"].includes(status)?0:g.desks};
+  const status=at<Date.parse(g.granted_at)?"not_started":total>=20000000?"qualified":at<Date.parse(g.deadline)?"grace":"suspended";
+  return {...g,status,realPurchaseToman:total,requiredToman:20000000,remainingDays:Math.max(0,Math.ceil((Date.parse(g.deadline)-at)/DAY)),activeDesks:["suspended","not_started"].includes(status)?0:g.desks};
 }
 function owner(actor:string){const u=one("SELECT * FROM p_users WHERE id=?",actor);if(!u||u.blocked||u.role!=="superadmin")throw new ApiError(403,"forbidden");}
 export function manageCompanyMember(actor:string,input:unknown){
