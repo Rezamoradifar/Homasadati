@@ -41,8 +41,9 @@ function when(t: number, interval: string) {
   return d.toLocaleString("fa-IR-u-ca-persian", opts);
 }
 
-export default function LiveChart() {
-  const [series, setSeries] = useState<string>("wallet");
+export default function LiveChart({ office = false }: {office?: boolean}) {
+  const choices = office ? [["sales", "فروش زیرمجموعه"], ["commission", "پورسانت ثبت‌شده"]] : seriesList;
+  const [series, setSeries] = useState<string>(office ? "sales" : "wallet");
   const [interval, setInterval_] = useState<string>("day");
   const [tick, setTick] = useState(0);
   const [hover, setHover] = useState<number | null>(null);
@@ -65,7 +66,7 @@ export default function LiveChart() {
     }, 30_000);
     return () => window.clearInterval(id);
   }, []);
-  const state = useData(`activity-chart?series=${series}&interval=${interval}`, tick);
+  const state = useData(`${office ? "marketer-office/chart" : "activity-chart"}?series=${series}&interval=${interval}`, tick);
   const d = state.data as
     | { candles: Candle[]; unit: string; current: number; change: number; updatedAt: string; scope: string; empty: boolean }
     | null;
@@ -92,7 +93,7 @@ export default function LiveChart() {
         <header className="live-chart-head">
           <div>
             <h2 id="live-chart-title">
-              <span className="live-dot" aria-hidden="true" /> نمودار زنده
+              <span className="live-dot" aria-hidden="true" /> {office ? "نمودار فروش و پورسانت" : "نمودار زنده"}
             </h2>
             <small>
               {d?.scope === "site" ? "آمار کل سایت" : "فقط حساب شما"} · به‌روزرسانی خودکار هر ۳۰ ثانیه
@@ -109,9 +110,10 @@ export default function LiveChart() {
             </div>
           )}
         </header>
+        {office && <p className="live-chart-empty">هر کندل تغییر مجموع ثبت‌شده در یک بازه است؛ مرجوعی‌ها از فروش کم می‌شوند. این نمودار قیمت بازار نیست.</p>}
         <div className="live-chart-filters">
           <div role="tablist" aria-label="نوع نمودار">
-            {seriesList.map(([k, label]) => (
+            {choices.map(([k, label]) => (
               <button key={k} role="tab" aria-selected={series === k} onClick={() => setSeries(k)}>
                 {label}
               </button>

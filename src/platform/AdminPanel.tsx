@@ -1,5 +1,6 @@
 "use client";
 
+import { OfficeAccessEditor } from "./MarketerOffice";
 import { AdminPayoutProfiles } from "./AdminPayoutProfiles";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import ServiceHealth from "./ServiceHealth";
@@ -975,6 +976,7 @@ export function AdminUsers({
         />
         {selected && (
           <Modal title={selected.name} onClose={() => setSelected(null)}>
+            {role === "superadmin" && <OfficeAccessEditor key={selected.id} userId={selected.id} onChange={onChange} />}
             <DataState state={detail}>
               {(d) => (
                 <Localized>

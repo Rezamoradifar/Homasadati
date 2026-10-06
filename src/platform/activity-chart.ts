@@ -17,18 +17,18 @@ const HOUR = 3600_000,
   TEHRAN = 3.5 * HOUR;
 const plan = { hour: { size: HOUR, count: 48 }, day: { size: DAY, count: 30 }, week: { size: 7 * DAY, count: 26 } };
 
-function bucketStart(ms: number, interval: keyof typeof plan) {
+function bucketStart(ms: number, interval: keyof typeof plan, weekStart = 6) {
   if (interval === "hour") return ms - (ms % HOUR);
   const local = ms + TEHRAN,
     midnight = local - (local % DAY);
   if (interval === "day") return midnight - TEHRAN;
-  const back = (new Date(midnight).getUTCDay() - 6 + 7) % 7; // back to Saturday
+  const back = (new Date(midnight).getUTCDay() - weekStart + 7) % 7; // back to Saturday
   return midnight - back * DAY - TEHRAN;
 }
 
-export function candles(events: { t: number; d: number }[], interval: keyof typeof plan, now = Date.now()) {
+export function candles(events: { t: number; d: number }[], interval: keyof typeof plan, now = Date.now(), weekStart = 6) {
   const { size, count } = plan[interval];
-  const first = bucketStart(now, interval) - (count - 1) * size;
+  const first = bucketStart(now, interval, weekStart) - (count - 1) * size;
   const sorted = [...events].sort((a, b) => a.t - b.t);
   let total = 0,
     i = 0;

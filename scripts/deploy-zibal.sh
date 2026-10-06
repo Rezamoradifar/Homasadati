@@ -95,7 +95,7 @@ for config in .env .env.local .env.production .env.production.local; do
 done
 chown -R homay:homay "$deploy_dir"
 chmod 700 "$deploy_dir"
-runuser -u homay -- nice -n 10 bash -c 'cd "$1" && npm ci --include=dev --no-audit --no-fund && npm run typecheck && npm exec -- vitest run src/platform/seven-card-engine.test.ts src/platform/checkout.test.ts src/platform/card-positions.test.ts src/platform/card-positions-ui.test.tsx && DATABASE_PATH="$1/.deploy-validation.sqlite" npm run build' bash "$stage"
+runuser -u homay -- nice -n 10 bash -c 'cd "$1" && npm ci --include=dev --no-audit --no-fund && npm run typecheck && npm exec -- vitest run src/platform/seven-card-engine.test.ts src/platform/checkout.test.ts src/platform/card-positions.test.ts src/platform/card-positions-ui.test.tsx src/platform/marketer-office.test.ts && DATABASE_PATH="$1/.deploy-validation.sqlite" npm run build' bash "$stage"
 [[ "$(g rev-parse HEAD)" == "$old_head" && "$(config_hash)" == "$initial_config" ]] || { echo 'STOP: source or config changed during build.'; exit 1; }
 systemctl stop homay.service homay-worker.service
 stopped=1

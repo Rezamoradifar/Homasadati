@@ -1,4 +1,5 @@
 "use client";
+import { MarketerOffice } from "./MarketerOffice";
 import { AdminNewsletter } from "./AdminNewsletter";
 import { NetworkTree } from "./NetworkTree";
 import { Wishlist } from "./Wishlist";
@@ -144,7 +145,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
       clearInterval(id);
     };
   }, [user?.id]);
-  const userGroups = memberNavigation(Boolean(user?.merchant));
+  const userGroups = memberNavigation(Boolean(user?.merchant), Boolean(user?.marketerOffice?.enabled));
   const tabs = admin
     ? visibleAdminTabs(user?.role || "", user?.permissions)
     : userGroups.flatMap((group) => group.tabs);
@@ -571,6 +572,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   {tab === "tickets" && (
                     <TicketsPanel refresh={refresh} onChange={update} />
                   )}
+                  {tab === "marketer-office" && <MarketerOffice user={user} refresh={refresh} />}
                   {tab === "merchant" && (
                     <MerchantPanel refresh={refresh} onChange={update} />
                   )}

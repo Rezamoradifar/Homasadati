@@ -44,11 +44,12 @@ export const memberGroups = [
   },
 ];
 
-export function memberNavigation(merchant = false) {
+export function memberNavigation(merchant = false, office = false) {
+  const groups = office ? [...memberGroups, {title:"دفتر کار بازاریاب",tabs:[["marketer-office","دفتر کار بازاریاب"]]}] : memberGroups;
   return merchant
     ? [
-        ...memberGroups,
+        ...groups,
         { title: "همکاری با هما نت", tabs: [["merchant", "پنل پذیرنده"]] },
       ]
-    : memberGroups;
+    : groups;
 }

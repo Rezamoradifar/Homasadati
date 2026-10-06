@@ -1,3 +1,4 @@
+import { officeAccess, grantOffice, officeChart, officeNetwork, requireOffice } from "./marketer-office";
 import { positionMode, assertDirectCapacity, bindDirect } from "./card-positions";
 import { parseAmount, validRate } from "./fx";
 import { cardPlan } from "./seven-card";
@@ -784,6 +785,12 @@ export function reports(from: string, to: string) {
 }
 async function admin(req: Request, path: string[], data: Row, url: URL) {
   const resource = path[1];
+  if (resource === "marketer-office") {
+    const owner = userOf(req, ["superadmin"]);
+    if (req.method === "GET") { const target = id.parse(url.searchParams.get("userId")); return json(officeAccess(target)); }
+    if (req.method !== "PATCH") throw new ApiError(405,"method_not_allowed");
+    return json(grantOffice(owner.id,data));
+  }
   const allowed = permissions[resource];
   if (resource === "access") {
     const owner = userOf(req, ["superadmin"]);
@@ -1735,7 +1742,7 @@ export async function handle(req: Request, path: string[]) {
         return json(redeemReward(u.id, data), 201);
       throw new ApiError(405, "method_not_allowed");
     }
-    if (path[0] === "me" && get) return json({ user: publicUser(u) });
+    if (path[0] === "me" && get) return json({ user: { ...publicUser(u), marketerOffice: officeAccess(u.id) } });
     if (path[0] === "dashboard" && get) {
       const start = persianMonthStart();
       return json({
@@ -2169,6 +2176,11 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "referral") {
       if (get) return json(referralStatus(u));
       return json(setReferralCode(u, z.object({ code: z.string() }).parse(data).code));
+    }
+    if (path[0] === "marketer-office" && get) {
+      if (path[1] === "chart") return json(officeChart(u.id,Object.fromEntries(url.searchParams)));
+      if (path[1] === "network") return json(officeNetwork(u.id,q.root||u.id,Number(q.depth)||6));
+      return json(requireOffice(u.id));
     }
     if (path[0] === "network-tree" && get)
       return json(placementTree(u.id, q.root || u.id, Number(q.depth) || 3));

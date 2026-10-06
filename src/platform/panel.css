@@ -2409,3 +2409,16 @@ html[data-theme=dark] .portal-member{background:#14202d;color:#e4ebf3}html[data-
 :root[data-theme="dark"] .refined-positions{--pos-ink:#e7edf4;--pos-muted:#a6b5c6;--pos-border:#33475b;--pos-surface:#152638}.position-inspector-title strong{color:inherit}:root[data-theme="dark"] .position-count,:root[data-theme="dark"] .position-inspector{background:#1b3045}:root[data-theme="dark"] .position-eyebrow{color:#f39379}
 
 .position-direct-caption{display:block;text-align:center;color:var(--pos-muted);font-size:10px;margin-top:7px}.position-diagram-hint{margin-top:5px}
+
+/* Private marketer office: compact mobile lists with member-scoped data. */
+.office-intro {display:flex;align-items:center;justify-content:space-between;gap:16px;border-inline-start:4px solid var(--portal-accent,#0f6e72)}
+.office-intro h2 {margin:6px 0}.office-intro p {margin:0;opacity:.75}
+.office-level {border:1px solid currentColor;border-radius:12px;padding:10px 14px;white-space:nowrap;color:var(--portal-accent,#0f6e72);font-size:.85rem}
+.office-network header {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.office-network select,.office-access select,.office-access input {min-height:44px;max-width:100%;border:1px solid #87949b;border-radius:10px;padding:8px;background:transparent;color:inherit;font:inherit}
+.office-path {display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.office-path button {background:transparent;color:inherit;border:1px solid #87949b;border-radius:10px;padding:8px;font:inherit;min-height:44px}
+.office-members {display:grid;gap:8px}.office-member {display:flex;justify-content:space-between;gap:12px;text-align:start;border:1px solid #87949b55;border-radius:12px;padding:12px;background:transparent;color:inherit;font:inherit;width:100%;cursor:pointer}
+.office-member span {min-width:0}.office-member b,.office-member small {display:block}.office-member b {overflow-wrap:anywhere}.office-member small {font-size:.75rem;opacity:.75;margin-top:4px}
+.office-member:hover {border-color:#0f6e72}.office-member:focus-visible,.office-path button:focus-visible {outline:3px solid #d4b87b;outline-offset:2px}
+.office-access form {display:grid;gap:12px}.office-access label {display:grid;gap:5px}
+@media(max-width:600px){.office-intro {align-items:flex-start;flex-direction:column}.office-member {font-size:.85rem}.office-network h2 {font-size:1.1rem}}
