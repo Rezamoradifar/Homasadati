@@ -425,6 +425,7 @@ export function memberCardStatus(user: string) {
       purchaseRequiredToman: (index + 1) * 10_000_000,
       matches: counters.find((counter) => counter.desk === index + 1)?.matches || 0,
     })),
+    availableBalance: wallet(user).available,
     voucherBalance: voucherBalance(user),
     recent: all(
       "SELECT week,desk,sequence,kind,amount,void FROM p_card_matches WHERE user_id=? ORDER BY created_at DESC LIMIT 20",

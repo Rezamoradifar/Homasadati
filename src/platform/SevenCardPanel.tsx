@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { ClubAccountCard } from "./ClubAccountCard";
 import Localized from "../i18n/Localized";
 import SevenCards from "../commerce/SevenCards";
 import { api, RecordData, amount } from "./client";
@@ -307,7 +308,7 @@ export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
                     ? "تسویهٔ هفتگی این پلن فعال است؛ پاداش‌ها هر هفته پس از پایان مهلت لغو خریدها محاسبه می‌شوند."
                     : "این پلن در مرحله آماده‌سازی است؛ پرداخت، فعال‌سازی جایگاه و صدور ووچر بر اساس آن هنوز فعال نشده است."}
                 </p>
-                {!admin && data.member && <MemberStatus status={data.member} />}
+                {!admin && data.member && <><ClubAccountCard status={data.member} available={data.member.availableBalance || 0} /><details><summary>جزئیات حجم و سوابق پورسانت</summary><MemberStatus status={data.member} /></details></>}
                 <SevenCards />
                 {admin && <LivePanel plan={data} changed={() => setRefresh((v) => v + 1)} />}
                 {admin && (

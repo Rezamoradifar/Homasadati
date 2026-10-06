@@ -1,6 +1,7 @@
 "use client";
 
 import LiveChart from "./LiveChart";
+import { ClubAccountOverview } from "./ClubAccountCard";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
@@ -51,6 +52,7 @@ export function Dashboard({ refresh, user, onNavigate }: {
     <Localized><DataState state={s}>
       {(d) => (
         <Localized><>
+          <ClubAccountOverview refresh={refresh} available={d.wallet.available} onNavigate={onNavigate} />
           <MemberOverview
             user={user}
             activity={d.activity}
