@@ -3352,5 +3352,9 @@
   "محل ورودی بعدی": "Next referral placement",
   "خودکار از چپ به راست": "Automatic, from left to right",
   "ثبت محل رفرال بعدی": "Save next referral placement",
-  "این جایگاه قبلاً پر شده است؛ یک جایگاه خالی یا حالت خودکار را انتخاب کنید.": "This position is already occupied; choose an empty position or automatic mode."
+  "این جایگاه قبلاً پر شده است؛ یک جایگاه خالی یا حالت خودکار را انتخاب کنید.": "This position is already occupied; choose an empty position or automatic mode.",
+  "یک کد دعوت · انتخاب محل هر ورودی در پنل دعوت · جایگاه‌های ۴ تا ۷": "One invitation code · Choose each referral’s position in the invitation panel · Positions 4 to 7",
+  "با اولین خرید ۱۰ میلیون تومانی، چهار ورودی رفرال باز می‌شود. برای هر ورودی جدید، یک جایگاه خالی را انتخاب کنید. پس از ثبت آن عضو باید محل ورودی بعدی را انتخاب کنید. حجم هر جایگاه فقط از خریدهای بعد از فعال‌شدن همان جایگاه حساب می‌شود.": "Your first purchase of 10 million toman opens four referral slots. Choose an empty position for each new referral. After that member registers, you must choose the position for the next referral. Only purchases made after a position is activated count toward that position’s volume.",
+  "معرف باید ابتدا جایگاه این ورودی را در پنل دعوت انتخاب کند.": "The referrer must first choose this referral’s position in the invitation panel.",
+  "این جایگاه قبلاً پر شده است؛ یک جایگاه خالی را انتخاب کنید.": "This position is already occupied; choose an empty position."
 }

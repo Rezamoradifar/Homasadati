@@ -106,15 +106,15 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                 )}
                 {d.placement && <>
                   <h3>جایگاه رفرال بعدی</h3>
-                  <p>با اولین خرید ۱۰ میلیون تومانی، چهار ورودی رفرال باز می‌شود. یک جایگاه خالی را برای ورودی بعدی انتخاب کنید؛ بعد از ثبت آن عضو، چیدمان دوباره خودکار می‌شود.</p>
+                  <p>با اولین خرید ۱۰ میلیون تومانی، چهار ورودی رفرال باز می‌شود. برای هر ورودی جدید، یک جایگاه خالی را انتخاب کنید. پس از ثبت آن عضو باید محل ورودی بعدی را انتخاب کنید. حجم هر جایگاه فقط از خریدهای بعد از فعال‌شدن همان جایگاه حساب می‌شود.</p>
                   <Form
                     key={JSON.stringify(d.placement)}
                     fields={[{name:"desk",label:"محل ورودی بعدی",type:"select",options:[
-                      ["auto","خودکار از چپ به راست"],
+                      ...(d.placement.mandatory ? [] : [["auto","خودکار از چپ به راست"] as [string,string]]),
                       ...d.placement.slots.filter((slot:{desk:number;enabled:boolean;occupied:boolean})=>slot.enabled && !slot.occupied)
                         .map((slot:{desk:number}):[string,string]=>[String(slot.desk),"جایگاه "+fa(slot.desk)]),
                     ]}]}
-                    initial={{desk:d.placement.nextDesk === null ? "auto" : String(d.placement.nextDesk)}}
+                    initial={{desk:d.placement.nextDesk === null ? (d.placement.mandatory ? "" : "auto") : String(d.placement.nextDesk)}}
                     submit="ثبت محل رفرال بعدی"
                     onSubmit={async v=> {
                       await api("referral/placement","POST",{desk:v.desk === "auto" ? null : Number(v.desk)});

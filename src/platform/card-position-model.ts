@@ -11,7 +11,7 @@ export function directRoutes(ordinal: number, desks: number) {
 
 /** One shared referral code fills one endpoint per active leaf, left to right. */
 export const FOUR_DIRECT_PATHS = ["LLL", "LRL", "RLL", "RRL"] as const;
-export const FOUR_REFERRAL_VERSION = "four-referrals-2026-10-07";
+export const FOUR_REFERRAL_VERSION = "manual-referrals-2026-10-07";
 export function fourDirectCapacity(desks: number) {
   return desks >= 1 ? 4 : 0;
 }

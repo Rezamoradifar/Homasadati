@@ -14,7 +14,7 @@ async function main() {
     const before = setting("seven_card_position_version");
     configureFourReferrals();
     if (before !== FOUR_REFERRAL_VERSION)
-      audit(actor.id,"seven-card.positions",FOUR_REFERRAL_VERSION,{version:before},{version:FOUR_REFERRAL_VERSION},"Seven personal positions; four active leaf referrals with automatic left-to-right placement");
+      audit(actor.id,"seven-card.positions",FOUR_REFERRAL_VERSION,{version:before},{version:FOUR_REFERRAL_VERSION},"Seven personal positions; four referral slots with mandatory owner placement and volume only after activation");
   });
   console.log(JSON.stringify({positionVersion:FOUR_REFERRAL_VERSION,liveSettlement:setting("seven_card_live")==="1"}));
   platformDb().close();
