@@ -25,7 +25,7 @@ export function cardPlan() {
   return {
     version: CARD_PLAN_VERSION,
     status: setting("seven_card_live") === "1" ? "live" : "draft",
-    positionVersion: positionMode() ? "aa-2026-10-06" : null,
+    positionVersion: positionMode() ? setting("seven_card_position_version") : null,
     liveSettlement: setting("seven_card_live") === "1",
     revision: stored?.revision ?? 0,
     cards: sevenCards,

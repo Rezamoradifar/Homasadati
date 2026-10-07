@@ -4,15 +4,17 @@ import { ApiError } from "../server/http";
 import { all, one, run, now, atomic } from "./schema";
 import { setting, saveSetting } from "./providers";
 import { desksForPurchase } from "./card-levels";
-import { POSITION_PATHS, DIRECT_PATHS, directCapacity, directRoutes } from "./card-position-model";
-export const positionMode = () => setting("seven_card_position_version") === "aa-2026-10-06";
+import { POSITION_PATHS, DIRECT_PATHS, directCapacity, directRoutes, FOUR_DIRECT_PATHS, FOUR_REFERRAL_VERSION, fourDirectCapacity, fourDirectRoutes } from "./card-position-model";
+export const fourReferralMode = () => setting("seven_card_position_version") === FOUR_REFERRAL_VERSION;
+export const positionMode = () => fourReferralMode() || setting("seven_card_position_version") === "aa-2026-10-06";
+const capacity = (desks: number) => fourReferralMode() ? fourDirectCapacity(desks) : directCapacity(desks);
 /** Confirmed purchases light positions immediately; income waits for maturity. */
 export function positionDesks(user: string, at=Date.now()) {
   return Math.max(companyPositionStatus(user,at)?.activeDesks || 0,desksForPurchase(one("SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND paid_at>=? AND refunded_at IS NULL AND status NOT IN ('cancelled','refunded') AND payment_method!='company_credit' AND paid_at<=?",user,new Date(Number(setting("seven_card_live_since") || 0)).toISOString(),new Date(at).toISOString())!.n));
 }
 export function assertDirectCapacity(sponsor: string, excluding?: string) {
   const count = one("SELECT COUNT(*) n FROM p_users WHERE sponsor_id=? AND id!=?",sponsor,excluding || "")!.n;
-  if (count >= directCapacity(positionDesks(sponsor))) throw new ApiError(409,"direct_capacity_reached");
+  if (count >= capacity(positionDesks(sponsor))) throw new ApiError(409,"direct_capacity_reached");
 }
 export function bindDirect(sponsor: string, child: string) {
   return atomic(() => {
@@ -20,7 +22,7 @@ export function bindDirect(sponsor: string, child: string) {
     if (prior) { if(prior.sponsor_id !== sponsor) throw new ApiError(409,"direct_position_locked"); return prior; }
     const used = all("SELECT ordinal FROM p_card_direct_positions WHERE sponsor_id=?",sponsor).map(x=>x.ordinal);
     const ordinal = Array.from({length:8},(_,i)=>i+1).find(x=>!used.includes(x));
-    if (!ordinal || ordinal > directCapacity(positionDesks(sponsor))) throw new ApiError(409,"direct_capacity_reached");
+    if (!ordinal || ordinal > capacity(positionDesks(sponsor))) throw new ApiError(409,"direct_capacity_reached");
     run("INSERT INTO p_card_direct_positions VALUES(?,?,?,?)",child,sponsor,ordinal,now());
     return {child_id:child,sponsor_id:sponsor,ordinal};
   });
@@ -51,7 +53,7 @@ export function positionAncestors(buyer: string) {
     if(seen.has(binding.sponsor_id)) throw new ApiError(409,"network_cycle");
     seen.add(binding.sponsor_id);
     // All seven positions carry volume, including dormant ones; own purchases never enter here.
-    routes.push(...directRoutes(binding.ordinal,7).map(x=>({user:binding.sponsor_id,...x})));
+    routes.push(...(fourReferralMode() ? fourDirectRoutes : directRoutes)(binding.ordinal,7).map(x=>({user:binding.sponsor_id,...x})));
     child=binding.sponsor_id;
   }
   return routes;
@@ -74,6 +76,23 @@ export function personalPositionTree(user: string) {
     weeklySales:one("SELECT COALESCE(SUM(l.volume),0) n FROM p_card_position_lots l JOIN p_orders o ON o.id=l.order_id WHERE l.user_id=? AND l.desk=? AND l.void=0 AND o.paid_at>=?",user,desk,new Date(mondayStart(Date.now())).toISOString())!.n,
     totalSales:positionVolume(user,desk,"left","volume")+positionVolume(user,desk,"right","volume"),
     savings:{left:positionVolume(user,desk,"left"),right:positionVolume(user,desk,"right")}});
-  return {version:"aa-2026-10-06",member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),desks,directCapacity:directCapacity(desks),tree:build(1),
-    directs:DIRECT_PATHS.map((path,i)=>({ordinal:i+1,path,enabled:i<directCapacity(desks),member:directs.find(d=>d.ordinal===i+1) || null}))};
+  return {version:fourReferralMode() ? FOUR_REFERRAL_VERSION : "aa-2026-10-06",member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),desks,directCapacity:capacity(desks),tree:build(1),
+    directs:(fourReferralMode() ? FOUR_DIRECT_PATHS : DIRECT_PATHS).map((path,i)=>({ordinal:i+1,desk:fourReferralMode() ? i+4 : null,path,enabled:i<capacity(desks),member:directs.find(d=>d.ordinal===i+1) || null}))};
+}
+
+/** Never reinterpret an existing binding or a historical financial route. */
+export function configureFourReferrals() {
+  return atomic(() => {
+    if (fourReferralMode()) return;
+    if (!updatedCardSchedule()) throw new ApiError(409,"approved_plan_rules_required");
+    if (setting("seven_card_live") === "1" ||
+        one("SELECT COUNT(*) n FROM p_card_orders")!.n ||
+        one("SELECT COUNT(*) n FROM p_card_position_lots")!.n ||
+        one("SELECT COUNT(*) n FROM p_card_matches")!.n)
+      throw new ApiError(409,"position_history_review_required");
+    if (one("SELECT COUNT(*) n FROM p_card_direct_positions")!.n ||
+        one("SELECT COUNT(*) n FROM p_users WHERE sponsor_id IS NOT NULL")!.n)
+      throw new ApiError(409,"existing_direct_position_review_required");
+    saveSetting("seven_card_position_version", FOUR_REFERRAL_VERSION);
+  });
 }

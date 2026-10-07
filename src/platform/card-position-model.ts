@@ -8,3 +8,16 @@ export function directRoutes(ordinal: number, desks: number) {
   return POSITION_PATHS.slice(0, desks).flatMap((prefix, i) =>
     path.startsWith(prefix) ? [{desk: i + 1, leg: path[prefix.length] === "L" ? "left" : "right"}] : []);
 }
+
+/** One shared referral code fills one endpoint per active leaf, left to right. */
+export const FOUR_DIRECT_PATHS = ["LLL", "LRL", "RLL", "RRL"] as const;
+export const FOUR_REFERRAL_VERSION = "four-referrals-2026-10-07";
+export function fourDirectCapacity(desks: number) {
+  return Math.max(0, Math.min(4, Math.trunc(desks) - 3));
+}
+export function fourDirectRoutes(ordinal: number, desks: number) {
+  const path = FOUR_DIRECT_PATHS[ordinal - 1];
+  if (!path) throw new Error("invalid_direct_position");
+  return POSITION_PATHS.slice(0, desks).flatMap((prefix, i) =>
+    path.startsWith(prefix) ? [{desk: i + 1, leg: path[prefix.length] === "L" ? "left" : "right"}] : []);
+}

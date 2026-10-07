@@ -1,3 +1,5 @@
+import { fourReferralMode, positionDesks } from "./card-positions";
+import { fourDirectCapacity } from "./card-position-model";
 import { randomInt } from "node:crypto";
 import { ApiError } from "../server/http";
 import { setting } from "./providers";
@@ -56,7 +58,8 @@ export function referralStatus(user: Row) {
   const requiresPurchase = referralNeedsPurchase();
   return {
     code: user.referral_code,
-    active: !user.blocked && (!requiresPurchase || hasPaidOrder(user.id)),
+    active: !user.blocked && (!requiresPurchase || hasPaidOrder(user.id)) &&
+      (!fourReferralMode() || direct.total < fourDirectCapacity(positionDesks(user.id))),
     requiresPurchase,
     canChange: !nextChange || nextChange <= now(),
     nextChange,
