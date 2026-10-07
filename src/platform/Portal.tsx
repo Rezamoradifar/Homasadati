@@ -382,7 +382,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
               )}
             </aside>
             <main className="portal-main">
-              {!admin && user.companyPositions && user.companyPositions.status!=="qualified" && <section className="portal-card position-company-note" role="status"><h2>{user.companyPositions.status==="suspended"?"جایگاه شرکتی معلق است":"مهلت فعال‌سازی دو جایگاه اول"}</h2><p>مهلت جایگاه شرکتی: ۳۵ روز از تخصیص · {Number(user.companyPositions.remainingDays).toLocaleString("fa-IR")} روز باقی‌مانده</p><p>خرید واقعی لازم: {Math.max(0,20000000-user.companyPositions.realPurchaseToman).toLocaleString("fa-IR")} تومان</p><a className="portal-button" href="/shop">خرید و فعال‌سازی جایگاه</a></section>}
+              {!admin && user.companyPositions && !user.companyPositions.exempt && user.companyPositions.status!=="qualified" && <section className="portal-card position-company-note" role="status"><h2>{user.companyPositions.status==="suspended"?"جایگاه شرکتی معلق است":"مهلت فعال‌سازی دو جایگاه اول"}</h2><p>مهلت جایگاه شرکتی: ۳۵ روز از تخصیص · {Number(user.companyPositions.remainingDays).toLocaleString("fa-IR")} روز باقی‌مانده</p><p>خرید واقعی لازم: {Math.max(0,20000000-user.companyPositions.realPurchaseToman).toLocaleString("fa-IR")} تومان</p><a className="portal-button" href="/shop">خرید و فعال‌سازی جایگاه</a></section>}
               <div className="portal-title">
                 <div>
                   <h1>{!admin && tab === "dashboard" ? "حساب من" : current?.[1] || "پنل هما نت"}</h1>

@@ -11,6 +11,7 @@ import { provisionBrandMember } from "./brand-member";
 import { checkPassword } from "./security";
 import { referralStatus, setReferralPlacement, sponsorByCode } from "./referral";
 import { positionDesks } from "./card-positions";
+import { companyPositionStatus, reviewCompanyPositions } from "./company-members";
 const directory=mkdtempSync(join(tmpdir(),"homay-brand-"));
 let manager:string;
 beforeAll(()=>{
@@ -67,4 +68,29 @@ it("resolves reza explicitly and creates beneath personal position 4 even with m
   expect(provisionBrandMember({email:"brand@homanets.com",managerReferralCode:"reza",desk:4})).toMatchObject({reused:true,password:null,placement:1});
   expect(()=>provisionBrandMember({email:"wrong@homanets.com",managerReferralCode:"missing",desk:4})).toThrow("manager_referral_not_found");
   expect(one("SELECT id FROM p_users WHERE email='wrong@homanets.com'")).toBeUndefined();
+});
+it("makes only the CEO and designated leader permanent without renewing activation timestamps or resetting passwords",()=>{
+  const brand=one("SELECT * FROM p_users WHERE email='brand@homanets.com'")!;
+  const grantBefore=one("SELECT * FROM p_company_positions WHERE user_id=?",brand.id)!;
+  const ownerGrantBefore=one("SELECT * FROM p_company_positions WHERE user_id=?",manager)!;
+  const result=provisionBrandMember({email:brand.email,managerReferralCode:"reza",desk:4,permanent:true});
+  expect(result).toMatchObject({reused:true,password:null,activePositions:7,parentPosition:4,grant:{exempt:true,deadline:null,requiredToman:0},managerGrant:{exempt:true,deadline:null,requiredToman:0}});
+  const farFuture=Date.now()+1000*86400000;
+  expect(positionDesks(manager,farFuture)).toBe(7);
+  expect(positionDesks(brand.id,farFuture)).toBe(7);
+  expect(positionDesks(brand.id,Date.parse(grantBefore.granted_at)-1)).toBe(0);
+  expect(positionDesks(one("SELECT id FROM p_users WHERE email='club@homanets.com'")!.id,farFuture)).toBe(0);
+  expect(one("SELECT granted_at FROM p_company_positions WHERE user_id=?",brand.id)!.granted_at).toBe(grantBefore.granted_at);
+  expect(one("SELECT granted_at FROM p_company_positions WHERE user_id=?",manager)!.granted_at).toBe(ownerGrantBefore.granted_at);
+  expect(one("SELECT password FROM p_users WHERE id=?",brand.id)!.password).toBe(brand.password);
+  const auditCount=one("SELECT COUNT(*) n FROM p_audit")!.n;
+  provisionBrandMember({email:brand.email,managerReferralCode:"reza",desk:4,permanent:true});
+  expect(one("SELECT COUNT(*) n FROM p_audit")!.n).toBe(auditCount);
+  reviewCompanyPositions();
+  expect(companyPositionStatus(brand.id,farFuture)?.status).toBe("qualified");
+  run("UPDATE p_users SET blocked=1 WHERE id=?",brand.id);
+  expect(positionDesks(brand.id)).toBe(0);
+  run("UPDATE p_users SET blocked=0 WHERE id=?",brand.id);
+  expect(one("SELECT COUNT(*) n FROM p_orders")!.n).toBe(0);
+  expect(()=>provisionBrandMember({email:"club@homanets.com",managerReferralCode:"reza",ordinal:2,permanent:true})).toThrow("permanent_brand_conflict");
 });

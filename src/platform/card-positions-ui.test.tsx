@@ -26,3 +26,9 @@ it("shows one endpoint under each of positions 4–7 in physical left-to-right o
  fireEvent.click(screen.getByRole('button',{name:/رفرال جایگاه ۴/}));expect(open).toHaveBeenCalledWith('first');
  expect(container.querySelectorAll('.personal-position.lit')).toHaveLength(1);
 });
+it("shows permanent company positions without purchase qualification or a deadline",()=>{
+  render(<PersonalPositions data={{...fixture(7),company:{status:"qualified",exempt:true,activeDesks:7,requiredToman:0,remainingDays:0,deadline:null}}} onOpen={()=>{}}/>);
+  expect(screen.getByText("جایگاه‌های دائماً فعال")).toBeTruthy();
+  expect(screen.getByText("این حساب شرط خرید و مهلت زمانی ندارد.")).toBeTruthy();
+  expect(screen.queryByText(/شرط خرید واقعی تکمیل شد|۲۰ میلیون تومان|روز باقی‌مانده/)).toBeNull();
+});
