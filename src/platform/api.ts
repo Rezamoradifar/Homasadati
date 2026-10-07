@@ -57,7 +57,7 @@ import { placementTree, searchTree } from "./network-tree";
 import { activityChart } from "./activity-chart";
 import { welcomeMember } from "./welcome";
 import { createCampaign, newsletterOverview, sendCampaign, sendTest } from "./newsletter";
-import { newReferralCode, referralStatus, setReferralCode, sponsorByCode } from "./referral";
+import { newReferralCode, referralStatus, setReferralCode, setReferralPlacement, sponsorByCode } from "./referral";
 import {
   payoutProfileSchema,
   payoutProfileView,
@@ -2181,6 +2181,8 @@ export async function handle(req: Request, path: string[]) {
       verifyTotp(u, d.totp || "");
       return json({ profile: savePayoutProfile(u.id, d) });
     }
+    if (path.join("/") === "referral/placement" && method === "POST")
+      return json(setReferralPlacement(u, data));
     if (path[0] === "referral") {
       if (get) return json(referralStatus(u));
       return json(setReferralCode(u, z.object({ code: z.string() }).parse(data).code));

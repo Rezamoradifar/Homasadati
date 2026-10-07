@@ -10,7 +10,9 @@ import {FOUR_REFERRAL_VERSION,fourDirectCapacity} from "./card-position-model";
 import {configureFourReferrals,bindDirect,assertDirectCapacity,personalPositionTree,positionAncestors,positionDesks} from "./card-positions";
 import {runCardSettlement,weekStartAt} from "./seven-card-engine";
 import {createOrder,settleOrder,refundOrder,wallet} from "./finance";
-import {referralStatus} from "./referral";
+import {handle} from "./api";
+import {session,SESSION_COOKIE} from "./security";
+import {referralStatus,setReferralPlacement} from "./referral";
 import {placementTree,searchTree} from "./network-tree";
 const dir=mkdtempSync(join(tmpdir(),"homay-four-referrals-")),M=1_000_000;
 let product:string,admin:string;
@@ -25,19 +27,18 @@ beforeAll(()=> {
  saveSetting("seven_card_schedule_version","2026-10-06");configureFourReferrals();
 });
 afterAll(()=>{platformDb().close();rmSync(dir,{recursive:true,force:true});});
-it("requires each leaf to be paid before accepting its one referral and uses a shared left-to-right order",()=> {
+it("opens all four referrals at 10m and fills them left to right while only position 1 is lit",()=> {
  const root=member();expect(fourDirectCapacity(0)).toBe(0);
- buy(root,10*M);expect(positionDesks(root)).toBe(1);expect(referralStatus(one("SELECT * FROM p_users WHERE id=?",root)!).active).toBe(false);expect(()=>assertDirectCapacity(root)).toThrow("direct_capacity_reached");
- buy(root,30*M);const children:string[]=[];
+ expect(()=>assertDirectCapacity(root)).toThrow("direct_capacity_reached");
+ buy(root,10*M);expect(positionDesks(root)).toBe(1);const children:string[]=[];
  for (let i=0;i<4;i++) {
-   if(i) buy(root,10*M);
    assertDirectCapacity(root);expect(referralStatus(one("SELECT * FROM p_users WHERE id=?",root)!).active).toBe(true);const child=member("Leaf "+i,root);children.push(child);
    expect(bindDirect(root,child).ordinal).toBe(i+1);
    expect(bindDirect(root,child).ordinal).toBe(i+1);
-   expect(()=>assertDirectCapacity(root)).toThrow("direct_capacity_reached");
-   expect(referralStatus(one("SELECT * FROM p_users WHERE id=?",root)!).active).toBe(false);
+   if (i===3) expect(()=>assertDirectCapacity(root)).toThrow("direct_capacity_reached");
+   expect(referralStatus(one("SELECT * FROM p_users WHERE id=?",root)!).active).toBe(i<3);
  }
- const tree=personalPositionTree(root);expect(tree.version).toBe(FOUR_REFERRAL_VERSION);expect(tree.desks).toBe(7);
+ const tree=personalPositionTree(root);expect(tree.version).toBe(FOUR_REFERRAL_VERSION);expect(tree.desks).toBe(1);
  expect(tree.directs.map(d=>[d.desk,d.enabled,d.member?.child_id])).toEqual(children.map((child,i)=>[i+4,true,child]));
  expect(()=>bindDirect(root,member())).toThrow("direct_capacity_reached");
  expect(positionAncestors(children[1])).toEqual([{user:root,desk:1,leg:"left"},{user:root,desk:2,leg:"right"},{user:root,desk:5,leg:"left"}]);
@@ -46,9 +47,9 @@ it("requires each leaf to be paid before accepting its one referral and uses a s
  expect(searchTree(root,"Leaf")).toHaveLength(4);expect(()=>placementTree(children[0],root)).toThrow();
 });
 it("a refund disables the leaf without moving an existing member",()=> {
- const root=member();buy(root,30*M);const topup=buy(root,10*M),child=member("Existing leaf",root);bindDirect(root,child);
+ const root=member();const topup=buy(root,10*M),child=member("Existing leaf",root);bindDirect(root,child);
  refundOrder(topup.id,admin,true,"return top-up");const tree=personalPositionTree(root);
- expect(tree.desks).toBe(3);expect(tree.directCapacity).toBe(0);expect(tree.directs[0].enabled).toBe(false);expect(tree.directs[0].member?.child_id).toBe(child);
+ expect(tree.desks).toBe(0);expect(tree.directCapacity).toBe(0);expect(tree.directs[0].enabled).toBe(false);expect(tree.directs[0].member?.child_id).toBe(child);
  expect(()=>bindDirect(root,member())).toThrow("direct_capacity_reached");
 });
 it("refuses reinterpretation of live networks and financial history",()=> {
@@ -59,6 +60,41 @@ it("refuses reinterpretation of live networks and financial history",()=> {
  saveSetting("seven_card_live","0");saveSetting("seven_card_position_version",FOUR_REFERRAL_VERSION);expect(()=>configureFourReferrals()).not.toThrow();
 });
 
+it("places the next referral in the chosen empty position and returns to automatic filling",()=> {
+ const root=member(),user=one("SELECT * FROM p_users WHERE id=?",root)!;
+ expect(()=>setReferralPlacement(user,{desk:7})).toThrow("direct_capacity_reached");
+ buy(root,10*M);expect(setReferralPlacement(user,{desk:7}).placement?.nextDesk).toBe(7);
+ const first=member("Selected",root);expect(bindDirect(root,first).ordinal).toBe(4);
+ expect(referralStatus(user).placement?.nextDesk).toBeNull();
+ expect(()=>setReferralPlacement(user,{desk:7})).toThrow("direct_position_occupied");
+ expect(()=>setReferralPlacement(user,{desk:8})).toThrow();
+ const second=member("Auto",root);expect(bindDirect(root,second).ordinal).toBe(1);
+ setReferralPlacement(user,{desk:6});setReferralPlacement(user,{desk:null});
+ expect(bindDirect(root,member("Auto two",root)).ordinal).toBe(2);
+ setReferralPlacement(user,{desk:6});const last=member("Last",root);expect(bindDirect(root,last).ordinal).toBe(3);
+ expect(referralStatus(user).active).toBe(false);
+ expect(bindDirect(root,last).ordinal).toBe(3);
+ expect(()=>bindDirect(root,member())).toThrow("direct_capacity_reached");
+});
+it("does not consume the placement choice when a refund locks all referrals",()=> {
+ const root=member(),user=one("SELECT * FROM p_users WHERE id=?",root)!;
+ const order=buy(root,10*M);setReferralPlacement(user,{desk:6});refundOrder(order.id,admin,true,"return purchase");
+ expect(()=>bindDirect(root,member())).toThrow("direct_capacity_reached");
+ expect(referralStatus(user).placement?.nextDesk).toBe(6);
+ buy(root,10*M);expect(bindDirect(root,member("After reactivation",root)).ordinal).toBe(3);
+});
+it("authenticates the placement endpoint and prevents choosing for another member",async()=> {
+ const owner=member(),other=member();buy(owner,10*M);buy(other,10*M);
+ const token=session(owner,"test");
+ const request=(payload:unknown,cookie="",origin="https://homay.test")=>handle(new Request("https://homay.test/api/platform/referral/placement",{method:"POST",headers:{origin,host:"homay.test","content-type":"application/json",cookie},body:JSON.stringify(payload)}),["referral","placement"]);
+ expect((await request({desk:7})).status).toBe(401);
+ expect((await request({desk:7},SESSION_COOKIE+"="+token,"https://other.test")).status).toBe(403);
+ expect((await request({desk:7,userId:other},SESSION_COOKIE+"="+token)).status).toBe(400);
+ const response=await request({desk:7},SESSION_COOKIE+"="+token);expect(response.status).toBe(200);
+ expect((await response.json()).placement.nextDesk).toBe(7);
+ expect(one("SELECT desk FROM p_referral_placement WHERE user_id=?",other)).toBeUndefined();
+ expect((await request({desk:null},SESSION_COOKIE+"="+token)).status).toBe(200);
+});
 it("settles four new routes once and reverses the affected pools on refund",()=> {
  saveSetting("seven_card_plan_draft",JSON.stringify({revision:1,decisions:{overflow:"flush",counterScope:"member",voucherCountsTowardCap:true,topology:"own-desks",purchaseCredit:"purchase-value",weekStart:1}}));
  saveSetting("seven_card_live","1");saveSetting("seven_card_budget_unlimited","1");saveSetting("seven_card_live_since",String(Date.now()));

@@ -21,9 +21,12 @@ export function bindDirect(sponsor: string, child: string) {
     const prior = one("SELECT * FROM p_card_direct_positions WHERE child_id=?",child);
     if (prior) { if(prior.sponsor_id !== sponsor) throw new ApiError(409,"direct_position_locked"); return prior; }
     const used = all("SELECT ordinal FROM p_card_direct_positions WHERE sponsor_id=?",sponsor).map(x=>x.ordinal);
-    const ordinal = Array.from({length:8},(_,i)=>i+1).find(x=>!used.includes(x));
+    const chosen = fourReferralMode() ? one("SELECT desk FROM p_referral_placement WHERE user_id=?",sponsor)?.desk : null;
+    const ordinal = chosen ? chosen - 3 : Array.from({length:8},(_,i)=>i+1).find(x=>!used.includes(x));
+    if (chosen && used.includes(ordinal)) throw new ApiError(409,"direct_position_occupied");
     if (!ordinal || ordinal > capacity(positionDesks(sponsor))) throw new ApiError(409,"direct_capacity_reached");
     run("INSERT INTO p_card_direct_positions VALUES(?,?,?,?)",child,sponsor,ordinal,now());
+    if (chosen) run("DELETE FROM p_referral_placement WHERE user_id=?",sponsor);
     return {child_id:child,sponsor_id:sponsor,ordinal};
   });
 }

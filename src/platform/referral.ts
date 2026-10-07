@@ -1,5 +1,6 @@
 import { fourReferralMode, positionDesks } from "./card-positions";
 import { fourDirectCapacity } from "./card-position-model";
+import { z } from "zod";
 import { randomInt } from "node:crypto";
 import { ApiError } from "../server/http";
 import { setting } from "./providers";
@@ -56,10 +57,19 @@ export function referralStatus(user: Row) {
     user.id,
   )!;
   const requiresPurchase = referralNeedsPurchase();
+  const four = fourReferralMode();
+  const capacity = four ? fourDirectCapacity(positionDesks(user.id)) : 0;
   return {
+    placement: four ? {
+      nextDesk: one("SELECT desk FROM p_referral_placement WHERE user_id=?",user.id)?.desk ?? null,
+      slots: [4,5,6,7].map(desk => ({desk,
+        enabled: capacity > 0,
+        occupied: !!one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,desk-3),
+      })),
+    } : null,
     code: user.referral_code,
     active: !user.blocked && (!requiresPurchase || hasPaidOrder(user.id)) &&
-      (!fourReferralMode() || direct.total < fourDirectCapacity(positionDesks(user.id))),
+      (!four || direct.total < capacity),
     requiresPurchase,
     canChange: !nextChange || nextChange <= now(),
     nextChange,
@@ -95,5 +105,20 @@ export function setReferralCode(user: Row, input: string) {
     run("UPDATE p_users SET referral_code=? WHERE id=?", code, user.id);
     audit(user.id, "referral.code", user.id, { code: user.referral_code }, { code });
     return referralStatus({ ...user, referral_code: code });
+  });
+}
+
+/** A member chooses the next incoming referral, never another member's placement. */
+export function setReferralPlacement(user: Row, input: unknown) {
+  const {desk} = z.object({desk:z.union([z.literal(4),z.literal(5),z.literal(6),z.literal(7),z.null()])}).strict().parse(input);
+  return atomic(() => {
+    if (user.blocked || !fourReferralMode()) throw new ApiError(403,"forbidden");
+    if (desk !== null) {
+      if (!fourDirectCapacity(positionDesks(user.id))) throw new ApiError(409,"direct_capacity_reached");
+      if (one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,desk-3))
+        throw new ApiError(409,"direct_position_occupied");
+      run("INSERT INTO p_referral_placement VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET desk=excluded.desk,updated_at=excluded.updated_at",user.id,desk,now());
+    } else run("DELETE FROM p_referral_placement WHERE user_id=?",user.id);
+    return referralStatus(user);
   });
 }

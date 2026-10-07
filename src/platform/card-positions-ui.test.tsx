@@ -17,12 +17,12 @@ it.each([1,2,3,4,5,6,7])("shows the fixed 1–2–4 diagram with %s active posit
 it("opens details in one shared inspector without growing the diagram",()=>{const{container}=render(<PersonalPositions data={fixture(3)} onOpen={()=>{}}/>);const diagram=container.querySelector('.position-diagram')!;const before=diagram.textContent;fireEvent.click(screen.getByRole('button',{name:'جایگاه 3 فعال'}));expect(screen.getByRole('button',{name:'جایگاه 3 فعال'}).getAttribute('aria-pressed')).toBe('true');expect(container.querySelectorAll('.position-inspector')).toHaveLength(1);expect(container.querySelector('.position-inspector-title')!.textContent).toContain('جایگاه ۳');expect(diagram.textContent).toBe(before);fireEvent.click(screen.getByRole('button',{name:'جایگاه 7 خاموش'}));expect(container.querySelector('.position-badge')!.textContent).toBe('خاموش');});
 
 it("shows one endpoint under each of positions 4–7 in physical left-to-right order",()=> {
- const data=fixture(5);data.directCapacity=2;
- data.directs=(["LLL","LRL","RLL","RRL"] as const).map((path,i)=>({ordinal:i+1,path,enabled:i<2,member:i===0?{child_id:"first",name:"عضو اول"}:null}));
+ const data=fixture(1);data.directCapacity=4;
+ data.directs=(["LLL","LRL","RLL","RRL"] as const).map((path,i)=>({ordinal:i+1,path,enabled:true,member:i===0?{child_id:"first",name:"عضو اول"}:null}));
  const open=vi.fn(),{container}=render(<PersonalPositions data={data} onOpen={open}/>);
  expect(container.querySelectorAll('.personal-direct')).toHaveLength(4);
- expect(container.querySelectorAll('.personal-direct.enabled')).toHaveLength(2);
+ expect(container.querySelectorAll('.personal-direct.enabled')).toHaveLength(4);
  expect(Array.from(container.querySelectorAll('.personal-direct strong')).map(n=>n.textContent)).toEqual(['۴','۵','۶','۷']);
  fireEvent.click(screen.getByRole('button',{name:/رفرال جایگاه ۴/}));expect(open).toHaveBeenCalledWith('first');
- expect(container.querySelectorAll('.personal-position.lit')).toHaveLength(5);
+ expect(container.querySelectorAll('.personal-position.lit')).toHaveLength(1);
 });

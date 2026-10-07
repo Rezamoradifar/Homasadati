@@ -99,11 +99,29 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                 <div className="portal-code" dir="ltr" translate="no">
                   {link}
                 </div>
-                {!d.active && d.requiresPurchase && (
+                {!d.active && d.requiresPurchase && !d.placement && (
                   <p className="portal-notice">
                     کد معرف شما پس از اولین خرید پرداخت‌شده فعال می‌شود و از آن پس افراد می‌توانند با آن عضو شوند.
                   </p>
                 )}
+                {d.placement && <>
+                  <h3>جایگاه رفرال بعدی</h3>
+                  <p>با اولین خرید ۱۰ میلیون تومانی، چهار ورودی رفرال باز می‌شود. یک جایگاه خالی را برای ورودی بعدی انتخاب کنید؛ بعد از ثبت آن عضو، چیدمان دوباره خودکار می‌شود.</p>
+                  <Form
+                    key={JSON.stringify(d.placement)}
+                    fields={[{name:"desk",label:"محل ورودی بعدی",type:"select",options:[
+                      ["auto","خودکار از چپ به راست"],
+                      ...d.placement.slots.filter((slot:{desk:number;enabled:boolean;occupied:boolean})=>slot.enabled && !slot.occupied)
+                        .map((slot:{desk:number}):[string,string]=>[String(slot.desk),"جایگاه "+fa(slot.desk)]),
+                    ]}]}
+                    initial={{desk:d.placement.nextDesk === null ? "auto" : String(d.placement.nextDesk)}}
+                    submit="ثبت محل رفرال بعدی"
+                    onSubmit={async v=> {
+                      await api("referral/placement","POST",{desk:v.desk === "auto" ? null : Number(v.desk)});
+                      setVersion(n=>n+1);
+                    }}
+                  />
+                </>}
                 <dl className="referral-stats">
                   <div>
                     <dt>معرفی مستقیم</dt>

@@ -13,7 +13,7 @@ export function directRoutes(ordinal: number, desks: number) {
 export const FOUR_DIRECT_PATHS = ["LLL", "LRL", "RLL", "RRL"] as const;
 export const FOUR_REFERRAL_VERSION = "four-referrals-2026-10-07";
 export function fourDirectCapacity(desks: number) {
-  return Math.max(0, Math.min(4, Math.trunc(desks) - 3));
+  return desks >= 1 ? 4 : 0;
 }
 export function fourDirectRoutes(ordinal: number, desks: number) {
   const path = FOUR_DIRECT_PATHS[ordinal - 1];
