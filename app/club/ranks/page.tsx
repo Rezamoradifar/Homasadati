@@ -6,8 +6,8 @@ import Localized from "../../../src/i18n/Localized";
 import PrivilegeCard from "../../PrivilegeCard";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import { travelPresets } from "../../../src/platform/travel-presets";
-import { sevenCards } from "../../../src/platform/seven-card-model";
-export async function generateMetadata() { return translatedMetadata({ title: "هشت رتبه باشگاه و کارت سفر | هما نت" }); }
+import { sevenLevelCards as sevenCards } from "../../../src/platform/card-levels";
+export async function generateMetadata() { return translatedMetadata({ title: "کارت‌های باشگاه و رتبه‌های سفر | هما نت" }); }
 export default function RanksPage() {
   const ranks = travelPresets();
   // Travel credit shows only once staff have switched at least one rank on;
@@ -18,19 +18,19 @@ export default function RanksPage() {
     <Localized><CommerceShell>
       <main id="commerce-main" className="rank-page">
         <header>
-          <p className="commerce-eyebrow">باشگاه همای / هشت رتبه</p>
-          <h1>هشت رتبه؛ یک مسیر همراهی</h1>
+          <p className="commerce-eyebrow">باشگاه همای / کارت‌های خرید</p>
+          <h1>کارت‌های باشگاه و رتبه‌های سفر</h1>
           {travel ? (
             <>
               <p>
                 از جوانه تا آریا؛ کارت سفر شخصی با هویت ایرانی. اعتبار سفر غیرنقدی
                 است و با موجودی کیف پول تفاوت دارد.
               </p>
-              <p>کارت سفر تابع مقررات جداگانه است؛ جدول طرح هشت کارت در ادامه آمده است.</p>
+              <p>کارت سفر تابع مقررات جداگانه است؛ جدول طرح هفت کارت در ادامه آمده است.</p>
             </>
           ) : (
             <p>
-              از جوانه تا آریا؛ کارت‌های باشگاه مشتریان هما نت با هویت ایرانی. حداقل
+              از جوانه تا سیمرغ؛ کارت‌های باشگاه مشتریان هما نت با هویت ایرانی. حداقل
               خرید، میز کار و سقف پاداش هر کارت در جدول زیر آمده است.
             </p>
           )}
@@ -38,7 +38,7 @@ export default function RanksPage() {
         <SevenCardPublic />
         {travel ? (
           <>
-        <section className="rank-comparison" aria-labelledby="compare-title"><h2 id="compare-title">مقایسهٔ هشت کارت</h2><p>اعتبار سفر با سقف پاداش هفتگی پلن جدید متفاوت است.</p><div className="comparison-scroll" role="region" aria-label="جدول مقایسه کارت‌ها" tabIndex={0}><table><thead><tr><th scope="col">کارت</th><th scope="col">اعتبار سفر</th><th scope="col">حداقل فروش شخصی</th><th scope="col">اعتبار (روز)</th><th scope="col">وضعیت صدور</th></tr></thead><tbody>{ranks.map(r=><Localized key={r.level}><tr><th scope="row"><a href={"#rank-"+r.level}>{r.display_name}</a></th><td><Money toman={r.amount}/></td><td><Money toman={r.threshold}/></td><td>{number(r.duration)}</td><td>{r.active?"صدور فعال":"پیشنهاد؛ صدور غیرفعال"}</td></tr></Localized>)}</tbody></table></div><p>خرید کارت به‌تنهایی رتبه ایجاد نمی‌کند؛ شرایط فروش شخصی و گروهی و خرید واجد شرایط هر رتبه ملاک است.</p></section>
+        <section className="rank-comparison" aria-labelledby="compare-title"><h2 id="compare-title">مقایسهٔ کارت‌های سفر</h2><p>اعتبار سفر با سقف پاداش هفتگی پلن جدید متفاوت است.</p><div className="comparison-scroll" role="region" aria-label="جدول مقایسه کارت‌ها" tabIndex={0}><table><thead><tr><th scope="col">کارت</th><th scope="col">اعتبار سفر</th><th scope="col">حداقل فروش شخصی</th><th scope="col">اعتبار (روز)</th><th scope="col">وضعیت صدور</th></tr></thead><tbody>{ranks.map(r=><Localized key={r.level}><tr><th scope="row"><a href={"#rank-"+r.level}>{r.display_name}</a></th><td><Money toman={r.amount}/></td><td><Money toman={r.threshold}/></td><td>{number(r.duration)}</td><td>{r.active?"صدور فعال":"پیشنهاد؛ صدور غیرفعال"}</td></tr></Localized>)}</tbody></table></div><p>خرید کارت به‌تنهایی رتبه ایجاد نمی‌کند؛ شرایط فروش شخصی و گروهی و خرید واجد شرایط هر رتبه ملاک است.</p></section>
         <UsdNote/>
         <div className="rank-grid">
           {ranks.map((r) => (
@@ -51,6 +51,7 @@ export default function RanksPage() {
                 tone={r.tone}
                 level={r.level}
                 showPurchaseMinimum={false}
+                totalLevels={8}
               />
               <div className="rank-description">
                 <strong>

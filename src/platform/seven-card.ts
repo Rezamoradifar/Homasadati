@@ -1,4 +1,5 @@
-import { positionMode } from "./card-positions";
+import { SEVEN_LEVEL_VERSION, SEVEN_LEVEL_DESK_CAP, sevenLevelCards } from "./card-levels";
+import { positionMode, sevenLevelMode } from "./card-positions";
 import { UPDATED_DESK_WEEKLY_CAP, updatedCardSchedule } from "./card-schedule";
 import { ApiError } from "../server/http";
 import { atomic } from "./schema";
@@ -23,18 +24,18 @@ export function cardPlan() {
     ? cardDecisionsSchema.parse(stored.decisions)
     : { ...undecidedCardRules };
   return {
-    version: CARD_PLAN_VERSION,
+    version: sevenLevelMode() ? SEVEN_LEVEL_VERSION : CARD_PLAN_VERSION,
     status: setting("seven_card_live") === "1" ? "live" : "draft",
     positionVersion: positionMode() ? setting("seven_card_position_version") : null,
     liveSettlement: setting("seven_card_live") === "1",
     revision: stored?.revision ?? 0,
-    cards: sevenCards,
+    cards: sevenLevelMode() ? sevenLevelCards : sevenCards,
     desksPerMember: DESKS_PER_MEMBER,
     purchasePerDeskToman: PURCHASE_PER_DESK,
     matchVolumeToman: MATCH_VOLUME,
     matchRewardToman: MATCH_REWARD,
     ownPurchaseCommission: false,
-    deskWeeklyCapToman: UPDATED_DESK_WEEKLY_CAP,
+    deskWeeklyCapToman: sevenLevelMode() ? SEVEN_LEVEL_DESK_CAP : UPDATED_DESK_WEEKLY_CAP,
     scheduleVersion: updatedCardSchedule() ? "2026-10-06" : "legacy",
     paymentDelayWeeks: updatedCardSchedule() ? 1 : 0,
     officialIdentityInquiry: "not_configured",

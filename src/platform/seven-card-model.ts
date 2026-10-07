@@ -50,11 +50,11 @@ export const cardSimulationSchema = z
   .strict();
 /** Capped reward and flush preview for ONE desk/week; does not mutate wallets or consume lots.
  * The eighth sequence index is lifetime, not reset every week. */
-export function previewCardMatches(input: unknown) {
-  const d = cardSimulationSchema.parse(input);
+export function previewCardMatches(input: unknown, weeklyCap = UPDATED_DESK_WEEKLY_CAP) {
+  const d = cardSimulationSchema.extend({earnedThisWeek:money.max(weeklyCap)}).parse(input);
   let left = d.left,
     right = d.right,
-    allowance = UPDATED_DESK_WEEKLY_CAP - d.earnedThisWeek;
+    allowance = weeklyCap - d.earnedThisWeek;
   let budget = d.budget,
     cash = 0,
     voucher = 0,

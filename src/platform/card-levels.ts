@@ -33,3 +33,15 @@ export const sevenCards = [
   branches: Math.min(8, desksForPurchase(cardMinimum(card.level)) + 1),
   weeklyCapToman: desksForPurchase(cardMinimum(card.level)) * UPDATED_DESK_WEEKLY_CAP,
 }));
+
+/** Owner-approved seven-level plan; historical eight-card settlements stay versioned. */
+export const SEVEN_LEVEL_VERSION = "seven-level-manual-2026-10-07";
+export const SEVEN_LEVEL_DESK_CAP = 15_000_000;
+export const sevenLevelCards = sevenCards.slice(0,7).map((card,i)=>({
+  ...card, maxExclusiveToman:i===6 ? null : (i+2)*PURCHASE_PER_DESK,
+  branches:i+2,weeklyCapToman:(i+1)*SEVEN_LEVEL_DESK_CAP,
+}));
+export function sevenLevelCardForPurchase(amount:number) {
+  if(!Number.isSafeInteger(amount) || amount<0 || amount>1_000_000_000_000) throw new Error("invalid_purchase_amount");
+  return [...sevenLevelCards].reverse().find(card=>amount>=card.minToman) || null;
+}

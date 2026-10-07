@@ -12,11 +12,11 @@ export default function PlanStatusNote({ fa }: { fa: boolean }) {
       <p className="club-preview-note">
         {fa
           ? live
-            ? "مبالغ روی کارت، حداقل خرید به ریال است. طرح هشت کارت فعال است و پاداش‌ها هر هفته محاسبه و واریز می‌شوند."
-            : "مبالغ روی کارت، حداقل خرید به ریال است. طرح هشت کارت به‌زودی فعال می‌شود؛ زمان شروع از همین‌جا اعلام خواهد شد."
+            ? "مبالغ روی کارت، حداقل خرید به ریال است. طرح هفت کارت فعال است و پاداش‌ها هر هفته محاسبه و واریز می‌شوند."
+            : "مبالغ روی کارت، حداقل خرید به ریال است. طرح هفت کارت به‌زودی فعال می‌شود؛ زمان شروع از همین‌جا اعلام خواهد شد."
           : live
-            ? "Card amounts are minimum purchases in Iranian rials. The eight-card plan is active and rewards are calculated and paid weekly."
-            : "Card amounts are minimum purchases in Iranian rials. The eight-card plan is launching soon; the start date will be announced here."}
+            ? "Card amounts are minimum purchases in Iranian rials. The seven-card plan is active and rewards are calculated and paid weekly."
+            : "Card amounts are minimum purchases in Iranian rials. The seven-card plan is launching soon; the start date will be announced here."}
       </p>
     </Localized>
   );

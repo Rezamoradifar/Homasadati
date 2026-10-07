@@ -1,5 +1,5 @@
-import { fourReferralMode, manualReferralMode, positionDesks } from "./card-positions";
-import { fourDirectCapacity } from "./card-position-model";
+import { fourReferralMode, manualReferralMode, positionDesks, sevenLevelMode, positionDirectCapacity } from "./card-positions";
+import { fourDirectCapacity, DIRECT_PATHS } from "./card-position-model";
 import { z } from "zod";
 import { randomInt } from "node:crypto";
 import { ApiError } from "../server/http";
@@ -58,9 +58,13 @@ export function referralStatus(user: Row) {
   )!;
   const requiresPurchase = referralNeedsPurchase();
   const four = fourReferralMode();
-  const capacity = four ? fourDirectCapacity(positionDesks(user.id)) : 0;
+  const full = sevenLevelMode();
+  const capacity = four || full ? positionDirectCapacity(positionDesks(user.id)) : 0;
   return {
-    placement: four ? {
+    placement: full ? {
+      mandatory:true,key:"ordinal",nextDesk:one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user.id)?.ordinal ?? null,
+      slots:DIRECT_PATHS.map((path,i)=>({desk:i+1,value:i+1,label:"شاخه "+(i+1).toLocaleString("fa-IR")+" · جایگاه "+({LL:4,LR:5,RL:6,RR:7} as Record<string,number>)[path.slice(0,2)].toLocaleString("fa-IR")+" · "+(path.endsWith("L") ? "چپ" : "راست"),enabled:i<capacity,occupied:!!one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,i+1)})),
+    } : four ? {
       mandatory: manualReferralMode(),
       nextDesk: one("SELECT desk FROM p_referral_placement WHERE user_id=?",user.id)?.desk ?? null,
       slots: [4,5,6,7].map(desk => ({desk,
@@ -70,8 +74,8 @@ export function referralStatus(user: Row) {
     } : null,
     code: user.referral_code,
     active: !user.blocked && (!requiresPurchase || hasPaidOrder(user.id)) &&
-      (!four || direct.total < capacity) &&
-      (!manualReferralMode() || !!one("SELECT 1 FROM p_referral_placement WHERE user_id=?",user.id)),
+      (!(four || full) || direct.total < capacity) &&
+      (!manualReferralMode() || !!one(full ? "SELECT 1 FROM p_referral_endpoint_choice WHERE user_id=?" : "SELECT 1 FROM p_referral_placement WHERE user_id=?",user.id)),
     requiresPurchase,
     canChange: !nextChange || nextChange <= now(),
     nextChange,
@@ -112,6 +116,19 @@ export function setReferralCode(user: Row, input: string) {
 
 /** A member chooses the next incoming referral, never another member's placement. */
 export function setReferralPlacement(user: Row, input: unknown) {
+  if(sevenLevelMode()) {
+    const {ordinal}=z.object({ordinal:z.number().int().min(1).max(8).nullable()}).strict().parse(input);
+    return atomic(()=>{
+      if(user.blocked) throw new ApiError(403,"forbidden");
+      if(ordinal !== null) {
+        if(ordinal>positionDirectCapacity(positionDesks(user.id))) throw new ApiError(409,"direct_capacity_reached");
+        if(one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,ordinal)) throw new ApiError(409,"direct_position_occupied");
+        run("INSERT INTO p_referral_endpoint_choice VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET ordinal=excluded.ordinal,updated_at=excluded.updated_at",user.id,ordinal,now());
+      } else run("DELETE FROM p_referral_endpoint_choice WHERE user_id=?",user.id);
+      return referralStatus(user);
+    });
+  }
+
   const {desk} = z.object({desk:z.union([z.literal(4),z.literal(5),z.literal(6),z.literal(7),z.null()])}).strict().parse(input);
   return atomic(() => {
     if (user.blocked || !fourReferralMode()) throw new ApiError(403,"forbidden");

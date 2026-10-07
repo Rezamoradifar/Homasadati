@@ -1,6 +1,5 @@
 import {Money} from '../src/commerce/currency';
 import {tierPriceRial,tomanToRial} from '../src/commerce/club-tiers';
-import {TOP_CARD_LEVEL} from '../src/platform/card-levels';
 
 import Localized from "../src/i18n/Localized";
 type Props = {
@@ -11,6 +10,7 @@ type Props = {
   holder?: string;
   creditToman?: number;
   showPurchaseMinimum?: boolean;
+  totalLevels?: number;
 };
 export default function PrivilegeCard({
   name,
@@ -20,6 +20,7 @@ export default function PrivilegeCard({
   holder,
   creditToman,
   showPurchaseMinimum = true,
+  totalLevels = 7,
 }: Props) {
   const fa = locale !== "en";
   const amountRial=creditToman!==undefined?tomanToRial(creditToman):holder || !showPurchaseMinimum ?undefined:tierPriceRial(level);
@@ -52,8 +53,8 @@ export default function PrivilegeCard({
                 ? "دارنده کارت"
                 : "CARDHOLDER"
               : fa
-                ? "مجموعه کارت‌های سفر"
-                : "TRAVEL COLLECTION"}
+                ? showPurchaseMinimum ? "کارت خرید باشگاه" : "مجموعه کارت‌های سفر"
+                : showPurchaseMinimum ? "CLUB PURCHASE CARD" : "TRAVEL COLLECTION"}
           </span>
           <strong translate={holder ? "no" : undefined}>{holder || (fa ? "هما نت" : "HOMANET")}</strong>
         </div>
@@ -61,7 +62,7 @@ export default function PrivilegeCard({
           {level ? (
             <>
               <b>{String(level).padStart(2, "0")}</b>
-              <i>/ {String(TOP_CARD_LEVEL).padStart(2, "0")}</i>
+              <i>/ {String(totalLevels).padStart(2, "0")}</i>
             </>
           ) : (
             <b>HOMAY</b>

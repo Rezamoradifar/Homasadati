@@ -118,11 +118,9 @@ function MemberStatus({ status }: { status: RecordData }) {
   return (
     <Localized>
       <div className="portal-card">
-        <h3>وضعیت کارت شما</h3>
+        <h3>وضعیت جایگاه‌های شما</h3>
         <dl>
-          <dt>رتبهٔ کارت</dt>
-          <dd>{status.level ? String(status.level) : "هنوز فعال نشده"}</dd>
-          <dt>تعداد میز</dt>
+          <dt>تعداد کارت / جایگاه فعال</dt>
           <dd>{String(status.desks)}</dd>
           <dt>مجموع خرید محاسبه‌شده</dt>
           <dd>{amount(status.totalPurchase)} تومان</dd>
@@ -140,7 +138,7 @@ function MemberStatus({ status }: { status: RecordData }) {
         {status.recent?.length ? (
           <table className="portal-table">
             <thead>
-              <tr><th>هفته</th><th>میز</th><th>نوع</th><th>مبلغ</th></tr>
+              <tr><th>هفته</th><th>جایگاه</th><th>نوع</th><th>مبلغ</th></tr>
             </thead>
             <tbody>
               {status.recent.map((r: RecordData, i: number) => (
@@ -287,7 +285,7 @@ export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
   return (
     <Localized>
       <section className="portal-card">
-        <h2>پلن هشت کارت</h2>
+        <h2>کارت خرید و جایگاه‌های باشگاه</h2>
         <DataState state={state}>
           {(data) => (
             <Localized>
@@ -298,7 +296,7 @@ export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
                     : "این پلن در مرحله آماده‌سازی است؛ پرداخت، فعال‌سازی جایگاه و صدور ووچر بر اساس آن هنوز فعال نشده است."}
                 </p>
                 {!admin && data.member && <><ClubAccountCard status={data.member} available={data.member.availableBalance || 0} /><details><summary>جزئیات حجم و سوابق پورسانت</summary><MemberStatus status={data.member} /></details></>}
-                <SevenCards />
+                <SevenCards cards={data.cards}/>
                 {admin && <LivePanel plan={data} changed={() => setRefresh((v) => v + 1)} />}
                 {admin && (
                   <>

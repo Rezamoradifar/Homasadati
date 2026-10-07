@@ -1,4 +1,5 @@
-import { positionMode, positionAncestors, positionVolume, positionDesks } from "./card-positions";
+import { SEVEN_LEVEL_DESK_CAP, sevenLevelCardForPurchase } from "./card-levels";
+import { positionMode, positionAncestors, positionVolume, positionDesks, positionPurchaseTotal, sevenLevelMode } from "./card-positions";
 import { updatedCardSchedule, mondayStart, UPDATED_DESK_WEEKLY_CAP } from "./card-schedule";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
@@ -95,7 +96,7 @@ function countOrders(cutoff: string) {
     volume += o.amount;
     const before = one("SELECT * FROM p_card_members WHERE user_id=?", o.user_id);
     const total = (before?.total || 0) + o.amount;
-    const card = cardForPurchase(total);
+    const card = sevenLevelMode() ? sevenLevelCardForPurchase(total) : cardForPurchase(total);
     run(
       `INSERT INTO p_card_members(user_id,total,level,desks,updated_at) VALUES(?,?,?,?,?)
        ON CONFLICT(user_id) DO UPDATE SET total=excluded.total,level=excluded.level,desks=excluded.desks,updated_at=excluded.updated_at`,
@@ -262,7 +263,7 @@ function settleUpdatedWeek(startMs: number) {
     if(!m.desks) continue;
     const volume = (leg: string) => one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0",m.user_id,leg)!.n;
     let left = volume("left"), right = volume("right");
-    const allowance = Array.from({length:m.desks},()=>UPDATED_DESK_WEEKLY_CAP);
+    const allowance = Array.from({length:m.desks},()=>sevenLevelMode() ? SEVEN_LEVEL_DESK_CAP : UPDATED_DESK_WEEKLY_CAP);
     const counters = Array.from({length:m.desks},(_,i)=>one("SELECT matches FROM p_card_desks WHERE user_id=? AND desk=?",m.user_id,i+1)?.matches || 0);
     const record = (desk:number, sequence:number, kind:string, gross:number, pay:number, count:number) => {
       const id = randomUUID();
@@ -408,7 +409,7 @@ export function reverseCardOrder(orderId: string) {
   run("UPDATE p_card_lots SET void=1,remaining=0 WHERE order_id=?", orderId);
   const member = one("SELECT * FROM p_card_members WHERE user_id=?", counted.user_id);
   if (member) {
-    const total = Math.max(0, member.total - counted.amount), card = total ? cardForPurchase(total) : null;
+    const total = Math.max(0, member.total - counted.amount), card = total ? (sevenLevelMode() ? sevenLevelCardForPurchase(total) : cardForPurchase(total)) : null;
     run("UPDATE p_card_members SET total=?,level=?,desks=?,updated_at=? WHERE user_id=?",
       total, card?.level || 0, card?.desks || 0, now(), counted.user_id);
   }
@@ -426,14 +427,19 @@ export function memberCardStatus(user: string) {
   const counters = all("SELECT desk,matches FROM p_card_desks WHERE user_id=? ORDER BY desk", user);
   const leg = (l: string) =>
     positionMode() ? positionVolume(user,1,l) : one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0", user, l)!.n;
+  const fullCard = sevenLevelMode() ? sevenLevelCardForPurchase(positionPurchaseTotal(user)) : null;
   return {
+    planVersion:setting("seven_card_position_version"),
+    cardName:fullCard?.name,
+    branches:sevenLevelMode() ? (positionDesks(user) ? positionDesks(user)+1 : 0) : undefined,
     live: cardLive(),
-    level: m?.level || 0,
+    level: sevenLevelMode() ? fullCard?.level || 0 : m?.level || 0,
     desks: positionMode() ? positionDesks(user) : m?.desks || 0,
     totalPurchase: m?.total || 0,
+    qualifyingPurchaseTotal: positionMode() ? positionPurchaseTotal(user) : m?.total || 0,
     paidPurchaseTotal: one("SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND refunded_at IS NULL AND status NOT IN ('refunded','cancelled')",user)!.n,
     pendingRewards: one("SELECT COALESCE(SUM(amount),0) n FROM p_card_due WHERE user_id=? AND status='pending'",user)!.n,
-    weeklyCapToman: (positionMode() ? positionDesks(user) : m?.desks || 0) * (updatedCardSchedule()? UPDATED_DESK_WEEKLY_CAP: DESK_WEEKLY_CAP),
+    weeklyCapToman: (positionMode() ? positionDesks(user) : m?.desks || 0) * (sevenLevelMode() ? SEVEN_LEVEL_DESK_CAP : updatedCardSchedule()? UPDATED_DESK_WEEKLY_CAP: DESK_WEEKLY_CAP),
     leftVolume: leg("left"),
     rightVolume: leg("right"),
     deskCounters: counters,

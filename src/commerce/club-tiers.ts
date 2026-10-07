@@ -1,6 +1,6 @@
-import { sevenCards } from "../platform/card-levels";
+import { sevenLevelCards } from "../platform/card-levels";
 // Purchase lower bounds in rial; matching and caps use toman in the shared model.
-export const clubTiers = sevenCards.map((card) => ({
+export const clubTiers = sevenLevelCards.map((card) => ({
   ...card,
   priceRial: card.minToman * 10,
 }));

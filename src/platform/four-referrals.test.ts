@@ -8,7 +8,7 @@ import {platformDb,run,one,now} from "./schema";
 import {saveSetting} from "./providers";
 import {FOUR_REFERRAL_VERSION,fourDirectCapacity} from "./card-position-model";
 import {configureFourReferrals,bindDirect,assertDirectCapacity,personalPositionTree,positionAncestors,positionDesks} from "./card-positions";
-import {runCardSettlement,weekStartAt} from "./seven-card-engine";
+import {runCardSettlement,weekStartAt,memberCardStatus} from "./seven-card-engine";
 import {createOrder,settleOrder,refundOrder,wallet} from "./finance";
 import {handle} from "./api";
 import {session,SESSION_COOKIE} from "./security";
@@ -30,7 +30,7 @@ afterAll(()=>{platformDb().close();rmSync(dir,{recursive:true,force:true});});
 it("opens four slots at 10m but requires owner placement before every new referral",()=> {
  const root=member();expect(fourDirectCapacity(0)).toBe(0);
  expect(()=>assertDirectCapacity(root)).toThrow("direct_capacity_reached");
- buy(root,10*M);expect(positionDesks(root)).toBe(1);const children:string[]=[];
+ buy(root,10*M);expect(positionDesks(root)).toBe(1);expect(memberCardStatus(root).qualifyingPurchaseTotal).toBe(10*M);const children:string[]=[];
  for (let i=0;i<4;i++) {
    setReferralPlacement(one("SELECT * FROM p_users WHERE id=?",root)!,{desk:i+4});
    assertDirectCapacity(root);expect(referralStatus(one("SELECT * FROM p_users WHERE id=?",root)!).active).toBe(true);const child=member("Leaf "+i,root);children.push(child);

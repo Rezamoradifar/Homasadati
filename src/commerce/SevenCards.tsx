@@ -1,16 +1,16 @@
 "use client";
 import Localized from "../i18n/Localized";
 import { useSiteLocale } from "../i18n/SiteLocale";
-import { sevenCards } from "../platform/card-levels";
+import { sevenLevelCards } from "../platform/card-levels";
 
-export default function SevenCards() {
+export default function SevenCards({cards=sevenLevelCards}:{cards?:typeof sevenLevelCards}) {
   const { locale } = useSiteLocale();
   const n = (value: number) =>
     value.toLocaleString(locale === "en" ? "en-US" : "fa-IR");
   return (
     <Localized>
       <section className="brand-chapter">
-        <h2>طرح هشت‌کارتی باشگاه</h2>
+        <h2>طرح کارت‌های باشگاه</h2>
         <p>مبالغ این جدول به تومان است. سقف پاداش، درآمد تضمین‌شده نیست.</p>
         <div style={{ overflowX: "auto" }}>
           <table className="portal-table">
@@ -20,19 +20,19 @@ export default function SevenCards() {
                 <th>کارت</th>
                 <th>حداقل خرید</th>
                 <th>کمتر از</th>
-                <th>حداقل میز کار فعال</th>
-                <th>حداقل سقف هفتگی</th>
+                <th>جایگاه فعال</th><th>حداکثر شاخه</th>
+                <th>سقف هفتگی</th>
               </tr>
             </thead>
             <tbody>
-              {sevenCards.map((card) => (
+              {cards.map((card) => (
                 <tr key={card.level}>
                   <td>{locale === "en" ? card.english : card.name}</td>
                   <td>{n(card.minToman)}</td>
                   <td>
                     {card.maxExclusiveToman ? n(card.maxExclusiveToman) : "—"}
                   </td>
-                  <td>{n(card.desks)}</td>
+                  <td>{n(card.desks)}</td><td>{n(card.branches)}</td>
                   <td>{n(card.weeklyCapToman)}</td>
                 </tr>
               ))}
