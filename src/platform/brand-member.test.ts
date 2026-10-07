@@ -1,0 +1,61 @@
+// @vitest-environment node
+import { beforeAll, afterAll, it, expect } from "vitest";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { randomUUID } from "node:crypto";
+import { platformDb, run, one, now } from "./schema";
+import { saveSetting } from "./providers";
+import { SEVEN_LEVEL_VERSION } from "./card-levels";
+import { provisionBrandMember } from "./brand-member";
+import { checkPassword } from "./security";
+import { referralStatus, setReferralPlacement, sponsorByCode } from "./referral";
+import { positionDesks } from "./card-positions";
+const directory=mkdtempSync(join(tmpdir(),"homay-brand-"));
+let manager:string;
+beforeAll(()=>{
+  process.env.DATABASE_PATH=join(directory,"test.sqlite");
+  manager=randomUUID();
+  run("INSERT INTO p_users(id,email,name,password,role,referral_code,created_at,last_seen,signup_ip) VALUES(?,?,?,?,?,?,?,?,?)",manager,"ceo@homanets.com","CEO","unused","superadmin","ceo",now(),now(),"test");
+  run("INSERT INTO p_wallets(user_id) VALUES(?)",manager);
+  run("INSERT INTO p_company_positions VALUES(?,?,?,?,?,?)",manager,7,now(),new Date(Date.now()+35*86400000).toISOString(),manager,"qualified");
+  saveSetting("company_position_permanent_owner",manager);
+  saveSetting("seven_card_position_version",SEVEN_LEVEL_VERSION);
+  saveSetting("referral_requires_purchase","1");
+});
+afterAll(()=>{platformDb().close();rmSync(directory,{recursive:true,force:true});});
+it("creates one ordinary brand account beneath the CEO, hashes its password and grants seven positions without purchase/volume",()=>{
+  const output=provisionBrandMember({email:"club@homanets.com",ordinal:2});
+  const user=one("SELECT * FROM p_users WHERE email=?",output.email)!;
+  expect(user).toMatchObject({name:"هما نت",role:"user",sponsor_id:manager,parent_id:null});
+  expect(checkPassword(output.password!,user.password)).toBe(true);
+  expect(output).toMatchObject({activePositions:7,referralCapacity:8,placement:2,referralReady:false});
+  expect(one("SELECT COUNT(*) n FROM p_orders")!.n).toBe(0);
+  expect(one("SELECT COUNT(*) n FROM p_card_position_lots")!.n).toBe(0);
+  expect(one("SELECT COUNT(*) n FROM p_ledger")!.n).toBe(0);
+  expect(one("SELECT * FROM p_referral_endpoint_choice WHERE user_id=?",manager)).toBeUndefined();
+  expect(output.grant?.requiredToman).toBe(20_000_000);
+  expect(output.grant?.status).toBe("grace");
+  setReferralPlacement(user,{ordinal:8});
+  expect(referralStatus(user).active).toBe(true);
+  expect(sponsorByCode(output.referralCode)?.id).toBe(user.id);
+  expect(positionDesks(user.id,Date.now()+36*86400000)).toBe(0);
+});
+it("does not create duplicates, reset passwords, renew grants or relocate the account on retry",()=>{
+  const before=one("SELECT * FROM p_users WHERE email='club@homanets.com'")!;
+  const result=provisionBrandMember({email:"club@homanets.com",ordinal:2});
+  expect(result).toMatchObject({reused:true,password:null});
+  expect(one("SELECT password FROM p_users WHERE id=?",before.id)!.password).toBe(before.password);
+  expect(()=>provisionBrandMember({email:"club@homanets.com",ordinal:1})).toThrow("brand_setup_conflict");
+  expect(one("SELECT COUNT(*) n FROM p_users")!.n).toBe(2);
+});
+it("rolls back occupied/conflicting endpoints and refuses an ambiguous manager",()=>{
+  expect(()=>provisionBrandMember({email:"other@homanets.com",ordinal:2})).toThrow("direct_position_occupied");
+  expect(one("SELECT id FROM p_users WHERE email='other@homanets.com'")).toBeUndefined();
+  setReferralPlacement(one("SELECT * FROM p_users WHERE id=?",manager)!,{ordinal:3});
+  expect(()=>provisionBrandMember({email:"other@homanets.com",ordinal:1})).toThrow("manager_saved_placement_conflict");
+  expect(one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",manager)!.ordinal).toBe(3);
+  const second=randomUUID();
+  run("INSERT INTO p_users(id,name,password,role,referral_code,created_at,last_seen,signup_ip) VALUES(?,?,?,?,?,?,?,?)",second,"Other admin","unused","superadmin",second,now(),now(),"test");
+  expect(()=>provisionBrandMember({email:"other@homanets.com",ordinal:3})).toThrow("specify_one_active_manager_email");
+});

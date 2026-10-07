@@ -1,4 +1,4 @@
-import { fourReferralMode, manualReferralMode, positionDesks, sevenLevelMode, positionDirectCapacity } from "./card-positions";
+import { fourReferralMode, manualReferralMode, positionDesks, sevenLevelMode, positionDirectCapacity, positionMode } from "./card-positions";
 import { fourDirectCapacity, DIRECT_PATHS } from "./card-position-model";
 import { z } from "zod";
 import { randomInt } from "node:crypto";
@@ -28,6 +28,11 @@ export function newReferralCode() {
 
 export const referralNeedsPurchase = () => setting("referral_requires_purchase") === "1";
 
+function canInviteByPurchaseOrGrant(user: string) {
+  if (positionMode() && positionDesks(user) > 0) return true;
+  return hasPaidOrder(user);
+}
+
 function hasPaidOrder(user: string) {
   return !!one("SELECT 1 FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND refunded_at IS NULL LIMIT 1", user);
 }
@@ -43,7 +48,7 @@ function ownerOf(code: string) {
 export function sponsorByCode(code: string): Row | undefined {
   const owner = ownerOf(code.trim().toLowerCase());
   if (!owner || owner.blocked) return undefined;
-  if (referralNeedsPurchase() && !hasPaidOrder(owner.id)) return undefined;
+  if (referralNeedsPurchase() && !canInviteByPurchaseOrGrant(owner.id)) return undefined;
   return owner;
 }
 
@@ -73,7 +78,7 @@ export function referralStatus(user: Row) {
       })),
     } : null,
     code: user.referral_code,
-    active: !user.blocked && (!requiresPurchase || hasPaidOrder(user.id)) &&
+    active: !user.blocked && (!requiresPurchase || canInviteByPurchaseOrGrant(user.id)) &&
       (!(four || full) || direct.total < capacity) &&
       (!manualReferralMode() || !!one(full ? "SELECT 1 FROM p_referral_endpoint_choice WHERE user_id=?" : "SELECT 1 FROM p_referral_placement WHERE user_id=?",user.id)),
     requiresPurchase,
