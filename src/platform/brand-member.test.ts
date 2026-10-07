@@ -59,3 +59,12 @@ it("rolls back occupied/conflicting endpoints and refuses an ambiguous manager",
   run("INSERT INTO p_users(id,name,password,role,referral_code,created_at,last_seen,signup_ip) VALUES(?,?,?,?,?,?,?,?)",second,"Other admin","unused","superadmin",second,now(),now(),"test");
   expect(()=>provisionBrandMember({email:"other@homanets.com",ordinal:3})).toThrow("specify_one_active_manager_email");
 });
+it("resolves reza explicitly and creates beneath personal position 4 even with multiple administrators",()=>{
+  run("UPDATE p_users SET referral_code='reza' WHERE id=?",manager);
+  setReferralPlacement(one("SELECT * FROM p_users WHERE id=?",manager)!,{ordinal:null});
+  const result=provisionBrandMember({email:"brand@homanets.com",managerReferralCode:"reza",desk:4});
+  expect(result).toMatchObject({name:"هما نت",managerEmail:"ceo@homanets.com",placement:1,parentPosition:4,parentSide:"left",activePositions:7,referralCapacity:8});
+  expect(provisionBrandMember({email:"brand@homanets.com",managerReferralCode:"reza",desk:4})).toMatchObject({reused:true,password:null,placement:1});
+  expect(()=>provisionBrandMember({email:"wrong@homanets.com",managerReferralCode:"missing",desk:4})).toThrow("manager_referral_not_found");
+  expect(one("SELECT id FROM p_users WHERE email='wrong@homanets.com'")).toBeUndefined();
+});
