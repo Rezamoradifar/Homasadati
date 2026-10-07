@@ -111,7 +111,7 @@ function countOrders(cutoff: string) {
     }
     // A buyer's own order never creates commission volume on any of their desks.
     if(positionMode()) {
-      for(const p of positionAncestors(o.user_id))
+      for(const p of positionAncestors(o.user_id,Date.parse(o.paid_at)))
         run("INSERT OR IGNORE INTO p_card_position_lots VALUES(?,?,?,?,?,?,?,0,?)",randomUUID(),o.id,p.user,p.desk,p.leg,o.amount,o.amount,now());
       continue;
     }

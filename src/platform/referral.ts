@@ -1,4 +1,4 @@
-import { fourReferralMode, positionDesks } from "./card-positions";
+import { fourReferralMode, manualReferralMode, positionDesks } from "./card-positions";
 import { fourDirectCapacity } from "./card-position-model";
 import { z } from "zod";
 import { randomInt } from "node:crypto";
@@ -61,6 +61,7 @@ export function referralStatus(user: Row) {
   const capacity = four ? fourDirectCapacity(positionDesks(user.id)) : 0;
   return {
     placement: four ? {
+      mandatory: manualReferralMode(),
       nextDesk: one("SELECT desk FROM p_referral_placement WHERE user_id=?",user.id)?.desk ?? null,
       slots: [4,5,6,7].map(desk => ({desk,
         enabled: capacity > 0,
@@ -69,7 +70,8 @@ export function referralStatus(user: Row) {
     } : null,
     code: user.referral_code,
     active: !user.blocked && (!requiresPurchase || hasPaidOrder(user.id)) &&
-      (!four || direct.total < capacity),
+      (!four || direct.total < capacity) &&
+      (!manualReferralMode() || !!one("SELECT 1 FROM p_referral_placement WHERE user_id=?",user.id)),
     requiresPurchase,
     canChange: !nextChange || nextChange <= now(),
     nextChange,
