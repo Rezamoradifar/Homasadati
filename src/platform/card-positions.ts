@@ -92,7 +92,7 @@ export function personalPositionTree(user: string) {
     totalSales:positionVolume(user,desk,"left","volume")+positionVolume(user,desk,"right","volume"),
     savings:{left:positionVolume(user,desk,"left"),right:positionVolume(user,desk,"right")}});
   return {version:setting("seven_card_position_version"),member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),managerActivated:managerActivated(user),desks,directCapacity:positionDirectCapacity(desks),tree:build(1),
-    directs:(fourReferralMode() ? FOUR_DIRECT_PATHS : DIRECT_PATHS).map((path,i)=>({ordinal:i+1,desk:fourReferralMode() ? i+4 : POSITION_PATHS.indexOf(path.slice(0,2) as any)+1,leg:path.endsWith("L") ? "left" : "right",path,enabled:i<positionDirectCapacity(desks),member:(()=>{const member=directs.find(d=>d.ordinal===i+1);return member?{...member,managerActivated:managerActivated(member.child_id)}:null;})()}))};
+    directs:(fourReferralMode() ? FOUR_DIRECT_PATHS : DIRECT_PATHS).map((path,i)=>({ordinal:i+1,desk:fourReferralMode() ? i+4 : POSITION_PATHS.indexOf(path.slice(0,2) as any)+1,leg:path.endsWith("L") ? "left" : "right",path,enabled:i<positionDirectCapacity(desks),member:(()=>{const member=directs.find(d=>d.ordinal===i+1);return member?{ordinal:member.ordinal,child_id:member.child_id,name:member.name,managerActivated:managerActivated(member.child_id)}:null;})()}))};
 }
 
 /** Never reinterpret an existing binding or a historical financial route. */
