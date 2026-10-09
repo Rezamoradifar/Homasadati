@@ -3734,6 +3734,21 @@
                 "type": "string",
                 "maxLength": 5000,
                 "default": ""
+              },
+              "craftCategory": {
+                "type": "string",
+                "maxLength": 200,
+                "default": ""
+              },
+              "craftTechnique": {
+                "type": "string",
+                "maxLength": 200,
+                "default": ""
+              },
+              "craftItem": {
+                "type": "string",
+                "maxLength": 200,
+                "default": ""
               }
             },
             "required": [],
