@@ -57,7 +57,7 @@ import { placementTree, searchTree } from "./network-tree";
 import { activityChart } from "./activity-chart";
 import { welcomeMember } from "./welcome";
 import { createCampaign, newsletterOverview, sendCampaign, sendTest } from "./newsletter";
-import { newReferralCode, referralStatus, setReferralCode, setReferralPlacement, sponsorByCode } from "./referral";
+import { newReferralCode, referralStatus, setReferralCode, setReferralCodeByAdmin, setReferralPlacement, sponsorByCode } from "./referral";
 import {
   payoutProfileSchema,
   payoutProfileView,
@@ -1224,9 +1224,12 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         id,
         blocked: z.boolean().optional(),
         role: role.optional(),
+        referral_code: referralCode.optional(),
         reason: text,
       })
       .parse(data);
+    if(d.referral_code!==undefined && d.blocked===undefined && d.role===undefined)
+      return json({referral:setReferralCodeByAdmin(u,d.id,d.referral_code,d.reason)});
     if (d.id === u.id) throw new ApiError(409, "cannot_modify_self");
     atomic(() => {
       const before = one("SELECT * FROM p_users WHERE id=?", d.id);
@@ -1248,6 +1251,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         d.role || before.role,
         d.id,
       );
+      if(d.referral_code!==undefined)setReferralCodeByAdmin(u,d.id,d.referral_code,d.reason);
       revokeSessions(d.id);
       audit(
         u.id,

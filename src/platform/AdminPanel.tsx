@@ -1036,6 +1036,19 @@ export function AdminUsers({
                 </Localized>
               )}
             </DataState>
+            <h3>ویرایش کد دعوت</h3>
+            <Form
+              initial={{referral_code:selected.referral_code}}
+              fields={[
+                {name:"referral_code",label:"کد دعوت",max:40,hint:"ویرایش مدیر محدودیت زمانی ندارد؛ لینک‌های قبلی همچنان معتبر می‌مانند."},
+                {name:"reason",label:"دلیل تغییر",type:"textarea",full:true},
+              ]}
+              submit="ثبت کد دعوت"
+              onSubmit={async d=>{
+                await api("admin/users","PATCH",{id:selected.id,referral_code:String(d.referral_code).trim().toLowerCase(),reason:d.reason});
+                setSelected(null);onChange();
+              }}
+            />
             <Form
               initial={selected}
               fields={[

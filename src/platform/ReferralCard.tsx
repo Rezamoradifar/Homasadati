@@ -158,6 +158,7 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                   </>
                 )}
                 <h3>انتخاب کد معرف اختصاصی</h3>
+                <p>پس از ثبت کد دلخواه، هر ۷ روز یک بار می‌توانید آن را تغییر دهید.</p>
                 {d.canChange ? (
                   <Form
                     fields={[
@@ -176,7 +177,7 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                   />
                 ) : (
                   <p className="portal-notice">
-                    کد معرف را هر ۳۰ روز یک بار می‌توانید تغییر دهید؛ تغییر بعدی از {date(d.nextChange)}.
+                    کد معرف را هر ۷ روز یک بار می‌توانید تغییر دهید؛ تغییر بعدی از {date(d.nextChange)}.
                   </p>
                 )}
               </>

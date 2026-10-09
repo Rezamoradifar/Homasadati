@@ -7,12 +7,13 @@ import { setting } from "./providers";
 import { referralCode } from "./registration-model";
 import { all, atomic, now, one, run, Row } from "./schema";
 import { audit } from "./security";
+import { assertAccess } from "./access";
 
 /** Personal referral codes. A member may pick their own code; the previous
  * one is kept as an alias so links already shared keep working. When the
  * admin enables `referral_requires_purchase`, a code only accepts new
  * members once its owner has a paid, non-refunded purchase. */
-const CHANGE_EVERY_MS = 30 * 86400000;
+const CHANGE_EVERY_MS = 7 * 86400000;
 const RESERVED = new Set(["admin", "administrator", "support", "homa", "homanet", "homay", "root", "system", "test", "null"]);
 
 /** A short code that is easy to read aloud and type: "hn-" and six characters
@@ -102,19 +103,36 @@ export function referralStatus(user: Row) {
 }
 
 export function setReferralCode(user: Row, input: string) {
+  return changeReferralCode(user.id,input,user.id,false);
+}
+
+/** Authorized user administrators may edit immediately; aliases and audit stay intact. */
+export function setReferralCodeByAdmin(actor: Row, userId: string, input: string, reason: string) {
+  if(actor.blocked)throw new ApiError(403,"forbidden");
+  assertAccess(actor,"users",true);
+  const target=one("SELECT role FROM p_users WHERE id=?",userId);
+  if(!target)throw new ApiError(404,"not_found");
+  if(actor.role!=="superadmin" && (target.role!=="user" || one("SELECT user_id FROM p_access_assignments WHERE user_id=?",userId)))
+    throw new ApiError(403,"forbidden");
+  return changeReferralCode(userId,input,actor.id,true,reason);
+}
+
+function changeReferralCode(userId: string, input: string, actor: string, bypassCooldown: boolean, reason = "") {
   const code = referralCode.parse(input);
   if (RESERVED.has(code)) throw new ApiError(409, "referral_code_taken");
   return atomic(() => {
+    const user=one("SELECT * FROM p_users WHERE id=?",userId);
+    if(!user)throw new ApiError(404,"not_found");
     const status = referralStatus(user);
     if (code === user.referral_code) return status;
-    if (!status.canChange) throw new ApiError(429, "referral_change_too_soon");
+    if (!bypassCooldown && !status.canChange) throw new ApiError(429, "referral_change_too_soon");
     const taken = ownerOf(code);
     if (taken && taken.id !== user.id) throw new ApiError(409, "referral_code_taken");
     // Reclaiming one's own old alias makes it the main code again.
     run("DELETE FROM p_referral_aliases WHERE code=? AND user_id=?", code, user.id);
     run("INSERT INTO p_referral_aliases(code,user_id,retired_at) VALUES(?,?,?)", user.referral_code, user.id, now());
     run("UPDATE p_users SET referral_code=? WHERE id=?", code, user.id);
-    audit(user.id, "referral.code", user.id, { code: user.referral_code }, { code });
+    audit(actor, "referral.code", user.id, { code: user.referral_code }, { code }, reason);
     return referralStatus({ ...user, referral_code: code });
   });
 }

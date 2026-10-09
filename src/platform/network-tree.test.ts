@@ -81,7 +81,7 @@ it("lets a member pick a personal code, keeps old links and gates on first purch
   expect(u().referral_code).toBe("leila-2026");
   expect(sponsorByCode("LEILA-2026")!.id).toBe(owner);
   expect(sponsorByCode("code-owner")!.id).toBe(owner); // old link still works
-  expect(() => setReferralCode(u(), "another-code")).toThrow(); // once per 30 days
+  expect(() => setReferralCode(u(), "another-code")).toThrow(); // once per 7 days
   run("UPDATE p_referral_aliases SET retired_at='2000-01-01T00:00:00.000Z' WHERE user_id=?", owner);
   const other = member("Other", null, null);
   expect(() => setReferralCode(one("SELECT * FROM p_users WHERE id=?", other)!, "code-owner")).toThrow();

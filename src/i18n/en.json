@@ -2628,9 +2628,7 @@
   "کد دلخواه": "Preferred code",
   "۴ تا ۴۰ نویسه؛ حروف کوچک انگلیسی، عدد و خط تیره. لینک‌های قبلی همچنان کار می‌کنند.": "4 to 40 characters: lowercase English letters, digits and hyphens. Earlier links keep working.",
   "ثبت کد معرف": "Save referral code",
-  "کد معرف را هر ۳۰ روز یک بار می‌توانید تغییر دهید؛ تغییر بعدی از": "You can change your referral code once every 30 days; next change from",
   "این کد معرف قبلاً انتخاب شده است؛ کد دیگری امتحان کنید.": "This referral code is already taken; try another.",
-  "کد معرف را هر ۳۰ روز یک بار می‌توانید تغییر دهید.": "You can change your referral code once every 30 days.",
   "این کد ملی برای حساب دیگری ثبت شده است.": "This national code is registered to another account.",
   "برداشت پس از ثبت و تأیید اطلاعات بانکی ممکن است.": "Withdrawals are possible after your bank details are registered and verified.",
   "محصول در علاقه‌مندی‌ها": "Products in wishlist",
@@ -3344,5 +3342,11 @@
   "از ۲۰ میلیون تومان": "of 20 million toman",
   "کاربر باید ظرف ۳۵ روز با ۲۰ میلیون تومان خرید واقعی، دو جایگاه اول را فعال کند؛ وگرنه جایگاه‌های شرکتی معلق می‌شوند.": "The member must activate the first two positions with 20 million toman in real purchases within 35 days, or the company-granted positions will be suspended.",
   "از ۲۰ میلیون تومان ·": "of 20 million toman ·",
-  "مهلت فعال‌سازی دو جایگاه اول": "Deadline to activate the first two positions"
+  "مهلت فعال‌سازی دو جایگاه اول": "Deadline to activate the first two positions",
+  "کد معرف را هر ۷ روز یک بار می‌توانید تغییر دهید؛ تغییر بعدی از": "You can change your referral code once every 7 days; next change from",
+  "کد معرف را هر ۷ روز یک بار می‌توانید تغییر دهید.": "You can change your referral code once every 7 days.",
+  "ویرایش کد دعوت": "Edit invitation code",
+  "ثبت کد دعوت": "Save invitation code",
+  "ویرایش مدیر محدودیت زمانی ندارد؛ لینک‌های قبلی همچنان معتبر می‌مانند.": "Administrator edits have no waiting period; previous links remain valid.",
+  "پس از ثبت کد دلخواه، هر ۷ روز یک بار می‌توانید آن را تغییر دهید.": "After choosing your code, you can change it once every 7 days."
 }

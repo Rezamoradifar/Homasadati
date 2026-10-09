@@ -414,3 +414,14 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     expect((await request("me", "GET", undefined, buyer)).status).toBe(401);
   });
 });
+
+it('allows immediate admin referral edits through the existing user panel API, including own code without revoking sessions',async()=>{
+ const target=randomUUID();run('INSERT INTO p_users(id,name,password,referral_code,created_at,last_seen,signup_ip) VALUES(?,?,?,?,?,?,?)',target,'Referral test','unused','api-initial',now(),now(),'test');
+ for(const code of ['api-first','api-second']){
+  const r=await request('admin/users','PATCH',{id:target,referral_code:code,reason:'admin correction'},admin);
+  expect(r.status).toBe(200);expect((await r.json()).referral.code).toBe(code);
+ }
+ const self=await request('admin/users','PATCH',{id:adminId,referral_code:'admin-personal',reason:'own code'},admin);
+ expect(self.status).toBe(200);expect((await request('me','GET',undefined,admin)).status).toBe(200);
+ expect(one('SELECT user_id FROM p_referral_aliases WHERE code=?','api-first')!.user_id).toBe(target);
+});
