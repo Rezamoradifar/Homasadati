@@ -32,6 +32,15 @@ export function companyPositionStatus(user:string,at=Date.now()){
   return {...g,deadline:g.deadline as string,status,realPurchaseToman:total,requiredToman:20000000,remainingDays:Math.max(0,Math.ceil((Date.parse(g.deadline)-at)/DAY)),activeDesks:["suspended","not_started"].includes(status)?0:g.desks};
 }
 function owner(actor:string){const u=one("SELECT * FROM p_users WHERE id=?",actor);if(!u||u.blocked||u.role!=="superadmin")throw new ApiError(403,"forbidden");}
+/** Display provenance only; never grants eligibility or creates purchase volume. */
+export function managerActivated(user:string){
+  const account=one("SELECT blocked FROM p_users WHERE id=?",user);
+  if(!account || account.blocked || one("SELECT user_id FROM p_archived_users WHERE user_id=?",user))return false;
+  if((companyPositionStatus(user)?.activeDesks || 0)>0)return true;
+  return !!one(`SELECT id FROM p_audit WHERE entity_id=? AND
+    (action='company-member.activate' OR
+    (action='user.update' AND json_extract(before_json,'$.blocked')=1 AND json_extract(after_json,'$.blocked')=0)) LIMIT 1`,user);
+}
 export function manageCompanyMember(actor:string,input:unknown){
   owner(actor);
   const base=z.object({userId:id,reason:text,action:z.enum(["credit","positions","archive","restore","activate","profile"]),amount:money.optional(),desks:z.number().int().min(1).max(7).optional(),eventId:id,name:text.optional()}).strict().parse(input);
@@ -52,5 +61,5 @@ export function manageCompanyMember(actor:string,input:unknown){
     return companyMemberView(u.id);
   });
 }
-export function companyMemberView(user:string){return {name:one("SELECT name FROM p_users WHERE id=?",user)?.name,blocked:!!one("SELECT blocked FROM p_users WHERE id=?",user)?.blocked,creditToman:companyCredit(user),positions:companyPositionStatus(user),archived:!!one("SELECT user_id FROM p_archived_users WHERE user_id=?",user),history:all("SELECT a.action,a.reason,a.created_at,u.name actor FROM p_audit a JOIN p_users u ON u.id=a.actor_id WHERE a.entity_id=? ORDER BY a.created_at DESC LIMIT 100",user)};}
+export function companyMemberView(user:string){return {managerActivated:managerActivated(user),name:one("SELECT name FROM p_users WHERE id=?",user)?.name,blocked:!!one("SELECT blocked FROM p_users WHERE id=?",user)?.blocked,creditToman:companyCredit(user),positions:companyPositionStatus(user),archived:!!one("SELECT user_id FROM p_archived_users WHERE user_id=?",user),history:all("SELECT a.action,a.reason,a.created_at,u.name actor FROM p_audit a JOIN p_users u ON u.id=a.actor_id WHERE a.entity_id=? ORDER BY a.created_at DESC LIMIT 100",user)};}
 export function reviewCompanyPositions(){for(const g of all("SELECT user_id,last_status FROM p_company_positions")){const state=companyPositionStatus(g.user_id)!;if(g.last_status!==state.status){run("UPDATE p_company_positions SET last_status=? WHERE user_id=?",state.status,g.user_id);audit(g.user_id,"company-position."+state.status,g.user_id,{status:g.last_status},{status:state.status},"Automatic 35-day qualification review");}}}

@@ -1,4 +1,4 @@
-import {companyCredit,companyPositionStatus,companyMemberView,manageCompanyMember} from "./company-members";
+import {companyCredit,companyPositionStatus,companyMemberView,manageCompanyMember,managerActivated} from "./company-members";
 import { officeAccess, grantOffice, officeChart, officeNetwork, requireOffice } from "./marketer-office";
 import { positionMode, assertDirectCapacity, bindDirect } from "./card-positions";
 import { parseAmount, validRate } from "./fx";
@@ -1187,7 +1187,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       const member = one("SELECT * FROM p_users WHERE id=?", entity);
       if (!member) throw new ApiError(404, "not_found");
       return json({
-        user: publicUser(member),
+        user: {...publicUser(member),managerActivated:managerActivated(member.id)},
         memberDetails:
           one(
             "SELECT details,contact_verified_at FROM p_member_details WHERE user_id=?",
@@ -1211,14 +1211,14 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         network: network(u, entity, true),
       });
     }
-    if (get)
-      return json(
-        paged(
+    if (get) {
+      const result = paged(
           "SELECT id,name,email,phone,role,blocked,created_at,last_seen,referral_code FROM p_users WHERE (name LIKE ? OR email LIKE ? OR phone LIKE ?) AND (?=1 OR NOT EXISTS(SELECT 1 FROM p_archived_users a WHERE a.user_id=p_users.id)) ORDER BY created_at DESC",
           ["%" + q.q + "%", "%" + q.q + "%", "%" + q.q + "%",Number(url.searchParams.get("archived")==="1")],
           q.page,
-        ),
-      );
+        );
+      return json({...result,rows:result.rows.map(member=>({...member,managerActivated:managerActivated(member.id)}))});
+    }
     const d = z
       .object({
         id,
@@ -1750,7 +1750,7 @@ export async function handle(req: Request, path: string[]) {
         return json(redeemReward(u.id, data), 201);
       throw new ApiError(405, "method_not_allowed");
     }
-    if (path[0] === "me" && get) return json({ user: { ...publicUser(u), companyCreditToman:companyCredit(u.id),companyPositions:companyPositionStatus(u.id),marketerOffice: officeAccess(u.id) } });
+    if (path[0] === "me" && get) return json({ user: { ...publicUser(u), managerActivated:managerActivated(u.id),companyCreditToman:companyCredit(u.id),companyPositions:companyPositionStatus(u.id),marketerOffice: officeAccess(u.id) } });
     if (path[0] === "dashboard" && get) {
       const start = persianMonthStart();
       return json({

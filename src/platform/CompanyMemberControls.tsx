@@ -1,4 +1,5 @@
 "use client";
+import { ManagerActivationBadge } from "./ManagerActivationBadge";
 import {useState,useRef} from "react";
 import Localized from "../i18n/Localized";
 import {useData,DataState} from "./Widgets";
@@ -10,7 +11,7 @@ export function CompanyMemberControls({userId,onChange}:{userId:string;onChange:
  const request=useRef({intent:'',eventId:''});
  const state=useData('admin/company-members?userId='+userId,tick);
  return <Localized><section className="portal-card company-member-controls"><h3>مدیریت حساب و جایگاه شرکتی</h3><DataState state={state}>{d=><>
- <p>اعتبار خرید شرکت: <b>{amount(d.creditToman)} تومان</b> · {d.archived?'حذف‌شده از فهرست فعال':d.blocked?'حساب مسدود':'حساب فعال'}</p>
+ <ManagerActivationBadge active={d.managerActivated}/><p>اعتبار خرید شرکت: <b>{amount(d.creditToman)} تومان</b> · {d.archived?'حذف‌شده از فهرست فعال':d.blocked?'حساب مسدود':'حساب فعال'}</p>
  {d.positions&&<p>{d.positions.exempt ? "جایگاه شرکتی دائمی: "+d.positions.desks+" · بدون شرط خرید و مهلت زمانی" : <>جایگاه شرکتی: {d.positions.desks} · مهلت: {date(d.positions.deadline)} · خرید واقعی: {amount(d.positions.realPurchaseToman)} از ۲۰ میلیون تومان</>}</p>}
  <form onSubmit={async e=>{e.preventDefault();setBusy(true);setError('');setNotice('');try{const intent={userId,action,reason,...(action==='positions'?{desks}:{}),...(action==='credit'?{amount:Number(credit)}:{}),...(action==='profile'?{name}: {})};if(request.current.intent!==JSON.stringify(intent))request.current={intent:JSON.stringify(intent),eventId:crypto.randomUUID()};await api('admin/company-members','POST',{...intent,eventId:request.current.eventId});request.current={intent:'',eventId:''};setTick(n=>n+1);onChange();setNotice('تغییر ثبت شد');}catch(err){setError((err as Error).message);}finally{setBusy(false);}}}>
  <label>عملیات<select value={action} onChange={e=>setAction(e.target.value)}>{actions.map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label>

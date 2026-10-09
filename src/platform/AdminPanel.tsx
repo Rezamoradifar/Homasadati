@@ -967,6 +967,7 @@ export function AdminUsers({
             ["phone", "موبایل"],
             ["role", "نقش"],
             ["blocked", "مسدود", "bool"],
+            ["managerActivated", "فعال‌سازی مدیر", "managerActivation"],
             ["created_at", "عضویت", "date"],
           ]}
           actions={(r) => (

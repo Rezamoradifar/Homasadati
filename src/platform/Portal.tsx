@@ -1,4 +1,5 @@
 "use client";
+import { ManagerActivationBadge } from "./ManagerActivationBadge";
 import { MarketerOffice } from "./MarketerOffice";
 import { AdminNewsletter } from "./AdminNewsletter";
 import { NetworkTree } from "./NetworkTree";
@@ -332,7 +333,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                 </>
               ) : (
                 <>
-                  <div className="member-profile-card">
+                  <div className={"member-profile-card"+(user.managerActivated?" manager-activated":"")}>
                     <span className="member-avatar" aria-hidden="true">
                       {String(user.name || "").trim().slice(0, 1)}
                     </span>
@@ -342,6 +343,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     <small>
                       کد معرف: <bdi dir="ltr">{user.referral_code}</bdi>
                     </small>
+                    <ManagerActivationBadge active={user.managerActivated}/>
                   </div>
                   <button
                     className="member-menu-toggle"

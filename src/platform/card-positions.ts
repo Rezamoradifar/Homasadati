@@ -1,4 +1,4 @@
-import {companyPositionStatus} from "./company-members";
+import {companyPositionStatus,managerActivated} from "./company-members";
 import { mondayStart, updatedCardSchedule } from "./card-schedule";
 import { ApiError } from "../server/http";
 import { all, one, run, now, atomic } from "./schema";
@@ -91,8 +91,8 @@ export function personalPositionTree(user: string) {
     weeklySales:one("SELECT COALESCE(SUM(l.volume),0) n FROM p_card_position_lots l JOIN p_orders o ON o.id=l.order_id WHERE l.user_id=? AND l.desk=? AND l.void=0 AND o.paid_at>=?",user,desk,new Date(mondayStart(Date.now())).toISOString())!.n,
     totalSales:positionVolume(user,desk,"left","volume")+positionVolume(user,desk,"right","volume"),
     savings:{left:positionVolume(user,desk,"left"),right:positionVolume(user,desk,"right")}});
-  return {version:setting("seven_card_position_version"),member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),desks,directCapacity:positionDirectCapacity(desks),tree:build(1),
-    directs:(fourReferralMode() ? FOUR_DIRECT_PATHS : DIRECT_PATHS).map((path,i)=>({ordinal:i+1,desk:fourReferralMode() ? i+4 : POSITION_PATHS.indexOf(path.slice(0,2) as any)+1,leg:path.endsWith("L") ? "left" : "right",path,enabled:i<positionDirectCapacity(desks),member:directs.find(d=>d.ordinal===i+1) || null}))};
+  return {version:setting("seven_card_position_version"),member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),managerActivated:managerActivated(user),desks,directCapacity:positionDirectCapacity(desks),tree:build(1),
+    directs:(fourReferralMode() ? FOUR_DIRECT_PATHS : DIRECT_PATHS).map((path,i)=>({ordinal:i+1,desk:fourReferralMode() ? i+4 : POSITION_PATHS.indexOf(path.slice(0,2) as any)+1,leg:path.endsWith("L") ? "left" : "right",path,enabled:i<positionDirectCapacity(desks),member:(()=>{const member=directs.find(d=>d.ordinal===i+1);return member?{...member,managerActivated:managerActivated(member.child_id)}:null;})()}))};
 }
 
 /** Never reinterpret an existing binding or a historical financial route. */

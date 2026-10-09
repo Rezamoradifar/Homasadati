@@ -32,3 +32,13 @@ it("shows permanent company positions without purchase qualification or a deadli
   expect(screen.getByText("این حساب شرط خرید و مهلت زمانی ندارد.")).toBeTruthy();
   expect(screen.queryByText(/شرط خرید واقعی تکمیل شد|۲۰ میلیون تومان|روز باقی‌مانده/)).toBeNull();
 });
+
+it('marks only manager-activated owners and referrals with text as well as green styling',()=>{
+ const data:any={...fixture(7),member:{name:'هما نت',referral_code:'hn-test'},managerActivated:true};
+ data.directs[0].member.managerActivated=true;
+ const {container}=render(<PersonalPositions data={data} onOpen={()=>{}}/>);
+ expect(container.querySelector('.personal-positions.manager-activated')).toBeTruthy();
+ expect(screen.getByText('فعال‌شده توسط مدیر')).toBeTruthy();
+ expect(screen.getByText('مدیر')).toBeTruthy();
+ expect(container.querySelectorAll('.personal-direct.manager-activated')).toHaveLength(1);
+});

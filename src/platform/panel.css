@@ -2426,3 +2426,45 @@ html[data-theme=dark] .portal-member{background:#14202d;color:#e4ebf3}html[data-
 .company-member-controls form {display:grid;gap:12px}.company-member-controls label {display:grid;gap:5px}.company-member-controls input,.company-member-controls select {min-height:44px;padding:10px;border:1px solid #87949b;border-radius:10px;background:transparent;color:inherit;font:inherit;width:100%}.position-owner {display:flex;align-items:center;gap:10px;margin:12px 0}.position-owner img {width:36px;height:36px;object-fit:contain}.position-owner strong,.position-owner small {display:block}.position-owner small {font-size:.75rem;opacity:.7}.position-brand {width:16px;height:16px;object-fit:contain}.position-holder {font-size:9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.position-company-note {padding:12px;border-radius:12px;background:#d4b87b22;font-size:.8rem;margin:12px 0}.position-company-note p {margin:6px 0 0}
 
 .club-position-explanation{font-size:12px;line-height:1.9;margin:0 0 14px;color:inherit}.club-slots .club-slot-label{font-size:10px;white-space:nowrap}.club-slots .club-slot-state{display:inline}
+
+/* Compact, readable member and administration surfaces. */
+.portal { font-size: 15px; line-height: 1.85; }
+.portal :is(h1,h2,h3) { line-height: 1.5; font-weight: 700; }
+.portal :is(input,select,textarea) { border-radius: 12px; line-height: 1.6; }
+.portal :is(.portal-button,.portal-form input:not([type="checkbox"]):not([type="radio"]),.portal-form select) { min-height: 46px; }
+.portal-card { padding: clamp(18px,2.5vw,28px); }
+.portal-card > :is(h2,h3):first-child { margin-bottom: 18px; }
+.portal-table th { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.portal-table :is(th,td) { padding: 14px 16px; vertical-align: middle; }
+.portal-table td { line-height: 1.7; }
+.portal-table tbody tr:hover { background: var(--hn-turquoise-soft,#d6e9e7); }
+.portal-table td:not(:first-child),.portal-stats strong,.position-sales strong { font-variant-numeric: tabular-nums; }
+.portal-auth small,.portal-form small { font-size: 13px; line-height: 1.8; }
+.portal-form label { gap: 8px; }
+.portal-form :is(input,select,textarea)::placeholder { opacity: 1; color: #687481; }
+.portal-button { font-weight: 600; }
+.manager-activation-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: fit-content; max-width: 100%; padding: 5px 10px; border: 1px solid #8ccda9; border-radius: 999px; background: #e8f6ed; color: #155c36; font-size: 12px; font-weight: 600; line-height: 1.7; white-space: normal; }
+.manager-activation-dot { flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: #16834a; }
+.portal-table tr.manager-activated { background: #eef8f1; }
+.portal-table tr.manager-activated td:first-child { border-inline-start: 3px solid #218451; }
+.member-profile-card.manager-activated { background: linear-gradient(145deg,#165c3c,#103e30); }
+.tree-node.manager-activated,.personal-direct.manager-activated { border-color: #218451; background: #e8f6ed; color: #155c36; }
+.personal-positions.manager-activated .position-owner { padding: 12px; border: 1px solid #9acdb0; border-radius: 14px; background: #eef8f1; }
+.personal-positions.manager-activated .position-company-note { background: #eef8f1; color: #155c36; border: 1px solid #9acdb0; }
+.direct-manager-label { font-size: 10px; line-height: 1.6; }
+.refined-positions .personal-position small { font-size: 12px; }
+.refined-positions .position-holder { font-size: 11px; }
+.position-owner .manager-activation-badge { margin-block: 5px; }
+html[data-theme="dark"] .manager-activation-badge { background: #163b29; color: #a8edc3; border-color: #398b5c; }
+html[data-theme="dark"] :is(.portal-table tr.manager-activated,.tree-node.manager-activated,.personal-direct.manager-activated,.personal-positions.manager-activated .position-owner,.personal-positions.manager-activated .position-company-note) { background: #153627; color: #c2f2d4; border-color: #398b5c; }
+html[data-theme="dark"] .portal-table tbody tr:hover { background: #213c40; }
+html[data-theme="dark"] .portal-form :is(input,textarea)::placeholder { color: #a7b4c2; }
+@media(max-width:600px) {
+  .portal { font-size: 14px; }
+  .portal-card { padding: 18px 14px; }
+  .portal-table :is(th,td) { padding: 12px; }
+  .portal-form :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) { font-size: 16px; }
+  .manager-activation-badge { font-size: 11px; padding: 4px 8px; }
+  .position-owner { align-items: flex-start; }
+  .position-owner > div { min-width: 0; }
+}

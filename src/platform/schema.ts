@@ -56,6 +56,7 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_content(id TEXT PRIMARY KEY,kind TEXT NOT NULL CHECK(kind IN ('blog','banner','page')),slug TEXT UNIQUE NOT NULL,title TEXT NOT NULL,body TEXT NOT NULL,image TEXT NOT NULL DEFAULT '',published INTEGER NOT NULL DEFAULT 0,updated_at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_flags(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),kind TEXT NOT NULL,detail TEXT NOT NULL,resolved INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL,UNIQUE(user_id,kind));
   CREATE TABLE IF NOT EXISTS p_audit(id TEXT PRIMARY KEY,actor_id TEXT NOT NULL REFERENCES p_users(id),action TEXT NOT NULL,entity_id TEXT NOT NULL,before_json TEXT NOT NULL,after_json TEXT NOT NULL,reason TEXT NOT NULL,created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_audit_entity_action ON p_audit(entity_id,action);
   CREATE TRIGGER IF NOT EXISTS p_audit_no_update BEFORE UPDATE ON p_audit BEGIN SELECT RAISE(ABORT,'immutable audit'); END;
   CREATE TRIGGER IF NOT EXISTS p_audit_no_delete BEFORE DELETE ON p_audit BEGIN SELECT RAISE(ABORT,'immutable audit'); END;
   CREATE INDEX IF NOT EXISTS p_order_sales ON p_orders(paid_at,user_id);

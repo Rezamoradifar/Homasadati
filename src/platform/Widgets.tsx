@@ -1,4 +1,5 @@
 "use client";
+import { ManagerActivationBadge } from "./ManagerActivationBadge";
 
 import Localized from "../i18n/Localized";
 import { useSiteLocale } from "../i18n/SiteLocale";
@@ -283,10 +284,12 @@ export function Table({
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <Localized key={r.id || r.day || i}><tr>
+            <Localized key={r.id || r.day || i}><tr className={r.managerActivated?"manager-activated":undefined}>
               {columns.map(([k, , type]) => (
                 <Localized key={k}><td title={String(r[k] ?? "")}>
-                  {type === "money"
+                  {type === "managerActivation"
+                    ? r[k] ? <ManagerActivationBadge active/> : "—"
+                    : type === "money"
                     ? amount(r[k])
                     : type === "date"
                       ? date(r[k], locale)

@@ -16,6 +16,7 @@ import './design-system.css';
 import './club-cards.css';
 import './editorial-sections.css';
 import './discovery.css';
+import './polish.css';
 import ScrollState from './ScrollState';
 import {JsonLd,organizationJsonLd,siteOrigin} from '../src/platform/seo';
 import {DEFAULT_ENAMAD,DEFAULT_SITE_EMAIL} from '../src/platform/site-defaults';

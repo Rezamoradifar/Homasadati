@@ -26,3 +26,25 @@ it('keeps company purchase credit separate, spends atomically, and refunds witho
 it('archives and restores without deleting transactions, revokes sessions, rejects non-owners and duplicate credit',()=>{clock();const u=member();session(u,'test');buy(u,10*M);expect(()=>manageCompanyMember(u,{userId:owner,action:'credit',amount:M,reason:'no',eventId:randomUUID()})).toThrow();action(u,'archive');expect(one('SELECT blocked FROM p_users WHERE id=?',u)?.blocked).toBe(1);expect(one('SELECT user_id FROM p_sessions WHERE user_id=?',u)).toBeUndefined();expect(one('SELECT id FROM p_orders WHERE user_id=?',u)).toBeTruthy();action(u,'restore');expect(one('SELECT blocked FROM p_users WHERE id=?',u)?.blocked).toBe(0);expect(()=>action(owner,'archive')).toThrow();});
 
 it('keeps only the designated active main administrator permanent after 35 days',()=>{const t=clock();run("INSERT INTO p_company_positions VALUES(?,?,?,?,?,?)",owner,7,now(),new Date(t+35*DAY).toISOString(),owner,'qualified');saveSetting('company_position_permanent_owner',owner);vi.setSystemTime(t+100*DAY);expect(positionDesks(owner)).toBe(7);expect(companyPositionStatus(owner)?.deadline).toBeNull();reviewCompanyPositions();expect(positionDesks(owner)).toBe(7);run("UPDATE p_users SET blocked=1 WHERE id=?",owner);expect(companyPositionStatus(owner)?.status).toBe('suspended');run("UPDATE p_users SET blocked=0 WHERE id=?",owner);});
+
+it('reports manager activation provenance without purchases and hides it for blocked or expired grants',async()=>{
+ const {managerActivated}=await import('./company-members');
+ const t=clock(),u=member();
+ expect(managerActivated(u)).toBe(false);
+ action(u,'activate');expect(managerActivated(u)).toBe(true);
+ action(u,'archive');expect(managerActivated(u)).toBe(false);
+ action(u,'restore');expect(managerActivated(u)).toBe(true);
+ const gifted=member();action(gifted,'positions',{desks:3});
+ expect(managerActivated(gifted)).toBe(true);
+ vi.setSystemTime(t+36*DAY);expect(managerActivated(gifted)).toBe(false);
+ expect(one('SELECT COUNT(*) n FROM p_orders WHERE user_id=?',u)!.n).toBe(0);
+});
+
+it('recognizes an administrative unblock but not a role-only edit',async()=>{
+ const {managerActivated}=await import('./company-members');
+ const {audit}=await import('./security');clock();
+ const u=member();audit(owner,'user.update',u,{blocked:0,role:'user'},{role:'content'},'role edit');
+ expect(managerActivated(u)).toBe(false);
+ audit(owner,'user.update',u,{blocked:1},{blocked:false},'activate');
+ expect(managerActivated(u)).toBe(true);
+});

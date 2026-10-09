@@ -1,3 +1,4 @@
+import {managerActivated} from "./company-members";
 import { positionMode, positionPath, personalPositionTree } from "./card-positions";
 import { mondayStart } from "./card-schedule";
 import { ApiError } from "../server/http";
@@ -14,6 +15,7 @@ export type TreeNode = {
   leg: string | null;
   sponsoredByRoot: boolean;
   active: boolean;
+  managerActivated: boolean;
   personalVolume: number;
   weeklyPersonalVolume: number;
   weeklySales: number;
@@ -70,6 +72,7 @@ function node(row: Row, rootId: string, depth: number, activeSince: string): Tre
     joinedAt: row.created_at,
     leg: row.leg,
     sponsoredByRoot: row.sponsor_id === rootId,
+    managerActivated: managerActivated(row.id),
     active: !!personal.last && personal.last >= activeSince,
     personalVolume: personal.total,
     weeklyPersonalVolume: one(`SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND ${PAID} AND paid_at>=?`,row.id,new Date(mondayStart(Date.now())).toISOString())!.n,
