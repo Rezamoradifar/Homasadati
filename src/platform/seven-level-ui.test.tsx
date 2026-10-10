@@ -8,7 +8,11 @@ vi.mock("./client",async()=>({...await vi.importActual<typeof import("./client")
 vi.mock("./Widgets",async()=>({...await vi.importActual<typeof import("./Widgets")>("./Widgets"),useData:()=>({data,loading:false,error:""})}));
 afterEach(()=>{cleanup();api.mockClear();});
 it("lets Javaneh choose one of its two endpoints with the destination position and leg visible",async()=> {
- render(<ReferralCard refresh={0}/>);const select=screen.getByLabelText("محل ورودی بعدی") as HTMLSelectElement;
+ render(<ReferralCard refresh={0}/>);
+ expect(screen.getByText("منتظر انتخاب محل ورود")).toBeTruthy();
+ fireEvent.click(screen.getByRole("button",{name:"انتخاب محل ورود نفر بعدی"}));
+ expect(document.activeElement).toBe(screen.getByLabelText("محل ورودی بعدی"));
+ const select=screen.getByLabelText("محل ورودی بعدی") as HTMLSelectElement;
  expect(Array.from(select.options).map(o=>o.value)).toEqual(["","1","2"]);
  expect(screen.getByRole("option",{name:"شاخه ۲ · جایگاه ۷ · راست"})).toBeTruthy();
  fireEvent.change(select,{target:{value:"2"}});fireEvent.click(screen.getByRole("button",{name:"ثبت محل رفرال بعدی"}));

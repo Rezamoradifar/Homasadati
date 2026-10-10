@@ -66,7 +66,17 @@ export function referralStatus(user: Row) {
   const four = fourReferralMode();
   const full = sevenLevelMode();
   const capacity = four || full ? positionDirectCapacity(positionDesks(user.id)) : 0;
+  const eligible = !requiresPurchase || canInviteByPurchaseOrGrant(user.id);
+  const choice = full
+    ? one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user.id)?.ordinal
+    : one("SELECT desk FROM p_referral_placement WHERE user_id=?",user.id)?.desk;
+  const remaining = full || four ? Math.max(0, capacity - direct.total) : null;
+  const state = user.blocked ? "blocked" : !eligible || ((full || four) && capacity === 0) ? "purchase_required"
+    : remaining === 0 ? "capacity_full"
+    : manualReferralMode() && !choice ? "placement_required" : "ready";
   return {
+    state,
+    remainingCapacity: remaining,
     placement: full ? {
       mandatory:true,key:"ordinal",nextDesk:one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user.id)?.ordinal ?? null,
       slots:DIRECT_PATHS.map((path,i)=>({desk:i+1,value:i+1,label:"شاخه "+(i+1).toLocaleString("fa-IR")+" · جایگاه "+({LL:4,LR:5,RL:6,RR:7} as Record<string,number>)[path.slice(0,2)].toLocaleString("fa-IR")+" · "+(path.endsWith("L") ? "چپ" : "راست"),enabled:i<capacity,occupied:!!one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,i+1)})),

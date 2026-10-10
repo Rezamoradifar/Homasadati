@@ -13,6 +13,10 @@ export function platformDb() {
   migrateLeather(d);
   d.pragma("foreign_keys = ON");
   d.exec(`
+  CREATE TABLE IF NOT EXISTS p_experience_daily(
+    day TEXT NOT NULL,page TEXT NOT NULL,kind TEXT NOT NULL,
+    samples INTEGER NOT NULL,total_ms INTEGER NOT NULL,max_ms INTEGER NOT NULL,slow INTEGER NOT NULL,
+    PRIMARY KEY(day,page,kind));
   CREATE TABLE IF NOT EXISTS p_migrations(version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_users(
     id TEXT PRIMARY KEY, email TEXT UNIQUE, phone TEXT UNIQUE, name TEXT NOT NULL,

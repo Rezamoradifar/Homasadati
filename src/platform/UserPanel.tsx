@@ -4,7 +4,8 @@ import AddToCart from "../commerce/AddToCart";
 import {Money} from "../commerce/currency";
 import {useBasket} from "../commerce/basket";
 import LiveChart from "./LiveChart";
-import { ClubAccountOverview } from "./ClubAccountCard";
+import { ClubAccountCard } from "./ClubAccountCard";
+import { AccountQuickSummary } from "./AccountQuickSummary";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
@@ -55,7 +56,8 @@ export function Dashboard({ refresh, user, onNavigate }: {
     <Localized><DataState state={s}>
       {(d) => (
         <Localized><>
-          <ClubAccountOverview refresh={refresh} available={d.wallet.available} onNavigate={onNavigate} />
+          <AccountQuickSummary club={d.club} invitation={d.invitation} wallet={d.wallet} onNavigate={onNavigate}/>
+          <details className="dashboard-club-details"><summary>جزئیات کارت و جایگاه‌های من</summary><ClubAccountCard status={d.club} available={d.wallet.available} onNavigate={onNavigate} /></details>
           <MemberOverview
             user={user}
             activity={d.activity}
@@ -82,7 +84,6 @@ export function Dashboard({ refresh, user, onNavigate }: {
             summary={
               <>
                 <div className="portal-stats">
-                  <Stat label="موجودی قابل برداشت" value={d.wallet.available} />
                   <Stat label="در انتظار تسویه" value={d.wallet.pending} />
                   <Stat label="فروش شخصی این ماه" value={d.sales.personal} />
                   <Stat label="فروش گروهی این ماه" value={d.sales.group} />

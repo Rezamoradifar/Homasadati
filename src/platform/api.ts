@@ -1,3 +1,5 @@
+import { memberCardStatus } from "./seven-card-engine";
+import { experienceSummary } from "./experience-metrics";
 import {companyCredit,companyPositionStatus,companyMemberView,manageCompanyMember,managerActivated} from "./company-members";
 import { officeAccess, grantOffice, officeChart, officeNetwork, requireOffice } from "./marketer-office";
 import { positionMode, assertDirectCapacity, bindDirect } from "./card-positions";
@@ -786,6 +788,11 @@ export function reports(from: string, to: string) {
 }
 async function admin(req: Request, path: string[], data: Row, url: URL) {
   const resource = path[1];
+  if (resource === "site-experience") {
+    userOf(req,["superadmin"]);
+    if(req.method !== "GET") throw new ApiError(405,"method_not_allowed");
+    return json(experienceSummary());
+  }
   if (resource === "company-members") {
     const owner=userOf(req,["superadmin"]);
     if(req.method==="GET") return json(companyMemberView(id.parse(url.searchParams.get("userId"))));
@@ -1758,6 +1765,8 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "dashboard" && get) {
       const start = persianMonthStart();
       return json({
+        club: memberCardStatus(u.id),
+        invitation: referralStatus(u),
         activity: one(
           `SELECT
             (SELECT COUNT(*) FROM p_orders WHERE user_id=? AND status IN ('pending','processing','shipped')) AS activeOrders,

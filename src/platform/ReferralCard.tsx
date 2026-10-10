@@ -1,9 +1,10 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import qrcode from "qrcode-generator";
 import Localized from "../i18n/Localized";
 import { api, date } from "./client";
 import { DataState, Form, useData } from "./Widgets";
+import { invitationState, invitationCopy } from "./invitation-state";
 
 const fa = (v: number) => Number(v || 0).toLocaleString("fa-IR");
 
@@ -32,6 +33,7 @@ export function ReferralCard({ refresh }: { refresh: number }) {
   const [version, setVersion] = useState(0),
     [notice, setNotice] = useState("");
   const s = useData("referral", refresh + version);
+  const placementRef = useRef<HTMLDivElement>(null);
   async function copy(text: string, done: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -42,13 +44,16 @@ export function ReferralCard({ refresh }: { refresh: number }) {
   }
   return (
     <Localized>
-      <div className="portal-card referral-card">
+      <div className="portal-card referral-card" id="referral-invitation">
         <h2>کد معرف و لینک دعوت</h2>
         <DataState state={s}>
           {(d) => {
             const origin = typeof window !== "undefined" ? window.location.origin : "";
             const link = origin + "/register?ref=" + d.code;
             const message = `با کد معرف ${d.code} به باشگاه مشتریان هما نت بپیوندید: ${link}`;
+            const state = invitationState(d);
+            const invite = invitationCopy[state];
+            const freeSlots = d.placement?.slots.filter((slot: {enabled:boolean;occupied:boolean}) => slot.enabled && !slot.occupied) || [];
             const rate = d.directMembers ? Math.round((d.directBuyers / d.directMembers) * 100) : 0;
             return (
               <>
@@ -59,8 +64,14 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                       {d.code}
                     </strong>
                     <span className={"referral-state " + (d.active ? "on" : "off")}>
-                      {d.active ? "فعال؛ آمادهٔ دعوت" : "غیرفعال"}
+                      {invite.label}
                     </span>
+                    <p className="referral-guidance">{invite.text}</p>
+                    {state === "placement_required" && <button type="button" className="portal-button referral-next-action" onClick={() => {
+                      placementRef.current?.scrollIntoView?.({behavior:"smooth",block:"center"});
+                      placementRef.current?.querySelector<HTMLSelectElement>("select")?.focus({preventScroll:true});
+                    }}>انتخاب محل ورود نفر بعدی</button>}
+                    {state === "purchase_required" && <a className="portal-button" href="/shop">خرید و فعال‌سازی جایگاه</a>}
                     <div className="referral-actions">
                       <button className="portal-button" onClick={() => copy(link, "لینک دعوت کپی شد.")}>
                         کپی لینک دعوت
@@ -104,10 +115,10 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                     کد معرف شما پس از اولین خرید پرداخت‌شده فعال می‌شود و از آن پس افراد می‌توانند با آن عضو شوند.
                   </p>
                 )}
-                {d.placement && <>
+                {d.placement && <div ref={placementRef} className="referral-placement">
                   <h3>جایگاه رفرال بعدی</h3>
                   <p>با خرید کارت، ظرفیت شاخه‌های همان سطح باز می‌شود. برای هر ورودی جدید، یک جایگاه خالی را انتخاب کنید. پس از ثبت آن عضو باید محل ورودی بعدی را انتخاب کنید. حجم هر جایگاه فقط از خریدهای بعد از فعال‌شدن همان جایگاه حساب می‌شود.</p>
-                  <Form
+                  {freeSlots.length > 0 ? <Form
                     key={JSON.stringify(d.placement)}
                     fields={[{name:"desk",label:"محل ورودی بعدی",type:"select",options:[
                       ...(d.placement.mandatory ? [] : [["auto","خودکار از چپ به راست"] as [string,string]]),
@@ -118,10 +129,11 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                     submit="ثبت محل رفرال بعدی"
                     onSubmit={async v=> {
                       await api("referral/placement","POST",{[d.placement.key || "desk"]:v.desk === "auto" ? null : Number(v.desk)});
+                      setNotice("محل ورود ثبت شد.");
                       setVersion(n=>n+1);
                     }}
-                  />
-                </>}
+                  /> : <p className="portal-notice">{invite.text}</p>}
+                </div>}
                 <dl className="referral-stats">
                   <div>
                     <dt>معرفی مستقیم</dt>

@@ -42,18 +42,20 @@ it("implements the seven cards, exact purchase boundaries, caps and branch limit
 });
 it("requires manual endpoint placement and unlocks exactly 2–8 branches as purchases increase",()=> {
  const root=member(),user=one("SELECT * FROM p_users WHERE id=?",root)!;
- buy(root,10*M);expect(memberCardStatus(root)).toMatchObject({cardName:"جوانه",level:1,desks:1,branches:2,weeklyCapToman:15*M});
+ expect(referralStatus(user).state).toBe("purchase_required");
+ buy(root,10*M);expect(referralStatus(user).state).toBe("placement_required");expect(memberCardStatus(root)).toMatchObject({cardName:"جوانه",level:1,desks:1,branches:2,weeklyCapToman:15*M});
  expect(()=>bindDirect(root,member())).toThrow("direct_position_required");
  expect(()=>setReferralPlacement(user,{ordinal:3})).toThrow("direct_capacity_reached");
  for(let ordinal=1;ordinal<=8;ordinal++) {
    if(ordinal>2) buy(root,10*M);
    expect(personalPositionTree(root).directCapacity).toBe(ordinal<=2 ? 2 : ordinal);
-   setReferralPlacement(user,{ordinal});const child=member("Branch "+ordinal,root);expect(bindDirect(root,child).ordinal).toBe(ordinal);
+   setReferralPlacement(user,{ordinal});expect(referralStatus(user).state).toBe("ready");const child=member("Branch "+ordinal,root);expect(bindDirect(root,child).ordinal).toBe(ordinal);
    expect(one("SELECT * FROM p_referral_endpoint_choice WHERE user_id=?",root)).toBeUndefined();
    expect(()=>setReferralPlacement(user,{ordinal})).toThrow("direct_position_occupied");
  }
  expect(memberCardStatus(root)).toMatchObject({cardName:"سیمرغ",level:7,desks:7,branches:8,weeklyCapToman:105*M});
  expect(()=>assertDirectCapacity(root)).toThrow("direct_capacity_reached");
+ expect(referralStatus(user).state).toBe("capacity_full");
 });
 it("protects the full-plan placement API from unauthenticated or malformed choices",async()=> {
  const root=member();buy(root,20*M);const token=session(root,"test");

@@ -124,34 +124,48 @@ export async function api(path: string, method = "GET", data?: unknown) {
       );
     }
   }
-  let response: Response;
+  const started = Date.now();
+  const diagnostic = (kind: string) => {
+    if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("platform-diagnostic", {detail:{kind,duration:Date.now()-started}}));
+  };
+  // Only reads have a time limit: never retry or obscure a possibly completed payment mutation.
+  const controller = method === "GET" ? new AbortController() : undefined;
+  const timer = controller ? setTimeout(()=>controller.abort(),20000) : undefined;
   try {
-    response = await fetch("/api/platform/" + path, {
-      method,
-      credentials: "same-origin",
-      cache: "no-store",
-      headers: { "Content-Type": "application/json" },
-      ...(method === "GET" ? {} : { body: JSON.stringify(data || {}) }),
-    });
-  } catch {
-    throw new Error("ارتباط شبکه قطع است. اتصال اینترنت را بررسی کنید.");
+    let response: Response;
+    try {
+      response = await fetch("/api/platform/" + path, {
+        method,
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        ...(controller ? {signal:controller.signal} : {}),
+        ...(method === "GET" ? {} : { body: JSON.stringify(data || {}) }),
+      });
+    } catch {
+      diagnostic(controller?.signal.aborted ? "api_timeout" : "api_network");
+      throw new Error(controller?.signal.aborted ? "دریافت اطلاعات بیش از حد طول کشید؛ دوباره تلاش کنید." : "ارتباط شبکه قطع است. اتصال اینترنت را بررسی کنید.");
+    }
+    let result: RecordData;
+    try {
+      result = await response.json();
+    } catch {
+      diagnostic(controller?.signal.aborted ? "api_timeout" : "api_invalid");
+      throw new Error(controller?.signal.aborted ? "دریافت اطلاعات بیش از حد طول کشید؛ دوباره تلاش کنید." : "پاسخ قابل خواندن از سرور دریافت نشد.");
+    }
+    if (!response.ok) {
+      if (response.status >= 500) diagnostic("api_server");
+      if (result.error === "unauthorized" && typeof window !== "undefined")
+        window.dispatchEvent(new Event("platform-session-expired"));
+      throw new PlatformApiError(String(result.error || "server_error"),response.status);
+    }
+    if (Date.now()-started>4000) diagnostic("api_slow");
+    return result;
+  } finally {
+    if(timer)clearTimeout(timer);
   }
-  let result: RecordData;
-  try {
-    result = await response.json();
-  } catch {
-    throw new Error("پاسخ قابل خواندن از سرور دریافت نشد.");
-  }
-  if (!response.ok) {
-    if (result.error === "unauthorized" && typeof window !== "undefined")
-      window.dispatchEvent(new Event("platform-session-expired"));
-    throw new PlatformApiError(
-      String(result.error || "server_error"),
-      response.status,
-    );
-  }
-  return result;
 }
+
 export const amount = (n: unknown) => Number(n ?? 0).toLocaleString("fa-IR");
 export const date = formatDate;
 export const labels: Record<string, string> = {

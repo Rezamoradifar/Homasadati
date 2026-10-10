@@ -38,7 +38,8 @@ it('marks only manager-activated owners and referrals with text as well as green
  data.directs[0].member.managerActivated=true;
  const {container}=render(<PersonalPositions data={data} onOpen={()=>{}}/>);
  expect(container.querySelector('.personal-positions.manager-activated')).toBeTruthy();
- expect(screen.getByText('فعال‌شده توسط مدیر')).toBeTruthy();
+ expect(screen.getAllByText('فعال‌شده توسط مدیر')).toHaveLength(2);
+ expect(container.querySelector('.position-branch-list .manager-activation-badge')).toBeTruthy();
  expect(screen.getByText('مدیر')).toBeTruthy();
  expect(container.querySelectorAll('.personal-direct.manager-activated')).toHaveLength(1);
 });

@@ -122,7 +122,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
     let live = true,
       checking = false;
     const id = setInterval(async () => {
-      if (checking) return;
+      if (checking || document.visibilityState === "hidden") return;
       checking = true;
       try {
         const r = await api("me");
