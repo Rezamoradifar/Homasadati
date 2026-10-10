@@ -36,3 +36,29 @@ it('shows the scoped route to a member and never exposes unrelated search matche
  saveSetting('seven_card_position_version',SEVEN_LEVEL_VERSION);run('INSERT INTO p_card_direct_positions VALUES(?,?,?,?)',member,owner,1,now());
  const result=searchTree(owner,member)[0];expect(result.id).toBe(member);expect(result.path.map((p:any)=>p.id)).toEqual([owner,member]);expect(searchTree(owner,outsider)).toEqual([]);expect(JSON.stringify(result)).not.toMatch(/password|opaque|1111/);
 });
+it('detects stale or failed financial processing without treating a successful check as a new weekly settlement',async()=>{
+ const {observeFinancialCycle}=await import('./operations-health');
+ const at=Date.now();
+ saveSetting('worker_last_success',new Date(at-121000).toISOString());
+ saveSetting('financial_cycle_success',new Date(at-121000).toISOString());
+ expect(launchDashboard(at).health.worker.healthy).toBe(false);
+ expect(launchDashboard(at).health.financial.healthy).toBe(false);
+ expect(()=>observeFinancialCycle(()=>{throw new Error('sensitive-provider-detail');})).toThrow('sensitive-provider-detail');
+ expect(launchDashboard().health.financial.lastFailure).toBeTruthy();
+ expect(JSON.stringify(launchDashboard())).not.toContain('sensitive-provider-detail');
+ expect(observeFinancialCycle(()=>[])).toEqual([]);
+ const d=launchDashboard();expect(d.health.financial.healthy).toBe(true);expect(d.health.financial.lastFailure).toBeNull();expect(d.latestSettlement).toBeNull();
+ saveSetting('worker_last_success',new Date(Date.now()+60000).toISOString());
+ expect(launchDashboard().health.worker.healthy).toBe(false);
+});
+it('counts paid and granted positions once and excludes blocked members',()=>{
+ const gift=create(),blocked=create();
+ const product=randomUUID();
+ run("INSERT INTO p_products(id,title,vertical,subtype,description,price,stock,created_at,updated_at) VALUES(?,'Test','ai','subscription','Test',20000000,20,?,?)",product,now(),now());
+ for(const id of [gift,blocked])run("INSERT INTO p_orders(id,user_id,product_id,title,vertical,quantity,unit_price,amount,status,payment_method,policy,expires_at,created_at,paid_at,idem_key) VALUES(?,?,?,'Test','ai',1,20000000,20000000,'processing','zibal','{}',?,?,?,?)",randomUUID(),id,product,now(),now(),now(),randomUUID());
+ run('UPDATE p_users SET blocked=1 WHERE id=?',blocked);
+ run("INSERT INTO p_company_positions VALUES(?,7,?,?,?,'grace')",gift,now(),new Date(Date.now()+86400000).toISOString(),owner);
+ expect(launchDashboard().activePositions).toBe(7);
+ run('UPDATE p_company_positions SET deadline=? WHERE user_id=?','2000-01-01T00:00:00.000Z',gift);
+ expect(launchDashboard().activePositions).toBe(2);
+});

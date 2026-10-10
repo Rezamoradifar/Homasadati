@@ -14,10 +14,11 @@ import { runCardSettlement } from "./seven-card-engine";
 import { processNewsletter } from "./newsletter";
 import { recheckPendingBalePayments } from "./bale-payments";
 import { isWelcomeJob, welcomeEmail } from "./welcome";
+import {observeFinancialCycle} from "./operations-health";
 export async function maintenance() {
   await refreshUsdRate();
   reviewCompanyPositions();
-  runCardSettlement();
+  observeFinancialCycle(() => runCardSettlement());
   runBinaryCycles();
   atomic(() => {
     mature();
