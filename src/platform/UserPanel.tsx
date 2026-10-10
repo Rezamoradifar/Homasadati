@@ -5,6 +5,7 @@ import {Money} from "../commerce/currency";
 import {useBasket} from "../commerce/basket";
 import LiveChart from "./LiveChart";
 import { ClubAccountCard } from "./ClubAccountCard";
+import { MemberStartGuide } from "./MemberStartGuide";
 import { AccountQuickSummary } from "./AccountQuickSummary";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
@@ -57,6 +58,7 @@ export function Dashboard({ refresh, user, onNavigate }: {
       {(d) => (
         <Localized><>
           <AccountQuickSummary club={d.club} invitation={d.invitation} wallet={d.wallet} onNavigate={onNavigate}/>
+          <MemberStartGuide guide={d.startGuide} code={d.invitation.code} onNavigate={onNavigate}/>
           <details className="dashboard-club-details"><summary>جزئیات کارت و جایگاه‌های من</summary><ClubAccountCard status={d.club} available={d.wallet.available} onNavigate={onNavigate} /></details>
           <MemberOverview
             user={user}

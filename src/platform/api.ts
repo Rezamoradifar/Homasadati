@@ -1,3 +1,4 @@
+import { memberStartGuide } from "./start-guide";
 import { memberCardStatus } from "./seven-card-engine";
 import { experienceSummary } from "./experience-metrics";
 import {companyCredit,companyPositionStatus,companyMemberView,manageCompanyMember,managerActivated} from "./company-members";
@@ -1764,9 +1765,12 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "me" && get) return json({ user: { ...publicUser(u), managerActivated:managerActivated(u.id),companyCreditToman:companyCredit(u.id),companyPositions:companyPositionStatus(u.id),marketerOffice: officeAccess(u.id) } });
     if (path[0] === "dashboard" && get) {
       const start = persianMonthStart();
+      const club=memberCardStatus(u.id),invitation=referralStatus(u);
+      const commissions=all("SELECT * FROM p_commissions WHERE user_id=? ORDER BY created_at DESC LIMIT 5",u.id);
       return json({
-        club: memberCardStatus(u.id),
-        invitation: referralStatus(u),
+        club,
+        invitation,
+        startGuide:memberStartGuide(u,club,invitation,commissions),
         activity: one(
           `SELECT
             (SELECT COUNT(*) FROM p_orders WHERE user_id=? AND status IN ('pending','processing','shipped')) AS activeOrders,
@@ -1794,10 +1798,7 @@ export async function handle(req: Request, path: string[]) {
           "SELECT * FROM p_orders WHERE user_id=? ORDER BY created_at DESC LIMIT 5",
           u.id,
         ),
-        commissions: all(
-          "SELECT * FROM p_commissions WHERE user_id=? ORDER BY created_at DESC LIMIT 5",
-          u.id,
-        ),
+        commissions,
       });
     }
     if (path[0] === "profile" && !get) {

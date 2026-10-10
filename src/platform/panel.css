@@ -2492,3 +2492,20 @@ html[data-theme="dark"] .portal-form :is(input,textarea)::placeholder { color: #
 
 .portal{--portal-border:#dce3e9;--portal-muted:#617080;--portal-surface:#f5f8fa}
 html[data-theme="dark"] .portal{--portal-border:#354453;--portal-muted:#b2c0cc;--portal-surface:#1a2834}
+.member-start-guide>p{color:var(--portal-muted);font-size:14px}
+.member-start-guide summary{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:12px 0;min-height:44px}
+.member-start-guide summary strong{font-size:13px;font-weight:500;color:var(--portal-muted)}
+.member-start-guide progress{display:block;width:100%;height:8px;margin:8px 0 18px;accent-color:#0f6e72}
+.member-start-guide ol{list-style:none;margin:0;padding:0}
+.guide-step{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:14px;align-items:start;padding:16px 0;border-bottom:1px solid var(--portal-border)}
+.guide-number{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;border:1px solid var(--portal-border);font-size:14px;background:var(--portal-surface)}
+.guide-step.done .guide-number{background:#e6f4ec;color:#155c36;border-color:#9acdb0}
+.guide-step-content>div{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.guide-step h3{font-size:15px;margin:0;line-height:1.8}
+.guide-step p{font-size:13px;color:var(--portal-muted);margin:6px 0 0;line-height:1.9}
+.guide-status{font-size:11px;border-radius:20px;padding:2px 8px;background:var(--portal-surface);border:1px solid var(--portal-border);white-space:nowrap}
+.guide-status.done{background:#e6f4ec;color:#155c36;border-color:#9acdb0}.guide-status.action{background:#fff4df;color:#755318;border-color:#dccba8}
+.guide-notice:empty{display:none}.guide-notice{font-size:13px;margin-top:14px}.guide-reports{margin-top:16px}
+.guide-manual-link{display:grid;gap:8px}.guide-manual-link input{width:100%;min-height:44px;font-size:16px;padding:10px;border:1px solid var(--portal-border);border-radius:10px;background:var(--portal-surface);color:inherit}
+html[data-theme="dark"] .guide-status.action{background:#3e3118;color:#ffdfa1;border-color:#7b6333}
+html[data-theme="dark"] :is(.guide-status.done,.guide-step.done .guide-number){background:#153627;color:#c2f2d4;border-color:#398b5c}
+@media(max-width:640px){.guide-step{grid-template-columns:32px minmax(0,1fr);gap:10px}.guide-step>.portal-button{grid-column:2;justify-self:start;white-space:normal}.member-start-guide summary{align-items:flex-start;flex-direction:column}}
