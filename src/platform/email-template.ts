@@ -19,11 +19,11 @@ export type EmailBrand = { name: string; origin: string; supportEmail?: string; 
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-const NAVY = "#293241",
-  BLUE = "#3c5b81",
-  ORANGE = "#ed6a4d",
-  PAPER = "#efeae5",
-  ICE = "#e4f4f7",
+const NAVY = "#1E2A44",
+  BLUE = "#0F6E72",
+  ORANGE = "#B15A34",
+  PAPER = "#F2E8D3",
+  ICE = "#EEF8F1",
   MUTED = "#5b6573";
 
 export function renderEmail(c: EmailContent, b: EmailBrand) {
@@ -34,7 +34,7 @@ export function renderEmail(c: EmailContent, b: EmailBrand) {
     .map((t) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.9;color:${NAVY};">${esc(t)}</p>`)
     .join("");
   const code = c.code
-    ? `<div style="margin:22px 0;text-align:center;"><div dir="ltr" style="display:inline-block;padding:16px 28px;border-radius:14px;background:${ICE};border:1px dashed ${BLUE};font-family:'Courier New',monospace;font-size:34px;letter-spacing:10px;font-weight:700;color:${NAVY};">${esc(c.code)}</div></div>`
+    ? `<div style="margin:22px 0;text-align:center;"><div dir="ltr" style="display:inline-block;padding:14px 16px;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word;border-radius:14px;background:${ICE};border:1px dashed ${BLUE};font-family:'Courier New',monospace;font-size:28px;letter-spacing:4px;font-weight:700;color:${NAVY};">${esc(c.code)}</div></div>`
     : "";
   const button = c.button
     ? `<div style="margin:24px 0;text-align:center;"><a href="${esc(c.button.url)}" style="display:inline-block;padding:13px 30px;border-radius:999px;background:${ORANGE};color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;">${esc(c.button.label)}</a></div>`

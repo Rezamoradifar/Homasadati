@@ -1,4 +1,5 @@
 "use client";
+import {NotificationCenter} from "./NotificationCenter";
 import ResponsiveImage from "../components/media/ResponsiveImage";
 import {useCallback} from "react";
 
@@ -899,49 +900,6 @@ export function Subscriptions({
     </></Localized>
   );
 }
-export function Notifications({
-  refresh,
-  onChange,
-}: {
-  refresh: number;
-  onChange: () => void;
-}) {
-  const [error, setError] = useState("");
-  const mark = async (id?: string) => {
-    try {
-      await api("notifications", "PATCH", id ? { id } : { all: true });
-      onChange();
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  };
-  return (
-    <Localized><>
-      <Notice error={error} />
-      <button
-        className="portal-button"
-        onClick={() => mark()}
-        style={{ marginBottom: 20 }}
-      >
-        همه خوانده شدند
-      </button>
-      <Listing
-        endpoint="notifications"
-        refresh={refresh}
-        columns={[
-          ["title", "عنوان"],
-          ["body", "پیام"],
-          ["created_at", "تاریخ", "date"],
-          ["read_at", "خوانده‌شده در", "date"],
-        ]}
-        actions={(r) =>
-          !r.read_at && (
-            <Localized><button className="portal-button" onClick={() => mark(r.id)}>
-              خواندم
-            </button></Localized>
-          )
-        }
-      />
-    </></Localized>
-  );
+export function Notifications({refresh,onChange}:{refresh:number;onChange:()=>void}) {
+  return <NotificationCenter refresh={refresh} onChange={onChange}/>;
 }
