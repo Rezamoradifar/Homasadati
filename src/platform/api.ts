@@ -1,3 +1,4 @@
+import {launchDashboard} from "./launch-dashboard";
 import { memberStartGuide } from "./start-guide";
 import { memberCardStatus } from "./seven-card-engine";
 import { experienceSummary } from "./experience-metrics";
@@ -789,6 +790,11 @@ export function reports(from: string, to: string) {
 }
 async function admin(req: Request, path: string[], data: Row, url: URL) {
   const resource = path[1];
+  if(resource === "launch-dashboard") {
+    userOf(req,["superadmin"]);
+    if(req.method!=="GET") throw new ApiError(405,"method_not_allowed");
+    return json(launchDashboard());
+  }
   if (resource === "site-experience") {
     userOf(req,["superadmin"]);
     if(req.method !== "GET") throw new ApiError(405,"method_not_allowed");

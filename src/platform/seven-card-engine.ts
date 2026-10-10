@@ -6,7 +6,7 @@ import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
 import { setting, saveSetting } from "./providers";
 import { audit } from "./security";
-import { ledger, notify, wallet } from "./finance";
+import { ledger, notify, notifyInApp, wallet } from "./finance";
 import {
   DESK_WEEKLY_CAP,
   MATCH_REWARD,
@@ -306,13 +306,16 @@ function settleUpdatedWeek(startMs: number) {
 export function releaseCardRewards(nowMs=Date.now()) {
   return atomic(()=>{
     let released=0;
+    const notices=new Map<string,{cash:number;voucher:number}>();
     for(const due of all("SELECT d.*,m.week FROM p_card_due d JOIN p_card_matches m ON m.id=d.match_id JOIN p_users u ON u.id=d.user_id WHERE d.status='pending' AND d.release_at<=? AND m.void=0 AND u.blocked=0",new Date(nowMs).toISOString())) {
       const id=randomUUID();
       run("INSERT INTO p_card_payouts VALUES(?,?,?,?,?,?,?)",id,due.match_id,due.user_id,due.week,due.kind,due.amount,now());
       if(due.kind==='voucher') voucherEntry(due.user_id,"card-payout:"+id,"earn",due.match_id,due.amount);
       else {const debt=Math.min(wallet(due.user_id).debt,due.amount);ledger(due.user_id,"card-release:"+due.match_id,"card_reward",due.match_id,due.amount-debt,-due.amount,0,-debt);}
       run("UPDATE p_card_due SET status='released' WHERE match_id=?",due.match_id);released++;
+      const totals=notices.get(due.user_id)||{cash:0,voucher:0};totals[due.kind as 'cash'|'voucher']+=due.amount;notices.set(due.user_id,totals);
     }
+    for(const [user,total] of notices) notifyInApp(user,"پاداش جایگاه‌ها آزاد شد","پاداش نقدی: "+total.cash.toLocaleString("fa-IR")+" تومان · ووچر: "+total.voucher.toLocaleString("fa-IR")+" تومان. جزئیات در گزارش حجم و پاداش جایگاه‌ها قابل مشاهده است.");
     return released;
   });
 }

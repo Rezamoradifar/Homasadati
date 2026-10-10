@@ -1,0 +1,7 @@
+"use client";
+import {amount,date,RecordData} from "./client";
+import {DataState,Stat,useData} from "./Widgets";
+export function LaunchDashboard({refresh,onNavigate}:{refresh:number;onNavigate:(tab:string)=>void}) {
+  const state=useData('admin/launch-dashboard',refresh);
+  return <section className="portal-card"><h2>ثبت‌نام و کارهای معطل</h2><DataState state={state}>{d=><><p>آمار امروز از نیمه‌شب تهران: {date(d.since)}</p><div className="portal-stats"><Stat label="ثبت‌نام امروز" value={d.registrationsToday} unit="عضو"/><Stat label="ثبت‌نام هفت روز اخیر" value={d.registrationsWeek} unit="عضو"/><Stat label="سفارش پرداخت‌شده امروز" value={d.paidOrdersToday} unit="سفارش"/></div><ul className="launch-backlog">{[['pendingPayments','سفارش‌های در انتظار پرداخت','orders'],['bankReviews','اطلاعات بانکی در انتظار بررسی','withdrawals'],['support','تیکت‌های منتظر پشتیبانی','tickets'],['withdrawals','برداشت‌های در انتظار پرداخت','withdrawals']].map(([key,label,tab])=>{const row=d[key] as RecordData;return <li key={key}><div><strong>{label}: {amount(row.count)}</strong><small>قدیمی‌ترین درخواست: {row.oldest?date(row.oldest):'درخواستی در انتظار نیست'}</small></div><button className="portal-button secondary" onClick={()=>onNavigate(tab)}>بررسی</button></li>})}</ul><p className="portal-muted">تلاش‌های ناموفق ثبت‌شده درگاه‌ها در هفت روز اخیر: {amount(d.failedGatewayAttempts)} · لغوشده‌ها: {amount(d.cancelledGatewayAttempts)}. سفارش پرداخت‌نشده به‌تنهایی نشانه خطای درگاه نیست.</p></>}</DataState></section>;
+}

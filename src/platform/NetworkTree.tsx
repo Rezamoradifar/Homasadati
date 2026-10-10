@@ -207,6 +207,7 @@ export function NetworkTree({ user, refresh, admin = false }: { user: RecordData
                     }}
                   >
                     {m.name} <small dir="ltr">{m.referral_code}</small>
+                    {m.path?.length>0&&<span className="search-member-route">{m.pathDepth>8 ? "… / " : ""}{m.path.map((p:RecordData)=>p.name).join(" / ")}</span>}
                   </button>
                 </li>
               ))
