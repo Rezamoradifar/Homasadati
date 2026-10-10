@@ -85,12 +85,16 @@ export function positionPath(top: string, target: string) {
 export function personalPositionTree(user: string) {
   const desks=positionDesks(user);
   const directs=all("SELECT d.ordinal,d.child_id,u.name FROM p_card_direct_positions d JOIN p_users u ON u.id=d.child_id WHERE d.sponsor_id=? ORDER BY d.ordinal",user);
-  const build=(desk:number):any=>({desk,path:POSITION_PATHS[desk-1],active:desk<=desks,
+  // One aggregate query for all seven desks, rather than repeatedly scanning each pool.
+  const pools=all(`SELECT l.desk,l.leg,SUM(l.volume) volume,SUM(l.remaining) remaining,
+    SUM(CASE WHEN o.paid_at>=? THEN l.volume ELSE 0 END) weekly
+    FROM p_card_position_lots l JOIN p_orders o ON o.id=l.order_id
+    WHERE l.user_id=? AND l.void=0 GROUP BY l.desk,l.leg`,new Date(mondayStart(Date.now())).toISOString(),user);
+  const pool=(desk:number,leg:string)=>pools.find(p=>p.desk===desk&&p.leg===leg)||{volume:0,remaining:0,weekly:0};
+  const build=(desk:number):any=>{const left=pool(desk,"left"),right=pool(desk,"right");return {desk,path:POSITION_PATHS[desk-1],active:desk<=desks,
     left:desk<4?build(desk*2):null,right:desk<4?build(desk*2+1):null,
-    leftVolume:positionVolume(user,desk,"left","volume"),rightVolume:positionVolume(user,desk,"right","volume"),
-    weeklySales:one("SELECT COALESCE(SUM(l.volume),0) n FROM p_card_position_lots l JOIN p_orders o ON o.id=l.order_id WHERE l.user_id=? AND l.desk=? AND l.void=0 AND o.paid_at>=?",user,desk,new Date(mondayStart(Date.now())).toISOString())!.n,
-    totalSales:positionVolume(user,desk,"left","volume")+positionVolume(user,desk,"right","volume"),
-    savings:{left:positionVolume(user,desk,"left"),right:positionVolume(user,desk,"right")}});
+    leftVolume:left.volume,rightVolume:right.volume,weeklySales:left.weekly+right.weekly,
+    totalSales:left.volume+right.volume,savings:{left:left.remaining,right:right.remaining}};};
   return {version:setting("seven_card_position_version"),member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),managerActivated:managerActivated(user),desks,directCapacity:positionDirectCapacity(desks),tree:build(1),
     directs:(fourReferralMode() ? FOUR_DIRECT_PATHS : DIRECT_PATHS).map((path,i)=>({ordinal:i+1,desk:fourReferralMode() ? i+4 : POSITION_PATHS.indexOf(path.slice(0,2) as any)+1,leg:path.endsWith("L") ? "left" : "right",path,enabled:i<positionDirectCapacity(desks),member:(()=>{const member=directs.find(d=>d.ordinal===i+1);return member?{ordinal:member.ordinal,child_id:member.child_id,name:member.name,managerActivated:managerActivated(member.child_id)}:null;})()}))};
 }

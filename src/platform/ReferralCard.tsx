@@ -2,6 +2,7 @@
 import { useMemo, useRef, useState } from "react";
 import qrcode from "qrcode-generator";
 import Localized from "../i18n/Localized";
+import {checkedInvitation,InvitationNotReady} from "./checked-invitation";
 import { api, date } from "./client";
 import { DataState, Form, useData } from "./Widgets";
 import { PlacementPicker } from "./PlacementPicker";
@@ -35,6 +36,15 @@ export function ReferralCard({ refresh }: { refresh: number }) {
     [notice, setNotice] = useState("");
   const s = useData("referral", refresh + version);
   const placementRef = useRef<HTMLDivElement>(null);
+  const sharing=useRef(false);
+  const [shareBusy,setShareBusy]=useState(false);
+  const focusPlacement=()=>{placementRef.current?.scrollIntoView?.({behavior:"smooth",block:"center"});placementRef.current?.querySelector<HTMLSelectElement>("select")?.focus({preventScroll:true});};
+  async function share(action:(invite:{code:string;link:string})=>Promise<void>|void) {
+    if(sharing.current)return;sharing.current=true;setShareBusy(true);setNotice("");
+    try {const invite=await checkedInvitation();await action(invite);}
+    catch(error){setNotice((error as Error).message);if(error instanceof InvitationNotReady){setVersion(v=>v+1);if(error.state==="placement_required")focusPlacement();}}
+    finally {sharing.current=false;setShareBusy(false);}
+  }
   async function copy(text: string, done: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -74,43 +84,40 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                     }}>انتخاب محل ورود نفر بعدی</button>}
                     {state === "purchase_required" && <a className="portal-button" href="/shop">خرید و فعال‌سازی جایگاه</a>}
                     <div className="referral-actions">
-                      <button className="portal-button" onClick={() => copy(link, "لینک دعوت کپی شد.")}>
+                      <button className="portal-button" disabled={shareBusy} onClick={() => share(invite=>copy(invite.link, "لینک دعوت کپی شد."))}>
                         کپی لینک دعوت
                       </button>
-                      <button className="portal-button secondary" onClick={() => copy(d.code, "کد معرف کپی شد.")}>
+                      <button className="portal-button secondary" disabled={shareBusy} onClick={() => share(invite=>copy(invite.code, "کد معرف کپی شد."))}>
                         کپی کد
                       </button>
                       {typeof navigator !== "undefined" && "share" in navigator && (
                         <button
                           className="portal-button secondary"
-                          onClick={() => navigator.share({ title: "دعوت به هما نت", text: message, url: link }).catch(() => {})}
+                          disabled={shareBusy} onClick={() => share(invite=>navigator.share({ title: "دعوت به هما نت", text: "با کد معرف "+invite.code+" به باشگاه مشتریان هما نت بپیوندید", url: invite.link }))}
                         >
                           اشتراک‌گذاری
                         </button>
                       )}
                     </div>
                     <div className="referral-apps">
-                      <a href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener noreferrer">
+                      <a href={state==="ready"?`https://wa.me/?text=${encodeURIComponent(message)}`:"#referral-invitation"} aria-disabled={shareBusy||state!=="ready"} onClick={e=>{e.preventDefault();void share(invite=>window.location.assign("https://wa.me/?text="+encodeURIComponent(invite.link)));}}>
                         واتس‌اپ
                       </a>
                       <a
-                        href={`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("با کد معرف " + d.code + " به باشگاه مشتریان هما نت بپیوندید")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={state==="ready"?`https://t.me/share/url?url=${encodeURIComponent(link)}`:"#referral-invitation"}
+                        aria-disabled={shareBusy||state!=="ready"} onClick={e=>{e.preventDefault();void share(invite=>window.location.assign("https://t.me/share/url?url="+encodeURIComponent(invite.link)));}}
                       >
                         تلگرام
                       </a>
-                      <a href={`sms:?body=${encodeURIComponent(message)}`}>پیامک</a>
+                      <a href={state==="ready"?`sms:?body=${encodeURIComponent(message)}`:"#referral-invitation"} aria-disabled={shareBusy||state!=="ready"} onClick={e=>{e.preventDefault();void share(invite=>window.location.assign("sms:?body="+encodeURIComponent(invite.link)));}}>پیامک</a>
                     </div>
                     <p role="status" className="referral-notice">
                       {notice}
                     </p>
                   </div>
-                  {link && <QrCode value={link} />}
+                  {state==="ready" && <QrCode value={link} />}
                 </div>
-                <div className="portal-code" dir="ltr" translate="no">
-                  {link}
-                </div>
+                {state==="ready"&&<div className="portal-code" dir="ltr" translate="no">{link}</div>}
                 {!d.active && d.requiresPurchase && !d.placement && (
                   <p className="portal-notice">
                     کد معرف شما پس از اولین خرید پرداخت‌شده فعال می‌شود و از آن پس افراد می‌توانند با آن عضو شوند.

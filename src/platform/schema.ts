@@ -1,3 +1,4 @@
+import type Database from "better-sqlite3";
 import {migrateCompanyCredit} from "./migrate-company-credit";
 import { migrateCardSchedule } from "./migrate-card-schedule";
 import { migrateZibal } from "./migrate-zibal";
@@ -223,17 +224,21 @@ export function platformDb() {
 }
 export type Row = Record<string, any>;
 export const now = () => new Date().toISOString();
-export const run = (sql: string, ...params: any[]) =>
-  platformDb()
-    .prepare(sql)
-    .run(...params);
-export const one = (sql: string, ...params: any[]) =>
-  platformDb()
-    .prepare(sql)
-    .get(...params) as Row | undefined;
-export const all = (sql: string, ...params: any[]) =>
-  platformDb()
-    .prepare(sql)
-    .all(...params) as Row[];
+// Cache compiled SQL, never rows or bound parameters. Bounded per connection.
+// Preparing millions of identical statements otherwise creates native-memory churn.
+const statementCaches=new WeakMap<Database.Database,Map<string,Database.Statement>>();
+function statement(sql:string) {
+  const connection=platformDb();
+  let cache=statementCaches.get(connection);
+  if(!cache){cache=new Map();statementCaches.set(connection,cache);}
+  let prepared=cache.get(sql);
+  if(prepared){cache.delete(sql);cache.set(sql,prepared);return prepared;}
+  prepared=connection.prepare(sql);
+  if(cache.size>=256)cache.delete(cache.keys().next().value!);
+  cache.set(sql,prepared);return prepared;
+}
+export const run = (sql: string, ...params: any[]) => statement(sql).run(...params);
+export const one = (sql: string, ...params: any[]) => statement(sql).get(...params) as Row | undefined;
+export const all = (sql: string, ...params: any[]) => statement(sql).all(...params) as Row[];
 export const atomic = <T>(fn: () => T) =>
   platformDb().transaction(fn).immediate();

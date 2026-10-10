@@ -1,8 +1,10 @@
 import {render,screen,fireEvent,waitFor,cleanup} from "@testing-library/react";
 import {afterEach,it,expect,vi} from "vitest";
 import {MemberStartGuide} from "./MemberStartGuide";
+import {api} from './client';
+vi.mock('./client',async()=>({...await vi.importActual<typeof import('./client')>('./client'),api:vi.fn(async()=>({state:'ready',code:'hn-demo'}))}));
 import {buildStartGuide} from "./start-guide-model";
-afterEach(()=>{cleanup();vi.unstubAllGlobals();});
+afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.mocked(api).mockReset().mockResolvedValue({state:"ready",code:"hn-demo"});});
 const guide=()=>buildStartGuide({profileComplete:false,bankStatus:null,twoFactor:false,activeDesks:7,permanent:true,companyNeedsPurchase:false,invitationState:"ready",directMembers:0,hasNetworkActivity:false});
 it("shows the five real steps and routes each action to its account section",()=>{
  const navigate=vi.fn();render(<MemberStartGuide guide={guide()} code="hn-demo" onNavigate={navigate}/>);
@@ -25,4 +27,10 @@ it("offers a manual copy field when clipboard access is unavailable",async()=>{
  render(<MemberStartGuide guide={guide()} code="hn-demo" onNavigate={()=>{}}/>);
  fireEvent.click(screen.getByRole("button",{name:"کپی لینک دعوت"}));
  await waitFor(()=>expect((screen.getByLabelText("لینک دعوت برای کپی دستی") as HTMLInputElement).value).toContain("/register?ref=hn-demo"));
+});
+
+it("refuses a stale ready guide after the next placement was consumed",async()=>{
+ vi.mocked(api).mockResolvedValueOnce({state:'placement_required',code:'hn-demo'});const writeText=vi.fn(),navigate=vi.fn();Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText}});
+ render(<MemberStartGuide guide={guide()} code="hn-demo" onNavigate={navigate}/>);fireEvent.click(screen.getByRole('button',{name:'کپی لینک دعوت'}));
+ await waitFor(()=>expect(navigate).toHaveBeenCalledWith('network'));expect(writeText).not.toHaveBeenCalled();expect(screen.queryByLabelText('لینک دعوت برای کپی دستی')).toBeNull();
 });

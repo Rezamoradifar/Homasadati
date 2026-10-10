@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-10-10T12:14:49.527Z",
+  "baseRevision": "a5ca6048900de35e7982d6435167bf3333954a5f",
+  "sourceHashes": {
+    "scripts/club-scale-simulation.ts": "49a4177347b5dff8aafe43cff3adc89f13fe4333a9df55683267a811bc15584f",
+    "src/platform/schema.ts": "42cb563b3b30f21a112a69db52b88d72dc40d52e51d841d37bc593b71c8ea3fc",
+    "src/platform/card-positions.ts": "1b834fc70ae1e29b480e800dc8cf4665f8e35b9f8c838eba5859e317fa27dbcd",
+    "src/platform/card-position-model.ts": "ada74f3ec6cdcf323c1b3ea4187eb2f40424f2699f1c1db0e1347723766f837f",
+    "src/platform/seven-card-engine.ts": "9822607b2125932242c77f0f88fd435b177e5921803e8d7585c2ead61abe10a2",
+    "src/platform/finance.ts": "1f1bbde1cbd081ee6aa8a6b536eaf35bda4c8e39415fd9685b5e22bbcf1e8138",
+    "src/platform/card-levels.ts": "d2b6e2aaf826c131a2f71384f22773b167558ff1bf6284ee9aaa3a689cfdc403",
+    "src/platform/company-members.ts": "96db65a9e8fe5a6acdbd8b00b27ce593dfcf596ef1ea909383d0cf669270254d"
+  },
+  "results": [
+    {
+      "members": 1000,
+      "positions": 7000,
+      "scenario": "left-heavy-two-endpoint",
+      "purchasePerMemberToman": 70000000,
+      "maxRssMiB": 185.7,
+      "seedMs": 505.6,
+      "settlementMs": 871.5,
+      "releaseMs": 50.9,
+      "reads": {
+        "positionTree": {
+          "samples": 15,
+          "p50Ms": 4.39,
+          "p95Ms": 7.12
+        },
+        "placementTree": {
+          "samples": 15,
+          "p50Ms": 3.66,
+          "p95Ms": 9.65
+        },
+        "search": {
+          "samples": 15,
+          "p50Ms": 2,
+          "p95Ms": 3.37
+        },
+        "report": {
+          "samples": 15,
+          "p50Ms": 1.88,
+          "p95Ms": 4.91
+        }
+      },
+      "http": {
+        "requests": 120,
+        "concurrency": 6,
+        "failures": 0,
+        "p50Ms": 22.05,
+        "p95Ms": 32.34,
+        "scope": "loopback API server with actual handlers and session; excludes Next.js rendering, Nginx, Cloudflare and WAN"
+      },
+      "salesToman": 70000000000,
+      "cashRewardToman": 6185000000,
+      "voucherToman": 0,
+      "cashbackToman": 6000000000,
+      "flushedToman": 38287400000,
+      "rewardAndCashbackPercent": 17.41,
+      "positionLots": 23961,
+      "matches": 1496,
+      "settledWeeks": 1,
+      "checks": "passed",
+      "scope": "isolated SQLite, actual application functions and loopback HTTP API load; simulated paid fixtures, no live bank traffic"
+    }
+  ]
+}
