@@ -128,7 +128,12 @@ export function validateClient(path: string, method: string, data: unknown) {
       totp: otp.optional(),
     });
   if (p[0] === "payout-profile") schema = payoutProfileSchema;
-  if (p[0] === "referral") schema = z.object({ code: referralCode });
+  if (p.join("/") === "referral/placement")
+    schema = z.union([
+      z.object({ordinal:z.number().int().min(1).max(8).nullable()}).strict(),
+      z.object({desk:z.union([z.literal(4),z.literal(5),z.literal(6),z.literal(7),z.null()])}).strict(),
+    ]);
+  else if (p[0] === "referral") schema = z.object({ code: referralCode });
   if (p[0] === "referrals") schema = z.object({ code: referralCode });
   if (p[0] === "member-details") schema = memberDetailsSchema;
   if (p[0] === "profile")

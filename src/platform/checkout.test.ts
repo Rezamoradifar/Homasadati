@@ -184,6 +184,9 @@ it("verifies one bank payment for the entire cart and settles every line exactly
     );
   expect((await callback()).status).toBe(303);
   expect((await callback()).status).toBe(303);
+  const beforeRetry=vi.mocked(fetch).mock.calls.length;
+  expect(await payCheckout(c.id,buyer)).toEqual({status:"paid",id:c.id});
+  expect(vi.mocked(fetch).mock.calls.length).toBe(beforeRetry);
   expect(wallet(sponsor).pending).toBe(40000);
   expect(one("SELECT status FROM p_checkouts WHERE id=?", c.id)!.status).toBe(
     "paid",

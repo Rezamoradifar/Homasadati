@@ -1,3 +1,4 @@
+import {messagePresentation} from "./message-presentation";
 import {creditEntry} from "./company-members";
 import { positionMode } from "./card-positions";
 import { verifiedIban } from "./payout-profile";
@@ -100,7 +101,13 @@ function credit(
   const debt = Math.min(wallet(user).debt, amount);
   ledger(user, key, kind, reference, amount - debt, 0, 0, -debt);
 }
+/** Private in-app event only; never queues email or SMS. */
+export function notifyInApp(user:string,title:string,body:string) {
+  const preferences=one("SELECT preferences FROM p_users WHERE id=?",user)?.preferences;
+  if(preferences && JSON.parse(preferences).inApp) run("INSERT INTO p_notifications VALUES(?,?,?,?,NULL,?)",randomUUID(),user,title,body,now());
+}
 export function notify(user: string, title: string, body: string) {
+  body=messagePresentation(title,body).text;
   const u = one("SELECT * FROM p_users WHERE id=?", user);
   if (!u) return;
   const preferences = JSON.parse(u.preferences);

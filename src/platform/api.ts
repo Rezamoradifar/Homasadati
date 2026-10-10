@@ -1,4 +1,9 @@
-import {companyCredit,companyPositionStatus,companyMemberView,manageCompanyMember} from "./company-members";
+import {purchaseActivationReceipt} from "./purchase-activation-receipt";
+import {launchDashboard} from "./launch-dashboard";
+import { memberStartGuide } from "./start-guide";
+import { memberCardStatus } from "./seven-card-engine";
+import { experienceSummary } from "./experience-metrics";
+import {companyCredit,companyPositionStatus,companyMemberView,manageCompanyMember,managerActivated} from "./company-members";
 import { officeAccess, grantOffice, officeChart, officeNetwork, requireOffice } from "./marketer-office";
 import { positionMode, assertDirectCapacity, bindDirect } from "./card-positions";
 import { parseAmount, validRate } from "./fx";
@@ -57,7 +62,7 @@ import { placementTree, searchTree } from "./network-tree";
 import { activityChart } from "./activity-chart";
 import { welcomeMember } from "./welcome";
 import { createCampaign, newsletterOverview, sendCampaign, sendTest } from "./newsletter";
-import { newReferralCode, referralStatus, setReferralCode, sponsorByCode } from "./referral";
+import { newReferralCode, referralStatus, setReferralCode, setReferralCodeByAdmin, setReferralPlacement, sponsorByCode } from "./referral";
 import {
   payoutProfileSchema,
   payoutProfileView,
@@ -786,6 +791,16 @@ export function reports(from: string, to: string) {
 }
 async function admin(req: Request, path: string[], data: Row, url: URL) {
   const resource = path[1];
+  if(resource === "launch-dashboard") {
+    userOf(req,["superadmin"]);
+    if(req.method!=="GET") throw new ApiError(405,"method_not_allowed");
+    return json(launchDashboard());
+  }
+  if (resource === "site-experience") {
+    userOf(req,["superadmin"]);
+    if(req.method !== "GET") throw new ApiError(405,"method_not_allowed");
+    return json(experienceSummary());
+  }
   if (resource === "company-members") {
     const owner=userOf(req,["superadmin"]);
     if(req.method==="GET") return json(companyMemberView(id.parse(url.searchParams.get("userId"))));
@@ -916,6 +931,11 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "referral_requires_purchase",
           "kavenegar_key",
           "sms_template",
+          "sms_template_register",
+          "sms_template_login",
+          "sms_template_reset",
+          "sms_template_security",
+          "sms_template_contact",
           "sms_sender",
           "zarinpal_merchant",
           "zibal_merchant",
@@ -1187,7 +1207,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       const member = one("SELECT * FROM p_users WHERE id=?", entity);
       if (!member) throw new ApiError(404, "not_found");
       return json({
-        user: publicUser(member),
+        user: {...publicUser(member),managerActivated:managerActivated(member.id)},
         memberDetails:
           one(
             "SELECT details,contact_verified_at FROM p_member_details WHERE user_id=?",
@@ -1211,22 +1231,25 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         network: network(u, entity, true),
       });
     }
-    if (get)
-      return json(
-        paged(
+    if (get) {
+      const result = paged(
           "SELECT id,name,email,phone,role,blocked,created_at,last_seen,referral_code FROM p_users WHERE (name LIKE ? OR email LIKE ? OR phone LIKE ?) AND (?=1 OR NOT EXISTS(SELECT 1 FROM p_archived_users a WHERE a.user_id=p_users.id)) ORDER BY created_at DESC",
           ["%" + q.q + "%", "%" + q.q + "%", "%" + q.q + "%",Number(url.searchParams.get("archived")==="1")],
           q.page,
-        ),
-      );
+        );
+      return json({...result,rows:result.rows.map(member=>({...member,managerActivated:managerActivated(member.id)}))});
+    }
     const d = z
       .object({
         id,
         blocked: z.boolean().optional(),
         role: role.optional(),
+        referral_code: referralCode.optional(),
         reason: text,
       })
       .parse(data);
+    if(d.referral_code!==undefined && d.blocked===undefined && d.role===undefined)
+      return json({referral:setReferralCodeByAdmin(u,d.id,d.referral_code,d.reason)});
     if (d.id === u.id) throw new ApiError(409, "cannot_modify_self");
     atomic(() => {
       const before = one("SELECT * FROM p_users WHERE id=?", d.id);
@@ -1248,6 +1271,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
         d.role || before.role,
         d.id,
       );
+      if(d.referral_code!==undefined)setReferralCodeByAdmin(u,d.id,d.referral_code,d.reason);
       revokeSessions(d.id);
       audit(
         u.id,
@@ -1750,10 +1774,16 @@ export async function handle(req: Request, path: string[]) {
         return json(redeemReward(u.id, data), 201);
       throw new ApiError(405, "method_not_allowed");
     }
-    if (path[0] === "me" && get) return json({ user: { ...publicUser(u), companyCreditToman:companyCredit(u.id),companyPositions:companyPositionStatus(u.id),marketerOffice: officeAccess(u.id) } });
+    if (path[0] === "me" && get) return json({ user: { ...publicUser(u), managerActivated:managerActivated(u.id),companyCreditToman:companyCredit(u.id),companyPositions:companyPositionStatus(u.id),marketerOffice: officeAccess(u.id) } });
     if (path[0] === "dashboard" && get) {
       const start = persianMonthStart();
+      const club=memberCardStatus(u.id),invitation=referralStatus(u);
+      const commissions=all("SELECT * FROM p_commissions WHERE user_id=? ORDER BY created_at DESC LIMIT 5",u.id);
       return json({
+        club,
+        invitation,
+        startGuide:memberStartGuide(u,club,invitation,commissions),
+        company:companyPositionStatus(u.id),
         activity: one(
           `SELECT
             (SELECT COUNT(*) FROM p_orders WHERE user_id=? AND status IN ('pending','processing','shipped')) AS activeOrders,
@@ -1781,10 +1811,7 @@ export async function handle(req: Request, path: string[]) {
           "SELECT * FROM p_orders WHERE user_id=? ORDER BY created_at DESC LIMIT 5",
           u.id,
         ),
-        commissions: all(
-          "SELECT * FROM p_commissions WHERE user_id=? ORDER BY created_at DESC LIMIT 5",
-          u.id,
-        ),
+        commissions,
       });
     }
     if (path[0] === "profile" && !get) {
@@ -1986,11 +2013,12 @@ export async function handle(req: Request, path: string[]) {
         );
         if (!c) throw new ApiError(404, "not_found");
         const orders=all("SELECT o.id,o.status,o.amount,o.paid_at,o.refunded_at FROM p_orders o JOIN p_checkout_items i ON i.order_id=o.id WHERE i.checkout_id=?",c.id);
-        return json({...c, orders, paidPurchaseVolume:orders.filter(o=>o.paid_at&&!o.refunded_at&&!["cancelled","refunded"].includes(o.status)).reduce((n,o)=>n+o.amount,0)});
+        return json({...c, orders, activationReceipt:c.status === "paid" ? purchaseActivationReceipt(u.id) : null, paidPurchaseVolume:orders.filter(o=>o.paid_at&&!o.refunded_at&&!["cancelled","refunded"].includes(o.status)).reduce((n,o)=>n+o.amount,0)});
       }
       if (path[2] === "payment") {
         const checkoutId = id.parse(path[1]);
-        const target = one("SELECT method FROM p_checkouts WHERE id=? AND user_id=?", checkoutId, u.id);
+        const target = one("SELECT method,status FROM p_checkouts WHERE id=? AND user_id=?", checkoutId, u.id);
+        if(target?.status === "paid") return json({status:"paid",id:checkoutId});
         if (target?.method === "bale") {
           limit("bale-start:" + u.id, 10, 300);
           return json(await startBalePayment(checkoutId, u.id));
@@ -2024,7 +2052,7 @@ export async function handle(req: Request, path: string[]) {
             u.id,
           );
           if (!o) throw new ApiError(404, "not_found");
-          return json(o);
+          return json({...o,activationReceipt:o.paid_at&&!o.refunded_at ? purchaseActivationReceipt(u.id) : null});
         }
         return json(
           paged(
@@ -2054,6 +2082,9 @@ export async function handle(req: Request, path: string[]) {
         );
       }
       if (path[2] === "payment") {
+        const freshOrder=one("SELECT id,status,paid_at FROM p_orders WHERE id=? AND user_id=?",id.parse(path[1]),u.id);
+        if (!freshOrder) throw new ApiError(404,"not_found");
+        if (freshOrder.paid_at && !["cancelled","refunded"].includes(freshOrder.status)) return json({status:"paid",id:freshOrder.id});
         const group = one(
           "SELECT checkout_id FROM p_checkout_items WHERE order_id=?",
           id.parse(path[1]),
@@ -2181,6 +2212,8 @@ export async function handle(req: Request, path: string[]) {
       verifyTotp(u, d.totp || "");
       return json({ profile: savePayoutProfile(u.id, d) });
     }
+    if (path.join("/") === "referral/placement" && method === "POST")
+      return json(setReferralPlacement(u, data));
     if (path[0] === "referral") {
       if (get) return json(referralStatus(u));
       return json(setReferralCode(u, z.object({ code: z.string() }).parse(data).code));

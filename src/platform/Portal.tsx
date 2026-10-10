@@ -1,4 +1,5 @@
 "use client";
+import { ManagerActivationBadge } from "./ManagerActivationBadge";
 import { MarketerOffice } from "./MarketerOffice";
 import { AdminNewsletter } from "./AdminNewsletter";
 import { NetworkTree } from "./NetworkTree";
@@ -121,7 +122,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
     let live = true,
       checking = false;
     const id = setInterval(async () => {
-      if (checking) return;
+      if (checking || document.visibilityState === "hidden") return;
       checking = true;
       try {
         const r = await api("me");
@@ -332,7 +333,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                 </>
               ) : (
                 <>
-                  <div className="member-profile-card">
+                  <div className={"member-profile-card"+(user.managerActivated?" manager-activated":"")}>
                     <span className="member-avatar" aria-hidden="true">
                       {String(user.name || "").trim().slice(0, 1)}
                     </span>
@@ -342,6 +343,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     <small>
                       کد معرف: <bdi dir="ltr">{user.referral_code}</bdi>
                     </small>
+                    <ManagerActivationBadge active={user.managerActivated}/>
                   </div>
                   <button
                     className="member-menu-toggle"
@@ -382,7 +384,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
               )}
             </aside>
             <main className="portal-main">
-              {!admin && user.companyPositions && user.companyPositions.status!=="qualified" && <section className="portal-card position-company-note" role="status"><h2>{user.companyPositions.status==="suspended"?"جایگاه شرکتی معلق است":"مهلت فعال‌سازی دو جایگاه اول"}</h2><p>مهلت جایگاه شرکتی: ۳۵ روز از تخصیص · {Number(user.companyPositions.remainingDays).toLocaleString("fa-IR")} روز باقی‌مانده</p><p>خرید واقعی لازم: {Math.max(0,20000000-user.companyPositions.realPurchaseToman).toLocaleString("fa-IR")} تومان</p><a className="portal-button" href="/shop">خرید و فعال‌سازی جایگاه</a></section>}
+              {!admin && user.companyPositions && !user.companyPositions.exempt && user.companyPositions.status!=="qualified" && <section className="portal-card position-company-note" role="status"><h2>{user.companyPositions.status==="suspended"?"جایگاه شرکتی معلق است":"مهلت فعال‌سازی دو جایگاه اول"}</h2><p>مهلت جایگاه شرکتی: ۳۵ روز از تخصیص · {Number(user.companyPositions.remainingDays).toLocaleString("fa-IR")} روز باقی‌مانده</p><p>خرید واقعی لازم: {Math.max(0,20000000-user.companyPositions.realPurchaseToman).toLocaleString("fa-IR")} تومان</p><a className="portal-button" href="/shop">خرید و فعال‌سازی جایگاه</a></section>}
               <div className="portal-title">
                 <div>
                   <h1>{!admin && tab === "dashboard" ? "حساب من" : current?.[1] || "پنل هما نت"}</h1>

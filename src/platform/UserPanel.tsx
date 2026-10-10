@@ -1,10 +1,17 @@
 "use client";
+import {NotificationCenter} from "./NotificationCenter";
+import ResponsiveImage from "../components/media/ResponsiveImage";
+import {useCallback} from "react";
 
+import {AccountAlerts} from "./AccountAlerts";
+import {OrderTracking} from "./OrderTracking";
 import AddToCart from "../commerce/AddToCart";
 import {Money} from "../commerce/currency";
 import {useBasket} from "../commerce/basket";
 import LiveChart from "./LiveChart";
-import { ClubAccountOverview } from "./ClubAccountCard";
+import { ClubAccountCard } from "./ClubAccountCard";
+import { MemberStartGuide } from "./MemberStartGuide";
+import { AccountQuickSummary } from "./AccountQuickSummary";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
@@ -55,7 +62,10 @@ export function Dashboard({ refresh, user, onNavigate }: {
     <Localized><DataState state={s}>
       {(d) => (
         <Localized><>
-          <ClubAccountOverview refresh={refresh} available={d.wallet.available} onNavigate={onNavigate} />
+          <AccountQuickSummary club={d.club} invitation={d.invitation} wallet={d.wallet} onNavigate={onNavigate}/>
+          <AccountAlerts guide={d.startGuide} company={d.company} onNavigate={onNavigate}/>
+          <MemberStartGuide guide={d.startGuide} code={d.invitation.code} onNavigate={onNavigate}/>
+          <details className="dashboard-club-details"><summary>جزئیات کارت و جایگاه‌های من</summary><ClubAccountCard status={d.club} available={d.wallet.available} onNavigate={onNavigate} /></details>
           <MemberOverview
             user={user}
             activity={d.activity}
@@ -82,7 +92,6 @@ export function Dashboard({ refresh, user, onNavigate }: {
             summary={
               <>
                 <div className="portal-stats">
-                  <Stat label="موجودی قابل برداشت" value={d.wallet.available} />
                   <Stat label="در انتظار تسویه" value={d.wallet.pending} />
                   <Stat label="فروش شخصی این ماه" value={d.sales.personal} />
                   <Stat label="فروش گروهی این ماه" value={d.sales.group} />
@@ -199,7 +208,7 @@ function Product({
   const images = JSON.parse(p.images),{locale}=useSiteLocale(),copy=catalogCopy({title:p.title,description:p.description,details:p.details},locale);
   return (
     <Localized><article className="portal-product">
-      <a className="member-product-image" href={`/shop/${p.id}`}><img src={images[0] || "/assets/brand/homanet-mark-orange.png"} alt={copy.title} loading="lazy"/></a>
+      <a className="member-product-image" href={`/shop/${p.id}`}><ResponsiveImage src={images[0] || "/assets/brand/homanet-mark-orange.png"} alt={copy.title} sizes="(max-width: 640px) 90vw, 320px" loading="lazy"/></a>
       <div>
         <small>{labels[p.vertical]}</small>
         <h2><a href={`/shop/${p.id}`}>{copy.title}</a></h2>
@@ -238,7 +247,7 @@ function Product({
                 })}
             </dl>
             {images.slice(1).map((src: string) => (
-              <Localized key={src}><img src={src} alt={copy.title} loading="lazy" /></Localized>
+              <Localized key={src}><ResponsiveImage src={src} alt={copy.title} sizes="(max-width: 640px) 90vw, 640px" loading="lazy" /></Localized>
             ))}
           </details>
         )}
@@ -263,12 +272,14 @@ export function Orders({
   const [selected, setSelected] = useState<RecordData | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  const [orderReady,setOrderReady]=useState(false);
   const [payment] = useState(() =>
     typeof window === "undefined" ? "" : new URLSearchParams(location.search).get("payment") || "",
   );
+  const loadOrder = useCallback((current:RecordData)=>{setSelected(current);setOrderReady(true);},[]);
   return (
     <Localized><>
-      {payment === "paid" && <Notice success="پرداخت با موفقیت تأیید شد و سفارش ثبت شد." />}
+      {payment === "paid" && <Notice success="برای مشاهده نتیجه تأیید پرداخت، جزئیات سفارش را باز کنید." />}
       {payment === "cancelled" && (
         <Notice error="پرداخت لغو شد یا از سوی بانک انجام نشد و سفارش پرداخت‌نشده باقی ماند. اگر مبلغی کسر شده باشد، بانک آن را حداکثر ظرف ۷۲ ساعت برمی‌گرداند. می‌توانید دوباره پرداخت کنید." />
       )}
@@ -295,6 +306,7 @@ export function Orders({
             className="portal-button"
             onClick={() => {
               setSelected(o);
+              setOrderReady(false);
               setError("");
             }}
           >
@@ -304,6 +316,7 @@ export function Orders({
       />
       {selected && (
         <Modal title="جزئیات سفارش" onClose={() => setSelected(null)}>
+          <OrderTracking key={selected.id} order={selected} onLoaded={loadOrder}/>
           <dl className="portal-details">
             {[
               ["شناسه", selected.id],
@@ -339,15 +352,19 @@ export function Orders({
             {selected.status === "pending" &&
               ["zarinpal", "zibal"].includes(selected.payment_method) && (
                 <button
-                  disabled={busy}
+                  disabled={busy||!orderReady}
                   className="portal-button primary"
                   onClick={async () => {
                     setBusy(true);
                     try {
+                      const fresh=await api(`orders/${selected.id}`);
+                      setSelected(fresh);
+                      if(fresh.paid_at||fresh.status!=="pending") {onChange();return;}
                       const r = await api(
                         `orders/${selected.id}/payment`,
                         "POST",
                       );
+                      if(r.status==="paid"){setSelected(await api(`orders/${selected.id}`));onChange();return;}
                       window.location.assign(r.url);
                     } catch (e) {
                       setError((e as Error).message);
@@ -883,49 +900,6 @@ export function Subscriptions({
     </></Localized>
   );
 }
-export function Notifications({
-  refresh,
-  onChange,
-}: {
-  refresh: number;
-  onChange: () => void;
-}) {
-  const [error, setError] = useState("");
-  const mark = async (id?: string) => {
-    try {
-      await api("notifications", "PATCH", id ? { id } : { all: true });
-      onChange();
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  };
-  return (
-    <Localized><>
-      <Notice error={error} />
-      <button
-        className="portal-button"
-        onClick={() => mark()}
-        style={{ marginBottom: 20 }}
-      >
-        همه خوانده شدند
-      </button>
-      <Listing
-        endpoint="notifications"
-        refresh={refresh}
-        columns={[
-          ["title", "عنوان"],
-          ["body", "پیام"],
-          ["created_at", "تاریخ", "date"],
-          ["read_at", "خوانده‌شده در", "date"],
-        ]}
-        actions={(r) =>
-          !r.read_at && (
-            <Localized><button className="portal-button" onClick={() => mark(r.id)}>
-              خواندم
-            </button></Localized>
-          )
-        }
-      />
-    </></Localized>
-  );
+export function Notifications({refresh,onChange}:{refresh:number;onChange:()=>void}) {
+  return <NotificationCenter refresh={refresh} onChange={onChange}/>;
 }

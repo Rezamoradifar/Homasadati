@@ -1,3 +1,4 @@
+import {cardActivityReport} from "./card-activity-report";
 import {now} from "./schema";
 import {binaryRules,binaryEligible,dailyBinaryEarned} from "./network-rules";
 import { all, one, atomic } from "./schema";
@@ -61,6 +62,7 @@ export function binaryReport(userId: string, page = 1) {
     );
     const rules=binaryRules();
     return {
+      card:cardActivityReport(userId,page),
       rules,eligible:binaryEligible(userId,rules),dailyEarned:dailyBinaryEarned(userId),
       root,
       nodes,

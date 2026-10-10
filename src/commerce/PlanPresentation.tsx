@@ -7,7 +7,7 @@ import {
   MATCH_REWARD,
   MATCH_VOLUME,
   SIMURGH_CASHBACK,
-  sevenCards,
+  sevenLevelCards as sevenCards,
 } from "../platform/card-levels";
 
 /** Member-facing slide presentation of the seven-card plan. Every number is
@@ -23,7 +23,7 @@ export default function PlanPresentation() {
     <section key="cover" className="plan-slide plan-cover">
       <img src="/assets/brand-mark.png" alt="" width={96} height={96} />
       <p className="plan-kicker">باشگاه همراهان هما نت</p>
-      <h1>طرح هشت کارت</h1>
+      <h1>طرح هفت کارت</h1>
       <p className="plan-lead">خرید واقعی، پاداش شفاف، محاسبهٔ دقیق هفتگی</p>
       <p className="plan-hint">برای رفتن به اسلاید بعد، روی دکمهٔ «بعدی» بزنید یا صفحه را بکشید.</p>
     </section>,
@@ -40,8 +40,8 @@ export default function PlanPresentation() {
           <span>جمع خریدهای پرداخت‌شدهٔ شما، کارت شما را تعیین می‌کند.</span>
         </li>
         <li>
-          <strong>ساختن دو شاخه</strong>
-          <span>اعضای جدید در شاخهٔ چپ یا راست شما قرار می‌گیرند و خریدشان حجم آن شاخه می‌شود.</span>
+          <strong>انتخاب شاخهٔ معرفی</strong>
+          <span>شما شاخهٔ ثبت‌نام هر معرفی را انتخاب می‌کنید؛ حجم خرید فقط از زمان فعال‌شدن هر جایگاه برای همان جایگاه محاسبه می‌شود.</span>
         </li>
         <li>
           <strong>پاداش تعادل هفتگی</strong>
@@ -51,7 +51,7 @@ export default function PlanPresentation() {
     </section>,
 
     <section key="cards" className="plan-slide">
-      <h2>هشت کارت باشگاه</h2>
+      <h2>هفت کارت باشگاه</h2>
       <p className="plan-lead">هر کارت با جمع خریدهای شما مشخص می‌شود و تعداد میزهای کار و سقف هفتگی را تعیین می‌کند.</p>
       <div className="plan-cards">
         {sevenCards.map((c) => (
@@ -63,8 +63,12 @@ export default function PlanPresentation() {
             </small>
             <dl>
               <div>
-                <dt>میز کار</dt>
+                <dt>جایگاه فعال</dt>
                 <dd>{n(c.desks)}</dd>
+              </div>
+              <div>
+                <dt>حداکثر شاخه</dt>
+                <dd>{n(c.branches)}</dd>
               </div>
               <div>
                 <dt>سقف هفتگی</dt>
@@ -111,7 +115,7 @@ export default function PlanPresentation() {
         <span>سقف پاداش هر میز کار در هر هفته</span>
       </div>
       <ul className="plan-points">
-        <li>کارت شمارهٔ n، تعداد n میز کار دارد؛ میزها به ترتیب پر می‌شوند.</li>
+        <li>سطح خرید n، تعداد n جایگاه فعال دارد؛ کارت خرید و جایگاه‌های شبکه جدا هستند.</li>
         <li>
           برای نمونه، کارت سیمرغ ۷ میز دارد و سقف هفتگی آن {million(7 * DESK_WEEKLY_CAP)} میلیون تومان است.
         </li>

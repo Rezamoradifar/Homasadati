@@ -967,6 +967,7 @@ export function AdminUsers({
             ["phone", "موبایل"],
             ["role", "نقش"],
             ["blocked", "مسدود", "bool"],
+            ["managerActivated", "فعال‌سازی مدیر", "managerActivation"],
             ["created_at", "عضویت", "date"],
           ]}
           actions={(r) => (
@@ -1035,6 +1036,19 @@ export function AdminUsers({
                 </Localized>
               )}
             </DataState>
+            <h3>ویرایش کد دعوت</h3>
+            <Form
+              initial={{referral_code:selected.referral_code}}
+              fields={[
+                {name:"referral_code",label:"کد دعوت",max:40,hint:"ویرایش مدیر محدودیت زمانی ندارد؛ لینک‌های قبلی همچنان معتبر می‌مانند."},
+                {name:"reason",label:"دلیل تغییر",type:"textarea",full:true},
+              ]}
+              submit="ثبت کد دعوت"
+              onSubmit={async d=>{
+                await api("admin/users","PATCH",{id:selected.id,referral_code:String(d.referral_code).trim().toLowerCase(),reason:d.reason});
+                setSelected(null);onChange();
+              }}
+            />
             <Form
               initial={selected}
               fields={[
@@ -1172,6 +1186,11 @@ export function Settings({
                   ["referral_requires_purchase", "فعال‌شدن کد معرف پس از اولین خرید (۱ = بله، ۰ = خیر)"],
                   ["kavenegar_key", "کلید API پیامک کاوه‌نگار"],
                   ["sms_template", "نام الگوی OTP پیامک"],
+                  ["sms_template_register", "الگوی تأییدشده پیامک عضویت (اختیاری)"],
+                  ["sms_template_login", "الگوی تأییدشده پیامک ورود (اختیاری)"],
+                  ["sms_template_reset", "الگوی تأییدشده پیامک بازیابی رمز (اختیاری)"],
+                  ["sms_template_security", "الگوی تأییدشده پیامک امنیت حساب (اختیاری)"],
+                  ["sms_template_contact", "الگوی تأییدشده پیامک راه تماس (اختیاری)"],
                   ["sms_sender", "شماره فرستنده پیامک اعلان"],
                   ["zarinpal_merchant", "شناسه پذیرنده زرین‌پال"],
                   ["zibal_merchant", "مرچنت درگاه زیبال"],

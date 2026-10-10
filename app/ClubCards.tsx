@@ -3,7 +3,7 @@ import { UsdNote } from "../src/commerce/currency";
 import Localized from "../src/i18n/Localized";
 import PrivilegeCard from "./PrivilegeCard";
 import PlanStatusNote from "./PlanStatusNote";
-import { sevenCards } from "../src/platform/card-levels";
+import { sevenLevelCards as sevenCards } from "../src/platform/card-levels";
 const ranks = sevenCards.map(card => [card.name, card.english, card.tone]);
 export default function ClubCards({ locale = "fa" }: { locale?: string }) {
   const fa = locale !== "en";
@@ -17,8 +17,8 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
           <p className="eyebrow">کارت‌های باشگاه همای</p>
           <h2 id="ranks-title">
             {fa
-              ? "هشت رتبه، هشت رنگ همراهی"
-              : "Eight ranks. Your next chapter."}
+              ? "هفت سطح خرید، هفت کارت باشگاه"
+              : "Seven purchase levels. Seven club cards."}
           </h2>
         </div>
         <a className="editorial-link" href="/club/ranks">
@@ -33,7 +33,7 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
           <Localized key={tone}><a
             href="/income-plan"
             className={"rank-card rank-" + tone}
-            aria-label={fa ? "رتبه " + name : en + " rank"}
+            aria-label={fa ? "کارت " + name : en + " card"}
           >
             <PrivilegeCard
               name={fa ? name : en}

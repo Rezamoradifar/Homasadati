@@ -1,4 +1,6 @@
 "use client";
+import {LaunchDashboard} from "./LaunchDashboard";
+import { SiteExperiencePanel } from "./SiteExperiencePanel";
 
 import { ArrowUpLeft, Package, Users, ClipboardList, Wallet, FileText, Settings, ShieldCheck, Plane, GitBranch, Store } from "lucide-react";
 import Localized from "../i18n/Localized";
@@ -48,6 +50,7 @@ export default function AdminHome({user, refresh, onNavigate}: {
         </a>)}
       </div>
     </section>
+    {user.role === "superadmin" && <><LaunchDashboard refresh={refresh} onNavigate={onNavigate}/><SiteExperiencePanel refresh={refresh}/></>}
     {allowed.has("operations") && <OperationsDashboard refresh={refresh} />}
     {!allowed.has("operations") && <section className="portal-card admin-role-note">
       <ShieldCheck size={24} aria-hidden="true" />

@@ -32,6 +32,7 @@ export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
   return {
     rows,
     total,
+    shippingFeeToman: 0,
     requiresAddress: rows.some((p) =>
       ["beauty", "craft", "leather"].includes(p.vertical),
     ),
@@ -150,13 +151,14 @@ export function settleCheckout(checkoutId: string, reference: string) {
   });
 }
 export async function payCheckout(checkoutId: string, user: string) {
-  assertPurchasesOpen();
   const c = one(
     "SELECT * FROM p_checkouts WHERE id=? AND user_id=?",
     checkoutId,
     user,
   );
   if (!c) throw new ApiError(404, "not_found");
+  if (c.status === "paid") return {status:"paid",id:c.id};
+  assertPurchasesOpen();
   if (
     !["zarinpal", "zibal"].includes(c.method) ||
     c.status !== "pending" ||

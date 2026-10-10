@@ -48,7 +48,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
             <a href="/account?tab=addresses">آدرس‌های ارسال</a>
             <a href="/heritage">روایت ایران و نمادها</a>
             <a href="/club">باشگاه مشتریان</a>
-          <a href="/club/ranks">هشت رتبه باشگاه</a>
+          <a href="/club/ranks">هفت کارت باشگاه</a>
           <a href="/merchants">پذیرندگان</a>
             <a href="/income-plan">طرح درآمد</a>
             <a href="/support">پشتیبانی و تیکت</a>

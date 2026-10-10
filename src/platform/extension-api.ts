@@ -1,3 +1,5 @@
+import { sevenLevelMode } from "./card-positions";
+import { SEVEN_LEVEL_DESK_CAP, UPDATED_DESK_WEEKLY_CAP } from "./card-levels";
 import { cardLive, cardWeeks, fundingBps, unlimitedBudget, memberCardStatus, previewCardSettlement, setCardLive } from "./seven-card-engine";
 import { cardPlan, saveCardPlan } from "./seven-card";
 import { previewCardMatches } from "./seven-card-model";
@@ -112,7 +114,7 @@ export async function extensionAdmin(
   }
   if (resource === "seven-card-simulate") {
     if (get) throw new ApiError(405, "method_not_allowed");
-    return json(previewCardMatches(data));
+    return json(previewCardMatches(data,sevenLevelMode() ? SEVEN_LEVEL_DESK_CAP : UPDATED_DESK_WEEKLY_CAP));
   }
   if (resource === "binary-rules")
     return json(get ? { rules: binaryRules() } : saveBinaryRules(u.id, data));

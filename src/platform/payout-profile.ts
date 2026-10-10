@@ -1,3 +1,4 @@
+import {notifyInApp} from "./finance";
 import { updatedCardSchedule } from "./card-schedule";
 import { ApiError, hash } from "../server/http";
 import { all, atomic, now, one, run } from "./schema";
@@ -99,6 +100,7 @@ export function reviewPayoutProfile(actor: string, userId: string, status: "veri
       userId,
     );
     audit(actor, "payout-profile.review", userId, { status: row.status }, { status }, reason);
+    notifyInApp(userId,status === "verified" ? "اطلاعات بانکی تأیید شد" : "اطلاعات بانکی نیاز به اصلاح دارد","نتیجه بررسی اطلاعات بانکی در بخش کیف پول قابل مشاهده است.");
     return { ok: true };
   });
 }

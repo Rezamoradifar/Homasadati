@@ -198,6 +198,7 @@ export function TicketsPanel({
 }: Props & { staff?: boolean }) {
   const [selected, setSelected] = useState<string | null>(null),
     key = useRef("");
+  const [relatedOrder]=useState(()=>{if(staff||typeof window==="undefined")return "";const value=new URLSearchParams(window.location.search).get("order")||"";return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)?value:"";});
   if (selected)
     return (
       <TicketThread
@@ -225,7 +226,7 @@ export function TicketsPanel({
           <h3>درخواست تازه</h3>
           <Form
             submit="ثبت درخواست"
-            initial={{ category: "other", priority: "normal" }}
+            initial={{ category: relatedOrder?"order":"other", priority: "normal", orderId:relatedOrder }}
             fields={[
               { name: "subject", label: "موضوع درخواست", max: 200 },
               {

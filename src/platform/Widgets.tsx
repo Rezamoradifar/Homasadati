@@ -1,4 +1,5 @@
 "use client";
+import { ManagerActivationBadge } from "./ManagerActivationBadge";
 
 import Localized from "../i18n/Localized";
 import { useSiteLocale } from "../i18n/SiteLocale";
@@ -198,6 +199,8 @@ export function useData(path: string, refresh = 0) {
   const [data, setData] = useState<RecordData | null>(null),
     [error, setError] = useState(""),
     [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
+  const retry = () => { setLoading(true); setAttempt(n => n + 1); };
   const previous = useRef("");
   useEffect(() => {
     let current = true;
@@ -225,8 +228,8 @@ export function useData(path: string, refresh = 0) {
     return () => {
       current = false;
     };
-  }, [path, refresh]);
-  return { data, error, loading };
+  }, [path, refresh, attempt]);
+  return { data, error, loading, retry };
 }
 export function DataState({
   state,
@@ -241,7 +244,7 @@ export function DataState({
         در حال دریافت اطلاعات…
       </p></Localized>
     );
-  if (state.error) return <Localized><Notice error={state.error} /></Localized>;
+  if (state.error) return <Localized><div className="data-retry" role="region" aria-label="خطا در دریافت اطلاعات"><Notice error={state.error} />{state.retry && <button type="button" className="portal-button secondary" onClick={state.retry}>تلاش دوباره</button>}</div></Localized>;
   return state.data ? <Localized><>{children(state.data)}</></Localized> : null;
 }
 export const status = (s: unknown) => (
@@ -283,10 +286,12 @@ export function Table({
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <Localized key={r.id || r.day || i}><tr>
+            <Localized key={r.id || r.day || i}><tr className={r.managerActivated?"manager-activated":undefined}>
               {columns.map(([k, , type]) => (
                 <Localized key={k}><td title={String(r[k] ?? "")}>
-                  {type === "money"
+                  {type === "managerActivation"
+                    ? r[k] ? <ManagerActivationBadge active/> : "—"
+                    : type === "money"
                     ? amount(r[k])
                     : type === "date"
                       ? date(r[k], locale)

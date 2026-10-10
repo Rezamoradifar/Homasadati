@@ -146,7 +146,7 @@ export async function sendOtp(target: string, purpose: string, locale: SiteLocal
       if (!result.id) throw new ApiError(503, "provider_rejected");
     } else {
       const key = setting("kavenegar_key"),
-        template = setting("sms_template");
+        template = (Object.hasOwn(otpCopy,purpose) ? setting("sms_template_"+purpose) : "") || setting("sms_template");
       if (!key || !template) throw new ApiError(503, "sms_not_configured");
       const result = await providerFetch(
         `https://api.kavenegar.com/v1/${encodeURIComponent(key)}/verify/lookup.json`,

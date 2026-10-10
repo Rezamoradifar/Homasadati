@@ -1,3 +1,5 @@
+import {brandName} from "./providers";
+import {messagePresentation,notificationSms} from "./message-presentation";
 import {reviewCompanyPositions} from "./company-members";
 import { runBinaryCycles } from "./binary-schedule";
 import { matureMerchantSales } from "./merchant-operations";
@@ -13,11 +15,12 @@ import { refreshUsdRate } from "./fx";
 import { runCardSettlement } from "./seven-card-engine";
 import { processNewsletter } from "./newsletter";
 import { recheckPendingBalePayments } from "./bale-payments";
-import { isWelcomeJob, welcomeEmail } from "./welcome";
+import { isWelcomeJob, welcomeEmail, welcomeSms } from "./welcome";
+import {observeFinancialCycle} from "./operations-health";
 export async function maintenance() {
   await refreshUsdRate();
   reviewCompanyPositions();
-  runCardSettlement();
+  observeFinancialCycle(() => runCardSettlement());
   runBinaryCycles();
   atomic(() => {
     mature();
@@ -117,7 +120,7 @@ export async function maintenance() {
             body: new URLSearchParams({
               receptor: job.target.replace(/^\+/, "00"),
               sender,
-              message: job.subject + "\n" + job.body,
+              message: isWelcomeJob(job.body) ? welcomeSms(job.body,brandName(),process.env.APP_ORIGIN || "https://homanets.com") : notificationSms(job.subject,job.body,brandName(),process.env.APP_ORIGIN || "https://homanets.com"),
             }).toString(),
           },
         );
@@ -153,13 +156,14 @@ async function outboxEmail(from: string, job: Row) {
     const mail = welcomeEmail(job.body, brand);
     return { from: senderAddress(brand.name, from), to: [job.target], subject: mail.subject, html: mail.html, text: mail.text };
   }
+  const copy=messagePresentation(job.subject,job.body);
   const mail = renderEmail(
     {
       subject: job.subject + " | " + brand.name,
-      preheader: String(job.body).slice(0, 120),
+      preheader: copy.text.slice(0, 120),
       heading: job.subject,
-      paragraphs: String(job.body).split(/\n+/).filter(Boolean),
-      button: { label: "مشاهده در حساب کاربری", url: brand.origin.replace(/\/$/, "") + "/account" },
+      paragraphs: ["سلام،",...copy.text.split(/\n+/).filter(Boolean)],
+      button: { label: copy.action, url: brand.origin.replace(/\/$/, "") + "/account?tab="+copy.tab },
       note: "این پیام دربارهٔ حساب شما در هما نت است. تنظیم اعلان‌های ایمیلی از بخش پروفایل حساب کاربری امکان‌پذیر است.",
     },
     brand,

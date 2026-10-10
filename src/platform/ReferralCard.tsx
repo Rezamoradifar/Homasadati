@@ -1,9 +1,12 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import qrcode from "qrcode-generator";
 import Localized from "../i18n/Localized";
+import {checkedInvitation,InvitationNotReady} from "./checked-invitation";
 import { api, date } from "./client";
 import { DataState, Form, useData } from "./Widgets";
+import { PlacementPicker } from "./PlacementPicker";
+import { invitationState, invitationCopy } from "./invitation-state";
 
 const fa = (v: number) => Number(v || 0).toLocaleString("fa-IR");
 
@@ -32,6 +35,16 @@ export function ReferralCard({ refresh }: { refresh: number }) {
   const [version, setVersion] = useState(0),
     [notice, setNotice] = useState("");
   const s = useData("referral", refresh + version);
+  const placementRef = useRef<HTMLDivElement>(null);
+  const sharing=useRef(false);
+  const [shareBusy,setShareBusy]=useState(false);
+  const focusPlacement=()=>{placementRef.current?.scrollIntoView?.({behavior:"smooth",block:"center"});placementRef.current?.querySelector<HTMLSelectElement>("select")?.focus({preventScroll:true});};
+  async function share(action:(invite:{code:string;link:string})=>Promise<void>|void) {
+    if(sharing.current)return;sharing.current=true;setShareBusy(true);setNotice("");
+    try {const invite=await checkedInvitation();await action(invite);}
+    catch(error){setNotice((error as Error).message);if(error instanceof InvitationNotReady){setVersion(v=>v+1);if(error.state==="placement_required")focusPlacement();}}
+    finally {sharing.current=false;setShareBusy(false);}
+  }
   async function copy(text: string, done: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -42,13 +55,16 @@ export function ReferralCard({ refresh }: { refresh: number }) {
   }
   return (
     <Localized>
-      <div className="portal-card referral-card">
+      <div className="portal-card referral-card" id="referral-invitation">
         <h2>کد معرف و لینک دعوت</h2>
         <DataState state={s}>
           {(d) => {
             const origin = typeof window !== "undefined" ? window.location.origin : "";
             const link = origin + "/register?ref=" + d.code;
             const message = `با کد معرف ${d.code} به باشگاه مشتریان هما نت بپیوندید: ${link}`;
+            const state = invitationState(d);
+            const invite = invitationCopy[state];
+            const freeSlots = d.placement?.slots.filter((slot: {enabled:boolean;occupied:boolean}) => slot.enabled && !slot.occupied) || [];
             const rate = d.directMembers ? Math.round((d.directBuyers / d.directMembers) * 100) : 0;
             return (
               <>
@@ -59,51 +75,62 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                       {d.code}
                     </strong>
                     <span className={"referral-state " + (d.active ? "on" : "off")}>
-                      {d.active ? "فعال؛ آمادهٔ دعوت" : "غیرفعال"}
+                      {invite.label}
                     </span>
+                    <p className="referral-guidance">{invite.text}</p>
+                    {state === "placement_required" && <button type="button" className="portal-button referral-next-action" onClick={() => {
+                      placementRef.current?.scrollIntoView?.({behavior:"smooth",block:"center"});
+                      placementRef.current?.querySelector<HTMLSelectElement>("select")?.focus({preventScroll:true});
+                    }}>انتخاب محل ورود نفر بعدی</button>}
+                    {state === "purchase_required" && <a className="portal-button" href="/shop">خرید و فعال‌سازی جایگاه</a>}
                     <div className="referral-actions">
-                      <button className="portal-button" onClick={() => copy(link, "لینک دعوت کپی شد.")}>
+                      <button className="portal-button" disabled={shareBusy} onClick={() => share(invite=>copy(invite.link, "لینک دعوت کپی شد."))}>
                         کپی لینک دعوت
                       </button>
-                      <button className="portal-button secondary" onClick={() => copy(d.code, "کد معرف کپی شد.")}>
+                      <button className="portal-button secondary" disabled={shareBusy} onClick={() => share(invite=>copy(invite.code, "کد معرف کپی شد."))}>
                         کپی کد
                       </button>
                       {typeof navigator !== "undefined" && "share" in navigator && (
                         <button
                           className="portal-button secondary"
-                          onClick={() => navigator.share({ title: "دعوت به هما نت", text: message, url: link }).catch(() => {})}
+                          disabled={shareBusy} onClick={() => share(invite=>navigator.share({ title: "دعوت به هما نت", text: "با کد معرف "+invite.code+" به باشگاه مشتریان هما نت بپیوندید", url: invite.link }))}
                         >
                           اشتراک‌گذاری
                         </button>
                       )}
                     </div>
                     <div className="referral-apps">
-                      <a href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener noreferrer">
+                      <a href={state==="ready"?`https://wa.me/?text=${encodeURIComponent(message)}`:"#referral-invitation"} aria-disabled={shareBusy||state!=="ready"} onClick={e=>{e.preventDefault();void share(invite=>window.location.assign("https://wa.me/?text="+encodeURIComponent(invite.link)));}}>
                         واتس‌اپ
                       </a>
                       <a
-                        href={`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("با کد معرف " + d.code + " به باشگاه مشتریان هما نت بپیوندید")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={state==="ready"?`https://t.me/share/url?url=${encodeURIComponent(link)}`:"#referral-invitation"}
+                        aria-disabled={shareBusy||state!=="ready"} onClick={e=>{e.preventDefault();void share(invite=>window.location.assign("https://t.me/share/url?url="+encodeURIComponent(invite.link)));}}
                       >
                         تلگرام
                       </a>
-                      <a href={`sms:?body=${encodeURIComponent(message)}`}>پیامک</a>
+                      <a href={state==="ready"?`sms:?body=${encodeURIComponent(message)}`:"#referral-invitation"} aria-disabled={shareBusy||state!=="ready"} onClick={e=>{e.preventDefault();void share(invite=>window.location.assign("sms:?body="+encodeURIComponent(invite.link)));}}>پیامک</a>
                     </div>
                     <p role="status" className="referral-notice">
                       {notice}
                     </p>
                   </div>
-                  {link && <QrCode value={link} />}
+                  {state==="ready" && <QrCode value={link} />}
                 </div>
-                <div className="portal-code" dir="ltr" translate="no">
-                  {link}
-                </div>
-                {!d.active && d.requiresPurchase && (
+                {state==="ready"&&<div className="portal-code" dir="ltr" translate="no">{link}</div>}
+                {!d.active && d.requiresPurchase && !d.placement && (
                   <p className="portal-notice">
                     کد معرف شما پس از اولین خرید پرداخت‌شده فعال می‌شود و از آن پس افراد می‌توانند با آن عضو شوند.
                   </p>
                 )}
+                {d.placement && <div ref={placementRef} className="referral-placement">
+                  <h3>جایگاه رفرال بعدی</h3>
+                  <p>با خرید کارت، ظرفیت شاخه‌های همان سطح باز می‌شود. برای هر ورودی جدید، یک جایگاه خالی را انتخاب کنید. پس از ثبت آن عضو باید محل ورودی بعدی را انتخاب کنید. حجم هر جایگاه فقط از خریدهای بعد از فعال‌شدن همان جایگاه حساب می‌شود.</p>
+                  {freeSlots.length > 0 ? <PlacementPicker key={JSON.stringify(d.placement)} placement={d.placement} onSave={async value=>{
+                    await api("referral/placement","POST",{[d.placement.key || "desk"]:value});
+                    setNotice("محل ورود ثبت شد.");setVersion(n=>n+1);
+                  }}/> : <p className="portal-notice">{invite.text}</p>}
+                </div>}
                 <dl className="referral-stats">
                   <div>
                     <dt>معرفی مستقیم</dt>
@@ -140,6 +167,7 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                   </>
                 )}
                 <h3>انتخاب کد معرف اختصاصی</h3>
+                <p>پس از ثبت کد دلخواه، هر ۷ روز یک بار می‌توانید آن را تغییر دهید.</p>
                 {d.canChange ? (
                   <Form
                     fields={[
@@ -158,7 +186,7 @@ export function ReferralCard({ refresh }: { refresh: number }) {
                   />
                 ) : (
                   <p className="portal-notice">
-                    کد معرف را هر ۳۰ روز یک بار می‌توانید تغییر دهید؛ تغییر بعدی از {date(d.nextChange)}.
+                    کد معرف را هر ۷ روز یک بار می‌توانید تغییر دهید؛ تغییر بعدی از {date(d.nextChange)}.
                   </p>
                 )}
               </>

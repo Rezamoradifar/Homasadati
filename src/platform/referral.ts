@@ -1,15 +1,19 @@
+import { fourReferralMode, manualReferralMode, positionDesks, sevenLevelMode, positionDirectCapacity, positionMode } from "./card-positions";
+import { fourDirectCapacity, DIRECT_PATHS } from "./card-position-model";
+import { z } from "zod";
 import { randomInt } from "node:crypto";
 import { ApiError } from "../server/http";
 import { setting } from "./providers";
 import { referralCode } from "./registration-model";
 import { all, atomic, now, one, run, Row } from "./schema";
 import { audit } from "./security";
+import { assertAccess } from "./access";
 
 /** Personal referral codes. A member may pick their own code; the previous
  * one is kept as an alias so links already shared keep working. When the
  * admin enables `referral_requires_purchase`, a code only accepts new
  * members once its owner has a paid, non-refunded purchase. */
-const CHANGE_EVERY_MS = 30 * 86400000;
+const CHANGE_EVERY_MS = 7 * 86400000;
 const RESERVED = new Set(["admin", "administrator", "support", "homa", "homanet", "homay", "root", "system", "test", "null"]);
 
 /** A short code that is easy to read aloud and type: "hn-" and six characters
@@ -24,6 +28,11 @@ export function newReferralCode() {
 }
 
 export const referralNeedsPurchase = () => setting("referral_requires_purchase") === "1";
+
+function canInviteByPurchaseOrGrant(user: string) {
+  if (positionMode() && positionDesks(user) > 0) return true;
+  return hasPaidOrder(user);
+}
 
 function hasPaidOrder(user: string) {
   return !!one("SELECT 1 FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND refunded_at IS NULL LIMIT 1", user);
@@ -40,7 +49,7 @@ function ownerOf(code: string) {
 export function sponsorByCode(code: string): Row | undefined {
   const owner = ownerOf(code.trim().toLowerCase());
   if (!owner || owner.blocked) return undefined;
-  if (referralNeedsPurchase() && !hasPaidOrder(owner.id)) return undefined;
+  if (referralNeedsPurchase() && !canInviteByPurchaseOrGrant(owner.id)) return undefined;
   return owner;
 }
 
@@ -54,9 +63,36 @@ export function referralStatus(user: Row) {
     user.id,
   )!;
   const requiresPurchase = referralNeedsPurchase();
+  const four = fourReferralMode();
+  const full = sevenLevelMode();
+  const activeDesks = four || full ? positionDesks(user.id) : 0;
+  const capacity = four || full ? positionDirectCapacity(activeDesks) : 0;
+  const eligible = !requiresPurchase || canInviteByPurchaseOrGrant(user.id);
+  const choice = full
+    ? one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user.id)?.ordinal
+    : one("SELECT desk FROM p_referral_placement WHERE user_id=?",user.id)?.desk;
+  const remaining = full || four ? Math.max(0, capacity - direct.total) : null;
+  const state = user.blocked ? "blocked" : !eligible || ((full || four) && capacity === 0) ? "purchase_required"
+    : remaining === 0 ? "capacity_full"
+    : manualReferralMode() && !choice ? "placement_required" : "ready";
   return {
+    state,
+    remainingCapacity: remaining,
+    placement: full ? {
+      mandatory:true,key:"ordinal",nextDesk:one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user.id)?.ordinal ?? null,
+      slots:DIRECT_PATHS.map((path,i)=>({desk:i+1,value:i+1,parentPosition:({LL:4,LR:5,RL:6,RR:7} as Record<string,number>)[path.slice(0,2)],parentActive:activeDesks>=({LL:4,LR:5,RL:6,RR:7} as Record<string,number>)[path.slice(0,2)],side:path.endsWith("L")?"left":"right",label:"شاخه "+(i+1).toLocaleString("fa-IR")+" · جایگاه "+({LL:4,LR:5,RL:6,RR:7} as Record<string,number>)[path.slice(0,2)].toLocaleString("fa-IR")+" · "+(path.endsWith("L") ? "چپ" : "راست"),enabled:i<capacity,occupied:!!one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,i+1)})),
+    } : four ? {
+      mandatory: manualReferralMode(),
+      nextDesk: one("SELECT desk FROM p_referral_placement WHERE user_id=?",user.id)?.desk ?? null,
+      slots: [4,5,6,7].map(desk => ({desk,parentPosition:desk,parentActive:activeDesks>=desk,side:"left",
+        enabled: capacity > 0,
+        occupied: !!one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,desk-3),
+      })),
+    } : null,
     code: user.referral_code,
-    active: !user.blocked && (!requiresPurchase || hasPaidOrder(user.id)),
+    active: !user.blocked && (!requiresPurchase || canInviteByPurchaseOrGrant(user.id)) &&
+      (!(four || full) || direct.total < capacity) &&
+      (!manualReferralMode() || !!one(full ? "SELECT 1 FROM p_referral_endpoint_choice WHERE user_id=?" : "SELECT 1 FROM p_referral_placement WHERE user_id=?",user.id)),
     requiresPurchase,
     canChange: !nextChange || nextChange <= now(),
     nextChange,
@@ -78,19 +114,64 @@ export function referralStatus(user: Row) {
 }
 
 export function setReferralCode(user: Row, input: string) {
+  return changeReferralCode(user.id,input,user.id,false);
+}
+
+/** Authorized user administrators may edit immediately; aliases and audit stay intact. */
+export function setReferralCodeByAdmin(actor: Row, userId: string, input: string, reason: string) {
+  if(actor.blocked)throw new ApiError(403,"forbidden");
+  assertAccess(actor,"users",true);
+  const target=one("SELECT role FROM p_users WHERE id=?",userId);
+  if(!target)throw new ApiError(404,"not_found");
+  if(actor.role!=="superadmin" && (target.role!=="user" || one("SELECT user_id FROM p_access_assignments WHERE user_id=?",userId)))
+    throw new ApiError(403,"forbidden");
+  return changeReferralCode(userId,input,actor.id,true,reason);
+}
+
+function changeReferralCode(userId: string, input: string, actor: string, bypassCooldown: boolean, reason = "") {
   const code = referralCode.parse(input);
   if (RESERVED.has(code)) throw new ApiError(409, "referral_code_taken");
   return atomic(() => {
+    const user=one("SELECT * FROM p_users WHERE id=?",userId);
+    if(!user)throw new ApiError(404,"not_found");
     const status = referralStatus(user);
     if (code === user.referral_code) return status;
-    if (!status.canChange) throw new ApiError(429, "referral_change_too_soon");
+    if (!bypassCooldown && !status.canChange) throw new ApiError(429, "referral_change_too_soon");
     const taken = ownerOf(code);
     if (taken && taken.id !== user.id) throw new ApiError(409, "referral_code_taken");
     // Reclaiming one's own old alias makes it the main code again.
     run("DELETE FROM p_referral_aliases WHERE code=? AND user_id=?", code, user.id);
     run("INSERT INTO p_referral_aliases(code,user_id,retired_at) VALUES(?,?,?)", user.referral_code, user.id, now());
     run("UPDATE p_users SET referral_code=? WHERE id=?", code, user.id);
-    audit(user.id, "referral.code", user.id, { code: user.referral_code }, { code });
+    audit(actor, "referral.code", user.id, { code: user.referral_code }, { code }, reason);
     return referralStatus({ ...user, referral_code: code });
+  });
+}
+
+/** A member chooses the next incoming referral, never another member's placement. */
+export function setReferralPlacement(user: Row, input: unknown) {
+  if(sevenLevelMode()) {
+    const {ordinal}=z.object({ordinal:z.number().int().min(1).max(8).nullable()}).strict().parse(input);
+    return atomic(()=>{
+      if(user.blocked) throw new ApiError(403,"forbidden");
+      if(ordinal !== null) {
+        if(ordinal>positionDirectCapacity(positionDesks(user.id))) throw new ApiError(409,"direct_capacity_reached");
+        if(one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,ordinal)) throw new ApiError(409,"direct_position_occupied");
+        run("INSERT INTO p_referral_endpoint_choice VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET ordinal=excluded.ordinal,updated_at=excluded.updated_at",user.id,ordinal,now());
+      } else run("DELETE FROM p_referral_endpoint_choice WHERE user_id=?",user.id);
+      return referralStatus(user);
+    });
+  }
+
+  const {desk} = z.object({desk:z.union([z.literal(4),z.literal(5),z.literal(6),z.literal(7),z.null()])}).strict().parse(input);
+  return atomic(() => {
+    if (user.blocked || !fourReferralMode()) throw new ApiError(403,"forbidden");
+    if (desk !== null) {
+      if (!fourDirectCapacity(positionDesks(user.id))) throw new ApiError(409,"direct_capacity_reached");
+      if (one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,desk-3))
+        throw new ApiError(409,"direct_position_occupied");
+      run("INSERT INTO p_referral_placement VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET desk=excluded.desk,updated_at=excluded.updated_at",user.id,desk,now());
+    } else run("DELETE FROM p_referral_placement WHERE user_id=?",user.id);
+    return referralStatus(user);
   });
 }

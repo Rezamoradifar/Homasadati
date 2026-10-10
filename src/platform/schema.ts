@@ -1,3 +1,4 @@
+import type Database from "better-sqlite3";
 import {migrateCompanyCredit} from "./migrate-company-credit";
 import { migrateCardSchedule } from "./migrate-card-schedule";
 import { migrateZibal } from "./migrate-zibal";
@@ -13,6 +14,10 @@ export function platformDb() {
   migrateLeather(d);
   d.pragma("foreign_keys = ON");
   d.exec(`
+  CREATE TABLE IF NOT EXISTS p_experience_daily(
+    day TEXT NOT NULL,page TEXT NOT NULL,kind TEXT NOT NULL,
+    samples INTEGER NOT NULL,total_ms INTEGER NOT NULL,max_ms INTEGER NOT NULL,slow INTEGER NOT NULL,
+    PRIMARY KEY(day,page,kind));
   CREATE TABLE IF NOT EXISTS p_migrations(version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_users(
     id TEXT PRIMARY KEY, email TEXT UNIQUE, phone TEXT UNIQUE, name TEXT NOT NULL,
@@ -56,6 +61,7 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_content(id TEXT PRIMARY KEY,kind TEXT NOT NULL CHECK(kind IN ('blog','banner','page')),slug TEXT UNIQUE NOT NULL,title TEXT NOT NULL,body TEXT NOT NULL,image TEXT NOT NULL DEFAULT '',published INTEGER NOT NULL DEFAULT 0,updated_at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_flags(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),kind TEXT NOT NULL,detail TEXT NOT NULL,resolved INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL,UNIQUE(user_id,kind));
   CREATE TABLE IF NOT EXISTS p_audit(id TEXT PRIMARY KEY,actor_id TEXT NOT NULL REFERENCES p_users(id),action TEXT NOT NULL,entity_id TEXT NOT NULL,before_json TEXT NOT NULL,after_json TEXT NOT NULL,reason TEXT NOT NULL,created_at TEXT NOT NULL);
+  CREATE INDEX IF NOT EXISTS p_audit_entity_action ON p_audit(entity_id,action);
   CREATE TRIGGER IF NOT EXISTS p_audit_no_update BEFORE UPDATE ON p_audit BEGIN SELECT RAISE(ABORT,'immutable audit'); END;
   CREATE TRIGGER IF NOT EXISTS p_audit_no_delete BEFORE DELETE ON p_audit BEGIN SELECT RAISE(ABORT,'immutable audit'); END;
   CREATE INDEX IF NOT EXISTS p_order_sales ON p_orders(paid_at,user_id);
@@ -156,6 +162,8 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_card_members(user_id TEXT PRIMARY KEY REFERENCES p_users(id),total INTEGER NOT NULL CHECK(total>=0),level INTEGER NOT NULL CHECK(level BETWEEN 0 AND 8),desks INTEGER NOT NULL CHECK(desks BETWEEN 0 AND 8),updated_at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_card_lots(id TEXT PRIMARY KEY,order_id TEXT NOT NULL REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),leg TEXT NOT NULL CHECK(leg IN ('left','right')),volume INTEGER NOT NULL CHECK(volume>0),remaining INTEGER NOT NULL CHECK(remaining>=0),void INTEGER NOT NULL DEFAULT 0 CHECK(void IN (0,1)),created_at TEXT NOT NULL,UNIQUE(order_id,user_id));
   CREATE TABLE IF NOT EXISTS p_card_direct_positions(child_id TEXT PRIMARY KEY REFERENCES p_users(id),sponsor_id TEXT NOT NULL REFERENCES p_users(id),ordinal INTEGER NOT NULL CHECK(ordinal BETWEEN 1 AND 8),created_at TEXT NOT NULL,UNIQUE(sponsor_id,ordinal),CHECK(child_id!=sponsor_id));
+  CREATE TABLE IF NOT EXISTS p_referral_endpoint_choice(user_id TEXT PRIMARY KEY REFERENCES p_users(id),ordinal INTEGER NOT NULL CHECK(ordinal BETWEEN 1 AND 8),updated_at TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS p_referral_placement(user_id TEXT PRIMARY KEY REFERENCES p_users(id),desk INTEGER NOT NULL CHECK(desk BETWEEN 4 AND 7),updated_at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_card_position_lots(id TEXT PRIMARY KEY,order_id TEXT NOT NULL REFERENCES p_orders(id),user_id TEXT NOT NULL REFERENCES p_users(id),desk INTEGER NOT NULL CHECK(desk BETWEEN 1 AND 7),leg TEXT NOT NULL CHECK(leg IN ('left','right')),volume INTEGER NOT NULL CHECK(volume>0),remaining INTEGER NOT NULL CHECK(remaining>=0),void INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL,UNIQUE(order_id,user_id,desk));
   CREATE INDEX IF NOT EXISTS p_card_position_pool ON p_card_position_lots(user_id,desk,leg,void,remaining);
   CREATE INDEX IF NOT EXISTS p_card_lots_pool ON p_card_lots(user_id,leg,void,remaining);
@@ -216,17 +224,21 @@ export function platformDb() {
 }
 export type Row = Record<string, any>;
 export const now = () => new Date().toISOString();
-export const run = (sql: string, ...params: any[]) =>
-  platformDb()
-    .prepare(sql)
-    .run(...params);
-export const one = (sql: string, ...params: any[]) =>
-  platformDb()
-    .prepare(sql)
-    .get(...params) as Row | undefined;
-export const all = (sql: string, ...params: any[]) =>
-  platformDb()
-    .prepare(sql)
-    .all(...params) as Row[];
+// Cache compiled SQL, never rows or bound parameters. Bounded per connection.
+// Preparing millions of identical statements otherwise creates native-memory churn.
+const statementCaches=new WeakMap<Database.Database,Map<string,Database.Statement>>();
+function statement(sql:string) {
+  const connection=platformDb();
+  let cache=statementCaches.get(connection);
+  if(!cache){cache=new Map();statementCaches.set(connection,cache);}
+  let prepared=cache.get(sql);
+  if(prepared){cache.delete(sql);cache.set(sql,prepared);return prepared;}
+  prepared=connection.prepare(sql);
+  if(cache.size>=256)cache.delete(cache.keys().next().value!);
+  cache.set(sql,prepared);return prepared;
+}
+export const run = (sql: string, ...params: any[]) => statement(sql).run(...params);
+export const one = (sql: string, ...params: any[]) => statement(sql).get(...params) as Row | undefined;
+export const all = (sql: string, ...params: any[]) => statement(sql).all(...params) as Row[];
 export const atomic = <T>(fn: () => T) =>
   platformDb().transaction(fn).immediate();

@@ -223,7 +223,7 @@ export default function SiteHeader({
               <a href="/account">حساب کاربری</a>
               <a href="/cart">سبد خرید</a>
               <a href="/club">باشگاه مشتریان</a>
-              <a href="/club/ranks">هشت رتبه باشگاه</a>
+              <a href="/club/ranks">هفت کارت باشگاه</a>
               <a href="/income-plan">طرح درآمد</a>
               <a href="/worlds/leather">چرم ایران</a>
               <a href="/heritage">روایت ایران و نمادها</a>

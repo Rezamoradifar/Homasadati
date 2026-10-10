@@ -1,3 +1,4 @@
+import {managerActivated} from "./company-members";
 import { positionMode, positionPath, personalPositionTree } from "./card-positions";
 import { mondayStart } from "./card-schedule";
 import { ApiError } from "../server/http";
@@ -14,6 +15,7 @@ export type TreeNode = {
   leg: string | null;
   sponsoredByRoot: boolean;
   active: boolean;
+  managerActivated: boolean;
   personalVolume: number;
   weeklyPersonalVolume: number;
   weeklySales: number;
@@ -70,6 +72,7 @@ function node(row: Row, rootId: string, depth: number, activeSince: string): Tre
     joinedAt: row.created_at,
     leg: row.leg,
     sponsoredByRoot: row.sponsor_id === rootId,
+    managerActivated: managerActivated(row.id),
     active: !!personal.last && personal.last >= activeSince,
     personalVolume: personal.total,
     weeklyPersonalVolume: one(`SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND ${PAID} AND paid_at>=?`,row.id,new Date(mondayStart(Date.now())).toISOString())!.n,
@@ -107,7 +110,7 @@ export function placementTree(viewer: string, root: string, depth = 3, admin = f
 }
 
 /** Finds members in the viewer's placement subtree by name or referral code. */
-export function searchTree(viewer: string, query: string, admin = false) {
+function searchRows(viewer: string, query: string, admin = false) {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
   const like = "%" + q.replace(/[%_\\]/g, (c) => "\\" + c) + "%";
@@ -126,4 +129,12 @@ export function searchTree(viewer: string, query: string, admin = false) {
     like,
     q,
   );
+}
+
+/** Search results remain scoped to the viewer; route names contain no contact or financial data. */
+export function searchTree(viewer:string,query:string,admin=false):Row[] {
+  return searchRows(viewer,query,admin).map(member=>{
+    const path=admin?[{id:member.id,name:member.name}]:positionMode()?positionPath(viewer,member.id):placementPath(viewer,member.id);
+    return {...member,path:(path||[]).slice(-8),pathDepth:path?.length||0};
+  });
 }

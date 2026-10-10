@@ -119,7 +119,7 @@ describe("Panels use actual APIs and SQLite", () => {
     authCookie = member;
     window.history.replaceState(null, "", "/account?tab=seven-card-plan");
     render(<Portal />);
-    await screen.findByText("الماس");
+    await screen.findByRole("heading",{name:"جایگاه‌های فعال و خاموش من"});
     expect(screen.getByText(/پرداخت، فعال‌سازی جایگاه و صدور ووچر/)).toBeTruthy();
     expect(screen.queryByText("تصمیم‌های اجرایی پلن")).toBeNull();
     const slots = await screen.findByRole("list", { name: "وضعیت هفت جایگاه" });
