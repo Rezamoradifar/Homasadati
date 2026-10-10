@@ -1,4 +1,5 @@
 "use client";
+import { CardActivityReport } from "./CardActivityReport";
 import { useState } from "react";
 import Localized from "../i18n/Localized";
 import { RecordData, labels } from "./client";
@@ -35,7 +36,7 @@ export default function BinaryPanel({
           </div>
         )}
         <DataState state={state}>
-          {(d) => (
+          {(d) => d.card ? <CardActivityReport data={d.card} page={page} onPage={setPage}/> : (
             <Localized>
               <>
                 <section className="portal-card">

@@ -2509,3 +2509,11 @@ html[data-theme="dark"] .portal{--portal-border:#354453;--portal-muted:#b2c0cc;-
 html[data-theme="dark"] .guide-status.action{background:#3e3118;color:#ffdfa1;border-color:#7b6333}
 html[data-theme="dark"] :is(.guide-status.done,.guide-step.done .guide-number){background:#153627;color:#c2f2d4;border-color:#398b5c}
 @media(max-width:640px){.guide-step{grid-template-columns:32px minmax(0,1fr);gap:10px}.guide-step>.portal-button{grid-column:2;justify-self:start;white-space:normal}.member-start-guide summary{align-items:flex-start;flex-direction:column}}
+
+.placement-preview{border:1px solid var(--portal-border);border-radius:18px;padding:18px;background:var(--portal-surface)}
+.placement-preview-route{display:flex;flex-direction:column;align-items:center;gap:8px;margin:16px 0}
+.placement-preview-route strong,.placement-preview-route>span:not([aria-hidden]){padding:10px 20px;border:1px solid var(--portal-border);border-radius:12px;text-align:center}
+.placement-preview p,.placement-preview small{line-height:1.9}
+.account-alerts ul{list-style:none;padding:0}.account-alerts li{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--portal-border);padding:12px 0}.account-alerts p{margin:0;line-height:1.9}
+.order-tracking{border:1px solid var(--portal-border);border-radius:16px;padding:18px;margin-bottom:20px}.order-tracking ol{padding-inline-start:24px}.order-tracking li{padding:10px 0}.order-tracking li span{display:block;color:var(--portal-muted);margin-top:4px}.experience-signals{border:1px solid var(--portal-border);border-radius:14px;padding:16px;margin-bottom:16px}
+@media(max-width:640px){.account-alerts li{align-items:stretch;flex-direction:column}.card-activity-report .portal-stats{grid-template-columns:1fr 1fr}}

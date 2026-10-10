@@ -1771,6 +1771,7 @@ export async function handle(req: Request, path: string[]) {
         club,
         invitation,
         startGuide:memberStartGuide(u,club,invitation,commissions),
+        company:companyPositionStatus(u.id),
         activity: one(
           `SELECT
             (SELECT COUNT(*) FROM p_orders WHERE user_id=? AND status IN ('pending','processing','shipped')) AS activeOrders,

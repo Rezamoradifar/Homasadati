@@ -65,7 +65,8 @@ export function referralStatus(user: Row) {
   const requiresPurchase = referralNeedsPurchase();
   const four = fourReferralMode();
   const full = sevenLevelMode();
-  const capacity = four || full ? positionDirectCapacity(positionDesks(user.id)) : 0;
+  const activeDesks = four || full ? positionDesks(user.id) : 0;
+  const capacity = four || full ? positionDirectCapacity(activeDesks) : 0;
   const eligible = !requiresPurchase || canInviteByPurchaseOrGrant(user.id);
   const choice = full
     ? one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user.id)?.ordinal
@@ -79,11 +80,11 @@ export function referralStatus(user: Row) {
     remainingCapacity: remaining,
     placement: full ? {
       mandatory:true,key:"ordinal",nextDesk:one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user.id)?.ordinal ?? null,
-      slots:DIRECT_PATHS.map((path,i)=>({desk:i+1,value:i+1,label:"شاخه "+(i+1).toLocaleString("fa-IR")+" · جایگاه "+({LL:4,LR:5,RL:6,RR:7} as Record<string,number>)[path.slice(0,2)].toLocaleString("fa-IR")+" · "+(path.endsWith("L") ? "چپ" : "راست"),enabled:i<capacity,occupied:!!one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,i+1)})),
+      slots:DIRECT_PATHS.map((path,i)=>({desk:i+1,value:i+1,parentPosition:({LL:4,LR:5,RL:6,RR:7} as Record<string,number>)[path.slice(0,2)],parentActive:activeDesks>=({LL:4,LR:5,RL:6,RR:7} as Record<string,number>)[path.slice(0,2)],side:path.endsWith("L")?"left":"right",label:"شاخه "+(i+1).toLocaleString("fa-IR")+" · جایگاه "+({LL:4,LR:5,RL:6,RR:7} as Record<string,number>)[path.slice(0,2)].toLocaleString("fa-IR")+" · "+(path.endsWith("L") ? "چپ" : "راست"),enabled:i<capacity,occupied:!!one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,i+1)})),
     } : four ? {
       mandatory: manualReferralMode(),
       nextDesk: one("SELECT desk FROM p_referral_placement WHERE user_id=?",user.id)?.desk ?? null,
-      slots: [4,5,6,7].map(desk => ({desk,
+      slots: [4,5,6,7].map(desk => ({desk,parentPosition:desk,parentActive:activeDesks>=desk,side:"left",
         enabled: capacity > 0,
         occupied: !!one("SELECT 1 FROM p_card_direct_positions WHERE sponsor_id=? AND ordinal=?",user.id,desk-3),
       })),

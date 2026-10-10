@@ -1,5 +1,7 @@
 "use client";
 
+import {AccountAlerts} from "./AccountAlerts";
+import {OrderTracking} from "./OrderTracking";
 import AddToCart from "../commerce/AddToCart";
 import {Money} from "../commerce/currency";
 import {useBasket} from "../commerce/basket";
@@ -58,6 +60,7 @@ export function Dashboard({ refresh, user, onNavigate }: {
       {(d) => (
         <Localized><>
           <AccountQuickSummary club={d.club} invitation={d.invitation} wallet={d.wallet} onNavigate={onNavigate}/>
+          <AccountAlerts guide={d.startGuide} company={d.company} onNavigate={onNavigate}/>
           <MemberStartGuide guide={d.startGuide} code={d.invitation.code} onNavigate={onNavigate}/>
           <details className="dashboard-club-details"><summary>جزئیات کارت و جایگاه‌های من</summary><ClubAccountCard status={d.club} available={d.wallet.available} onNavigate={onNavigate} /></details>
           <MemberOverview
@@ -307,6 +310,7 @@ export function Orders({
       />
       {selected && (
         <Modal title="جزئیات سفارش" onClose={() => setSelected(null)}>
+          <OrderTracking key={selected.id+selected.status} order={selected}/>
           <dl className="portal-details">
             {[
               ["شناسه", selected.id],
