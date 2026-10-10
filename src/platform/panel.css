@@ -2520,3 +2520,5 @@ html[data-theme="dark"] :is(.guide-status.done,.guide-step.done .guide-number){b
 .search-member-route{display:block;margin-top:8px;line-height:1.8;font-size:12px;overflow-wrap:anywhere;color:var(--portal-muted)}
 .launch-backlog{list-style:none;padding:0}.launch-backlog li{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-top:1px solid var(--portal-border)}.launch-backlog small{display:block;margin-top:6px;color:var(--portal-muted)}
 @media(max-width:640px){.launch-backlog li{align-items:stretch;flex-direction:column}}
+
+.purchase-activation-receipt{margin-block:20px;padding:18px;border:1px solid #83b5a4;border-radius:16px;background:#edf8f3;color:#234f41;overflow-wrap:anywhere}.purchase-activation-receipt h3{margin:0 0 10px;font-size:18px}.purchase-activation-receipt p{font-size:13px;line-height:1.9}.purchase-activation-receipt dl>div{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:10px 0}.purchase-activation-receipt dd{margin:0;font-weight:700}[data-theme=dark] .purchase-activation-receipt{background:#193a31;color:#d5efdf;border-color:#4d8c76}

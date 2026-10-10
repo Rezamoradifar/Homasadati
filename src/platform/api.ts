@@ -1,3 +1,4 @@
+import {purchaseActivationReceipt} from "./purchase-activation-receipt";
 import {launchDashboard} from "./launch-dashboard";
 import { memberStartGuide } from "./start-guide";
 import { memberCardStatus } from "./seven-card-engine";
@@ -2007,11 +2008,12 @@ export async function handle(req: Request, path: string[]) {
         );
         if (!c) throw new ApiError(404, "not_found");
         const orders=all("SELECT o.id,o.status,o.amount,o.paid_at,o.refunded_at FROM p_orders o JOIN p_checkout_items i ON i.order_id=o.id WHERE i.checkout_id=?",c.id);
-        return json({...c, orders, paidPurchaseVolume:orders.filter(o=>o.paid_at&&!o.refunded_at&&!["cancelled","refunded"].includes(o.status)).reduce((n,o)=>n+o.amount,0)});
+        return json({...c, orders, activationReceipt:c.status === "paid" ? purchaseActivationReceipt(u.id) : null, paidPurchaseVolume:orders.filter(o=>o.paid_at&&!o.refunded_at&&!["cancelled","refunded"].includes(o.status)).reduce((n,o)=>n+o.amount,0)});
       }
       if (path[2] === "payment") {
         const checkoutId = id.parse(path[1]);
-        const target = one("SELECT method FROM p_checkouts WHERE id=? AND user_id=?", checkoutId, u.id);
+        const target = one("SELECT method,status FROM p_checkouts WHERE id=? AND user_id=?", checkoutId, u.id);
+        if(target?.status === "paid") return json({status:"paid",id:checkoutId});
         if (target?.method === "bale") {
           limit("bale-start:" + u.id, 10, 300);
           return json(await startBalePayment(checkoutId, u.id));
@@ -2045,7 +2047,7 @@ export async function handle(req: Request, path: string[]) {
             u.id,
           );
           if (!o) throw new ApiError(404, "not_found");
-          return json(o);
+          return json({...o,activationReceipt:o.paid_at&&!o.refunded_at ? purchaseActivationReceipt(u.id) : null});
         }
         return json(
           paged(
@@ -2075,6 +2077,9 @@ export async function handle(req: Request, path: string[]) {
         );
       }
       if (path[2] === "payment") {
+        const freshOrder=one("SELECT id,status,paid_at FROM p_orders WHERE id=? AND user_id=?",id.parse(path[1]),u.id);
+        if (!freshOrder) throw new ApiError(404,"not_found");
+        if (freshOrder.paid_at && !["cancelled","refunded"].includes(freshOrder.status)) return json({status:"paid",id:freshOrder.id});
         const group = one(
           "SELECT checkout_id FROM p_checkout_items WHERE order_id=?",
           id.parse(path[1]),

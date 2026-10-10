@@ -1,3 +1,4 @@
+import {purchaseActivationReceipt} from "./purchase-activation-receipt";
 import { assertPurchasesOpen } from "./card-schedule";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
@@ -243,5 +244,6 @@ export function balePaymentSummary(paymentId: string, userId: string) {
     reference: p.status === "paid" ? (p.provider_transaction_id as string) : null,
     orders,
     checkoutPaid: p.checkout_status === "paid",
+    activationReceipt:p.checkout_status === "paid" ? purchaseActivationReceipt(userId) : null,
   };
 }

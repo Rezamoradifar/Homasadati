@@ -1,4 +1,5 @@
 "use client";
+import {useCallback} from "react";
 
 import {AccountAlerts} from "./AccountAlerts";
 import {OrderTracking} from "./OrderTracking";
@@ -269,12 +270,14 @@ export function Orders({
   const [selected, setSelected] = useState<RecordData | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  const [orderReady,setOrderReady]=useState(false);
   const [payment] = useState(() =>
     typeof window === "undefined" ? "" : new URLSearchParams(location.search).get("payment") || "",
   );
+  const loadOrder = useCallback((current:RecordData)=>{setSelected(current);setOrderReady(true);},[]);
   return (
     <Localized><>
-      {payment === "paid" && <Notice success="پرداخت با موفقیت تأیید شد و سفارش ثبت شد." />}
+      {payment === "paid" && <Notice success="برای مشاهده نتیجه تأیید پرداخت، جزئیات سفارش را باز کنید." />}
       {payment === "cancelled" && (
         <Notice error="پرداخت لغو شد یا از سوی بانک انجام نشد و سفارش پرداخت‌نشده باقی ماند. اگر مبلغی کسر شده باشد، بانک آن را حداکثر ظرف ۷۲ ساعت برمی‌گرداند. می‌توانید دوباره پرداخت کنید." />
       )}
@@ -301,6 +304,7 @@ export function Orders({
             className="portal-button"
             onClick={() => {
               setSelected(o);
+              setOrderReady(false);
               setError("");
             }}
           >
@@ -310,7 +314,7 @@ export function Orders({
       />
       {selected && (
         <Modal title="جزئیات سفارش" onClose={() => setSelected(null)}>
-          <OrderTracking key={selected.id+selected.status} order={selected}/>
+          <OrderTracking key={selected.id} order={selected} onLoaded={loadOrder}/>
           <dl className="portal-details">
             {[
               ["شناسه", selected.id],
@@ -346,15 +350,19 @@ export function Orders({
             {selected.status === "pending" &&
               ["zarinpal", "zibal"].includes(selected.payment_method) && (
                 <button
-                  disabled={busy}
+                  disabled={busy||!orderReady}
                   className="portal-button primary"
                   onClick={async () => {
                     setBusy(true);
                     try {
+                      const fresh=await api(`orders/${selected.id}`);
+                      setSelected(fresh);
+                      if(fresh.paid_at||fresh.status!=="pending") {onChange();return;}
                       const r = await api(
                         `orders/${selected.id}/payment`,
                         "POST",
                       );
+                      if(r.status==="paid"){setSelected(await api(`orders/${selected.id}`));onChange();return;}
                       window.location.assign(r.url);
                     } catch (e) {
                       setError((e as Error).message);

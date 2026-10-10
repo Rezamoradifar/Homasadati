@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import Localized from "../i18n/Localized";
+import {PurchaseActivationReceipt} from "../platform/PurchaseActivationReceipt";
+import {RecordData} from "../platform/client";
 import { api } from "../platform/client";
 import { CheckCircle, XCircle, Clock } from "@phosphor-icons/react";
 import { Money } from "./currency";
 
-type Summary = { status: string; amount: number; reference: string | null; orders: string[]; checkoutPaid: boolean; paidPurchaseVolume?:number };
+type Summary = { status: string; amount: number; reference: string | null; orders: string[]; checkoutPaid: boolean; activationReceipt?:RecordData|null; paidPurchaseVolume?:number };
 
 /** Result of a checkout or Bale payment. The state shown always comes from the server's
  * own verification of the transaction, never from the return URL. */
@@ -30,7 +32,7 @@ export default function PaymentResult() {
       try {
         // Still pending on arrival: ask the server to verify with Bale again.
         const group=checkoutId?await api(`checkouts/${checkoutId}`):null;
-        const r = group ? {status:group.status==="paid"&&group.orders.length&&group.orders.every((o:{status:string})=>o.status==="refunded")?"refunded":group.status,amount:group.amount,reference:group.payment_ref,orders:group.orders.map((o:{id:string})=>o.id),checkoutPaid:group.status==="paid",paidPurchaseVolume:group.paidPurchaseVolume} : (tries === 0 ? await api(`payments/bale/${pid}`) : await api(`payments/bale/${pid}/verify`, "POST", {})) as unknown as Summary;
+        const r = group ? {status:group.status==="paid"&&group.orders.length&&group.orders.every((o:{status:string})=>o.status==="refunded")?"refunded":group.status,amount:group.amount,reference:group.payment_ref,orders:group.orders.map((o:{id:string})=>o.id),checkoutPaid:group.status==="paid",activationReceipt:group.activationReceipt,paidPurchaseVolume:group.paidPurchaseVolume} : (tries === 0 ? await api(`payments/bale/${pid}`) : await api(`payments/bale/${pid}/verify`, "POST", {})) as unknown as Summary;
         if (stop) return;
         setS(r);
         tries++;
@@ -48,7 +50,7 @@ export default function PaymentResult() {
     setChecking(true);
     setError("");
     try {
-      if(checkoutId){const group=await api(`checkouts/${checkoutId}`);setS({status:group.status==="paid"&&group.orders.length&&group.orders.every((o:{status:string})=>o.status==="refunded")?"refunded":group.status,amount:group.amount,reference:group.payment_ref,orders:group.orders.map((o:{id:string})=>o.id),checkoutPaid:group.status==="paid",paidPurchaseVolume:group.paidPurchaseVolume});}
+      if(checkoutId){const group=await api(`checkouts/${checkoutId}`);setS({status:group.status==="paid"&&group.orders.length&&group.orders.every((o:{status:string})=>o.status==="refunded")?"refunded":group.status,amount:group.amount,reference:group.payment_ref,orders:group.orders.map((o:{id:string})=>o.id),checkoutPaid:group.status==="paid",activationReceipt:group.activationReceipt,paidPurchaseVolume:group.paidPurchaseVolume});}
       else setS((await api(`payments/bale/${pid}/verify`, "POST", {})) as unknown as Summary);
     } catch (e) {
       setError((e as Error).message);
@@ -98,6 +100,7 @@ export default function PaymentResult() {
             </dl>
           )}
           {s?.status==="paid"&&s.paidPurchaseVolume!==undefined&&<p className="payment-volume">حجم خرید پرداخت‌شده: <Money toman={s.paidPurchaseVolume}/><br/>خرید واجد شرایط طبق زمان‌بندی و قوانین باشگاه محاسبه می‌شود.</p>}
+          {s?.status==="paid"&&<PurchaseActivationReceipt receipt={s.activationReceipt}/>}
           {error && <p role="alert">{error}</p>}
           <div className="payment-result-actions">
             {view.tone === "ok" && (

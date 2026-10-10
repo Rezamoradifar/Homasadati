@@ -9,5 +9,5 @@ it('uses freshly loaded order data without showing a successful payment for an u
 });
 it('shows actual payment and refund facts with a support path instead of inventing a cancellation reason',()=>{
  current.status='refunded';current.paid_at='2026-10-10T10:01:00Z';current.refunded_at='2026-10-10T10:03:00Z';current.payment_ref='reference';
- render(<OrderTracking order={{id:'order'}}/>);expect(screen.getByText('پرداخت تأیید شد')).toBeTruthy();expect(screen.getByText('برگشت وجه ثبت شد')).toBeTruthy();expect(screen.getByText('reference')).toBeTruthy();expect(screen.getByRole('link',{name:'پیگیری از پشتیبانی'}).getAttribute('href')).toBe('/account?tab=tickets');
+ render(<OrderTracking order={{id:'order'}}/>);expect(screen.getByText('پرداخت تأیید شد')).toBeTruthy();expect(screen.getByText('برگشت وجه ثبت شد')).toBeTruthy();expect(screen.getByText('reference')).toBeTruthy();expect(screen.getByRole('link',{name:'پیگیری از پشتیبانی'}).getAttribute('href')).toBe('/account?tab=tickets&order=order');
 });

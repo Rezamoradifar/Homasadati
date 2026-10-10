@@ -3575,5 +3575,16 @@
   "پاداش نقدی: {0} تومان · ووچر: {1} تومان. جزئیات در گزارش حجم و پاداش جایگاه‌ها قابل مشاهده است.": "Cash rewards: {0} toman · Vouchers: {1} toman. See the position volume and reward report for details.",
   "پاداش نقدی:": "Cash rewards:",
   "تومان · ووچر:": "toman · Vouchers:",
-  "تومان. جزئیات در گزارش حجم و پاداش جایگاه‌ها قابل مشاهده است.": "toman. See the position volume and reward report for details."
+  "تومان. جزئیات در گزارش حجم و پاداش جایگاه‌ها قابل مشاهده است.": "toman. See the position volume and reward report for details.",
+  "موجودی قابل سفارش:": "Available stock:",
+  "وضعیت جایگاه‌های حساب پس از خرید": "Account positions after purchase",
+  "این وضعیت فعلی حساب است؛ جایگاه‌های قبلی و فعال‌سازی مدیر را هم شامل می‌شود.": "This is the current account status, including previous positions and administrator activation.",
+  "جایگاه‌های فعال": "Active positions",
+  "هنوز جایگاهی فعال نیست": "No positions are active yet",
+  "ظرفیت شاخه‌های دعوت": "Invitation branch capacity",
+  "سقف مجموع پاداش هفتگی": "Total weekly reward cap",
+  "برای هر ثبت‌نام، محل رفرال بعدی را انتخاب کنید. سقف پاداش به معنی درآمد قطعی نیست.": "Choose the next referral placement for each registration. The reward cap does not guarantee income.",
+  "تسویه باشگاه هنوز فعال نیست.": "Club settlement is not active yet.",
+  "مشاهده جزئیات جایگاه‌ها": "View position details",
+  "برای مشاهده نتیجه تأیید پرداخت، جزئیات سفارش را باز کنید.": "Open the order details to check the verified payment result."
 }

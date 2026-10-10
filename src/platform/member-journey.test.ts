@@ -36,6 +36,13 @@ it('runs real authenticated registration, manual placement, verified purchase, a
  expect((await request(`orders/${order.id}/payment`,'POST',{},auth)).status).toBe(200);
  const callback=()=>request('payment/callback?gateway=zibal&success=1&trackId=123456789');expect((await callback()).status).toBe(303);expect((await callback()).status).toBe(303);
  expect(provider.mock.calls.filter(([url])=>url.endsWith('/verify'))).toHaveLength(1);
+ const retry=await request(`orders/${order.id}/payment`,'POST',{},auth);expect(await retry.json()).toMatchObject({status:'paid'});
+ expect(provider.mock.calls.filter(([url])=>url.endsWith('/request'))).toHaveLength(1);
+ const detail=await(await request(`orders/${order.id}`,'GET',undefined,auth)).json();expect(detail.activationReceipt).toMatchObject({activePositions:[1],referralCapacity:2,weeklyCapToman:15000000});
+ expect((await request(`orders/${order.id}`,'GET',undefined,cookie)).status).toBe(404);
+ const ticket=await request('tickets','POST',{subject:'پیگیری سفارش خرید',category:'order',priority:'normal',body:'درخواست بررسی وضعیت این سفارش',orderId:order.id,idempotencyKey:randomUUID()},auth);expect(ticket.status).toBeLessThan(300);
+ expect(one('SELECT order_id FROM p_tickets WHERE id=?',(await ticket.json()).id)!.order_id).toBe(order.id);
+ const denied=await request('tickets','POST',{subject:'سفارش عضو دیگر',category:'order',priority:'normal',body:'درخواست بررسی وضعیت سفارش دیگر',orderId:order.id,idempotencyKey:randomUUID()},cookie);expect(denied.status).toBe(404);
  const dashboard=await(await request('dashboard','GET',undefined,auth)).json();expect(dashboard.club).toMatchObject({desks:1,weeklyCapToman:15000000});expect(dashboard.invitation.state).toBe('placement_required');
  const cutoff=weekStartAt(Date.now(),1)+7*86400000+3600000;runCardSettlement(cutoff);runCardSettlement(cutoff);
  expect(one("SELECT COUNT(*) n,SUM(volume) volume FROM p_card_position_lots WHERE user_id=? AND desk=4 AND leg='left'",root)).toMatchObject({n:1,volume:10000000});
