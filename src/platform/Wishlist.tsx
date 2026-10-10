@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveImage from "../components/media/ResponsiveImage";
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import Localized from "../i18n/Localized";
@@ -49,7 +50,7 @@ export function Wishlist({ refresh, onNavigate }: { refresh: number; onNavigate:
                 const image = JSON.parse(p.images || "[]")[0];
                 return (
                   <article key={p.id} className="portal-card wishlist-item">
-                    {image && <img src={image} alt={p.title} loading="lazy" />}
+                    {image && <ResponsiveImage src={image} alt={p.title} sizes="96px" loading="lazy" />}
                     <small>{labels[p.vertical]}</small>
                     <h2>{p.title}</h2>
                     <strong>{amount(p.price)} تومان</strong>

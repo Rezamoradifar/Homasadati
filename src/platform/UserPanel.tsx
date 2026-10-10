@@ -1,4 +1,5 @@
 "use client";
+import ResponsiveImage from "../components/media/ResponsiveImage";
 import {useCallback} from "react";
 
 import {AccountAlerts} from "./AccountAlerts";
@@ -206,7 +207,7 @@ function Product({
   const images = JSON.parse(p.images),{locale}=useSiteLocale(),copy=catalogCopy({title:p.title,description:p.description,details:p.details},locale);
   return (
     <Localized><article className="portal-product">
-      <a className="member-product-image" href={`/shop/${p.id}`}><img src={images[0] || "/assets/brand/homanet-mark-orange.png"} alt={copy.title} loading="lazy"/></a>
+      <a className="member-product-image" href={`/shop/${p.id}`}><ResponsiveImage src={images[0] || "/assets/brand/homanet-mark-orange.png"} alt={copy.title} sizes="(max-width: 640px) 90vw, 320px" loading="lazy"/></a>
       <div>
         <small>{labels[p.vertical]}</small>
         <h2><a href={`/shop/${p.id}`}>{copy.title}</a></h2>
@@ -245,7 +246,7 @@ function Product({
                 })}
             </dl>
             {images.slice(1).map((src: string) => (
-              <Localized key={src}><img src={src} alt={copy.title} loading="lazy" /></Localized>
+              <Localized key={src}><ResponsiveImage src={src} alt={copy.title} sizes="(max-width: 640px) 90vw, 640px" loading="lazy" /></Localized>
             ))}
           </details>
         )}

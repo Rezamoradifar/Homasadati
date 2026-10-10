@@ -95,7 +95,7 @@ export function personalPositionTree(user: string) {
     left:desk<4?build(desk*2):null,right:desk<4?build(desk*2+1):null,
     leftVolume:left.volume,rightVolume:right.volume,weeklySales:left.weekly+right.weekly,
     totalSales:left.volume+right.volume,savings:{left:left.remaining,right:right.remaining}};};
-  return {version:setting("seven_card_position_version"),member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),managerActivated:managerActivated(user),desks,directCapacity:positionDirectCapacity(desks),tree:build(1),
+  return {nextReferralOrdinal:manualReferralMode() ? one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user)?.ordinal || null : null,version:setting("seven_card_position_version"),member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),managerActivated:managerActivated(user),desks,directCapacity:positionDirectCapacity(desks),tree:build(1),
     directs:(fourReferralMode() ? FOUR_DIRECT_PATHS : DIRECT_PATHS).map((path,i)=>({ordinal:i+1,desk:fourReferralMode() ? i+4 : POSITION_PATHS.indexOf(path.slice(0,2) as any)+1,leg:path.endsWith("L") ? "left" : "right",path,enabled:i<positionDirectCapacity(desks),member:(()=>{const member=directs.find(d=>d.ordinal===i+1);return member?{ordinal:member.ordinal,child_id:member.child_id,name:member.name,managerActivated:managerActivated(member.child_id)}:null;})()}))};
 }
 

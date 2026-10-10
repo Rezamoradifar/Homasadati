@@ -3610,5 +3610,13 @@
   "· پاداش‌های سررسیدشده در انتظار آزادسازی:": "· Due rewards awaiting release:",
   "موفقیت بررسی به معنی تسویه یک هفته جدید نیست. قطع دسترسی عمومی سایت باید از میزبان مستقل پایش شود؛ این صفحه هنگام قطع سایت در دسترس نخواهد بود.": "A successful check does not mean a new week has been settled. Public site outages require monitoring from an independent host; this page is unavailable during an outage.",
   "گزارش مالی": "Financial report",
-  "محاسبه پلن:": "Plan settlement:"
+  "محاسبه پلن:": "Plan settlement:",
+  "راهنمای استفاده از نقشه جایگاه‌ها": "How to use your position map",
+  "این هفت خانه، جایگاه‌های همین حساب هستند. یک جایگاه را لمس کنید تا حجم چپ، راست و سیوینگ آن را ببینید.": "These seven boxes are positions within this account. Tap a position to see its left and right volumes and carried volume.",
+  "شاخه‌های پایین نقشه محل ورود اعضای جدید هستند. محل هر ورودی را قبل از ارسال دعوت در پنل دعوت انتخاب کنید.": "The branches at the bottom are entry points for new members. Choose each entry point in the invitation panel before sharing an invitation.",
+  "با ثبت‌نام هر عضو، انتخاب محل مصرف می‌شود؛ برای نفر بعد دوباره انتخاب کنید. حجم فقط از خریدهای بعد از فعال‌شدن همان جایگاه محاسبه می‌شود.": "Each registration consumes your selected entry point. Select again for the next member. Only purchases after a position becomes active count towards its volume.",
+  "انتخاب محل و لینک دعوت": "Entry point and invitation link",
+  "ورودی بعدی: شاخه": "Next entry: branch",
+  "محل ورودی بعدی انتخاب نشده است؛ پیش از اشتراک‌گذاری دعوت، یک شاخه خالی انتخاب کنید.": "No next entry point is selected. Choose an empty branch before sharing your invitation.",
+  "ورودی بعدی": "Next entry"
 }

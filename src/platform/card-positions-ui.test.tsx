@@ -43,3 +43,18 @@ it('marks only manager-activated owners and referrals with text as well as green
  expect(screen.getByText('مدیر')).toBeTruthy();
  expect(container.querySelectorAll('.personal-direct.manager-activated')).toHaveLength(1);
 });
+it('marks the selected empty endpoint and removes the mark when occupied or locked',()=>{
+ const data:any={...fixture(7),version:'seven-level-manual-2026-10-07',nextReferralOrdinal:5};
+ data.directs=data.directs.map((d:any)=>({...d,desk:[4,7,5,6,4,5,6,7][d.ordinal-1],leg:['left','right','left','left','right','right','right','left'][d.ordinal-1]}));
+ const {container,rerender}=render(<PersonalPositions data={data} onOpen={()=>{}}/>);
+ expect(container.querySelectorAll('.personal-direct.next-entry')).toHaveLength(1);
+ expect(container.querySelector('.position-next-entry')!.textContent).toBe('ورودی بعدی: شاخه ۵ · جایگاه ۴ · راست');
+ expect(screen.getByRole('link',{name:'انتخاب محل و لینک دعوت'}).getAttribute('href')).toBe('/account?tab=network');
+ data.directs[4].member={child_id:'new',name:'New'};
+ rerender(<PersonalPositions data={data} onOpen={()=>{}}/>);
+ expect(container.querySelector('.personal-direct.next-entry')).toBeNull();
+ expect(container.querySelector('.position-next-entry')!.textContent).toContain('محل ورودی بعدی انتخاب نشده');
+ data.directs[4].member=null;data.directs[4].enabled=false;
+ rerender(<PersonalPositions data={data} onOpen={()=>{}}/>);
+ expect(container.querySelector('.personal-direct.next-entry')).toBeNull();
+});
