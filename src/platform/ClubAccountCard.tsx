@@ -1,4 +1,5 @@
 "use client";
+import { useId, useState } from "react";
 import { Check, LockSimple, Clock, Wallet, Gift, TreeStructure, ArrowLeft, ShoppingBag } from "@phosphor-icons/react";
 import Localized from "../i18n/Localized";
 import { sevenCards, DESKS_PER_MEMBER, PURCHASE_PER_DESK } from "./card-levels";
@@ -8,6 +9,8 @@ import { DataState, useData } from "./Widgets";
 export function ClubAccountCard({ status, available = 0, onNavigate }: {
   status: RecordData; available?: number; onNavigate?: (tab: string) => void;
 }) {
+  const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
+  const positionDetailsId = useId();
   const desks = Math.max(0, Math.min(DESKS_PER_MEMBER, Number(status.desks) || 0));
   const total = Math.max(0, Number(status.qualifyingPurchaseTotal ?? status.totalPurchase) || 0);
   const complete = desks === DESKS_PER_MEMBER;
@@ -21,8 +24,8 @@ export function ClubAccountCard({ status, available = 0, onNavigate }: {
     </div>
     {!status.live && <p className="club-account-notice" role="status">تسویهٔ این پلن هنوز فعال نشده است.</p>}
     <section className="club-slot-section"><h3>جایگاه‌های فعال و خاموش من</h3><p className="club-position-explanation">کارت، سطح خرید شماست: جوانه ۱ جایگاه، سرو ۲ جایگاه و تا سیمرغ ۷ جایگاه را فعال می‌کند. هر ۱۰۰ میلیون ریال خرید پرداخت‌شده، جایگاه بعدی را روشن می‌کند.</p><ol className="club-slots" aria-label="وضعیت هفت جایگاه">
-      {Array.from({ length: DESKS_PER_MEMBER }, (_, i) => <li key={i} data-position={i + 1} className={i < desks ? "is-active" : ""} aria-label={`جایگاه ${i + 1}: ${i < desks ? "روشن" : "خاموش"}`}><span className="club-slot-icon">{i < desks ? <Check size={22} weight="bold" /> : <LockSimple size={20} />}</span><span className="club-slot-label">جایگاه {amount(i + 1)}</span><span className="club-slot-state">{i < desks ? "روشن" : "خاموش"}</span></li>)}
-    </ol></section>
+      {Array.from({ length: DESKS_PER_MEMBER }, (_, i) => <li key={i} data-position={i + 1} className={i < desks ? "is-active" : ""} aria-label={`جایگاه ${i + 1}: ${i < desks ? "روشن" : "خاموش"}`}><button type="button" className="club-slot-button" aria-pressed={selectedPosition === i + 1} aria-controls={positionDetailsId} onClick={() => setSelectedPosition(i + 1)}><span className="club-slot-icon" aria-hidden="true">{i < desks ? <Check size={22} weight="bold" /> : <LockSimple size={20} />}</span><span className="club-slot-label">جایگاه {amount(i + 1)}</span><span className="club-slot-state">{i < desks ? "روشن" : "خاموش"}</span></button></li>)}
+    </ol><div id={positionDetailsId} className="club-slot-inspector" role="status">{selectedPosition === null ? <p>برای دیدن وضعیت، یک جایگاه را انتخاب کنید.</p> : <><strong>جایگاه {amount(selectedPosition)} · {selectedPosition <= desks ? "روشن" : "خاموش"}</strong><p>{selectedPosition <= desks ? "این جایگاه فعال است. جزئیات شبکه را در بخش درخت ببینید." : "این جایگاه هنوز فعال نشده است. پیشرفت خرید تا جایگاه بعدی در پایین نمایش داده می‌شود."}</p></>}</div></section>
     <section className="club-purchase-progress"><div><span>پیشرفت تا جایگاه بعدی</span><strong>{complete ? "همهٔ جایگاه‌ها روشن هستند" : <>{rialAmount(remaining)} ریال</>}</strong></div><progress value={progress} max={100} aria-label="پیشرفت تا جایگاه بعدی" /><div className="club-paid-total"><span>خرید پرداخت‌شده</span><strong>{rialAmount(status.paidPurchaseTotal || 0)} <small>ریال</small></strong></div><details className="club-purchase-details"><summary>جزئیات خرید و سقف</summary><div><span>مجموع خرید محاسبه‌شده</span><strong>{rialAmount(total)} <small>ریال</small></strong></div><div className="club-weekly-cap"><span>سقف هفتگی جایگاه‌های روشن</span><strong>{rialAmount(status.weeklyCapToman || 0)} <small>ریال</small></strong></div></details></section>
     <section className="club-balances" aria-label="وضعیت پورسانت‌ها">
       <div><span className="club-balance-label"><Clock size={23} />در انتظار پرداخت</span><strong>{rialAmount(status.pendingRewards || 0)} <small>ریال</small></strong></div>

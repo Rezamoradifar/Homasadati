@@ -2526,3 +2526,44 @@ html[data-theme="dark"] :is(.guide-status.done,.guide-step.done .guide-number){b
 .position-help{direction:rtl;margin:14px 0;padding:12px;border:1px solid var(--portal-border);border-radius:12px;background:var(--portal-surface);font-size:14px;line-height:1.9}.position-help summary{cursor:pointer;font-weight:700}.position-help li{margin:8px 0}.position-next-entry{direction:rtl;padding:12px;border-inline-start:3px solid #0f6e72;background:var(--portal-surface);font-size:14px!important;line-height:1.9}.refined-positions .personal-direct.next-entry{border:2px solid #0f6e72;background:var(--portal-surface);color:var(--portal-text,#193448)}.refined-positions .personal-direct .next-entry-label{font-size:11px;font-weight:700;white-space:normal}
 
 .notification-center>header{display:flex;gap:16px;justify-content:space-between;align-items:center;margin-bottom:20px}.notification-center h2{margin:4px 0}.notification-center header p{color:var(--portal-muted)}.notification-eyebrow{font-size:12px;color:var(--portal-muted)}.notification-cards{list-style:none;padding:0;display:grid;gap:14px}.notification-message{border:1px solid var(--portal-border);border-radius:16px;padding:20px;background:var(--portal-surface)}.notification-message.unread{border-inline-start:4px solid #0f6e72}.notification-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--portal-muted)}.notification-meta>span:first-child{padding:4px 10px;border-radius:20px;background:#0f6e7214;color:var(--portal-text)}.notification-meta time{margin-inline-start:auto}.notification-message h3{font-size:17px;margin:14px 0 8px}.notification-message p{line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 16px}.notification-actions{display:flex;gap:10px;flex-wrap:wrap}@media(max-width:640px){.notification-center>header{align-items:stretch;flex-direction:column}.notification-message{padding:16px}.notification-actions .portal-button{flex:1;white-space:normal}.notification-meta time{margin-inline-start:0;width:100%}}
+/* Mobile account polish: all values continue to come from the live account. */
+.portal-member .account-quick-summary { padding:clamp(16px,3vw,28px); border-radius:20px!important; border-block-start:3px solid #0f6e72!important; }
+.portal-member .account-quick-stats { gap:10px; margin-block:20px 16px; }
+.portal-member .account-quick-stats>div { background:var(--portal-surface); border-radius:14px; padding:16px 12px; }
+.portal-member .account-quick-stats dd { font-size:clamp(17px,2.1vw,24px); line-height:1.65; }
+.portal-member .account-next-step { border-inline-start:3px solid #0f6e72; border-radius:12px; padding:16px; }
+.portal-member .account-next-step .portal-button { background:#0f6e72; color:#fff; min-height:48px; white-space:normal; }
+.portal-member .account-action-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-block:16px; }
+.portal-member .account-action-grid :is(button,a) { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:80px; padding:12px 8px; font:inherit; font-size:13px; color:var(--portal-text,#193448); background:var(--portal-surface); border:1px solid var(--portal-border); border-radius:14px; text-decoration:none; text-align:center; }
+.portal-member .account-action-grid :is(button,a):hover { border-color:#0f6e72; }
+.portal-member .account-action-grid svg { color:#0f6e72; }
+.club-account .club-slots { grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; }
+.club-account .club-slot-button { display:flex; flex-direction:column; align-items:center; gap:8px; width:100%; min-height:104px; padding:12px 4px; font:inherit; color:#c4cdd6; background:#152332; border:1px solid #455769; border-radius:14px; cursor:pointer; }
+.club-account .club-slot-button[aria-pressed=true] { outline:2px solid #d4b87b; outline-offset:2px; }
+.club-account .club-slot-button:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+.club-account .club-slot-icon { width:32px; height:32px; flex-shrink:0; }
+.club-account .is-active .club-slot-button { color:#b9e5d8; background:#153a37; border-color:#498e80; }
+.club-account .is-active .club-slot-icon { color:#fff; background:#0f6e72; border-color:#498e80; }
+.club-account .club-slot-label { font-size:11px; }
+.club-account .club-slot-state { display:block; font-size:11px; }
+.club-account .club-slot-inspector { margin-top:14px; padding:14px; background:#152332; border:1px solid #455769; border-radius:12px; font-size:13px; line-height:1.9; }
+.club-account .club-slot-inspector strong { color:#d4b87b; }
+.club-account .club-actions :is(button,a):first-child { background:#0f6e72; border-color:#498e80; }
+.portal-member .portal-product .commerce-button,.portal-member .member-shopbar>a { background:#0f6e72; min-height:48px; }
+.portal-member .portal-product .member-product-price { font-variant-numeric:tabular-nums; font-size:20px; }
+.portal-member .portal-product :is(input,select),.portal-member .quantity-selector input { font-size:16px; }
+.portal-member .member-product-image img { aspect-ratio:4/5; height:auto; object-fit:contain; }
+@media(max-width:640px) {
+  .portal-member .account-action-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .portal-member .account-action-grid :is(button,a) { min-height:64px; flex-direction:row; padding:10px; }
+  .club-account .club-slots { grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+  .club-account .club-slot-button { min-height:98px; }
+  .club-account .club-balances { grid-template-columns:1fr; gap:12px; }
+  .club-account .club-balances>div { flex-direction:row; align-items:center; border-inline-end:0; border-bottom:1px solid #304357; padding-bottom:12px!important; gap:12px; }
+  .club-account .club-balances strong { font-size:16px; }
+  .club-account .club-balance-label { font-size:12px; }
+  .club-account .club-balances small { display:inline; }
+  .club-account .club-purchase-links :is(a,button) { min-height:44px; }
+  .portal-member .portal-product .store-cta { flex-wrap:wrap; }
+  .portal-member .portal-product .store-cta .commerce-button { flex-basis:100%; font-size:14px; }
+}
