@@ -1,0 +1,30 @@
+[Unit]
+Description=Homay private management MCP tunnel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=homa-mcp
+Group=homa-mcp
+StateDirectory=homa-mcp
+StateDirectoryMode=0700
+WorkingDirectory=/var/lib/homa-mcp
+LoadCredential=runtime-key:/etc/homa-mcp/runtime-key
+LoadCredential=config:/etc/homa-mcp/config.json
+ExecStartPre=/usr/bin/node /usr/local/lib/homa-mcp/smoke.mjs
+ExecStart=/usr/bin/python3 -I /usr/local/lib/homa-mcp/run-tunnel.py
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=30
+KillMode=control-group
+UMask=0077
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/homa-mcp-jobs
+# sudo is intentionally allowed for the one root-owned JSON helper only.
+# NoNewPrivileges, RestrictSUIDSGID and seccomp restrictions that imply
+# NoNewPrivileges for User= services would disable that sudo rule.
+
+[Install]
+WantedBy=multi-user.target
