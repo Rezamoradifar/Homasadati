@@ -1,8 +1,8 @@
-import { mkdtempSync, copyFileSync, readFileSync, rmSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { mkdtempSync, copyFileSync, rmSync } from "node:fs";
+import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { createHash } from "node:crypto";
 import Database from "better-sqlite3";
+import { verifyBackupFiles } from "../src/platform/backup-manifest";
 // Recovery rehearsal only. Never writes to the application's configured database.
 async function main() {
   const backup = process.argv[2];
@@ -10,25 +10,14 @@ async function main() {
     throw new Error(
       "Usage: npm run platform:restore-drill -- /absolute/backup/directory",
     );
-  const source = resolve(backup),
-    manifest = JSON.parse(readFileSync(join(source, "manifest.json"), "utf8"));
-  if (manifest.version !== 1 || manifest.database !== "homay.sqlite")
-    throw new Error("Invalid backup manifest");
-  const bytes = readFileSync(join(source, "homay.sqlite"));
-  if (
-    createHash("sha256").update(bytes).digest("hex") !== manifest.databaseSha256
-  )
-    throw new Error("Backup checksum mismatch");
-  const key = readFileSync(join(source, "master-key.private"), "utf8").trim();
-  if (!/^[a-f0-9]{64}$/i.test(key))
-    throw new Error("Backup encryption key missing or invalid");
+  const verified = verifyBackupFiles(backup);
   const directory = mkdtempSync(join(tmpdir(), "homay-restore-drill-"));
   let restored: Database.Database | undefined;
   try {
     const file = join(directory, "restored.sqlite");
-    copyFileSync(join(source, "homay.sqlite"), file);
+    copyFileSync(verified.database, file);
     process.env.DATABASE_PATH = file;
-    process.env.PLATFORM_MASTER_KEY = key;
+    process.env.PLATFORM_MASTER_KEY = verified.masterKey;
     const { platformDb, all, one } = await import("../src/platform/schema");
     const { decrypt } = await import("../src/platform/security");
     restored = platformDb();
@@ -55,6 +44,7 @@ async function main() {
     console.log(
       JSON.stringify({
         recovery: "verified",
+        assets: verified.assets,
         migrations: one("SELECT MAX(version) n FROM p_migrations")!.n,
         users: one("SELECT COUNT(*) n FROM p_users")!.n,
         orders: one("SELECT COUNT(*) n FROM p_orders")!.n,
@@ -65,6 +55,7 @@ async function main() {
           "foreign_keys",
           "decryption",
           "wallet_ledger",
+          ...(verified.version === 2 ? ["media_and_private_files"] : []),
         ],
         liveFilesChanged: false,
       }),

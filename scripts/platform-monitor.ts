@@ -25,8 +25,10 @@ async function main() {
   console.log(JSON.stringify(result));
   if (process.argv.includes("--notify")) {
     const alert = await sendOperationalAlert(result);
-    if (!alert.configured)
+    if (!alert.configured) {
       console.error("Alert webhook is not configured; no notification sent.");
+      process.exitCode = 1;
+    }
   }
   if (result.status !== "ok") process.exitCode = 1;
 }
