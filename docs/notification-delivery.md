@@ -48,8 +48,12 @@ npm run build
 ```
 
 Deploy only after checking the installed server revision against the release and
-preserving its settings/data. The existing `deploy-zibal.sh` also configures the
-card schedule; it is a full release installer, not a notifications-only restart.
+preserving its settings/data. Use `deploy-zibal.sh <release-sha>
+--skip-merchant --preserve-schedule` to leave both gateway settings and the
+existing card schedule unchanged. Without `--preserve-schedule`, the installer
+also configures the card schedule. It remains a full release installer, not a
+notifications-only restart. Confirm that the installed revision already includes
+the base commit below before installing this notification release.
 After installation, restart both the application and worker and check the
 existing service diagnostics. A real SMS/OTP test remains a separate authorized
 operation using the production provider settings.

@@ -4,6 +4,16 @@ set -Eeuo pipefail
 app=/opt/homay/app
 release="${1:?Pass the full Zibal release SHA}"
 [[ "$release" =~ ^[a-f0-9]{40}$ ]] || exit 1
+shift
+skip_merchant=0
+preserve_schedule=0
+for option in "$@"; do
+  case "$option" in
+    --skip-merchant) skip_merchant=1 ;;
+    --preserve-schedule) preserve_schedule=1 ;;
+    *) echo "Unknown deployment option: $option"; exit 2 ;;
+  esac
+done
 [[ "$(id -u)" == 0 ]] || { echo 'Run as root.'; exit 1; }
 exec 9>/opt/homay/deploy-zibal.lock
 flock -n 9 || { echo 'Another deployment is running.'; exit 1; }
@@ -19,7 +29,7 @@ fi
 systemctl is-active --quiet homay.service
 systemctl is-active --quiet homay-worker.service
 merchant=""
-if [[ "${2:-}" != --skip-merchant ]]; then
+if ((skip_merchant == 0)); then
   read -r -s -p 'Paste the Zibal merchant (hidden): ' merchant </dev/tty
   printf '\n' >/dev/tty
   [[ "$merchant" =~ ^[A-Za-z0-9_-]{6,200}$ && "$merchant" != zibal ]] || { echo 'Invalid production merchant.'; exit 1; }
@@ -130,8 +140,10 @@ new_node=1
 mv "$stage/.next" "$app/.next"
 new_build=1
 runuser -u homay -- bash -c 'cd "$1" && npm run platform:setup' bash "$app"
-schedule_changed=1
-runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production node --import tsx scripts/configure-card-schedule.ts "$2"' bash "$app" "$deploy_dir/card-schedule-before.json"
+if ((preserve_schedule == 0)); then
+  schedule_changed=1
+  runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production node --import tsx scripts/configure-card-schedule.ts "$2"' bash "$app" "$deploy_dir/card-schedule-before.json"
+fi
 if [[ -n "$merchant" ]]; then
 printf '%s' "$merchant" | runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production npx tsx scripts/configure-zibal.ts' bash "$app"
 fi
