@@ -5,6 +5,17 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+it('finds the real runuser command with the management bridge restricted PATH', () => {
+  const source = readFileSync(new URL('./deploy-zibal.sh', import.meta.url), 'utf8');
+  const preamble = source.slice(0, source.indexOf('\napp=/opt/homay/app'));
+  // Exercise only startup environment setup, without calling deployment code.
+  const result = spawnSync('/bin/bash', ['-c', preamble + '\nrunuser --version'], {
+    encoding: 'utf8', env: { PATH: '/usr/bin:/bin', LANG: 'C' },
+  });
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.stdout).toContain('runuser');
+});
+
 // Run the real installer with only its absolute installation root redirected.
 // Git, services and runuser are test doubles: no real deployment/database calls.
 function deployment(options, failWorker = false, failDiagnostics = false) {

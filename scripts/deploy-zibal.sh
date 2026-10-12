@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Stage a merge with the installed release, preserving server-only changes.
 set -Eeuo pipefail
+# The bridge deliberately supplies /usr/bin:/bin. runuser lives in sbin on
+# Ubuntu; include the standard system-administration directories for this job.
+export PATH="${PATH:-/usr/bin:/bin}:/usr/sbin:/sbin"
 app=/opt/homay/app
 release="${1:?Pass the full Zibal release SHA}"
 [[ "$release" =~ ^[a-f0-9]{40}$ ]] || exit 1

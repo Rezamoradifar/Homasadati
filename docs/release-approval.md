@@ -6,6 +6,12 @@ repository alone does not update that copy. This release fixes the root checkout
 permissions that caused the worker's `EACCES` failures under the bridge's private
 `umask 077`.
 
+The first attempt to install the landing polish stopped in staging because the
+bridge's restricted `PATH=/usr/bin:/bin` omitted `runuser`. No live files or
+services were changed. The follow-up deployer adds the standard sbin directories;
+a regression test executes the real `runuser --version` with that restricted
+incoming environment.
+
 After reviewing the release commit, the server owner runs the following as root.
 Replace `REVIEWED_FULL_COMMIT_SHA` with the exact reviewed 40-character revision.
 The expected approval below is the value verified when this release was prepared;
@@ -16,7 +22,7 @@ bash <<'HOMA'
 set -euo pipefail
 umask 077
 release=REVIEWED_FULL_COMMIT_SHA
-expected=ca3c7e7d57a9070e9e9584f238f9830702c3d364
+expected=287b1a8f318fd3a98f0543b7cbf3c98e463345d7
 g() { git -c safe.directory=/opt/homay/app -C /opt/homay/app "$@"; }
 g fetch --no-tags https://github.com/Rezamoradifar/Homasadati.git "$release"
 approval=$(mktemp /root/homa-approve.XXXXXXXX.py)
