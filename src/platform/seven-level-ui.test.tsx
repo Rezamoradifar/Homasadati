@@ -18,13 +18,13 @@ it("lets Javaneh choose one of its two endpoints with the destination position a
  fireEvent.change(select,{target:{value:"2"}});fireEvent.click(screen.getByRole("button",{name:"ثبت محل رفرال بعدی"}));
  await waitFor(()=>expect(api).toHaveBeenCalledWith("referral/placement","POST",{ordinal:2}));
 });
-it("shows seven card levels with 1–7 positions, 2–8 branches and 15–105m caps",()=> {
+it("shows seven card levels with 1–7 positions, 2–8 branches and 150–1050m rial caps",()=> {
  render(<SevenCards/>);const rows=within(screen.getByRole("table")).getAllByRole("row").slice(1);
  expect(rows).toHaveLength(7);expect(screen.queryByText("آریا")).toBeNull();
- rows.forEach((row,i)=>{const cells=within(row).getAllByRole("cell");expect(cells[3].textContent).toBe((i+1).toLocaleString("fa-IR"));expect(cells[4].textContent).toBe((i+2).toLocaleString("fa-IR"));expect(cells[5].textContent).toBe(((i+1)*15_000_000).toLocaleString("fa-IR"));});
+ rows.forEach((row,i)=>{const cells=within(row).getAllByRole("cell");expect(cells[3].textContent).toBe((i+1).toLocaleString("fa-IR"));expect(cells[4].textContent).toBe((i+2).toLocaleString("fa-IR"));expect(cells[5].textContent).toBe(((i+1)*150_000_000).toLocaleString("fa-IR"));});
 });
 it("renders the owner's seven-card text with the open-ended Simurgh range",()=> {
  render(<PlanText/>);expect(screen.getByRole("heading",{name:"طرح هفت کارت باشگاه"})).toBeTruthy();
  expect(screen.queryByRole("heading",{name:"۸. خرید کارت آریا"})).toBeNull();
- expect(screen.getByText("۷۰ میلیون تومان به بالا")).toBeTruthy();expect(screen.getByText("۱۰۵ میلیون تومان")).toBeTruthy();
+ expect(screen.getByText("۷۰۰ میلیون ریال به بالا")).toBeTruthy();expect(screen.getByText("۱۰۵۰ میلیون ریال")).toBeTruthy();
 });

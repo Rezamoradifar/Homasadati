@@ -6,6 +6,103 @@
     "description": "Contract for the club, binary, merchants and delegated administration modules. Other existing auth, catalogue, order and travel routes are indexed in API.md. All writes require same-origin JSON requests. JWT is not used: authentication is a rotated opaque HttpOnly cookie session."
   },
   "paths": {
+    "/api/platform/admin/outbox": {
+      "get": {
+        "summary": "Owner-only masked delivery failures and one audited recovery attempt (up to three per job); review provider delivery history before retrying",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      },
+      "post": {
+        "summary": "Owner-only masked delivery failures and one audited recovery attempt (up to three per job); review provider delivery history before retrying",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutboxRetry"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response; lists use rows, page and hasMore unless stated otherwise."
+          },
+          "400": {
+            "description": "Input validation failed"
+          },
+          "401": {
+            "description": "Valid active session required"
+          },
+          "403": {
+            "description": "Origin, ownership or permission denied"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict, insufficient balance, idempotency mismatch or invalid state"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
     "/api/platform/club": {
       "get": {
         "summary": "Public active earning policy, reward catalogue and loyalty levels",
@@ -3919,6 +4016,38 @@
           "reason"
         ],
         "additionalProperties": true
+      },
+      "OutboxRetry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 8,
+            "maximum": 10
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 200
+          },
+          "checkedDelivery": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "attempts",
+          "reason",
+          "checkedDelivery"
+        ],
+        "additionalProperties": false
       },
       "Notification": {
         "type": "object",

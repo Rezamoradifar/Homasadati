@@ -2,7 +2,7 @@
 import { Check, LockSimple, Clock, Wallet, Gift, TreeStructure, ArrowLeft, ShoppingBag } from "@phosphor-icons/react";
 import Localized from "../i18n/Localized";
 import { sevenCards, DESKS_PER_MEMBER, PURCHASE_PER_DESK } from "./card-levels";
-import { amount, RecordData } from "./client";
+import { amount, rialAmount, RecordData } from "./client";
 import { DataState, useData } from "./Widgets";
 
 export function ClubAccountCard({ status, available = 0, onNavigate }: {
@@ -20,14 +20,14 @@ export function ClubAccountCard({ status, available = 0, onNavigate }: {
       <div className="club-membership-level"><span>کارت خریداری‌شده</span><strong>{status.cardName || sevenCards.find(card=>card.level===Number(status.level))?.name || "هنوز فعال نشده"}</strong><span>{amount(desks)} جایگاه فعال از ۷</span></div>
     </div>
     {!status.live && <p className="club-account-notice" role="status">تسویهٔ این پلن هنوز فعال نشده است.</p>}
-    <section className="club-slot-section"><h3>جایگاه‌های فعال و خاموش من</h3><p className="club-position-explanation">کارت، سطح خرید شماست: جوانه ۱ جایگاه، سرو ۲ جایگاه و تا سیمرغ ۷ جایگاه را فعال می‌کند. هر ۱۰ میلیون تومان خرید پرداخت‌شده، جایگاه بعدی را روشن می‌کند.</p><ol className="club-slots" aria-label="وضعیت هفت جایگاه">
+    <section className="club-slot-section"><h3>جایگاه‌های فعال و خاموش من</h3><p className="club-position-explanation">کارت، سطح خرید شماست: جوانه ۱ جایگاه، سرو ۲ جایگاه و تا سیمرغ ۷ جایگاه را فعال می‌کند. هر ۱۰۰ میلیون ریال خرید پرداخت‌شده، جایگاه بعدی را روشن می‌کند.</p><ol className="club-slots" aria-label="وضعیت هفت جایگاه">
       {Array.from({ length: DESKS_PER_MEMBER }, (_, i) => <li key={i} data-position={i + 1} className={i < desks ? "is-active" : ""} aria-label={`جایگاه ${i + 1}: ${i < desks ? "روشن" : "خاموش"}`}><span className="club-slot-icon">{i < desks ? <Check size={22} weight="bold" /> : <LockSimple size={20} />}</span><span className="club-slot-label">جایگاه {amount(i + 1)}</span><span className="club-slot-state">{i < desks ? "روشن" : "خاموش"}</span></li>)}
     </ol></section>
-    <section className="club-purchase-progress"><div><span>پیشرفت تا جایگاه بعدی</span><strong>{complete ? "همهٔ جایگاه‌ها روشن هستند" : <>{amount(remaining)} تومان</>}</strong></div><progress value={progress} max={100} aria-label="پیشرفت تا جایگاه بعدی" /><div className="club-paid-total"><span>خرید پرداخت‌شده</span><strong>{amount(status.paidPurchaseTotal || 0)} <small>تومان</small></strong></div><details className="club-purchase-details"><summary>جزئیات خرید و سقف</summary><div><span>مجموع خرید محاسبه‌شده</span><strong>{amount(total)} <small>تومان</small></strong></div><div className="club-weekly-cap"><span>سقف هفتگی جایگاه‌های روشن</span><strong>{amount(status.weeklyCapToman || 0)} <small>تومان</small></strong></div></details></section>
+    <section className="club-purchase-progress"><div><span>پیشرفت تا جایگاه بعدی</span><strong>{complete ? "همهٔ جایگاه‌ها روشن هستند" : <>{rialAmount(remaining)} ریال</>}</strong></div><progress value={progress} max={100} aria-label="پیشرفت تا جایگاه بعدی" /><div className="club-paid-total"><span>خرید پرداخت‌شده</span><strong>{rialAmount(status.paidPurchaseTotal || 0)} <small>ریال</small></strong></div><details className="club-purchase-details"><summary>جزئیات خرید و سقف</summary><div><span>مجموع خرید محاسبه‌شده</span><strong>{rialAmount(total)} <small>ریال</small></strong></div><div className="club-weekly-cap"><span>سقف هفتگی جایگاه‌های روشن</span><strong>{rialAmount(status.weeklyCapToman || 0)} <small>ریال</small></strong></div></details></section>
     <section className="club-balances" aria-label="وضعیت پورسانت‌ها">
-      <div><span className="club-balance-label"><Clock size={23} />در انتظار پرداخت</span><strong>{amount(status.pendingRewards || 0)} <small>تومان</small></strong></div>
-      <div><span className="club-balance-label"><Wallet size={23} />قابل برداشت</span><strong>{amount(available)} <small>تومان</small></strong></div>
-      <div><span className="club-balance-label"><Gift size={23} />ووچر خرید</span><strong>{amount(status.voucherBalance || 0)} <small>تومان</small></strong></div>
+      <div><span className="club-balance-label"><Clock size={23} />در انتظار پرداخت</span><strong>{rialAmount(status.pendingRewards || 0)} <small>ریال</small></strong></div>
+      <div><span className="club-balance-label"><Wallet size={23} />قابل برداشت</span><strong>{rialAmount(available)} <small>ریال</small></strong></div>
+      <div><span className="club-balance-label"><Gift size={23} />ووچر خرید</span><strong>{rialAmount(status.voucherBalance || 0)} <small>ریال</small></strong></div>
       <p>پورسانت محاسبه‌شده، هفتهٔ بعد آزاد می‌شود.</p>
     </section>
     <div className="club-actions">{onNavigate ? <><button type="button" onClick={() => onNavigate("catalog")}>تکمیل خرید<ArrowLeft size={20} /></button><button type="button" className="club-action-secondary" onClick={() => onNavigate("network")}><TreeStructure size={20} />مشاهده درخت</button></> : <><a href="?tab=catalog">تکمیل خرید<ArrowLeft size={20} /></a><a href="?tab=network" className="club-action-secondary"><TreeStructure size={20} />مشاهده درخت</a></>}</div>

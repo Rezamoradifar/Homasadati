@@ -2,7 +2,7 @@
 
 import Localized from "../i18n/Localized";
 import { useState } from "react";
-import { amount, labels, RecordData } from "./client";
+import { rialAmount, labels, RecordData } from "./client";
 import { DataState, Filter, Stat, Table, useData } from "./Widgets";
 export function OperationsDashboard({
   refresh,
@@ -79,7 +79,7 @@ export function OperationsDashboard({
                     >
                       {d.trend.map((r: RecordData) => (
                         <Localized key={r.day}><div
-                          title={`${r.day}: ${amount(r.sales)} تومان`}
+                          title={`${r.day}: ${rialAmount(r.sales)} ریال`}
                         >
                           <span
                             style={{
@@ -155,8 +155,8 @@ export function OperationsDashboard({
                 rows={d.top}
                 columns={[
                   ["title", "محصول"],
-                  ["orders", "سفارش", "money"],
-                  ["units", "تعداد فروخته‌شده", "money"],
+                  ["orders", "سفارش", "number"],
+                  ["units", "تعداد فروخته‌شده", "number"],
                   ["revenue", "فروش خالص", "money"],
                 ]}
               />
@@ -173,8 +173,8 @@ export function OperationsDashboard({
                   ["title", "محصول"],
                   ["sku", "SKU"],
                   ["vertical", "حوزه"],
-                  ["stock", "موجودی", "money"],
-                  ["threshold", "آستانه", "money"],
+                  ["stock", "موجودی", "number"],
+                  ["threshold", "آستانه", "number"],
                 ]}
               />
             </section>

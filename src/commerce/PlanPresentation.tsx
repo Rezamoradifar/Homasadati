@@ -15,7 +15,7 @@ import {
 export default function PlanPresentation() {
   const { locale } = useSiteLocale();
   const n = (v: number) => v.toLocaleString(locale === "en" ? "en-US" : "fa-IR");
-  const million = (v: number) => n(v / 1_000_000);
+  const million = (v: number) => n(v * 10 / 1_000_000);
   const [index, setIndex] = useState(0);
   const touch = useRef<number | null>(null);
 
@@ -59,7 +59,7 @@ export default function PlanPresentation() {
             <span className="plan-card-level">{n(c.level)}</span>
             <strong>{locale === "en" ? c.english : c.name}</strong>
             <small>
-              از {million(c.minToman)} میلیون تومان
+              از {million(c.minToman)} میلیون ریال
             </small>
             <dl>
               <div>
@@ -86,19 +86,19 @@ export default function PlanPresentation() {
         <div className="plan-leg">
           <span dir="rtl">شاخهٔ چپ</span>
           <strong>{million(MATCH_VOLUME)}</strong>
-          <small dir="rtl">میلیون تومان</small>
+          <small dir="rtl">میلیون ریال</small>
         </div>
         <span className="plan-op">+</span>
         <div className="plan-leg">
           <span dir="rtl">شاخهٔ راست</span>
           <strong>{million(MATCH_VOLUME)}</strong>
-          <small dir="rtl">میلیون تومان</small>
+          <small dir="rtl">میلیون ریال</small>
         </div>
         <span className="plan-op">=</span>
         <div className="plan-leg plan-reward">
           <span dir="rtl">پاداش</span>
-          <strong>{n(MATCH_REWARD / 1_000_000)}</strong>
-          <small dir="rtl">میلیون تومان</small>
+          <strong>{million(MATCH_REWARD)}</strong>
+          <small dir="rtl">میلیون ریال</small>
         </div>
       </div>
       <ul className="plan-points">
@@ -111,15 +111,15 @@ export default function PlanPresentation() {
     <section key="desks" className="plan-slide">
       <h2>میزهای کار و سقف هفتگی</h2>
       <div className="plan-highlight">
-        <strong>{million(DESK_WEEKLY_CAP)} میلیون تومان</strong>
+        <strong>{million(DESK_WEEKLY_CAP)} میلیون ریال</strong>
         <span>سقف پاداش هر میز کار در هر هفته</span>
       </div>
       <ul className="plan-points">
         <li>سطح خرید n، تعداد n جایگاه فعال دارد؛ کارت خرید و جایگاه‌های شبکه جدا هستند.</li>
         <li>
-          برای نمونه، کارت سیمرغ ۷ میز دارد و سقف هفتگی آن {million(7 * DESK_WEEKLY_CAP)} میلیون تومان است.
+          برای نمونه، کارت سیمرغ ۷ میز دارد و سقف هفتگی آن {million(7 * DESK_WEEKLY_CAP)} میلیون ریال است.
         </li>
-        <li>اگر پاداش یک تعادل از سقف هفته بیشتر شود، باقی‌ماندهٔ آن در ابتدای هفتهٔ بعد پرداخت می‌شود.</li>
+        <li>سقف، زمان آزادسازی و نحوه رسیدگی به مازاد بر اساس شرایط فعال طرح در صفحه جزئیات مشخص می‌شود.</li>
       </ul>
     </section>,
 
@@ -142,12 +142,12 @@ export default function PlanPresentation() {
     <section key="simurgh" className="plan-slide">
       <h2>هدیهٔ ویژهٔ کارت سیمرغ</h2>
       <div className="plan-highlight rank-obsidian">
-        <strong>{million(SIMURGH_CASHBACK)} میلیون تومان</strong>
+        <strong>{million(SIMURGH_CASHBACK)} میلیون ریال</strong>
         <span>بازگشت وجه به کیف پول</span>
       </div>
       <ul className="plan-points">
         <li>
-          برای اولین خرید یکجای {million(sevenCards[6].minToman)} میلیون تومان یا بیشتر؛ خرید چندمرحله‌ای مشمول
+          برای اولین خرید یکجای {million(sevenCards[6].minToman)} میلیون ریال یا بیشتر؛ خرید چندمرحله‌ای مشمول
           این هدیه نیست.
         </li>
         <li>اگر آن خرید مرجوع شود، این مبلغ هم برگشت می‌خورد.</li>
@@ -159,7 +159,7 @@ export default function PlanPresentation() {
       <ol className="plan-steps">
         <li>
           <strong>شروع هفته</strong>
-          <span>هر هفته از شنبه ساعت ۰۰:۰۰ به وقت تهران شروع می‌شود.</span>
+          <span>روز و ساعت محاسبه بر اساس زمان‌بندی فعال طرح و به وقت تهران است.</span>
         </li>
         <li>
           <strong>قطعی‌شدن خرید</strong>

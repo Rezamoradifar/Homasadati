@@ -12,5 +12,5 @@ it("shows one purchased card and seven separate positions with immediate purchas
    expect(slot.getAttribute("data-position")).toBe(String(i+1));
  });
  expect(container.querySelectorAll('.club-slots .is-active')).toHaveLength(1);
- expect(container.querySelector('.club-purchase-progress strong')!.textContent).toBe('۱۰٬۰۰۰٬۰۰۰ تومان');
+ expect(container.querySelector('.club-purchase-progress strong')!.textContent).toBe('۱۰۰٬۰۰۰٬۰۰۰ ریال');
 });

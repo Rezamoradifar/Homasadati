@@ -1,9 +1,11 @@
 "use client";
+import { rialAmount } from "./client";
 import {CompanyMemberControls} from "./CompanyMemberControls";
 
 import { OfficeAccessEditor } from "./MarketerOffice";
 import { AdminPayoutProfiles } from "./AdminPayoutProfiles";
 import { useSiteLocale } from "../i18n/SiteLocale";
+import AdminOutbox from "./AdminOutbox";
 import ServiceHealth from "./ServiceHealth";
 import Localized from "../i18n/Localized";
 import { extendedCatalogFields } from "./catalog-fields";
@@ -40,7 +42,8 @@ const catalogFields: Field[] = [
     label: "نوع",
     hint: "برای گردشگری: مقصد، تور یا اقامتگاه",
   },
-  { name: "price", label: "قیمت (تومان)", type: "number", min: 1, max: 1e12 },
+  { name: "price", label: "قیمت (ریال)", currency: "toman",
+                      type: "number", min: 1, max: 1e12 },
   {
     name: "stock",
     label: "موجودی / ظرفیت قابل فروش",
@@ -92,7 +95,7 @@ const definitions: Record<
       ["family", "خانواده"],
       ["vertical", "حوزه"],
       ["price", "قیمت", "money"],
-      ["stock", "موجودی", "money"],
+      ["stock", "موجودی", "number"],
       ["published", "منتشرشده", "bool"],
     ],
   },
@@ -124,15 +127,17 @@ const definitions: Record<
       { name: "name", label: "نام رتبه" },
       {
         name: "personal_threshold",
-        label: "حداقل فروش شخصی (تومان)",
-        type: "number",
+        label: "حداقل فروش شخصی (ریال)",
+        currency: "toman",
+                      type: "number",
         min: 0,
         max: 1e12,
       },
       {
         name: "group_threshold",
-        label: "حداقل فروش گروهی (تومان)",
-        type: "number",
+        label: "حداقل فروش گروهی (ریال)",
+        currency: "toman",
+                      type: "number",
         min: 0,
         max: 1e12,
       },
@@ -161,19 +166,19 @@ const definitions: Record<
         label: "معیار",
         type: "select",
         options: [
-          ["personal_sales", "فروش شخصی (تومان)"],
-          ["group_sales", "فروش گروهی (تومان)"],
+          ["personal_sales", "فروش شخصی (ریال)"],
+          ["group_sales", "فروش گروهی (ریال)"],
           ["referrals", "تعداد دعوت موفق"],
           ["orders", "تعداد سفارش پرداخت‌شده"],
         ],
       },
-      { name: "target", label: "هدف", type: "number", min: 1, max: 1e12 },
+      { name: "target", label: "هدف", currencyFor: { field: "metric", values: ["personal_sales", "group_sales"] }, type: "number", min: 1, max: 1e12 },
       { name: "active", label: "فعال", type: "checkbox" },
     ],
     columns: [
       ["title", "عنوان"],
       ["metric", "معیار"],
-      ["target", "هدف", "money"],
+      ["target", "هدف", "metric"],
       ["active", "فعال", "bool"],
     ],
   },
@@ -482,7 +487,7 @@ export function FinancialDashboard({
                           return (
                             <Localized key={r.day}>
                               <div
-                                title={`${r.day}: ${amount(r.sales)} / ${amount(r.commissions)}`}
+                                title={`${r.day}: ${rialAmount(r.sales)} / ${rialAmount(r.commissions)}`}
                               >
                                 <span
                                   style={{
@@ -548,10 +553,10 @@ export function FinancialDashboard({
                         }))}
                         columns={[
                           ["day", "روز"],
-                          ["sales", "فروش (تومان)", "money"],
-                          ["commissions", "پورسانت (تومان)", "money"],
-                          ["ratio", "نسبت پورسانت به فروش (%)", "money"],
-                          ["paid", "پرداخت نقدی (تومان)", "money"],
+                          ["sales", "فروش (ریال)", "money"],
+                          ["commissions", "پورسانت (ریال)", "money"],
+                          ["ratio", "نسبت پورسانت به فروش (%)"],
+                          ["paid", "پرداخت نقدی (ریال)", "money"],
                           ["payoutRatio", "نسبت پرداخت به فروش"],
                         ]}
                       />
@@ -568,7 +573,7 @@ export function FinancialDashboard({
                     rows={d.byVertical}
                     columns={[
                       ["vertical", "حوزه"],
-                      ["orders", "تعداد", "money"],
+                      ["orders", "تعداد", "number"],
                       ["sales", "فروش", "money"],
                     ]}
                   />
@@ -627,7 +632,7 @@ export function CommissionPolicy({
             <div className="portal-card">
               <h2>تنظیم موتور پورسانت</h2>
               <p className="portal-notice">
-                درصدها روی مبلغ واقعی فروش تومانی محاسبه می‌شوند. ترتیب تخصیص:
+                درصدها روی مبلغ واقعی فروش ریالی محاسبه می‌شوند. ترتیب تخصیص:
                 مستقیم، سطحی و رتبه، سپس باینری. سقف هر سفارش بر همهٔ انواع
                 اولویت دارد. تغییرات برای سفارش‌های جدید است؛ تسویهٔ قبلی
                 بازنویسی نمی‌شود.
@@ -697,15 +702,17 @@ export function CommissionPolicy({
                   },
                   {
                     name: "withdrawMin",
-                    label: "حداقل برداشت (تومان)",
-                    type: "number",
+                    label: "حداقل برداشت (ریال)",
+                    currency: "toman",
+                      type: "number",
                     min: 1,
                     max: 1e12,
                   },
                   {
                     name: "withdrawMax",
-                    label: "حداکثر برداشت (تومان)",
-                    type: "number",
+                    label: "حداکثر برداشت (ریال)",
+                    currency: "toman",
+                      type: "number",
                     min: 1,
                     max: 1e12,
                   },
@@ -886,7 +893,7 @@ export function AdminWithdrawals({
         {selected && (
           <Modal title="بررسی برداشت" onClose={() => setSelected(null)}>
             <p>
-              {selected.name} · {amount(selected.amount)} تومان
+              {selected.name} · {rialAmount(selected.amount)} ریال
             </p>
             <p className="portal-code">{selected.iban}</p>
             <p className="portal-notice">
@@ -1164,6 +1171,7 @@ export function Settings({
     <Localized>
       <>
         <ServiceHealth refresh={refresh} />
+        <AdminOutbox refresh={refresh} onChange={onChange} />
         <div className="portal-card">
           <h2>تنظیمات سرویس‌ها و برند</h2>
           <p className="portal-notice">

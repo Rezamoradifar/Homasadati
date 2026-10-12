@@ -46,7 +46,7 @@ export default function ClubPage() {
               {policy.enabled ? (
                 <>
                   <p>
-                    {`برای هر ${policy.spendUnit.toLocaleString("fa-IR")} تومان خرید، ${policy.pointsPerUnit.toLocaleString("fa-IR")} امتیاز به شما تعلق می‌گیرد.`}
+                    {`برای هر ${(policy.spendUnit*10).toLocaleString("fa-IR")} ریال خرید، ${policy.pointsPerUnit.toLocaleString("fa-IR")} امتیاز به شما تعلق می‌گیرد.`}
                     {" "}
                     امتیاز هر سفارش به عدد صحیح پایین‌تر گرد می‌شود و پس از پایان مهلت لغو آزاد می‌شود.
                   </p>

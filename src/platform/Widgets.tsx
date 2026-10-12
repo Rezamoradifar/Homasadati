@@ -5,9 +5,12 @@ import Localized from "../i18n/Localized";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import { MediaInput } from "./MediaInput";
 import { useEffect, useRef, useState, ReactNode } from "react";
-import { api, amount, date, labels, RecordData } from "./client";
+import { api, amount, rialAmount, date, labels, RecordData } from "./client";
 export interface Field {
   name: string;
+  /** Stored/API toman; rendered and entered in rial. */
+  currency?: "toman";
+  currencyFor?: { field: string; values: string[] };
   label: string;
   sectors?: string[];
   type?: string;
@@ -32,6 +35,8 @@ export function Form({
   submit?: string;
   resetOnSuccess?: boolean;
 }) {
+  const [selectedValues, setSelectedValues] = useState<RecordData>(initial);
+  const resolvedFields = fields.map(f => f.currencyFor ? { ...f, currency: f.currencyFor.values.includes(String(selectedValues[f.currencyFor.field])) ? "toman" as const : undefined } : f);
   const [sector, setSector] = useState(String(initial.vertical || ""));
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -48,7 +53,7 @@ export function Form({
         }
         const f = new FormData(form);
         const d: RecordData = {};
-        for (const field of fields) {
+        for (const field of resolvedFields) {
           if (
             field.type === "section" ||
             (field.sectors && !field.sectors.includes(sector))
@@ -61,7 +66,7 @@ export function Form({
               : field.type === "checkbox"
                 ? raw === "on"
                 : field.type === "number"
-                  ? Number(raw)
+                  ? Number(raw) / (field.currency === "toman" ? 10 : 1)
                   : field.type === "password"
                     ? String(raw ?? "")
                     : String(raw ?? "").trim();
@@ -79,7 +84,7 @@ export function Form({
       }}
     >
       <fieldset disabled={busy} style={{ display: "contents" }}>
-        {fields
+        {resolvedFields
           .filter((f) => !f.sectors || f.sectors.includes(sector))
           .map((f) =>
             f.type === "section" ? (
@@ -93,7 +98,7 @@ export function Form({
                   (f.type === "checkbox" ? "check" : "")
                 }
               >
-                {f.label}
+                {f.label}{f.currencyFor && (f.currency === "toman" ? " (ریال)" : " (تعداد)")}
                 {f.type === "media" ? (
                   <MediaInput name={f.name} initial={initial[f.name] || ""} />
                 ) : f.type === "textarea" ? (
@@ -106,11 +111,10 @@ export function Form({
                 ) : ["select", "multiselect"].includes(f.type || "") ? (
                   <select
                     name={f.name}
-                    onChange={
-                      f.name === "vertical"
-                        ? (e) => setSector(e.target.value)
-                        : undefined
-                    }
+                    onChange={e => {
+                      if (f.name === "vertical") setSector(e.target.value);
+                      setSelectedValues(v => ({...v, [f.name]: e.target.value}));
+                    }}
                     multiple={f.type === "multiselect"}
                     size={f.type === "multiselect" ? 6 : undefined}
                     defaultValue={
@@ -137,13 +141,14 @@ export function Form({
                   />
                 ) : (
                   <input
+                    key={f.name + (f.currency || "")}
                     name={f.name}
                     type={f.type || "text"}
-                    defaultValue={initial[f.name] ?? ""}
+                    defaultValue={(f.currencyFor && selectedValues[f.currencyFor.field] !== initial[f.currencyFor.field]) || initial[f.name] == null ? "" : f.currency === "toman" ? Number(initial[f.name]) * 10 : initial[f.name]}
                     required={f.required !== false}
-                    min={f.min}
-                    max={f.max}
-                    step={f.step}
+                    min={f.min == null ? undefined : f.min * (f.currency === "toman" ? 10 : 1)}
+                    max={f.max == null ? undefined : f.max * (f.currency === "toman" ? 10 : 1)}
+                    step={f.currency === "toman" ? (f.step ?? 1) * 10 : f.step}
                     minLength={f.type === "password" ? 12 : undefined}
                     maxLength={f.type === "number" ? undefined : (f.max ?? 254)}
                     dir={
@@ -288,11 +293,13 @@ export function Table({
           {rows.map((r, i) => (
             <Localized key={r.id || r.day || i}><tr className={r.managerActivated?"manager-activated":undefined}>
               {columns.map(([k, , type]) => (
-                <Localized key={k}><td title={String(r[k] ?? "")}>
+                <Localized key={k}><td title={type === "money" ? rialAmount(r[k]) + " ریال" : String(r[k] ?? "")}>
                   {type === "managerActivation"
                     ? r[k] ? <ManagerActivationBadge active/> : "—"
                     : type === "money"
-                    ? amount(r[k])
+                    ? rialAmount(r[k]) + " ریال"
+                    : type === "number" ? amount(r[k])
+                    : type === "metric" ? (["personal_sales", "group_sales"].includes(r.metric) ? rialAmount(r[k]) + " ریال" : amount(r[k]))
                     : type === "date"
                       ? date(r[k], locale)
                       : type === "status"
@@ -319,7 +326,7 @@ export function Table({
 export function Stat({
   label,
   value,
-  unit = "تومان",
+  unit = "ریال",
 }: {
   label: string;
   value: unknown;
@@ -328,7 +335,7 @@ export function Stat({
   return (
     <Localized><div className="portal-stat">
       <small>{label}</small>
-      <strong>{value === null || value === "—" ? "—" : amount(value)}</strong>
+      <strong>{value === null || value === "—" ? "—" : unit === "ریال" ? rialAmount(value) : amount(value)}</strong>
       <em>{unit}</em>
     </div></Localized>
   );

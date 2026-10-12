@@ -1,3 +1,4 @@
+import { outboxRetrySchema } from "./outbox-model";
 import {
   ticketCreateSchema,
   ticketReplySchema,
@@ -61,6 +62,7 @@ const reason = z.object({ reason: text });
 export function validateClient(path: string, method: string, data: unknown) {
   const p = path.split("?")[0].split("/");
   let schema: z.ZodTypeAny | undefined;
+  if (p.join("/") === "admin/outbox") schema = outboxRetrySchema;
   if (p.join("/") === "cart/quote")
     schema = z.object({ items: cartItemsSchema });
   if (p[0] === "checkouts" && !p[1]) schema = checkoutSchema;
@@ -306,6 +308,11 @@ export function validateClient(path: string, method: string, data: unknown) {
                 "email_from",
                 "kavenegar_key",
                 "sms_template",
+                "sms_template_register",
+                "sms_template_login",
+                "sms_template_reset",
+                "sms_template_security",
+                "sms_template_contact",
                 "sms_sender",
                 "zarinpal_merchant",
           "zibal_merchant",

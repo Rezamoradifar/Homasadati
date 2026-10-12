@@ -1,5 +1,6 @@
 "use client";
 
+import { rialAmount } from "./client";
 import {tomanToRial} from '../commerce/club-tiers';
 import Localized from "../i18n/Localized";
 import PrivilegeCard from "../../app/PrivilegeCard";
@@ -144,7 +145,7 @@ export function TravelCards({
                             type: "select",
                             options: products.rows.map((p: RecordData) => [
                               p.id,
-                              p.title + " · " + amount(p.price) + " تومان",
+                              p.title + " · " + rialAmount(p.price) + " ریال",
                             ]),
                           },
                           {
@@ -154,8 +155,9 @@ export function TravelCards({
                           },
                           {
                             name: "amount",
-                            label: "اعتبار درخواستی (تومان)",
-                            type: "number",
+                            label: "اعتبار درخواستی (ریال)",
+                            currency: "toman",
+                      type: "number",
                             min: 1,
                             max: selected.available,
                           },
@@ -257,9 +259,9 @@ export function AdminTravel({
       {(d) => (
         <Localized><>
           <p className="portal-notice">
-            اعتبار صادرشده آزاد: {amount(d.liability.available)} تومان ·
-            رزروشده: {amount(d.liability.reserved)} · مصرف‌شده:{" "}
-            {amount(d.liability.spent)}. این تعهد غیرنقدی جدا از موجودی کیف پول
+            اعتبار صادرشده آزاد: {rialAmount(d.liability.available)} ریال ·
+            رزروشده: {rialAmount(d.liability.reserved)} · مصرف‌شده:{" "}
+            {rialAmount(d.liability.spent)}. این تعهد غیرنقدی جدا از موجودی کیف پول
             است.
           </p>
           {role !== "support" && (
@@ -293,8 +295,9 @@ export function AdminTravel({
                       },
                       {
                         name: "amount",
-                        label: "مبلغ اعتبار (تومان)",
-                        type: "number",
+                        label: "مبلغ اعتبار (ریال)",
+                        currency: "toman",
+                      type: "number",
                         min: 1,
                       },
                       {
@@ -394,8 +397,8 @@ export function AdminTravel({
               </h3>
               <p>{selected.note}</p>
               <p>
-                مابه‌التفاوت: {amount(selected.quoted_total - selected.amount)}{" "}
-                تومان
+                مابه‌التفاوت: {rialAmount(selected.quoted_total - selected.amount)}{" "}
+                ریال
               </p>
               <Form
                 fields={[

@@ -1,3 +1,4 @@
+import { outboxAttemptLimit } from "./outbox-policy";
 import { all, one, run, now } from "./schema";
 import { setting } from "./providers";
 import { captchaConfig } from "./captcha";
@@ -76,7 +77,7 @@ export function serviceReadiness() {
       "SELECT COUNT(*) n FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.published=1 AND (COALESCE(json_extract(d.details,'$.titleEn'),'')='' OR COALESCE(json_extract(d.details,'$.titleAr'),'')='' OR COALESCE(json_extract(d.details,'$.descriptionEn'),'')='' OR COALESCE(json_extract(d.details,'$.descriptionAr'),'')='')",
     )!.n,
     failedNotifications: one(
-      "SELECT COUNT(*) n FROM p_outbox WHERE status IN ('pending','retry','sending') AND attempts>=8",
+      `SELECT COUNT(*) n FROM p_outbox WHERE status IN ('pending','retry','sending') AND attempts>=${outboxAttemptLimit}`,
     )!.n,
     events: all(
       "SELECT area,code,created_at FROM p_service_events ORDER BY id DESC LIMIT 20",

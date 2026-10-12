@@ -27,6 +27,7 @@ const fa = (v: number) => v.toLocaleString("fa-IR");
 const rtl = (text: string) => "\u202B" + text + "\u202C";
 function short(v: number, unit: string) {
   if (unit === "count") return fa(v);
+  v *= 10;
   if (Math.abs(v) >= 1e9) return fa(+(v / 1e9).toFixed(1)) + " میلیارد";
   if (Math.abs(v) >= 1e6) return fa(+(v / 1e6).toFixed(1)) + " میلیون";
   if (Math.abs(v) >= 1e3) return fa(+(v / 1e3).toFixed(0)) + " هزار";
@@ -102,7 +103,7 @@ export default function LiveChart({ office = false }: {office?: boolean}) {
           {d && (
             <div className="live-chart-now">
               <strong>
-                {short(d.current, d.unit)} {d.unit === "toman" ? "تومان" : "عضو"}
+                {short(d.current, d.unit)} {d.unit === "toman" ? "ریال" : "عضو"}
               </strong>
               <span className={d.change > 0 ? "up" : d.change < 0 ? "down" : ""}>
                 {d.change > 0 ? "▲" : d.change < 0 ? "▼" : "■"} {short(Math.abs(d.change), d.unit)} در این بازه
@@ -210,10 +211,10 @@ export default function LiveChart({ office = false }: {office?: boolean}) {
                   .map((c) => (
                     <tr key={c.t}>
                       <td>{when(c.t, interval)}</td>
-                      <td>{fa(c.o)}</td>
-                      <td>{fa(c.h)}</td>
-                      <td>{fa(c.l)}</td>
-                      <td>{fa(c.c)}</td>
+                      <td>{fa(c.o * (d.unit === "toman" ? 10 : 1))}</td>
+                      <td>{fa(c.h * (d.unit === "toman" ? 10 : 1))}</td>
+                      <td>{fa(c.l * (d.unit === "toman" ? 10 : 1))}</td>
+                      <td>{fa(c.c * (d.unit === "toman" ? 10 : 1))}</td>
                     </tr>
                   ))}
               </tbody>

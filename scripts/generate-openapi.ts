@@ -1,3 +1,4 @@
+import { outboxRetrySchema } from "../src/platform/outbox-model";
 import {
   ticketCreateSchema,
   ticketReplySchema,
@@ -133,6 +134,7 @@ const components: Record<string, z.ZodTypeAny> = {
   CancelRedemption: z.object({ id, reason: text }).strict(),
   Product: productSchema,
   CommissionPolicy: z.object({ policy: policySchema, reason: text }),
+  OutboxRetry: outboxRetrySchema,
   Notification: z
     .object({
       userIds: z.array(id).min(1).max(100),
@@ -213,6 +215,7 @@ function endpoint(
     ]),
   );
 }
+endpoint("admin/outbox", ["get", "post"], "Owner-only masked delivery failures and one audited recovery attempt (up to three per job); review provider delivery history before retrying", "OutboxRetry");
 endpoint(
   "club",
   ["get"],

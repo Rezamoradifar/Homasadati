@@ -24,12 +24,13 @@ const n = (name: string, label: string, min = 0, max = 1e12): Field => ({
   min,
   max,
 });
+const m = (name: string, label: string, min = 0, max = 1e12): Field => ({ ...n(name, label, min, max), currency: "toman" });
 const rulesFields: Field[] = [
   n("leftRatio", "ضریب شاخه چپ", 1, 100),
   n("rightRatio", "ضریب شاخه راست", 1, 100),
-  n("dailyCap", "سقف روزانه باینری (تومان؛ صفر یعنی بدون سقف)"),
+  m("dailyCap", "سقف روزانه باینری (ریال؛ صفر یعنی بدون سقف)"),
   n("carryDays", "اعتبار حجم (روز؛ صفر یعنی بدون انقضا)", 0, 3650),
-  n("personalMinimum", "حداقل خرید شخصی در بازه فعالیت (تومان)"),
+  m("personalMinimum", "حداقل خرید شخصی در بازه فعالیت (ریال)"),
   n("activityDays", "بازه فعالیت (روز)", 1, 3650),
   n("directMinimum", "حداقل معرف مستقیم دارای خرید در بازه", 0, 10000),
 ];
@@ -62,6 +63,7 @@ export function BinaryRulesPanel({ refresh, onChange }: Props) {
               </section>
               <section className="portal-card">
                 <h2>شبیه‌ساز باینری</h2>
+                <p>همه مبالغ و حجم‌های خرید به ریال هستند.</p>
                 <p>
                   سناریوی یک عضو و یک تطبیق را با قواعد ذخیره‌شده بررسی کنید.
                   این ابزار پول، امتیاز یا حجم واقعی ثبت نمی‌کند. پورسانت روی
@@ -70,10 +72,10 @@ export function BinaryRulesPanel({ refresh, onChange }: Props) {
                 </p>
                 <Form
                   fields={[
-                    n("left", "حجم چپ"),
-                    n("right", "حجم راست"),
-                    n("budget", "بودجه باقی‌مانده سفارش پس از سایر پورسانت‌ها"),
-                    n("alreadyEarned", "پورسانت باینری امروز"),
+                    m("left", "حجم چپ"),
+                    m("right", "حجم راست"),
+                    m("budget", "بودجه باقی‌مانده سفارش پس از سایر پورسانت‌ها"),
+                    m("alreadyEarned", "پورسانت باینری امروز"),
                     { ...n("rate", "نرخ باینری (%)", 0, 100), step: 0.01 },
                     {
                       name: "eligible",
@@ -140,7 +142,7 @@ export function LoyaltyRulesPanel({ refresh, onChange }: Props) {
                       label: "امتیاز خودکار خرید فعال باشد",
                       type: "checkbox",
                     },
-                    n("spendUnit", "مبلغ هر واحد خرید (تومان)", 1),
+                    m("spendUnit", "مبلغ هر واحد خرید (ریال)", 1),
                     n("pointsPerUnit", "امتیاز هر واحد خرید", 1, 1000000),
                     n(
                       "expiryDays",
@@ -501,7 +503,7 @@ export function MerchantSettlementsPanel({
           <Form
             fields={[
               { name: "merchantId", label: "شناسه پذیرنده" },
-              n("amount", "مبلغ پرداخت (تومان)", 1),
+              m("amount", "مبلغ پرداخت (ریال)", 1),
               { name: "bankReference", label: "شماره پیگیری بانکی" },
               reason,
             ]}

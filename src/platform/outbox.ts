@@ -1,3 +1,4 @@
+import { outboxAttemptLimit } from "./outbox-policy";
 import { atomic, all, one, run, type Row } from "./schema";
 import { brandName, emailBrand, providerFetch, setting } from "./providers";
 import { renderEmail, senderAddress } from "./email-template";
@@ -59,13 +60,13 @@ function currentRecipient(job: Row) {
 export async function processOutbox() {
   // Leased delivery: an interrupted worker can retry without losing the queue item.
   const jobs = all(
-    "SELECT id FROM p_outbox WHERE status IN ('pending','retry','sending') AND next_attempt<=? AND attempts<8 ORDER BY created_at,rowid LIMIT 20",
+    `SELECT id FROM p_outbox WHERE status IN ('pending','retry','sending') AND next_attempt<=? AND attempts<${outboxAttemptLimit} ORDER BY created_at,rowid LIMIT 20`,
     Date.now(),
   );
   for (const item of jobs) {
     const job = atomic<Row | undefined>(() => {
       const r = one(
-        "SELECT * FROM p_outbox WHERE id=? AND status IN ('pending','retry','sending') AND next_attempt<=? AND attempts<8",
+        `SELECT * FROM p_outbox WHERE id=? AND status IN ('pending','retry','sending') AND next_attempt<=? AND attempts<${outboxAttemptLimit}`,
         item.id,
         Date.now(),
       );

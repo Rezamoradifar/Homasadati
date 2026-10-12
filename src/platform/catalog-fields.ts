@@ -15,6 +15,7 @@ const field = (
   max?: number,
 ): Field => ({
   name: "detail_" + name,
+  currency: ["cost", "comparePrice"].includes(name) ? "toman" : undefined,
   label,
   type,
   sectors,
@@ -35,8 +36,8 @@ export const extendedCatalogFields: Field[] = [
   field("size", "اندازه / سایز"),
   field("material", "جنس"),
   section("commercial", "قیمت‌گذاری و انبار"),
-  field("cost", "بهای خرید (تومان؛ فقط مدیریت)", "number", undefined, 1e12),
-  field("comparePrice", "قیمت قبل از تخفیف (تومان)", "number", undefined, 1e12),
+  field("cost", "بهای خرید (ریال؛ فقط مدیریت)", "number", undefined, 1e12),
+  field("comparePrice", "قیمت قبل از تخفیف (ریال)", "number", undefined, 1e12),
   field("lowStock", "آستانه هشدار کمبود", "number"),
   section("logistics", "ارسال و خدمات پس از فروش", ["beauty", "craft", "leather"]),
   field("weightGrams", "وزن بسته (گرم)", "number", ["beauty", "craft", "leather"]),

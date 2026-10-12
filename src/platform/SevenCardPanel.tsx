@@ -1,4 +1,5 @@
 "use client";
+import { rialAmount } from "./client";
 import { useState } from "react";
 import { ClubAccountCard } from "./ClubAccountCard";
 import Localized from "../i18n/Localized";
@@ -123,17 +124,17 @@ function MemberStatus({ status }: { status: RecordData }) {
           <dt>تعداد کارت / جایگاه فعال</dt>
           <dd>{String(status.desks)}</dd>
           <dt>مجموع خرید محاسبه‌شده</dt>
-          <dd>{amount(status.totalPurchase)} تومان</dd>
+          <dd>{rialAmount(status.totalPurchase)} ریال</dd>
           <dt>حجم سمت چپ</dt>
-          <dd>{amount(status.leftVolume)} تومان</dd>
+          <dd>{rialAmount(status.leftVolume)} ریال</dd>
           <dt>حجم سمت راست</dt>
-          <dd>{amount(status.rightVolume)} تومان</dd>
+          <dd>{rialAmount(status.rightVolume)} ریال</dd>
           <dt>پاداش در انتظار پرداخت</dt>
-          <dd>{amount(status.pendingRewards || 0)} تومان</dd>
+          <dd>{rialAmount(status.pendingRewards || 0)} ریال</dd>
           <dt>سقف هفتگی جایگاه‌های روشن</dt>
-          <dd>{amount(status.weeklyCapToman || 0)} تومان</dd>
+          <dd>{rialAmount(status.weeklyCapToman || 0)} ریال</dd>
           <dt>موجودی ووچر</dt>
-          <dd>{amount(status.voucherBalance)} تومان</dd>
+          <dd>{rialAmount(status.voucherBalance)} ریال</dd>
         </dl>
         {status.recent?.length ? (
           <table className="portal-table">
@@ -147,7 +148,7 @@ function MemberStatus({ status }: { status: RecordData }) {
                     <td>{String(r.week).slice(0, 10)}</td>
                     <td>{String(r.desk)}</td>
                     <td>{r.void ? "برگشت‌خورده" : r.kind === "voucher" ? "ووچر" : "نقدی"}</td>
-                    <td>{amount(r.amount)}</td>
+                    <td>{rialAmount(r.amount)}</td>
                   </tr>
                 </Localized>
               ))}
@@ -233,17 +234,17 @@ function LivePanel({ plan, changed }: { plan: RecordData; changed: () => void })
                 {preview && (
                   <dl aria-live="polite">
                     <dt>فروش محاسبه‌شده</dt>
-                    <dd>{amount(preview.sales)} تومان</dd>
+                    <dd>{rialAmount(preview.sales)} ریال</dd>
                     <dt>بودجهٔ پاداش</dt>
-                    <dd>{amount(preview.budget)} تومان</dd>
+                    <dd>{rialAmount(preview.budget)} ریال</dd>
                     <dt>تعداد تعادل</dt>
                     <dd>{String(preview.matches)}</dd>
                     <dt>پاداش نقدی</dt>
-                    <dd>{amount(preview.cash)} تومان</dd>
+                    <dd>{rialAmount(preview.cash)} ریال</dd>
                     <dt>ووچر</dt>
-                    <dd>{amount(preview.voucher)} تومان</dd>
+                    <dd>{rialAmount(preview.voucher)} ریال</dd>
                     <dt>پورسانت سوختهٔ مازاد سقف</dt>
-                    <dd>{amount(preview.flushed || 0)} تومان</dd>
+                    <dd>{rialAmount(preview.flushed || 0)} ریال</dd>
                   </dl>
                 )}
                 {d.weeks?.length ? (
@@ -256,10 +257,10 @@ function LivePanel({ plan, changed }: { plan: RecordData; changed: () => void })
                         <Localized key={w.week}>
                           <tr>
                             <td>{String(w.week).slice(0, 10)}</td>
-                            <td>{amount(w.sales)}</td>
+                            <td>{rialAmount(w.sales)}</td>
                             <td>{String(w.matches)}</td>
-                            <td>{amount(w.cash)}</td>
-                            <td>{amount(w.voucher)}</td>
+                            <td>{rialAmount(w.cash)}</td>
+                            <td>{rialAmount(w.voucher)}</td>
                           </tr>
                         </Localized>
                       ))}
@@ -318,22 +319,25 @@ export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
                       fields={[
                         {
                           name: "left",
-                          label: "حجم سمت چپ (تومان)",
-                          type: "number",
+                          label: "حجم سمت چپ (ریال)",
+                          currency: "toman",
+                      type: "number",
                           min: 0,
                           required: true,
                         },
                         {
                           name: "right",
-                          label: "حجم سمت راست (تومان)",
-                          type: "number",
+                          label: "حجم سمت راست (ریال)",
+                          currency: "toman",
+                      type: "number",
                           min: 0,
                           required: true,
                         },
                         {
                           name: "earnedThisWeek",
-                          label: "پاداش منظورشده در سقف این هفته (تومان)",
-                          type: "number",
+                          label: "پاداش منظورشده در سقف این هفته (ریال)",
+                          currency: "toman",
+                      type: "number",
                           min: 0,
                           max: 15000000,
                           required: true,
@@ -347,8 +351,9 @@ export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
                         },
                         {
                           name: "budget",
-                          label: "بودجه قابل تخصیص (تومان)",
-                          type: "number",
+                          label: "بودجه قابل تخصیص (ریال)",
+                          currency: "toman",
+                      type: "number",
                           min: 0,
                           required: true,
                         },
@@ -384,15 +389,15 @@ export default function SevenCardPanel({ admin = false }: { admin?: boolean }) {
                           <dt>تعداد تعادل قابل پرداخت</dt>
                           <dd>{result.matches}</dd>
                           <dt>پاداش نقدی</dt>
-                          <dd>{amount(result.cash)}</dd>
+                          <dd>{rialAmount(result.cash)}</dd>
                           <dt>ووچر خرید</dt>
-                          <dd>{amount(result.voucher)}</dd>
+                          <dd>{rialAmount(result.voucher)}</dd>
                           <dt>پورسانت سوختهٔ مازاد سقف</dt>
-                          <dd>{amount(result.flushed || 0)}</dd>
+                          <dd>{rialAmount(result.flushed || 0)}</dd>
                           <dt>مانده سمت چپ</dt>
-                          <dd>{amount(result.leftCarry)}</dd>
+                          <dd>{rialAmount(result.leftCarry)}</dd>
                           <dt>مانده سمت راست</dt>
-                          <dd>{amount(result.rightCarry)}</dd>
+                          <dd>{rialAmount(result.rightCarry)}</dd>
                         </dl>
                       </Localized>
                     )}

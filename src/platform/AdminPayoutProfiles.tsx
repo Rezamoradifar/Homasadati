@@ -20,6 +20,7 @@ export function AdminPayoutProfiles({ refresh, onChange }: { refresh: number; on
     <Localized>
       <div className="portal-card">
         <h2>اطلاعات بانکی اعضا</h2>
+        <p className="portal-notice">استعلام خودکار هویت و مالکیت حساب متصل نیست. تأیید این بخش، بررسی کارشناس با ثبت مرجع استعلام است.</p>
         <p>
           پیش از تأیید، مطابقت نام صاحب حساب، کد ملی، شماره کارت و شبا را از
           طریق استعلام بانکی بررسی کنید. برداشت فقط به شبای تأییدشده واریز می‌شود.

@@ -251,7 +251,7 @@ function award(
   notify(
     user,
     "پورسانت جدید",
-    `${amount.toLocaleString("fa-IR")} تومان در انتظار پایان مهلت لغو`,
+    `${(amount*10).toLocaleString("fa-IR")} ریال در انتظار پایان مهلت لغو`,
   );
   return id;
 }
