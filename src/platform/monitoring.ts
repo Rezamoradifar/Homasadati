@@ -1,3 +1,4 @@
+import { outboxAttemptLimit } from "./outbox-policy";
 import { statfsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createHash, timingSafeEqual } from "node:crypto";
@@ -34,7 +35,7 @@ export function operationalStatus() {
     checks.offsite = fresh("offsite_last_success", 36 * 3600000);
     checks.notifications =
       one(
-        "SELECT COUNT(*) n FROM p_outbox WHERE status IN ('pending','retry','sending') AND attempts>=8",
+        `SELECT COUNT(*) n FROM p_outbox WHERE status IN ('pending','retry','sending') AND attempts>=${outboxAttemptLimit}`,
       )!.n === 0;
     const disk = statfsSync(
       dirname(resolve(process.env.DATABASE_PATH || "./data/homay.sqlite")),

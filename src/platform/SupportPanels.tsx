@@ -363,7 +363,7 @@ export function BinarySchedulePanel({ refresh, onChange }: Props) {
                 columns={[
                   ["order_id", "شناسه سفارش"],
                   ["cycle_key", "دوره"],
-                  ["amount", "پورسانت (تومان)", "money"],
+                  ["amount", "پورسانت (ریال)", "money"],
                   ["matches", "تعداد تطبیق"],
                   ["created_at", "زمان پردازش", "date"],
                 ]}
@@ -393,7 +393,7 @@ export function MerchantReviewPanel({
           rows={rows}
           columns={[
             ["merchant_name", "پذیرنده"],
-            ["amount", "مبلغ (تومان)", "money"],
+            ["amount", "مبلغ (ریال)", "money"],
             ["bank_reference", "شماره پیگیری"],
             ["first_name", "ثبت‌کننده"],
             ["second_name", "بررسی‌کننده دوم"],

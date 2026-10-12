@@ -1,39 +1,15 @@
 "use client";
+import dynamic from "next/dynamic";
 import { ManagerActivationBadge } from "./ManagerActivationBadge";
-import { MarketerOffice } from "./MarketerOffice";
-import { AdminNewsletter } from "./AdminNewsletter";
-import { NetworkTree } from "./NetworkTree";
-import { Wishlist } from "./Wishlist";
 import { memberTabIcons } from "./member-icons";
-import SevenCardPanel from "./SevenCardPanel";
-import { TicketsPanel, BinarySchedulePanel } from "./SupportPanels";
-import {
-  BinaryRulesPanel,
-  LoyaltyRulesPanel,
-  AccessPanel,
-  MerchantOperationsPanel,
-  MerchantSettlementsPanel,
-  MerchantPanel,
-  AdminNotifications,
-} from "./PlatformControls";
 
 import Localized from "../i18n/Localized";
 import { useEffect, useState } from "react";
 import "./panel.css";
 import { useSiteSettings } from "./SiteSettings";
-import { OperationsDashboard } from "./OperationsDashboard";
-import { TravelCards, AdminTravel } from "./TravelCards";
 import { LanguagePicker } from "../i18n/SiteLocale";
 import ThemeToggle from "../commerce/ThemeToggle";
 import AuthPanel from "./AuthPanel";
-import AdminHome from "./AdminHome";
-import BinaryPanel from "./BinaryPanel";
-import {
-  ClubCatalogAdmin,
-  PointsAdmin,
-  RedemptionsAdmin,
-  LoyaltyPanel,
-} from "./ClubPanels";
 import { visibleAdminTabs, searchAdminGroups } from "./admin-navigation";
 import { memberNavigation } from "./member-navigation";
 import { useSiteLocale } from "../i18n/SiteLocale";
@@ -54,17 +30,39 @@ import {
   Subscriptions,
   Wallet,
 } from "./UserPanel";
-import {
-  AdminCrud,
-  AdminNetwork,
-  AdminOrders,
-  AdminUsers,
-  AdminWithdrawals,
-  CommissionPolicy,
-  FinancialDashboard,
-  Flags,
-  Settings,
-} from "./AdminPanel";
+function PanelLoading() { return <Localized><p role="status">در حال دریافت اطلاعات…</p></Localized>; }
+const AdminCrud = dynamic(() => import("./AdminPanel").then(m => m.AdminCrud), { loading: PanelLoading });
+const AdminNetwork = dynamic(() => import("./AdminPanel").then(m => m.AdminNetwork), { loading: PanelLoading });
+const AdminOrders = dynamic(() => import("./AdminPanel").then(m => m.AdminOrders), { loading: PanelLoading });
+const AdminUsers = dynamic(() => import("./AdminPanel").then(m => m.AdminUsers), { loading: PanelLoading });
+const AdminWithdrawals = dynamic(() => import("./AdminPanel").then(m => m.AdminWithdrawals), { loading: PanelLoading });
+const CommissionPolicy = dynamic(() => import("./AdminPanel").then(m => m.CommissionPolicy), { loading: PanelLoading });
+const FinancialDashboard = dynamic(() => import("./AdminPanel").then(m => m.FinancialDashboard), { loading: PanelLoading });
+const Flags = dynamic(() => import("./AdminPanel").then(m => m.Flags), { loading: PanelLoading });
+const Settings = dynamic(() => import("./AdminPanel").then(m => m.Settings), { loading: PanelLoading });
+const BinaryRulesPanel = dynamic(() => import("./PlatformControls").then(m => m.BinaryRulesPanel), { loading: PanelLoading });
+const LoyaltyRulesPanel = dynamic(() => import("./PlatformControls").then(m => m.LoyaltyRulesPanel), { loading: PanelLoading });
+const AccessPanel = dynamic(() => import("./PlatformControls").then(m => m.AccessPanel), { loading: PanelLoading });
+const MerchantOperationsPanel = dynamic(() => import("./PlatformControls").then(m => m.MerchantOperationsPanel), { loading: PanelLoading });
+const MerchantSettlementsPanel = dynamic(() => import("./PlatformControls").then(m => m.MerchantSettlementsPanel), { loading: PanelLoading });
+const MerchantPanel = dynamic(() => import("./PlatformControls").then(m => m.MerchantPanel), { loading: PanelLoading });
+const AdminNotifications = dynamic(() => import("./PlatformControls").then(m => m.AdminNotifications), { loading: PanelLoading });
+const TicketsPanel = dynamic(() => import("./SupportPanels").then(m => m.TicketsPanel), { loading: PanelLoading });
+const BinarySchedulePanel = dynamic(() => import("./SupportPanels").then(m => m.BinarySchedulePanel), { loading: PanelLoading });
+const TravelCards = dynamic(() => import("./TravelCards").then(m => m.TravelCards), { loading: PanelLoading });
+const AdminTravel = dynamic(() => import("./TravelCards").then(m => m.AdminTravel), { loading: PanelLoading });
+const ClubCatalogAdmin = dynamic(() => import("./ClubPanels").then(m => m.ClubCatalogAdmin), { loading: PanelLoading });
+const PointsAdmin = dynamic(() => import("./ClubPanels").then(m => m.PointsAdmin), { loading: PanelLoading });
+const RedemptionsAdmin = dynamic(() => import("./ClubPanels").then(m => m.RedemptionsAdmin), { loading: PanelLoading });
+const LoyaltyPanel = dynamic(() => import("./ClubPanels").then(m => m.LoyaltyPanel), { loading: PanelLoading });
+const AdminNewsletter = dynamic(() => import("./AdminNewsletter").then(m => m.AdminNewsletter), { loading: PanelLoading });
+const MarketerOffice = dynamic(() => import("./MarketerOffice").then(m => m.MarketerOffice), { loading: PanelLoading });
+const OperationsDashboard = dynamic(() => import("./OperationsDashboard").then(m => m.OperationsDashboard), { loading: PanelLoading });
+const NetworkTree = dynamic(() => import("./NetworkTree").then(m => m.NetworkTree), { loading: PanelLoading });
+const Wishlist = dynamic(() => import("./Wishlist").then(m => m.Wishlist), { loading: PanelLoading });
+const AdminHome = dynamic(() => import("./AdminHome"), { loading: PanelLoading });
+const BinaryPanel = dynamic(() => import("./BinaryPanel"), { loading: PanelLoading });
+const SevenCardPanel = dynamic(() => import("./SevenCardPanel"), { loading: PanelLoading });
 export default function Portal({ admin = false }: { admin?: boolean }) {
   const site = useSiteSettings();
   const { locale, dictionary } = useSiteLocale();
@@ -384,7 +382,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
               )}
             </aside>
             <main className="portal-main">
-              {!admin && user.companyPositions && !user.companyPositions.exempt && user.companyPositions.status!=="qualified" && <section className="portal-card position-company-note" role="status"><h2>{user.companyPositions.status==="suspended"?"جایگاه شرکتی معلق است":"مهلت فعال‌سازی دو جایگاه اول"}</h2><p>مهلت جایگاه شرکتی: ۳۵ روز از تخصیص · {Number(user.companyPositions.remainingDays).toLocaleString("fa-IR")} روز باقی‌مانده</p><p>خرید واقعی لازم: {Math.max(0,20000000-user.companyPositions.realPurchaseToman).toLocaleString("fa-IR")} تومان</p><a className="portal-button" href="/shop">خرید و فعال‌سازی جایگاه</a></section>}
+              {!admin && user.companyPositions && !user.companyPositions.exempt && user.companyPositions.status!=="qualified" && <section className="portal-card position-company-note" role="status"><h2>{user.companyPositions.status==="suspended"?"جایگاه شرکتی معلق است":"مهلت فعال‌سازی دو جایگاه اول"}</h2><p>مهلت جایگاه شرکتی: ۳۵ روز از تخصیص · {Number(user.companyPositions.remainingDays).toLocaleString("fa-IR")} روز باقی‌مانده</p><p>خرید واقعی لازم: {(Math.max(0,20000000-user.companyPositions.realPurchaseToman)*10).toLocaleString("fa-IR")} ریال</p><a className="portal-button" href="/shop">خرید و فعال‌سازی جایگاه</a></section>}
               <div className="portal-title">
                 <div>
                   <h1>{!admin && tab === "dashboard" ? "حساب من" : current?.[1] || "پنل هما نت"}</h1>

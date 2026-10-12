@@ -108,7 +108,7 @@ function countOrders(cutoff: string) {
     if (cashback && wallet(o.user_id)) {
       run("INSERT INTO p_card_cashbacks VALUES(?,?,?,0,?)", o.id, o.user_id, cashback, now());
       ledger(o.user_id, "card-cashback:" + o.id, "card_cashback", o.id, cashback);
-      notify(o.user_id, "بازگشت وجه کارت سیمرغ", `${cashback.toLocaleString("fa-IR")} تومان به کیف پول شما اضافه شد.`);
+      notify(o.user_id, "بازگشت وجه کارت سیمرغ", `${(cashback*10).toLocaleString("fa-IR")} ریال به کیف پول شما اضافه شد.`);
     }
     // A buyer's own order never creates commission volume on any of their desks.
     if(positionMode()) {
@@ -237,7 +237,7 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
       ));
     const earned = one("SELECT COALESCE(SUM(amount),0) n FROM p_card_payouts WHERE user_id=? AND week=?", m.user_id, key)!.n;
     if (earned)
-      notify(m.user_id, "تسویهٔ هفتگی باشگاه", `${earned.toLocaleString("fa-IR")} تومان پاداش در این هفته برای شما ثبت شد.`);
+      notify(m.user_id, "تسویهٔ هفتگی باشگاه", `${(earned*10).toLocaleString("fa-IR")} ریال پاداش در این هفته برای شما ثبت شد.`);
   }
   result.carriedBudget = unlimited ? 0 : budget;
   saveSetting("seven_card_budget_carry", String(result.carriedBudget));
@@ -315,7 +315,7 @@ export function releaseCardRewards(nowMs=Date.now()) {
       run("UPDATE p_card_due SET status='released' WHERE match_id=?",due.match_id);released++;
       const totals=notices.get(due.user_id)||{cash:0,voucher:0};totals[due.kind as 'cash'|'voucher']+=due.amount;notices.set(due.user_id,totals);
     }
-    for(const [user,total] of notices) notifyInApp(user,"پاداش جایگاه‌ها آزاد شد","پاداش نقدی: "+total.cash.toLocaleString("fa-IR")+" تومان · ووچر: "+total.voucher.toLocaleString("fa-IR")+" تومان. جزئیات در گزارش حجم و پاداش جایگاه‌ها قابل مشاهده است.");
+    for(const [user,total] of notices) notifyInApp(user,"پاداش جایگاه‌ها آزاد شد","پاداش نقدی: "+(total.cash*10).toLocaleString("fa-IR")+" ریال · ووچر: "+(total.voucher*10).toLocaleString("fa-IR")+" ریال. جزئیات در گزارش حجم و پاداش جایگاه‌ها قابل مشاهده است.");
     return released;
   });
 }

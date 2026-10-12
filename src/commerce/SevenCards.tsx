@@ -11,7 +11,7 @@ export default function SevenCards({cards=sevenLevelCards}:{cards?:typeof sevenL
     <Localized>
       <section className="brand-chapter">
         <h2>طرح کارت‌های باشگاه</h2>
-        <p>مبالغ این جدول به تومان است. سقف پاداش، درآمد تضمین‌شده نیست.</p>
+        <p>مبالغ این جدول به ریال است. سقف پاداش، درآمد تضمین‌شده نیست.</p>
         <div style={{ overflowX: "auto" }}>
           <table className="portal-table">
             <caption>بازه خرید، جایگاه‌ها و سقف هفتگی</caption>
@@ -28,12 +28,12 @@ export default function SevenCards({cards=sevenLevelCards}:{cards?:typeof sevenL
               {cards.map((card) => (
                 <tr key={card.level}>
                   <td>{locale === "en" ? card.english : card.name}</td>
-                  <td>{n(card.minToman)}</td>
+                  <td>{n(card.minToman * 10)}</td>
                   <td>
-                    {card.maxExclusiveToman ? n(card.maxExclusiveToman) : "—"}
+                    {card.maxExclusiveToman ? n(card.maxExclusiveToman * 10) : "—"}
                   </td>
                   <td>{n(card.desks)}</td><td>{n(card.branches)}</td>
-                  <td>{n(card.weeklyCapToman)}</td>
+                  <td>{n(card.weeklyCapToman * 10)}</td>
                 </tr>
               ))}
             </tbody>
@@ -41,12 +41,12 @@ export default function SevenCards({cards=sevenLevelCards}:{cards?:typeof sevenL
         </div>
         <p>
           در مرز بازه‌ها، مبلغ خرید در کارت بالاتر قرار می‌گیرد؛ برای مثال خرید
-          ۲۰ میلیون تومان در بازه سرو است.
+          ۲۰۰ میلیون ریال در بازه سرو است.
         </p>
-        <p>هر کاربر ۷ جایگاه ثابت دارد. با هر ۱۰ میلیون تومان خرید تجمعی واجد شرایط، جایگاه بعدی روشن می‌شود؛ در ۷۰ میلیون تومان هر ۷ جایگاه روشن است و خرید بیشتر جایگاه تازه‌ای ایجاد نمی‌کند.</p>
+        <p>هر کاربر ۷ جایگاه ثابت دارد. با هر ۱۰۰ میلیون ریال خرید تجمعی واجد شرایط، جایگاه بعدی روشن می‌شود؛ در ۷۰۰ میلیون ریال هر ۷ جایگاه روشن است و خرید بیشتر جایگاه تازه‌ای ایجاد نمی‌کند.</p>
         <ul>
           <li>
-            تعادل ۳۰ میلیون تومان در هر سمت، یک پاداش ۴٫۹ میلیون تومانی ایجاد
+            تعادل ۳۰۰ میلیون ریال در هر سمت، یک پاداش ۴۹ میلیون ریالی ایجاد
             می‌کند.
           </li>
           <li>
@@ -56,7 +56,7 @@ export default function SevenCards({cards=sevenLevelCards}:{cards?:typeof sevenL
           <li>حجم استفاده‌نشده برای تعادل‌های بعدی باقی می‌ماند.</li>
           <li>خرید شخصی، جایگاه‌ها را فعال می‌کند ولی برای هیچ‌کدام از جایگاه‌های خود خریدار حجم پورسانت ایجاد نمی‌کند.</li>
           <li>
-            خرید اولیه و یکجای سیمرغ مشمول ۶ میلیون تومان بازگشت وجه است؛ خرید
+            خرید اولیه و یکجای سیمرغ مشمول ۶۰ میلیون ریال بازگشت وجه است؛ خرید
             مرحله‌ای مشمول نیست.
           </li>
         </ul>

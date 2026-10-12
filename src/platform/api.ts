@@ -1,3 +1,4 @@
+import { outboxFailures, retryOutbox } from "./outbox-admin";
 import {purchaseActivationReceipt} from "./purchase-activation-receipt";
 import {launchDashboard} from "./launch-dashboard";
 import { memberStartGuide } from "./start-guide";
@@ -791,6 +792,14 @@ export function reports(from: string, to: string) {
 }
 async function admin(req: Request, path: string[], data: Row, url: URL) {
   const resource = path[1];
+  if (resource === "outbox") {
+    const owner = userOf(req, ["superadmin"]);
+    if (path.length !== 2) throw new ApiError(404, "not_found");
+    if (req.method === "GET") return json(outboxFailures(query(url).page));
+    if (req.method !== "POST") throw new ApiError(405, "method_not_allowed");
+    limit("outbox-retry:" + owner.id, 20, 300);
+    return json(retryOutbox(owner.id, data));
+  }
   if(resource === "launch-dashboard") {
     userOf(req,["superadmin"]);
     if(req.method!=="GET") throw new ApiError(405,"method_not_allowed");

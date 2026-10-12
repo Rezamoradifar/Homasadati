@@ -20,6 +20,7 @@ export default function ServiceHealth({ refresh }: { refresh: number }) {
                   تنظیم، یک آزمون واقعی انجام دهید.
                 </p>
                 <div className="service-health-grid">
+                  <article><h3>استعلام رسمی هویت و حساب بانکی</h3><strong>متصل نیست</strong><p>بررسی فعلی توسط کارشناس و با ثبت مرجع انجام می‌شود.</p></article>
                   {d.services.map(
                     (s: { name: string; configured: boolean }) => (
                       <Localized key={s.name}>

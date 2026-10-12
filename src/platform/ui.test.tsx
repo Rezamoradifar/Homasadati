@@ -137,7 +137,7 @@ describe("Panels use actual APIs and SQLite", () => {
     await waitFor(() => expect(JSON.parse(one("SELECT value FROM p_settings WHERE key='seven_card_plan_draft'")!.value).decisions.counterScope).toBe("desk"));
     await user.click(screen.getByRole("button", { name: "محاسبه" }));
     await screen.findByText("تعداد تعادل قابل پرداخت");
-    expect(screen.getByText("پاداش نقدی").nextElementSibling?.textContent).toContain("۱۰٬۵۰۰٬۰۰۰");
+    expect(screen.getByText("پاداش نقدی").nextElementSibling?.textContent).toContain("۱۰۵٬۰۰۰٬۰۰۰");
   });
 
   it("loads the member account and wallet in English while preserving the member name", async () => {
@@ -336,11 +336,11 @@ describe("Panels use actual APIs and SQLite", () => {
         ).leftRatio,
       ).toBe(2),
     );
-    await user.type(await screen.findByLabelText("حجم چپ"), "2000");
-    await user.type(screen.getByLabelText("حجم راست"), "1000");
+    await user.type(await screen.findByLabelText("حجم چپ"), "20000");
+    await user.type(screen.getByLabelText("حجم راست"), "10000");
     await user.type(
       screen.getByLabelText("بودجه باقی‌مانده سفارش پس از سایر پورسانت‌ها"),
-      "500",
+      "5000",
     );
     await user.type(screen.getByLabelText("نرخ باینری (%)"), "10");
     await user.click(screen.getByRole("button", { name: "محاسبه سناریو" }));
@@ -521,7 +521,7 @@ describe("Panels use actual APIs and SQLite", () => {
     await user.type(within(dialog).getByLabelText("عنوان"), "سفال آزمون");
     await user.selectOptions(within(dialog).getByLabelText("حوزه"), "craft");
     await user.type(within(dialog).getByLabelText(/نوع/), "product");
-    await user.type(within(dialog).getByLabelText("قیمت (تومان)"), "250000");
+    await user.type(within(dialog).getByLabelText("قیمت (ریال)"), "2500000");
     await user.type(
       within(dialog).getByLabelText("موجودی / ظرفیت قابل فروش"),
       "3",

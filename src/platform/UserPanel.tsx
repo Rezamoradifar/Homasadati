@@ -1,4 +1,5 @@
 "use client";
+import { rialAmount } from "./client";
 import {NotificationCenter} from "./NotificationCenter";
 import ResponsiveImage from "../components/media/ResponsiveImage";
 import {useCallback} from "react";
@@ -40,14 +41,14 @@ import {
 export const orderColumns: [string, string, string?][] = [
   ["title", "سفارش"],
   ["vertical", "حوزه"],
-  ["amount", "مبلغ (تومان)", "money"],
+  ["amount", "مبلغ (ریال)", "money"],
   ["status", "وضعیت", "status"],
   ["payment_method", "پرداخت"],
   ["created_at", "تاریخ", "date"],
 ];
 export const commissionColumns: [string, string, string?][] = [
   ["kind", "نوع"],
-  ["amount", "مبلغ (تومان)", "money"],
+  ["amount", "مبلغ (ریال)", "money"],
   ["status", "وضعیت", "status"],
   ["available_at", "زمان آزادسازی", "date"],
   ["created_at", "تاریخ", "date"],
@@ -103,7 +104,7 @@ export function Dashboard({ refresh, user, onNavigate }: {
 
           {d.wallet.debt > 0 && (
             <Notice
-              error={`بدهی ناشی از برگشت پورسانت: ${amount(d.wallet.debt)} تومان؛ برداشت تا تسویه ممکن نیست.`}
+              error={`بدهی ناشی از برگشت پورسانت: ${rialAmount(d.wallet.debt)} ریال؛ برداشت تا تسویه ممکن نیست.`}
             />
           )}
           <div className="portal-card">
@@ -124,8 +125,8 @@ export function Dashboard({ refresh, user, onNavigate }: {
                 </div>
                 <p>
                   {amount(Math.round(d.rank.progress * 100))}٪ · فروش شخصی مورد
-                  نیاز: {amount(d.rank.next.personal_threshold)} · فروش گروهی:{" "}
-                  {amount(d.rank.next.group_threshold)} تومان
+                  نیاز: {rialAmount(d.rank.next.personal_threshold)} · فروش گروهی:{" "}
+                  {rialAmount(d.rank.next.group_threshold)} ریال
                 </p>
               </>
             ) : (
@@ -326,7 +327,7 @@ export function Orders({
                 JSON.parse(selected.policy || "{}").orderTerms?.catalogDetails
                   ?.sku || "—",
               ],
-              ["مبلغ", amount(selected.amount) + " تومان"],
+              ["مبلغ", rialAmount(selected.amount) + " ریال"],
               ["وضعیت", labels[selected.status]],
               ["روش پرداخت", labels[selected.payment_method]],
               ["مرجع پرداخت", selected.payment_ref || "تأیید نشده"],
@@ -456,15 +457,16 @@ export function Wallet({
             ) : d.limits ? (
               <>
                 <p>
-                  حداقل {amount(d.limits.min)} و حداکثر {amount(d.limits.max)}{" "}
-                  تومان برای هر درخواست؛ واریز به شبای{" "}
+                  حداقل {rialAmount(d.limits.min)} و حداکثر {rialAmount(d.limits.max)}{" "}
+                  ریال برای هر درخواست؛ واریز به شبای{" "}
                   <span dir="ltr">{profile?.iban}</span>
                 </p>
                 <Form
                   fields={[
                     {
                       name: "amount",
-                      label: "مبلغ (تومان)",
+                      label: "مبلغ (ریال)",
+                      currency: "toman",
                       type: "number",
                       min: d.limits.min,
                       max: Math.min(d.limits.max, d.wallet.available),
@@ -631,7 +633,7 @@ export function Missions({ refresh }: { refresh: number }) {
             <Localized key={m.id}><div className="portal-card">
               <h2>{m.title}</h2>
               <p>
-                {labels[m.metric]}: {amount(m.progress)} از {amount(m.target)}
+                {labels[m.metric]}: {["personal_sales", "group_sales"].includes(m.metric) ? <>{rialAmount(m.progress)} از {rialAmount(m.target)} ریال</> : <>{amount(m.progress)} از {amount(m.target)}</>}
               </p>
               <div
                 className="portal-progress"

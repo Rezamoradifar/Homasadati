@@ -2,7 +2,7 @@
 import { ManagerActivationBadge } from "./ManagerActivationBadge";
 import { useState } from "react";
 import Localized from "../i18n/Localized";
-import { amount, api, date, RecordData } from "./client";
+import { rialAmount, api, date, RecordData } from "./client";
 import { DataState, useData } from "./Widgets";
 
 type Leg = { members: number; volume: number; carry: number };
@@ -35,7 +35,7 @@ export function PersonalPositions({data,onOpen}:{data:RecordData;onOpen:(id:stri
   return <section className={"personal-positions refined-positions"+(data.managerActivated?" manager-activated":"")} dir="ltr" data-position-version={data.version || "aa-2026-10-06"} data-tree-design="2026-10-06-refined">
     <header className="position-header" dir="rtl"><div><span className="position-eyebrow">باشگاه هما نت</span><h3>جایگاه‌های من</h3><p>کارت خریداری‌شده مشخص می‌کند چند جایگاه از جایگاه‌های ۱ تا ۷ روشن باشد.</p></div><div className="position-count"><strong>{data.desks.toLocaleString("fa-IR")}<small> / ۷</small></strong><span>جایگاه فعال</span></div></header>
     {data.member&&<div className="position-owner" dir="rtl"><img src="/assets/brand/homanet-mark-orange.png" alt="هما نت"/><div><strong>{data.member.name}</strong><ManagerActivationBadge active={data.managerActivated}/><small dir="ltr">{data.member.referral_code}</small></div></div>}
-    {data.company&&<div className="position-company-note" dir="rtl" role="status"><strong>{data.company.exempt ? "جایگاه‌های دائماً فعال" : data.company.status==="qualified"?"شرط خرید واقعی تکمیل شد":data.company.status==="suspended"?"جایگاه شرکتی معلق است":"جایگاه شرکتی با مهلت خرید"}</strong>{data.company.exempt ? <p>این حساب شرط خرید و مهلت زمانی ندارد.</p> : <p>خرید واقعی: {amount(data.company.realPurchaseToman)} از ۲۰ میلیون تومان · {Number(data.company.remainingDays).toLocaleString("fa-IR")} روز باقی‌مانده</p>}</div>}
+    {data.company&&<div className="position-company-note" dir="rtl" role="status"><strong>{data.company.exempt ? "جایگاه‌های دائماً فعال" : data.company.status==="qualified"?"شرط خرید واقعی تکمیل شد":data.company.status==="suspended"?"جایگاه شرکتی معلق است":"جایگاه شرکتی با مهلت خرید"}</strong>{data.company.exempt ? <p>این حساب شرط خرید و مهلت زمانی ندارد.</p> : <p>خرید واقعی: {rialAmount(data.company.realPurchaseToman)} از ۲۰۰ میلیون ریال · {Number(data.company.remainingDays).toLocaleString("fa-IR")} روز باقی‌مانده</p>}</div>}
     <div className="position-legend" dir="rtl"><span><i className="is-active"/>فعال</span><span><i/>خاموش</span><strong>ظرفیت معرفی مستقیم: {data.directCapacity.toLocaleString("fa-IR")}</strong></div>
     <details className="position-help" dir="rtl"><summary>راهنمای استفاده از نقشه جایگاه‌ها</summary><ol><li>این هفت خانه، جایگاه‌های همین حساب هستند. یک جایگاه را لمس کنید تا حجم چپ، راست و سیوینگ آن را ببینید.</li><li>شاخه‌های پایین نقشه محل ورود اعضای جدید هستند. محل هر ورودی را قبل از ارسال دعوت در پنل دعوت انتخاب کنید.</li><li>با ثبت‌نام هر عضو، انتخاب محل مصرف می‌شود؛ برای نفر بعد دوباره انتخاب کنید. حجم فقط از خریدهای بعد از فعال‌شدن همان جایگاه محاسبه می‌شود.</li></ol><a className="portal-button secondary" href="/account?tab=network">انتخاب محل و لینک دعوت</a></details>
     {full&&<p className="position-next-entry" dir="rtl" role="status">{next ? <>ورودی بعدی: شاخه {Number(next.ordinal).toLocaleString("fa-IR")} · جایگاه {Number(next.desk).toLocaleString("fa-IR")} · {next.leg==="left"?"چپ":"راست"}</> : "محل ورودی بعدی انتخاب نشده است؛ پیش از اشتراک‌گذاری دعوت، یک شاخه خالی انتخاب کنید."}</p>}
@@ -52,9 +52,9 @@ export function PersonalPositions({data,onOpen}:{data:RecordData;onOpen:(id:stri
       </li>)}
     </ul></details>
     <div className="position-inspector" dir="rtl" aria-live="polite"><div className="position-inspector-title"><div><span>جایگاه {selected.toLocaleString("fa-IR")}</span><strong>{labels[selected-1]}</strong></div><span className={"position-badge "+(current.active?"active":"inactive")}>{current.active?"فعال":"خاموش"}</span></div>
-    <div className="position-sales"><div><span>فروش این هفته</span><strong>{amount(current.weeklySales || 0)}<small> تومان</small></strong></div><div><span>مجموع فروش</span><strong>{amount(current.totalSales || 0)}<small> تومان</small></strong></div></div>
-    <div className="position-leg-details"><div><span>شاخهٔ چپ</span><strong>{amount(current.leftVolume)} <small>تومان</small></strong><p>سیوینگ: <b>{amount(current.savings.left)}</b></p></div><div><span>شاخهٔ راست</span><strong>{amount(current.rightVolume)} <small>تومان</small></strong><p>سیوینگ: <b>{amount(current.savings.right)}</b></p></div></div>
-    </div><p className="position-volume-note" dir="rtl">حجم این جایگاه از خریدهای پس از فعال‌شدن آن محاسبه می‌شود؛ خریدهای قبل از فعال‌سازی پورسانت ندارند.</p><p className="position-purchase-note" dir="rtl">هر ۱۰ میلیون تومان خرید واجد شرایط و پرداخت‌شده، یک جایگاه را روشن می‌کند. محاسبهٔ پورسانت پس از پایان مهلت برگشت خرید انجام می‌شود.</p>
+    <div className="position-sales"><div><span>فروش این هفته</span><strong>{rialAmount(current.weeklySales || 0)}<small> ریال</small></strong></div><div><span>مجموع فروش</span><strong>{rialAmount(current.totalSales || 0)}<small> ریال</small></strong></div></div>
+    <div className="position-leg-details"><div><span>شاخهٔ چپ</span><strong>{rialAmount(current.leftVolume)} <small>ریال</small></strong><p>سیوینگ: <b>{rialAmount(current.savings.left)}</b></p></div><div><span>شاخهٔ راست</span><strong>{rialAmount(current.rightVolume)} <small>ریال</small></strong><p>سیوینگ: <b>{rialAmount(current.savings.right)}</b></p></div></div>
+    </div><p className="position-volume-note" dir="rtl">حجم این جایگاه از خریدهای پس از فعال‌شدن آن محاسبه می‌شود؛ خریدهای قبل از فعال‌سازی پورسانت ندارند.</p><p className="position-purchase-note" dir="rtl">هر ۱۰۰ میلیون ریال خرید واجد شرایط و پرداخت‌شده، یک جایگاه را روشن می‌کند. محاسبهٔ پورسانت پس از پایان مهلت برگشت خرید انجام می‌شود.</p>
   </section>;
 }
 
@@ -85,10 +85,10 @@ function NodeCard({ n, onOpen, root }: { n: TreeNode; onOpen: (id: string) => vo
         {n.level ? " · کارت " + n.level.toLocaleString("fa-IR") : ""}
         {n.sponsoredByRoot && !root ? " · معرفی مستقیم" : ""}
       </small>
-      <small>خرید شخصی هفته: {amount(n.weeklyPersonalVolume)}</small>
-      <small>فروش شبکه این هفته: {amount(n.weeklySales)}</small>
-      <small>مجموع فروش شبکه: {amount(n.totalSales)}</small>
-      <small>سیوینگ چپ: {amount(n.savings.left)} · سیوینگ راست: {amount(n.savings.right)}</small>
+      <small>خرید شخصی هفته: {rialAmount(n.weeklyPersonalVolume)}</small>
+      <small>فروش شبکه این هفته: {rialAmount(n.weeklySales)}</small>
+      <small>مجموع فروش شبکه: {rialAmount(n.totalSales)}</small>
+      <small>سیوینگ چپ: {rialAmount(n.savings.left)} · سیوینگ راست: {rialAmount(n.savings.right)}</small>
       <span className="tree-legs">
         <span>چپ {n.left.members.toLocaleString("fa-IR")}</span>
         <span>راست {n.right.members.toLocaleString("fa-IR")}</span>
@@ -128,11 +128,11 @@ function LegSummary({ label, leg }: { label: string; leg: Leg }) {
         </div>
         <div>
           <dt>حجم خرید کل</dt>
-          <dd>{amount(leg.volume)}</dd>
+          <dd>{rialAmount(leg.volume)}</dd>
         </div>
         <div>
           <dt>حجم باقی‌مانده برای تعادل</dt>
-          <dd>{amount(leg.carry)}</dd>
+          <dd>{rialAmount(leg.carry)}</dd>
         </div>
       </dl>
     </div>
@@ -244,7 +244,7 @@ export function NetworkTree({ user, refresh, admin = false }: { user: RecordData
                 <LegSummary label="شاخهٔ چپ" leg={d.tree.left} />
                 <div className="tree-root-stats" dir="rtl">
                   <span>خرید شخصی</span>
-                  <strong>{amount(d.tree.personalVolume)}</strong>
+                  <strong>{rialAmount(d.tree.personalVolume)}</strong>
                   <small>عضویت از {date(d.tree.joinedAt)}</small>
                 </div>
                 <LegSummary label="شاخهٔ راست" leg={d.tree.right} />

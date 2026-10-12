@@ -77,6 +77,7 @@ export const errors: Record<string, string> = {
     "برای برداشت، ابتدا تأیید دومرحله‌ای را در بخش امنیت حساب فعال کنید.",
   withdrawal_limits: "مبلغ برداشت خارج از حداقل یا سقف تعیین‌شده است.",
   cancellation_expired: "مهلت لغو این سفارش تمام شده است.",
+  outbox_retry_unavailable: "این اعلان قابل تلاش مجدد نیست؛ فهرست را تازه کنید و وضعیت گیرنده و ارسال را بررسی کنید.",
   invalid_state: "وضعیت فعلی اجازهٔ این تغییر را نمی‌دهد.",
   network_cycle: "این جابه‌جایی باعث حلقه در شبکه می‌شود.",
   rate_limited: "درخواست‌ها بیش از حد مجاز است؛ کمی بعد دوباره تلاش کنید.",
@@ -220,3 +221,6 @@ export const labels: Record<string, string> = {
   left: "چپ",
   right: "راست",
 };
+
+/** Format stored toman as rial; counts must continue to use amount(). */
+export const rialAmount = (n: unknown) => (Number(n ?? 0) * 10).toLocaleString("fa-IR");

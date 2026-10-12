@@ -3,7 +3,7 @@ import ResponsiveImage from "../components/media/ResponsiveImage";
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import Localized from "../i18n/Localized";
-import { amount, api, date, labels } from "./client";
+import { rialAmount, api, date, labels } from "./client";
 import { DataState, useData } from "./Widgets";
 
 /** Heart toggle saved to the member's wishlist in the database. */
@@ -53,7 +53,7 @@ export function Wishlist({ refresh, onNavigate }: { refresh: number; onNavigate:
                     {image && <ResponsiveImage src={image} alt={p.title} sizes="96px" loading="lazy" />}
                     <small>{labels[p.vertical]}</small>
                     <h2>{p.title}</h2>
-                    <strong>{amount(p.price)} تومان</strong>
+                    <strong>{rialAmount(p.price)} ریال</strong>
                     <small>{p.stock > 0 ? "موجود" : "ناموجود"} · افزوده‌شده در {date(p.created_at)}</small>
                     <div className="auth-actions">
                       <button className="portal-button" onClick={() => onNavigate("catalog")}>

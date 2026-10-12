@@ -33,9 +33,9 @@ export default function Economics() {
       </div>
       <div className="economic-inputs">
         {[
-          ["price", "درآمد هر سفارش (تومان)"],
-          ["variable", "هزینه متغیر هر سفارش (تومان)"],
-          ["fixed", "هزینه ثابت ماهانه (تومان)"],
+          ["price", "درآمد هر سفارش (ریال)"],
+          ["variable", "هزینه متغیر هر سفارش (ریال)"],
+          ["fixed", "هزینه ثابت ماهانه (ریال)"],
           ["orders", "تعداد سفارش ماهانه"],
         ].map(([key, label]) => (
           <Localized key={key}><label>
@@ -62,13 +62,13 @@ export default function Economics() {
           <>
             <p>
               حاشیه مشارکت هر سفارش:{" "}
-              <strong>{format(contribution)} تومان</strong>
+              <strong>{format(contribution)} ریال</strong>
             </p>
             <p>
               مازاد / کسری عملیاتی ماهانه:{" "}
               <strong>
                 {format(contribution * Number(v.orders) - Number(v.fixed))}{" "}
-                تومان
+                ریال
               </strong>
             </p>
             <p>
