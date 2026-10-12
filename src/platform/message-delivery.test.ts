@@ -44,10 +44,11 @@ it('renders readable withdrawal outcomes and bounded SMS previews with the full 
 });
 it('uses approved per-purpose OTP names and keeps the existing template as fallback',async()=>{
  saveSetting('sms_template','existing-approved');saveSetting('sms_template_reset','reset-approved');
- const templates:string[]=[];
- vi.stubGlobal('fetch',vi.fn(async(_url,init)=>{const data=new URLSearchParams(init.body);templates.push(data.get('template')!);expect(data.get('token')).toMatch(/^\d{6}$/);return Response.json({return:{status:200}});}));
+ const templates:string[]=[],receptors:string[]=[];
+ vi.stubGlobal('fetch',vi.fn(async(_url,init)=>{const data=new URLSearchParams(init.body);templates.push(data.get('template')!);receptors.push(data.get('receptor')!);expect(data.get('token')).toMatch(/^\d{6}$/);return Response.json({return:{status:200}});}));
  const a=await sendOtp('+989133333333','reset');const b=await sendOtp('+989144444444','login');
  expect(templates).toEqual(['reset-approved','existing-approved']);expect(a).not.toHaveProperty('code');expect(b).not.toHaveProperty('code');vi.unstubAllGlobals();
+ expect(receptors).toEqual(['09133333333','09144444444']);
 });
 it('lets only the administrator save approved purpose-template names through the real API',async()=>{
  const {handle}=await import('./api');const {session,SESSION_COOKIE}=await import('./security');
