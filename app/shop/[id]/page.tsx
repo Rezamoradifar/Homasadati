@@ -4,7 +4,6 @@ import {siteLocale} from "../../../src/i18n/server";
 import {catalogCopy,isPublicSpecification} from "../../../src/i18n/catalog";
 
 import Localized from "../../../src/i18n/Localized";
-import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { one } from "../../../src/platform/schema";
@@ -62,13 +61,13 @@ export default async function ProductPage({
           ]),
         ]}
       />
-      <main id="commerce-main" className="shop-wrap">
-        <p>
+      <main id="commerce-main" className="shop-wrap product-page">
+        <p className="product-breadcrumb">
           <a href="/shop">فروشگاه</a> / {brand?.name} / {copy.title}
         </p>
         <div className="shop-product">
           <ProductGallery images={images} title={copy.title}/>
-          <div>
+          <div className="product-detail">
             <span className="commerce-eyebrow">
               {brand?.latin} / {d.sku || p.subtype}
             </span>
@@ -90,9 +89,7 @@ export default async function ProductPage({
               <a href="/help">راهنمای خرید و پشتیبانی</a>
             </div>
             <p className="shop-notice">
-              مبلغ نهایی هنگام ثبت سفارش از دیتابیس کنترل می‌شود. هزینه جداگانه
-              حمل در این نسخه دریافت نمی‌شود؛ شرایط تحویل درج‌شده محصول را
-              بخوانید. بازگشت وجه سفارش واجد شرایط به کیف پول حساب انجام می‌شود.
+              قیمت و موجودی پیش از ثبت سفارش بررسی می‌شوند. هزینهٔ جداگانه‌ای برای ارسال دریافت نمی‌شود؛ شرایط تحویل محصول را پیش از خرید بخوانید. مبلغ سفارش‌های واجد شرایط بازگشت وجه، به کیف پول حساب شما برمی‌گردد.
             </p>
             {brand && (
               <a
@@ -117,7 +114,7 @@ export default async function ProductPage({
               return value ? (
                 <Localized key={f.name}><div>
                   <dt>{f.label}</dt>
-                  <dd>{String(value)}</dd>
+                  <dd>{f.options?.find(([id]) => id === String(value))?.[1] ?? String(value)}</dd>
                 </div></Localized>
               ) : null;
             })}

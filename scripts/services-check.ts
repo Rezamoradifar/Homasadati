@@ -1,6 +1,6 @@
 import { loadEnvConfig } from "@next/env";
 import { setting } from "../src/platform/providers";
-import { platformDb } from "../src/platform/schema";
+import { all, platformDb } from "../src/platform/schema";
 loadEnvConfig(process.cwd());
 async function checkSms() {
   const key = setting("kavenegar_key"),
@@ -29,6 +29,7 @@ async function checkSms() {
       config.return?.status === 200 ? config.entries?.debugmode : "unknown",
     template: template || null,
     templateApproval: "unknown",
+    liveSmsTest: "not_run",
   };
   if (template) {
     for (let page = 1; page <= 10; page++) {
@@ -38,7 +39,7 @@ async function checkSms() {
         (row: { name?: string }) => row.name === template,
       );
       if (found) {
-        result.templateApproval = found.approvalStatus || "unknown";
+        result.templateApproval = found.approvalStatus ?? "unknown";
         break;
       }
       if (page >= Number(data.metadata?.TotalPages || 1)) {
@@ -55,6 +56,13 @@ async function main() {
     JSON.stringify(
       {
         sms,
+        notifications: {
+          smsConfigured: !!setting("kavenegar_key") && !!setting("sms_sender"),
+          emailConfigured: !!setting("resend_key") && !!setting("email_from"),
+          // Aggregate counts only: never log recipient addresses or message bodies.
+          queue: all("SELECT channel,status,COUNT(*) AS count FROM p_outbox GROUP BY channel,status"),
+          liveDeliveryTest: "not_run",
+        },
         zibal: {
           configured: !!setting("zibal_merchant"),
           callbackUrl: process.env.APP_ORIGIN
