@@ -9,6 +9,7 @@ import { policySchema, Policy } from "./validation";
 import { loadDictionary, translateText, type SiteLocale } from "../i18n/core";
 import { renderEmail, senderAddress, type EmailBrand } from "./email-template";
 import { DEFAULT_SITE_EMAIL } from "./site-defaults";
+import { smsReceptor } from "./sms-receptor";
 export function setting(key: string) {
   const r = one("SELECT * FROM p_settings WHERE key=?", key);
   return r ? (r.secret ? decrypt(r.value) : r.value) : undefined;
@@ -154,7 +155,7 @@ export async function sendOtp(target: string, purpose: string, locale: SiteLocal
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({
-            receptor: target.replace(/^\+/, "00"),
+            receptor: smsReceptor(target),
             token: code,
             template,
           }).toString(),

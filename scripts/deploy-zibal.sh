@@ -4,6 +4,16 @@ set -Eeuo pipefail
 app=/opt/homay/app
 release="${1:?Pass the full Zibal release SHA}"
 [[ "$release" =~ ^[a-f0-9]{40}$ ]] || exit 1
+shift
+skip_merchant=0
+preserve_schedule=0
+for option in "$@"; do
+  case "$option" in
+    --skip-merchant) skip_merchant=1 ;;
+    --preserve-schedule) preserve_schedule=1 ;;
+    *) echo "Unknown deployment option: $option"; exit 2 ;;
+  esac
+done
 [[ "$(id -u)" == 0 ]] || { echo 'Run as root.'; exit 1; }
 exec 9>/opt/homay/deploy-zibal.lock
 flock -n 9 || { echo 'Another deployment is running.'; exit 1; }
@@ -19,7 +29,7 @@ fi
 systemctl is-active --quiet homay.service
 systemctl is-active --quiet homay-worker.service
 merchant=""
-if [[ "${2:-}" != --skip-merchant ]]; then
+if ((skip_merchant == 0)); then
   read -r -s -p 'Paste the Zibal merchant (hidden): ' merchant </dev/tty
   printf '\n' >/dev/tty
   [[ "$merchant" =~ ^[A-Za-z0-9_-]{6,200}$ && "$merchant" != zibal ]] || { echo 'Invalid production merchant.'; exit 1; }
@@ -113,7 +123,7 @@ for config in .env .env.local .env.production .env.production.local; do
 done
 chown -R homay:homay "$deploy_dir"
 chmod 700 "$deploy_dir"
-runuser -u homay -- nice -n 10 bash -c 'cd "$1" && npm ci --include=dev --no-audit --no-fund && npm run typecheck && npm exec -- vitest run src/platform/message-delivery.test.ts src/platform/notification-center.test.tsx src/platform/welcome.test.ts src/platform/email-template.test.ts src/components/media/responsive-image.test.tsx src/platform/schema-statements.test.ts src/platform/invitation-sharing.test.tsx src/platform/purchase-flow.test.tsx src/platform/member-journey.test.ts src/platform/launch-operations.test.ts scripts/external-monitor.test.mjs src/platform/network-tree.test.ts src/platform/card-activity-report.test.ts src/platform/placement-preview.test.tsx src/platform/order-tracking.test.tsx src/platform/start-guide.test.ts src/platform/member-start-guide.test.tsx src/platform/experience-metrics.test.ts src/platform/account-quick-summary.test.tsx src/platform/client-resilience.test.ts src/platform/referral-change.test.ts src/platform/referral-placement-client.test.ts src/platform/brand-member.test.ts src/platform/seven-level-ui.test.tsx src/platform/seven-level-plan.test.ts src/platform/club-position-labels.test.tsx src/platform/four-referrals.test.ts src/platform/referral-placement-ui.test.tsx src/platform/seven-card-engine.test.ts src/platform/checkout.test.ts src/platform/card-positions.test.ts src/platform/card-positions-ui.test.tsx src/platform/marketer-office.test.ts src/platform/company-members.test.ts src/platform/migrate-company-credit.test.ts src/platform/migrate-payment-methods.test.ts && DATABASE_PATH="$1/.deploy-validation.sqlite" npm run build' bash "$stage"
+runuser -u homay -- nice -n 10 bash -c 'cd "$1" && npm ci --include=dev --no-audit --no-fund && npm run typecheck && npm exec -- vitest run src/platform/outbox.test.ts src/platform/message-delivery.test.ts src/platform/notification-center.test.tsx src/platform/welcome.test.ts src/platform/email-template.test.ts src/components/media/responsive-image.test.tsx src/platform/schema-statements.test.ts src/platform/invitation-sharing.test.tsx src/platform/purchase-flow.test.tsx src/platform/member-journey.test.ts src/platform/launch-operations.test.ts scripts/external-monitor.test.mjs src/platform/network-tree.test.ts src/platform/card-activity-report.test.ts src/platform/placement-preview.test.tsx src/platform/order-tracking.test.tsx src/platform/start-guide.test.ts src/platform/member-start-guide.test.tsx src/platform/experience-metrics.test.ts src/platform/account-quick-summary.test.tsx src/platform/client-resilience.test.ts src/platform/referral-change.test.ts src/platform/referral-placement-client.test.ts src/platform/brand-member.test.ts src/platform/seven-level-ui.test.tsx src/platform/seven-level-plan.test.ts src/platform/club-position-labels.test.tsx src/platform/four-referrals.test.ts src/platform/referral-placement-ui.test.tsx src/platform/seven-card-engine.test.ts src/platform/checkout.test.ts src/platform/card-positions.test.ts src/platform/card-positions-ui.test.tsx src/platform/marketer-office.test.ts src/platform/company-members.test.ts src/platform/migrate-company-credit.test.ts src/platform/migrate-payment-methods.test.ts && DATABASE_PATH="$1/.deploy-validation.sqlite" npm run build' bash "$stage"
 [[ "$(g rev-parse HEAD)" == "$old_head" && "$(config_hash)" == "$initial_config" ]] || { echo 'STOP: source or config changed during build.'; exit 1; }
 systemctl stop homay.service homay-worker.service
 stopped=1
@@ -130,8 +140,10 @@ new_node=1
 mv "$stage/.next" "$app/.next"
 new_build=1
 runuser -u homay -- bash -c 'cd "$1" && npm run platform:setup' bash "$app"
-schedule_changed=1
-runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production node --import tsx scripts/configure-card-schedule.ts "$2"' bash "$app" "$deploy_dir/card-schedule-before.json"
+if ((preserve_schedule == 0)); then
+  schedule_changed=1
+  runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production node --import tsx scripts/configure-card-schedule.ts "$2"' bash "$app" "$deploy_dir/card-schedule-before.json"
+fi
 if [[ -n "$merchant" ]]; then
 printf '%s' "$merchant" | runuser -u homay -- bash -c 'cd "$1" && NODE_ENV=production npx tsx scripts/configure-zibal.ts' bash "$app"
 fi
