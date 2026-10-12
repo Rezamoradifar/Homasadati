@@ -2,7 +2,7 @@
   "Footer": {
     "brand": {
       "name": "Homanet",
-      "tagline": "Rooted in Iran. Connected to the world. Discover a more thoughtful way to travel, shop, and belong."
+      "tagline": "Travel, handicrafts, leather, beauty and Homanet club services."
     },
     "aria": {
       "footer": "Homanet footer",
@@ -41,9 +41,9 @@
       "leather": "Iranian leather"
     },
     "newsletter": {
-      "eyebrow": "A world of possibility",
-      "title": "Good things, delivered thoughtfully.",
-      "description": "Stories, new discoveries, and a little inspiration from Homanet.",
+      "eyebrow": "HOMANET NEWSLETTER",
+      "title": "Keep up with Homanet",
+      "description": "Product introductions, services and news from the customer club.",
       "email": "Email address",
       "placeholder": "you@example.com",
       "submit": "Join our newsletter",
@@ -87,7 +87,7 @@
       "linkedin": "LinkedIn",
       "youtube": "YouTube"
     },
-    "global": "One home. A world of possibilities.",
+    "global": "Homanet: shopping, services and order tracking.",
     "copyright": "© {year} Homanet. All rights reserved.",
     "madeWithLove": "Made with love in Iran for the world",
     "backToTop": "Back to top",

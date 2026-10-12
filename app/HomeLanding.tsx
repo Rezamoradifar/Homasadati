@@ -7,7 +7,7 @@ import ResponsiveImage from "../src/components/media/ResponsiveImage";
 
 import {useSiteLocale} from '../src/i18n/SiteLocale';
 import ClubPreview from './ClubPreview';
-import {BrandCollection} from './VisualCollections';
+import CatalogHighlights from './CatalogHighlights';
 import SiteHeader from '../src/commerce/SiteHeader';
 import ServiceLanding from './ServiceLanding';
 import {HeritageSections} from './HeritageSections';
@@ -71,7 +71,7 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
  <PublicContent/>
  <BrandIntroduction onStory={()=>open('story')}/>
  <HeritageSections/><TravelCollection onEnquire={enquire}/>
- <CraftSection onEnquire={enquire}/><BrandCollection sector="leather"/><BeautySection onCategory={open}/>
+ <CraftSection onEnquire={enquire}/><CatalogHighlights/><BeautySection onCategory={open}/>
  <CreativeStudio onEnquire={enquire}/>
  <section className="gallery-section" aria-labelledby="gallery-title"><div className="gallery-heading"><h2 id="gallery-title">{c.gallery}</h2><p>{c.gallerySub}</p><button onClick={()=>{setGalleryIndex(0);open('gallery');}}>{c.viewGallery}<Arrow size={18}/></button></div><div className="gallery-strip">{galleryImages.map((src,i)=><Localized key={src}><button aria-label={`${c.picture} ${i+1}`} onClick={()=>{setGalleryIndex(i);open('gallery');}}><ResponsiveImage src={`/assets/${src}`} alt={`${c.gallery} — ${i+1}`} sizes={i === galleryImages.length - 1 ? "(max-width: 767px) 90vw, 16vw" : "(max-width: 767px) 45vw, 16vw"} loading="lazy"/></button></Localized>)}</div></section>
  <section id="club" className="club-banner"><div className="club-heading"><h2>{c.club}</h2><p className="club-description">{c.clubSub}</p></div><div className="club-right"><div className="club-perks">{c.perks.map((p,i)=>{const Icon=[Gift,Diamond,UsersThree][i];return <Localized key={p}><div><Icon weight="thin" size={30}/><p>{p}</p></div></Localized>;})}</div><button className="gold-button" onClick={()=>open('club')}>{c.join}<Arrow size={19}/></button></div></section>
