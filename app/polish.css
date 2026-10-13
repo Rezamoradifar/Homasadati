@@ -22,8 +22,8 @@ html[dir="rtl"] :is(.discovery-brand strong,.discovery-opening h1,.discovery-ope
 .commerce .product-detail h1 { font-size:clamp(24px,3vw,34px); line-height:1.65; }
 .commerce .product-detail>p { line-height:1.9; }
 .commerce .product-detail .commerce-eyebrow { overflow-wrap:anywhere; }
-.commerce .quantity-selector button { width:44px; height:44px; }
-.commerce .quantity-selector input { min-height:44px; }
+.commerce .quantity-selector button, .portal .quantity-selector button { width:44px; height:44px; }
+.commerce .quantity-selector input, .portal .quantity-selector input { min-height:44px; font-size:16px; }
 .commerce .checkout-item .cart-remove { min-height:44px; }
 .commerce .checkout-item img { object-fit:contain; }
 .commerce .product-purchase-panel>a, .commerce .add-cart-feedback a { display:inline-flex; align-items:center; min-height:44px; }
