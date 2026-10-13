@@ -30,7 +30,7 @@ it("does not confuse OTP configuration with notification delivery readiness or s
   await vi.waitFor(() => expect(fixture.close).toHaveBeenCalledOnce());
   const result = JSON.parse(log.mock.calls[0][0]);
   expect(result.sms).toMatchObject({ configured: true, templateApproval: 0, liveSmsTest: "not_run" });
-  expect(result.notifications).toEqual({ smsConfigured: false, emailConfigured: false, queue: [{ channel: "sms", status: "retry", count: 2 }], liveDeliveryTest: "not_run" });
+  expect(result.notifications).toEqual({ smsConfigured: false, smsSenderMode: "provider_default", emailConfigured: false, queue: [{ channel: "sms", status: "retry", count: 2 }], liveDeliveryTest: "not_run" });
   expect(fetch).toHaveBeenCalledTimes(3);
   expect(log.mock.calls[0][0]).not.toContain("private-fixture-key");
 });
@@ -46,4 +46,15 @@ it("reports configured notification channels without claiming successful deliver
   expect(result.notifications).toMatchObject({ emailConfigured: true, smsConfigured: false, liveDeliveryTest: "not_run" });
   expect(fetch).not.toHaveBeenCalled();
   expect(log.mock.calls[0][0]).not.toMatch(/private-email-key|private-sender/);
+});
+
+it("recognizes a configured provider default without printing the line or key",async()=>{
+ fixture.settings={kavenegar_key:"private-fixture-key"};
+ vi.stubGlobal("fetch",vi.fn(async()=>Response.json({return:{status:200},entries:{defaultsender:"10004535",debugmode:"disabled"}})));
+ const log=vi.spyOn(console,"log").mockImplementation(()=>{});
+ await import("./services-check");await vi.waitFor(()=>expect(fixture.close).toHaveBeenCalledOnce());
+ const result=JSON.parse(log.mock.calls[0][0]);
+ expect(result.sms.defaultSenderAvailable).toBe(true);
+ expect(result.notifications).toMatchObject({smsConfigured:true,smsSenderMode:"provider_default",liveDeliveryTest:"not_run"});
+ expect(log.mock.calls[0][0]).not.toMatch(/private-fixture-key|10004535/);
 });

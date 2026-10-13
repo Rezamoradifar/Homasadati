@@ -102,7 +102,7 @@ export async function processOutbox() {
       } else {
         const key = setting("kavenegar_key"),
           sender = setting("sms_sender");
-        if (!key || !sender) throw new ApiError(503, "sms_not_configured");
+        if (!key) throw new ApiError(503, "sms_not_configured");
         const response = await providerFetch(
           `https://api.kavenegar.com/v1/${encodeURIComponent(key)}/sms/send.json`,
           {
@@ -110,7 +110,8 @@ export async function processOutbox() {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({
               receptor: smsReceptor(job.target),
-              sender,
+              // Kavenegar uses the account's defaultsender when omitted.
+              ...(sender ? { sender } : {}),
               message: isWelcomeJob(job.body)
                 ? welcomeSms(
                     job.body,

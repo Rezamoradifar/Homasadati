@@ -296,3 +296,40 @@ it.each([
     expect(send).toHaveBeenCalledTimes(1);
   },
 );
+
+it("uses the provider default sender without overriding an existing explicit sender", async () => {
+  const fetch = vi.fn(async (_url, init) => {
+    const body = new URLSearchParams(init.body);
+    expect(body.get("sender")).toBe("test-sender");
+    return accepted();
+  });
+  vi.stubGlobal("fetch", fetch);
+  const id = queue("sms");
+  await processOutbox();
+  expect(one("SELECT status FROM p_outbox WHERE id=?",id)!.status).toBe("sent");
+  expect(fetch).toHaveBeenCalledOnce();
+});
+it("omits sender when unset so Kavenegar can use the account default", async () => {
+  saveSetting("sms_sender", "");
+  try {
+    const fetch = vi.fn(async (url, init) => {
+      expect(String(url)).toContain("/sms/send.json");
+      const body = new URLSearchParams(init.body);
+      expect(body.has("sender")).toBe(false);
+      expect(body.get("receptor")).toBe("09121234567");
+      return accepted();
+    });
+    vi.stubGlobal("fetch", fetch);
+    const id=queue("sms");await processOutbox();
+    expect(one("SELECT status FROM p_outbox WHERE id=?",id)!.status).toBe("sent");
+    expect(fetch).toHaveBeenCalledOnce();
+  } finally { saveSetting("sms_sender", "test-sender"); }
+});
+it("keeps a rejected default-sender request for retry", async () => {
+  saveSetting("sms_sender", "");
+  try {
+    vi.stubGlobal("fetch",vi.fn(async()=>Response.json({return:{status:412}})));
+    const id=queue("sms");await processOutbox();
+    expect(one("SELECT status,last_error FROM p_outbox WHERE id=?",id)).toMatchObject({status:"retry",last_error:"provider_rejected"});
+  } finally { saveSetting("sms_sender", "test-sender"); }
+});
