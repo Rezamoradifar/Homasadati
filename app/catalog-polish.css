@@ -7,6 +7,8 @@ html body .portal-member .portal-product {
   overflow: hidden;
   min-width: 0;
 }
+
+
 html body .shop-card {
   grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
   gap: 10px 18px;
@@ -186,4 +188,30 @@ html body .portal-member .portal-product .portal-product-specs summary {
   html body .portal-member .portal-product .member-product-price {
     font-size: 20px;
   }
+}
+
+/* Matte product frames keep photographs legible in either theme. */
+html body .shop-card > a:first-child,
+html body .portal-member .portal-product .member-product-image,
+html body .product-gallery-main {
+  box-sizing: border-box;
+  background: #eee8dc;
+  border: 1px solid #d8cebc;
+  border-radius: 14px;
+  padding: 8px;
+  overflow: hidden;
+  box-shadow: none;
+}
+html body .shop-card > a:first-child img,
+html body .portal-member .portal-product .member-product-image img,
+html body .product-gallery-main img {
+  background: #fff;
+  border-radius: 8px;
+  object-fit: contain;
+}
+html[data-theme="dark"] body .shop-card > a:first-child,
+html[data-theme="dark"] body .portal-member .portal-product .member-product-image,
+html[data-theme="dark"] body .product-gallery-main {
+  background: #213343;
+  border-color: #486071;
 }
