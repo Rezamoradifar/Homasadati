@@ -130,3 +130,97 @@ html body .commerce .checkout-summary .checkout-pay {
     font-size: 26px;
   }
 }
+
+/* Long translated labels keep their space beside fixed navigation icons. */
+html body .discovery-menu-service-copy,
+html body .discovery-menu-heading h2 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+html body .discovery-menu-services a {
+  gap: 12px;
+}
+html body .discovery-menu-services a > svg,
+html body .discovery-menu-shop > svg {
+  flex-shrink: 0;
+}
+html body .discovery-menu-links :is(a, button) {
+  min-width: 0;
+  line-height: 1.8;
+  text-align: start;
+}
+html body .discovery-menu-shop {
+  gap: 12px;
+}
+html body .commerce .checkout-methods > button {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+html body .commerce .checkout-review dt {
+  color: var(--hn-text-muted);
+}
+html[data-theme="dark"] body .commerce .checkout-steps li {
+  color: var(--hn-text-muted);
+}
+html[data-theme="dark"] body .commerce .checkout-steps li[aria-current="step"] {
+  color: var(--hn-text);
+}
+html[data-theme="dark"] body .commerce .checkout-new-address {
+  background: var(--hn-surface);
+  color: var(--hn-text);
+  border-color: var(--hn-border-strong);
+}
+@media (max-width: 767px) {
+  html body .discovery-brand {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  html body .discovery-brand span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  html body .discovery-brand img,
+  html body .discovery-header-actions {
+    flex-shrink: 0;
+  }
+  html body .portal .portal-title {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  html body .portal .portal-title > *,
+  html body .portal .support-message {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  html body .commerce .checkout-item-quantity > strong,
+  html body .commerce .checkout-review-row > strong {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+}
+@media (max-width: 700px) {
+  html body .portal .portal-header {
+    height: auto;
+    min-height: 80px;
+    padding-block: 14px;
+    flex-wrap: wrap;
+  }
+  html body .portal .portal-toplinks {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+}
+@media (max-width: 420px) {
+  html body .discovery-menu-links,
+  html body .commerce .checkout-methods {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  html body .commerce .checkout-review dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  html body .commerce .checkout-review dd {
+    margin-bottom: 12px;
+  }
+}
