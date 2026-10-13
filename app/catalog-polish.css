@@ -114,3 +114,76 @@ html[data-theme="dark"] body .portal-member .portal-product .commerce-button {
     padding: 16px;
   }
 }
+
+/* Member catalogue: purchase controls precede the optional long specifications. */
+html body .portal-member .portal-product > div {
+  gap: 8px;
+}
+html body .portal-member .portal-product .member-product-price {
+  margin: 4px 0;
+  letter-spacing: normal;
+}
+html body .portal-member .portal-product .member-product-price * {
+  letter-spacing: normal;
+}
+html body .portal-member .portal-product .wish-button {
+  align-self: flex-start;
+  width: auto;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 6px 12px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: normal;
+  text-align: start;
+}
+html body .portal-member .portal-product .wish-button svg {
+  flex-shrink: 0;
+}
+html body .portal-member .portal-product > div > .member-product-description,
+html body .portal-member .portal-product > div > .member-product-stock {
+  color: var(--hn-text-muted);
+}
+html body .portal-member .portal-product .member-product-stock {
+  display: block;
+  overflow: visible;
+  font-size: 12px;
+}
+html body .portal-member .portal-product .add-cart-form {
+  margin-top: 0;
+  padding-top: 0;
+}
+html body .portal-member .portal-product .portal-product-specs {
+  margin: 4px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--hn-border);
+}
+html body .portal-member .portal-product .portal-product-specs summary {
+  min-height: 44px;
+  line-height: 1.8;
+  font-size: 13px;
+}
+@media (max-width: 640px) {
+  html body .portal-member .portal-product .member-product-image {
+    width: 100%;
+    margin: 0;
+    align-self: stretch;
+    border-radius: 0;
+  }
+  html body .portal-member .portal-product .member-product-image img {
+    display: block;
+    height: clamp(180px, 48vw, 240px);
+    min-height: 0;
+    aspect-ratio: auto;
+    padding: 10px;
+    object-fit: contain;
+  }
+  html body .portal-member .portal-product h2 {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  html body .portal-member .portal-product .member-product-price {
+    font-size: 20px;
+  }
+}

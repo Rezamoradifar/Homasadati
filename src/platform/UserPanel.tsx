@@ -214,11 +214,15 @@ function Product({
         <small>{labels[p.vertical]}</small>
         <h2><a href={`/shop/${p.id}`}>{copy.title}</a></h2>
         {wished !== null && <WishButton productId={p.id} initial={wished} />}
-        <p>{copy.description}</p>
+        <p className="member-product-description">{copy.description}</p>
         <strong className="member-product-price"><Money toman={p.price}/></strong>
         {p.details?.comparePrice > p.price && (
           <del><Money toman={p.details.comparePrice}/></del>
         )}
+        <p className="member-product-stock">
+          موجودی: {amount(p.stock)} · مهلت لغو: {amount(p.cancel_hours)} ساعت
+        </p>
+        <AddToCart id={p.id} stock={p.stock}/>
         {p.details?.family && (
           <button
             className="portal-button"
@@ -252,11 +256,6 @@ function Product({
             ))}
           </details>
         )}
-        <p>
-          موجودی: {amount(p.stock)} · مهلت لغو: {amount(p.cancel_hours)} ساعت
-        </p>
-        <AddToCart id={p.id} stock={p.stock}/>
-
       </div>
     </article></Localized>
   );
