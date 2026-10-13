@@ -195,7 +195,7 @@ html body .shop-card > a:first-child,
 html body .portal-member .portal-product .member-product-image,
 html body .product-gallery-main {
   box-sizing: border-box;
-  background: #eee8dc;
+  background: #eee8dc !important;
   border: 1px solid #d8cebc;
   border-radius: 14px;
   padding: 8px;
@@ -212,6 +212,6 @@ html body .product-gallery-main img {
 html[data-theme="dark"] body .shop-card > a:first-child,
 html[data-theme="dark"] body .portal-member .portal-product .member-product-image,
 html[data-theme="dark"] body .product-gallery-main {
-  background: #213343;
+  background: #213343 !important;
   border-color: #486071;
 }
