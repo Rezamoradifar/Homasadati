@@ -23,7 +23,7 @@ export default function ProductGallery({
           <ResponsiveImage
             src={images[selected]}
             alt={`${title} — تصویر ${selected + 1}`}
-            sizes="(max-width: 700px) 90vw, 46vw"
+            sizes="(max-width: 760px) calc(100vw - 36px), 46vw"
             loading="eager"
           />
         </div>
