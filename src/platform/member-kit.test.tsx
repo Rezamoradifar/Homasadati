@@ -23,3 +23,9 @@ it.each(['fa','en','ar'] as const)('keeps downloads accessible in %s',locale=>{
  expect(container.querySelector('a[href="/member-kit/guide-fa.pdf"]')?.hasAttribute('download')).toBe(true);
  expect(container.querySelector('a[href="/income-plan/presentation"]')?.hasAttribute('download')).toBe(false);
 });
+it('uses a single main heading on the public page and a section heading in the account',()=>{
+ const {rerender}=render(<MemberKit pageHeading/>);
+ expect(screen.getAllByRole('heading',{level:1})).toHaveLength(1);
+ rerender(<MemberKit/>);expect(screen.queryByRole('heading',{level:1})).toBeNull();
+ expect(screen.getByRole('heading',{level:2,name:memberKitCopy.fa.title})).toBeTruthy();
+});

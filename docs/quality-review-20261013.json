@@ -1,0 +1,90 @@
+{
+  "scope": "Local quality verification; no production capacity or security certification",
+  "fullTests": {
+    "files": 87,
+    "tests": 469,
+    "passed": true
+  },
+  "productionDependencies": {
+    "next": "15.5.27",
+    "sharp": "0.35.5",
+    "source-map-js": "1.2.2"
+  },
+  "productionAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "renderedRoutes": [
+    {
+      "path": "/",
+      "http": 200,
+      "expected": 200,
+      "ok": true,
+      "elapsedMs": 600,
+      "h1Count": 1
+    },
+    {
+      "path": "/shop",
+      "http": 200,
+      "expected": 200,
+      "ok": true,
+      "elapsedMs": 28,
+      "h1Count": 1
+    },
+    {
+      "path": "/member-kit",
+      "http": 200,
+      "expected": 200,
+      "ok": true,
+      "elapsedMs": 21,
+      "h1Count": 1
+    },
+    {
+      "path": "/quality-missing-page",
+      "http": 404,
+      "expected": 404,
+      "ok": true,
+      "elapsedMs": 19,
+      "h1Count": 1
+    }
+  ],
+  "emptyFixtureNextApiBenchmark": {
+    "requests": 120,
+    "concurrency": 6,
+    "failures": 0,
+    "elapsedMs": 253,
+    "p50Ms": 11,
+    "p95Ms": 28,
+    "scope": "local read endpoints; not a production capacity estimate"
+  },
+  "scaleReport": "quality-scale-20261013.json",
+  "publicTimingSample": {
+    "origin": "https://homanets.com/",
+    "http": 200,
+    "dnsSeconds": 3e-05,
+    "tcpSeconds": 0.000138,
+    "tlsSeconds": 4.282437,
+    "pretransferSeconds": 4.282696,
+    "firstByteSeconds": 4.512434,
+    "totalSeconds": 4.562955,
+    "note": "One request from this executor. Network/TLS dominates; not a mobile web-vitals measurement."
+  },
+  "sourceHashes": {
+    "package-lock.json": "6167d5dbb418bc4f5592baea352e2786a4711fbb05afc13c82d2a6001878baac",
+    "src/i18n/Localized.tsx": "ecfbb35bab6b81264c152b885172fb1b72e88794c18283c3a3e5b7df38811ea5",
+    "app/ScrollState.tsx": "938ae913fbd0a997c6d39eee0989296294bd3bea4e7b125f961a7f3eec5dc8f4",
+    "app/not-found.tsx": "8890a957241077821ef214de5a78e76543eaf7f4542e8e745b0b9ef91d290b19",
+    "src/platform/MemberKit.tsx": "891e088692e6b8489a1aaf6df55fc13a637bc39833a093dbcb6000ab4554d0ef"
+  },
+  "limits": [
+    "No real mobile viewport test in this browser",
+    "No production load test",
+    "No signed-in production audit",
+    "Purchase/OTP success is owner-reported",
+    "No fresh real SMS delivery or production backup restore was run"
+  ]
+}
