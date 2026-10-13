@@ -1,0 +1,94 @@
+/* The opening message has a direct next step; checkout hierarchy follows its state. */
+html body .discovery-hero-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+html body .discovery-hero-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.7;
+  text-decoration: none;
+  letter-spacing: normal;
+}
+html body .discovery-hero-primary {
+  background: var(--hn-turquoise);
+  color: #fff;
+  border: 1px solid var(--hn-turquoise);
+}
+html body .discovery-hero-secondary {
+  background: transparent;
+  border: 1px solid var(--hn-border-strong);
+  color: var(--hn-text);
+}
+html[data-theme="dark"] body .discovery-hero-primary {
+  color: #0d1322;
+}
+html body .commerce .checkout-steps {
+  gap: 12px;
+  padding: 12px;
+}
+html body .commerce .checkout-steps li {
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 12px;
+  line-height: 1.7;
+}
+html body .commerce .checkout-steps li[aria-current="step"] {
+  background: var(--hn-turquoise-soft);
+  border-color: var(--hn-turquoise);
+  color: var(--hn-text);
+}
+html body .commerce .checkout-summary .checkout-payable {
+  padding: 20px 0 16px;
+  gap: 10px;
+  border-bottom: 1px solid #425969;
+}
+html body .commerce .checkout-summary .checkout-payable > strong {
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.7;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+html body .commerce .checkout-summary .checkout-payable > strong * {
+  letter-spacing: normal;
+}
+html body .commerce .checkout-summary .checkout-pay {
+  border-radius: 12px;
+  min-height: 54px;
+  font-size: 16px;
+  letter-spacing: normal;
+}
+@media (max-width: 760px) {
+  html body .commerce .checkout-steps {
+    gap: 6px;
+    padding: 8px;
+  }
+  html body .commerce .checkout-steps li {
+    padding: 10px 4px;
+  }
+}
+@media (max-width: 600px) {
+  html body .discovery-hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+    margin-top: 18px;
+    gap: 8px;
+  }
+  html body .discovery-hero-actions a {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  html body .commerce .checkout-summary .checkout-payable > strong {
+    font-size: 26px;
+  }
+}

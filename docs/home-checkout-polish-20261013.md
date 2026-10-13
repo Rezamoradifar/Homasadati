@@ -1,0 +1,9 @@
+# Home and checkout appearance update
+
+The owner approved the next appearance pass, focused on the home opening and basket hierarchy. This release builds on approved source `b22d53dab99e6f9a1bf6151e0f91cbd8bdcb5235`.
+
+Fresh public desktop browser inspection showed that the opening's first shop CTA appeared below the four service cards. The opening headline and supporting sentence were already short, so their content was preserved. Add a primary shop link and secondary club link directly beneath that sentence, using existing authored translations and theme colors. On small screens, the links stack with 48-pixel targets. The existing lower shop link remains useful after browsing services.
+
+The basket already displayed the payable amount and semantic current-step state. Add a bordered, tinted current-step frame driven by existing `aria-current`, enlarge the payable amount with normal digit spacing, separate it from the action area, and keep the main action at least 54 pixels tall. Source order, focus behavior, checkout guards, quotes, payment methods and financial calculations are unchanged.
+
+Validation: seven tests passed across English coverage, purchase flow and quantity editing. Fresh TypeScript and production build passed; git whitespace checks passed. The final stylesheet targets only the hero links and checkout hierarchy. No new test merely asserting the CSS implementation was added. Public before-change screens were inspected in this run; final rendered UI will be checked after activation. Native phone screenshots and signed-in checkout visual QA remain unverified. No account sign-in attempt was made in this pass, because the previous sign-in request was rejected by automatic approval review. The account product-card appearance was already installed in the preceding release; this pass does not claim a new signed-in panel review.

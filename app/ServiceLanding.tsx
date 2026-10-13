@@ -23,6 +23,10 @@ export default function ServiceLanding() {
           <div className="discovery-hero-copy">
             <h1 id="discovery-title"><span>یک باشگاه،</span><span>دنیایی از انتخاب</span></h1>
             <p>سفر، زیبایی و هنر ایرانی؛ کنار هم.</p>
+            <div className="discovery-hero-actions">
+              <a className="discovery-hero-primary" href="/shop">مشاهده فروشگاه<Arrow size={21} aria-hidden="true" /></a>
+              <a className="discovery-hero-secondary" href="/club">باشگاه مشتریان</a>
+            </div>
           </div>
         </section>
         <section className="discovery-services" id="worlds" aria-label="خدمات هما">
