@@ -63,6 +63,7 @@ const Wishlist = dynamic(() => import("./Wishlist").then(m => m.Wishlist), { loa
 const AdminHome = dynamic(() => import("./AdminHome"), { loading: PanelLoading });
 const BinaryPanel = dynamic(() => import("./BinaryPanel"), { loading: PanelLoading });
 const SevenCardPanel = dynamic(() => import("./SevenCardPanel"), { loading: PanelLoading });
+const MemberKit = dynamic(() => import("./MemberKit"), { loading: PanelLoading });
 export default function Portal({ admin = false }: { admin?: boolean }) {
   const site = useSiteSettings();
   const { locale, dictionary } = useSiteLocale();
@@ -578,6 +579,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                     <MerchantPanel refresh={refresh} onChange={update} />
                   )}
                   {tab === "seven-card-plan" && <SevenCardPanel />}
+                  {tab === "member-kit" && <MemberKit />}
                   {tab === "binary" && (
                     <BinaryPanel user={user} refresh={refresh} />
                   )}

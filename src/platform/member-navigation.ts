@@ -20,7 +20,8 @@ export const memberGroups = [
   {
     title: "باشگاه و شبکه",
     tabs: [
-      ["seven-card-plan", "پلن هشت کارت"],
+      ["seven-card-plan", "کارت‌ها و جایگاه‌ها"],
+      ["member-kit", "ابزار معرفی"],
       ["network", "شبکه و دعوت"],
       ["binary", "شبکه باینری"],
       ["loyalty", "امتیازات و مزایا"],
