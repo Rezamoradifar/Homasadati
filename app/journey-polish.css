@@ -68,6 +68,54 @@ html body .commerce .checkout-summary .checkout-pay {
   font-size: 16px;
   letter-spacing: normal;
 }
+/* Keep mobile artwork in normal flow: actions must never share its space. */
+@media (max-width: 767px) {
+  html body .discovery-opening .discovery-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    margin: 16px 17px 20px;
+  }
+  html body .discovery-opening .discovery-hero-copy {
+    order: 0;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 0;
+  }
+  html body .discovery-opening .discovery-hero-art {
+    order: 1;
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    border-radius: 16px;
+  }
+  html body .discovery-opening .discovery-hero-art img {
+    display: block;
+  }
+  html body .discovery-hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+    margin-top: 18px;
+    gap: 8px;
+  }
+  html body .discovery-hero-actions a {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  html body .discovery-opening .discovery-hero-copy h1::after {
+    height: 3px;
+    border: 0;
+    background: #cba269;
+  }
+}
 @media (max-width: 760px) {
   html body .commerce .checkout-steps {
     gap: 6px;
@@ -78,16 +126,6 @@ html body .commerce .checkout-summary .checkout-pay {
   }
 }
 @media (max-width: 600px) {
-  html body .discovery-hero-actions {
-    align-items: stretch;
-    flex-direction: column;
-    margin-top: 18px;
-    gap: 8px;
-  }
-  html body .discovery-hero-actions a {
-    padding: 10px 12px;
-    font-size: 14px;
-  }
   html body .commerce .checkout-summary .checkout-payable > strong {
     font-size: 26px;
   }
