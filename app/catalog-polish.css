@@ -1,0 +1,116 @@
+/* Catalogue cards: clear photography, quiet descriptions and consistent actions. */
+html body .shop-card,
+html body .portal-member .portal-product {
+  border-radius: 18px;
+  border: 1px solid var(--hn-border);
+  box-shadow: 0 4px 20px #1e2a4408;
+  overflow: hidden;
+  min-width: 0;
+}
+html body .shop-card {
+  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
+  gap: 10px 18px;
+  padding: 16px;
+}
+html body .shop-card > a:first-child {
+  border-radius: 12px;
+}
+html body .shop-card h2,
+html body .portal-member .portal-product h2 {
+  font-size: 17px;
+  line-height: 1.8;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+html body .shop-card p,
+html body .portal-member .portal-product > div > p {
+  font-size: 13px;
+  line-height: 1.9;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+}
+html body .shop-card > strong,
+html body .portal-member .portal-product .member-product-price {
+  font-size: clamp(20px, 1.7vw, 24px);
+  line-height: 1.7;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+html body .shop-card .store-cta,
+html body .portal-member .portal-product .store-cta {
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+html body .shop-card .commerce-button,
+html body .portal-member .portal-product .commerce-button {
+  flex: 1 1 150px;
+  min-height: 48px;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  justify-content: center;
+  white-space: normal;
+  background: var(--hn-turquoise);
+  border-color: var(--hn-turquoise);
+  color: #fff;
+}
+html body .portal-member .portal-product > div {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+html body .portal-member .member-product-image img {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1;
+  object-fit: contain;
+  padding: 12px;
+}
+html[data-theme="dark"] body .shop-card,
+html[data-theme="dark"] body .portal-member .portal-product {
+  box-shadow: none;
+}
+html[data-theme="dark"] body .shop-card .commerce-button,
+html[data-theme="dark"] body .portal-member .portal-product .commerce-button {
+  color: #0d1322;
+}
+@media (max-width: 700px) {
+  html body .shop-card {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 14px;
+    gap: 10px;
+  }
+  html body .shop-card > a:first-child {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  html body .shop-card > :not(:first-child) {
+    grid-column: 1;
+  }
+  html body .shop-card > a:not(:first-child) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  html body .shop-card .store-cta .commerce-button {
+    width: auto;
+  }
+}
+@media (max-width: 640px) {
+  html body .portal-member .portal-product {
+    display: flex;
+    flex-direction: column;
+  }
+  html body .portal-member .portal-product > div {
+    padding: 16px;
+  }
+}
