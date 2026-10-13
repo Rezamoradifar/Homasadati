@@ -30,7 +30,8 @@ export default function ScrollState() {
             (e.target as HTMLElement).dataset.reveal = "in";
             observer!.unobserve(e.target);
           }),
-        { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
+        // Even a short visible portion of a tall section must reveal it.
+        { rootMargin: "0px", threshold: 0 },
       );
       document.querySelectorAll<HTMLElement>("main > section:not(.hero), main > .content-section").forEach((el) => {
         if (el.getBoundingClientRect().top < window.innerHeight) return;
@@ -42,6 +43,9 @@ export default function ScrollState() {
       window.removeEventListener("scroll", onScroll);
       if (frame) cancelAnimationFrame(frame);
       observer?.disconnect();
+      document.querySelectorAll<HTMLElement>('[data-reveal=""]').forEach(el => {
+        delete el.dataset.reveal;
+      });
     };
   }, []);
   return null;

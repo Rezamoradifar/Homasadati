@@ -5,9 +5,10 @@ import { memberKitCopy } from './member-kit-content';
 import { memberLearningCopy } from './member-learning-content';
 import './member-kit.css';
 
-export default function MemberKit() {
+export default function MemberKit({ pageHeading = false }: { pageHeading?: boolean }) {
   const {locale}=useSiteLocale();
   const c=memberKitCopy[locale], learning=memberLearningCopy[locale];
+  const Heading = pageHeading ? 'h1' : 'h2';
   const [feedback,setFeedback]=useState('');
   const resources=[
     {title:c.guide,note:c.guideNote,href:'/member-kit/guide-fa.pdf',download:true,label:c.download},
@@ -15,7 +16,7 @@ export default function MemberKit() {
     {title:c.image,note:c.imageNote,href:'/member-kit/introduction-fa.png',download:true,label:c.download},
   ];
   return <section className="member-kit" aria-labelledby="member-kit-title" dir={locale==='en'?'ltr':'rtl'}>
-    <header className="member-kit-heading"><div><span lang="en" translate="no">HOMANET</span><h2 id="member-kit-title">{c.title}</h2><p>{c.subtitle}</p></div><img src="/assets/brand/homanet-mark-orange.png" width="64" height="64" alt=""/></header>
+    <header className="member-kit-heading"><div><span lang="en" translate="no">HOMANET</span><Heading id="member-kit-title">{c.title}</Heading><p>{c.subtitle}</p></div><img src="/assets/brand/homanet-mark-orange.png" width="64" height="64" alt=""/></header>
     <h3>{c.resourcesTitle}</h3>
     <div className="member-kit-resources">{resources.map(r=><article key={r.href}><h4>{r.title}</h4><p>{r.note}</p><a href={r.href} download={r.download||undefined}>{r.label}<span aria-hidden="true"> ↗</span></a></article>)}</div>
     <h3>{learning.title}</h3><p>{learning.description}</p>

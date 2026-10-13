@@ -1,0 +1,158 @@
+{
+  "scope": "Isolated fixtures and loopback API; no production capacity claim",
+  "results": [
+    {
+      "members": 256,
+      "positions": 1792,
+      "scenario": "balanced-eight-endpoint",
+      "purchasePerMemberToman": 70000000,
+      "maxRssMiB": 187.5,
+      "seedMs": 149.1,
+      "settlementMs": 130.4,
+      "releaseMs": 17.6,
+      "reads": {
+        "positionTree": {
+          "samples": 15,
+          "p50Ms": 0.69,
+          "p95Ms": 1.01
+        },
+        "placementTree": {
+          "samples": 15,
+          "p50Ms": 0.7,
+          "p95Ms": 1.66
+        },
+        "search": {
+          "samples": 15,
+          "p50Ms": 0.61,
+          "p95Ms": 1.15
+        },
+        "report": {
+          "samples": 15,
+          "p50Ms": 0.64,
+          "p95Ms": 2.49
+        }
+      },
+      "http": {
+        "requests": 120,
+        "concurrency": 6,
+        "failures": 0,
+        "p50Ms": 8.56,
+        "p95Ms": 20.67,
+        "scope": "loopback API server with actual handlers and session; excludes Next.js rendering, Nginx, Cloudflare and WAN"
+      },
+      "salesToman": 17920000000,
+      "cashRewardToman": 2608200000,
+      "voucherToman": 149200000,
+      "cashbackToman": 1536000000,
+      "flushedToman": 6635900000,
+      "rewardAndCashbackPercent": 23.96,
+      "positionLots": 2055,
+      "matches": 666,
+      "settledWeeks": 1,
+      "checks": "passed",
+      "scope": "isolated SQLite, actual application functions and loopback HTTP API load; simulated paid fixtures, no live bank traffic"
+    },
+    {
+      "members": 10000,
+      "positions": 70000,
+      "scenario": "balanced-eight-endpoint",
+      "purchasePerMemberToman": 70000000,
+      "maxRssMiB": 383.9,
+      "seedMs": 3503,
+      "settlementMs": 6661.2,
+      "releaseMs": 769.7,
+      "reads": {
+        "positionTree": {
+          "samples": 15,
+          "p50Ms": 56.39,
+          "p95Ms": 68.73
+        },
+        "placementTree": {
+          "samples": 15,
+          "p50Ms": 55.48,
+          "p95Ms": 58.33
+        },
+        "search": {
+          "samples": 15,
+          "p50Ms": 14.27,
+          "p95Ms": 41.54
+        },
+        "report": {
+          "samples": 15,
+          "p50Ms": 29.92,
+          "p95Ms": 33.25
+        }
+      },
+      "http": {
+        "requests": 120,
+        "concurrency": 6,
+        "failures": 0,
+        "p50Ms": 167.75,
+        "p95Ms": 216.56,
+        "scope": "loopback API server with actual handlers and session; excludes Next.js rendering, Nginx, Cloudflare and WAN"
+      },
+      "salesToman": 700000000000,
+      "cashRewardToman": 102650600000,
+      "voucherToman": 5829200000,
+      "cashbackToman": 60000000000,
+      "flushedToman": 548943400000,
+      "rewardAndCashbackPercent": 24.07,
+      "positionLots": 133953,
+      "matches": 26244,
+      "settledWeeks": 1,
+      "checks": "passed",
+      "scope": "isolated SQLite, actual application functions and loopback HTTP API load; simulated paid fixtures, no live bank traffic"
+    },
+    {
+      "members": 2000,
+      "positions": 14000,
+      "scenario": "left-heavy-two-endpoint",
+      "purchasePerMemberToman": 70000000,
+      "maxRssMiB": 188.2,
+      "seedMs": 755.1,
+      "settlementMs": 1470.5,
+      "releaseMs": 94.8,
+      "reads": {
+        "positionTree": {
+          "samples": 15,
+          "p50Ms": 6.34,
+          "p95Ms": 10.92
+        },
+        "placementTree": {
+          "samples": 15,
+          "p50Ms": 7.04,
+          "p95Ms": 9.38
+        },
+        "search": {
+          "samples": 15,
+          "p50Ms": 3.52,
+          "p95Ms": 4.57
+        },
+        "report": {
+          "samples": 15,
+          "p50Ms": 3.15,
+          "p95Ms": 6.71
+        }
+      },
+      "http": {
+        "requests": 120,
+        "concurrency": 6,
+        "failures": 0,
+        "p50Ms": 32.36,
+        "p95Ms": 44.76,
+        "scope": "loopback API server with actual handlers and session; excludes Next.js rendering, Nginx, Cloudflare and WAN"
+      },
+      "salesToman": 140000000000,
+      "cashRewardToman": 12385000000,
+      "voucherToman": 0,
+      "cashbackToman": 12000000000,
+      "flushedToman": 87932700000,
+      "rewardAndCashbackPercent": 17.42,
+      "positionLots": 53892,
+      "matches": 2996,
+      "settledWeeks": 1,
+      "checks": "passed",
+      "scope": "isolated SQLite, actual application functions and loopback HTTP API load; simulated paid fixtures, no live bank traffic"
+    }
+  ]
+}
