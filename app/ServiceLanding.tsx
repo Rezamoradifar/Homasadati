@@ -19,7 +19,7 @@ export default function ServiceLanding() {
     <Localized>
       <div className="discovery-opening" id="home">
         <section className="discovery-hero" aria-labelledby="discovery-title">
-          <div className="discovery-hero-art" aria-hidden="true"><ResponsiveImage src="/assets/redesign/heritage-hero.webp" alt="" sizes="(max-width: 767px) 44vw, 42vw" fetchPriority="high" loading="eager" /></div>
+          <div className="discovery-hero-art" aria-hidden="true"><ResponsiveImage src="/assets/redesign/heritage-hero.webp" alt="" sizes="(max-width: 767px) calc(100vw - 34px), 42vw" fetchPriority="high" loading="eager" /></div>
           <div className="discovery-hero-copy">
             <h1 id="discovery-title"><span>یک باشگاه،</span><span>دنیایی از انتخاب</span></h1>
             <p>سفر، زیبایی و هنر ایرانی؛ کنار هم.</p>
