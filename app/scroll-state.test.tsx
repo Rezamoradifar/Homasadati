@@ -11,7 +11,8 @@ it('reveals a tall section as soon as it intersects and restores hidden content 
  vi.stubGlobal('IntersectionObserver',Observer);vi.stubGlobal('matchMedia',()=>({matches:false}));
  const {unmount}=render(<ScrollState/>);
  expect(tall.dataset.reveal).toBe('');
- callback([{target:tall,isIntersecting:true,intersectionRatio:0.01}] as IntersectionObserverEntry[],{} as IntersectionObserver);
+ const bounds=tall.getBoundingClientRect();
+ callback([{target:tall,isIntersecting:true,intersectionRatio:0.01,boundingClientRect:bounds,intersectionRect:bounds,rootBounds:null,time:0}],{} as IntersectionObserver);
  expect(tall.dataset.reveal).toBe('in');expect(unobserve).toHaveBeenCalledWith(tall);
  unmount();expect(later.hasAttribute('data-reveal')).toBe(false);
 });

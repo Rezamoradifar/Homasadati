@@ -29,3 +29,9 @@ See `quality-review-20261013.json` and `quality-scale-20261013.json` for scope a
 - https://github.com/advisories/GHSA-68fv-2mgg-jv7q
 
 Deployment requires exact root approval based on `ec37c018c4ac02cb19c61be6d78e491e9f61ea2a` and preserves the existing server merge.
+
+## Deployment compatibility correction
+
+The first production staging attempt for `b874787584c7f0bcd4eb0ecb786fd56549bd94cb` stopped before changing running services: npm reported a missing `@swc/helpers@0.5.23` lockfile entry. The same error was reproduced with npm 10.9.4, while npm 11 accepted the previous lockfile. Regenerating the lockfile with npm 10 added the optional peer entry under next-intl; no declared dependency versions changed. A clean npm 10 installation with lifecycle scripts disabled then passed. Local native SQLite rebuilding used existing Node headers because this executor cannot extract headers with npm's ownership operation; production lifecycle execution remains part of the server gate.
+
+A fresh TypeScript check also found an incomplete IntersectionObserver test fixture. The fixture now supplies every required entry field. After these corrections, TypeScript, all 469 tests, eight deployment checks and the production build passed; the production dependency audit still reported zero known vulnerabilities. This corrected release requires new exact root approval with the failed release as the expected prior approval. Until activation succeeds, the prior installed production release remains in use.
