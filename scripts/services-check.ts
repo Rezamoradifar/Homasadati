@@ -2,7 +2,7 @@ import { loadEnvConfig } from "@next/env";
 import { setting } from "../src/platform/providers";
 import { all, platformDb } from "../src/platform/schema";
 loadEnvConfig(process.cwd());
-async function checkSms() {
+async function checkSms(): Promise<Record<string, unknown>> {
   const key = setting("kavenegar_key"),
     template = setting("sms_template");
   if (!key) return { configured: false, account: "not_configured" };
@@ -27,6 +27,9 @@ async function checkSms() {
       info.return?.status === 200 ? info.entries?.remaincredit : null,
     debugMode:
       config.return?.status === 200 ? config.entries?.debugmode : "unknown",
+    defaultSenderAvailable: config.return?.status === 200
+      ? typeof config.entries?.defaultsender === "string" && !!config.entries.defaultsender.trim()
+      : "unknown",
     template: template || null,
     templateApproval: "unknown",
     liveSmsTest: "not_run",
@@ -57,7 +60,8 @@ async function main() {
       {
         sms,
         notifications: {
-          smsConfigured: !!setting("kavenegar_key") && !!setting("sms_sender"),
+          smsConfigured: !!setting("kavenegar_key") && (!!setting("sms_sender") || sms.defaultSenderAvailable === true),
+          smsSenderMode: setting("sms_sender") ? "explicit" : "provider_default",
           emailConfigured: !!setting("resend_key") && !!setting("email_from"),
           // Aggregate counts only: never log recipient addresses or message bodies.
           queue: all("SELECT channel,status,COUNT(*) AS count FROM p_outbox GROUP BY channel,status"),
