@@ -21,7 +21,7 @@ export function AccountQuickSummary({club,invitation,wallet,onNavigate}:{club:Re
       <button type="button" onClick={()=>onNavigate("catalog")}><ShoppingBag size={22} aria-hidden="true"/><span>فروشگاه</span></button>
       <button type="button" onClick={()=>onNavigate("orders")}><Package size={22} aria-hidden="true"/><span>سفارش‌های من</span></button>
       <button type="button" onClick={()=>onNavigate("tickets")}><Headset size={22} aria-hidden="true"/><span>پشتیبانی</span></button>
-      <a href="/income-plan/presentation"><Presentation size={22} aria-hidden="true"/><span>پرزنت پلن</span></a>
+      <button type="button" onClick={()=>onNavigate("member-kit")}><Presentation size={22} aria-hidden="true"/><span>ابزار معرفی</span></button>
     </nav>
     <details className="account-rules"><summary>حجم و پاداش چگونه حساب می‌شود؟</summary><ul><li>حجم چپ و راست، ماندهٔ واجد شرایط جایگاه اصلی برای تعادل است.</li><li>حجم هر جایگاه فقط از خریدهای پس از فعال‌سازی آن حساب می‌شود.</li><li>محاسبه پس از پایان مهلت برگشت خرید انجام می‌شود؛ پاداش محاسبه‌شده هفتهٔ بعد آزاد می‌شود.</li><li>مبلغ مازاد سقف هفتگی به هفتهٔ بعد منتقل نمی‌شود.</li></ul><button type="button" className="portal-button secondary" onClick={()=>onNavigate("commissions")}>مشاهده سابقه پورسانت</button></details>
   </section></Localized>;
