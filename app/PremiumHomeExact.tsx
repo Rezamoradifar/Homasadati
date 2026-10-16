@@ -3,6 +3,7 @@
 import {useMemo, useState} from 'react';
 import {ArrowLeft, ArrowRight, ChartBar, Diamond, Headset, ShieldCheck, ShoppingBag, Truck, UsersThree, Crown, Sparkle} from '@phosphor-icons/react';
 import ResponsiveImage from '../src/components/media/ResponsiveImage';
+import {useHeroPerformance} from '../src/components/media/useHeroPerformance';
 import {useSiteSettings} from '../src/platform/SiteSettings';
 import {useData} from '../src/platform/Widgets';
 import {Money} from '../src/commerce/currency';
@@ -33,6 +34,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
   const Arrow = rtl ? ArrowLeft : ArrowRight;
   const {site_logo} = useSiteSettings();
   const [slide, setSlide] = useState(0);
+  const {heroRef,onPointerMove,onPointerLeave} = useHeroPerformance();
   const catalog = useData('catalog?page=1', 0);
   const liveProducts = useMemo(() => {
     const rows = catalog.data?.rows;
@@ -53,19 +55,10 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
   const ranks = ['Member','Silver','Gold','Platinum','VIP'];
 
   return <div className="homa-exact" dir={rtl ? 'rtl':'ltr'} id="home">
-    <section className="hex-hero hex-hero-architecture" aria-labelledby="hex-hero-title"
-      onPointerMove={event => {
-        if (event.pointerType !== 'mouse') return;
-        const rect = event.currentTarget.getBoundingClientRect();
-        event.currentTarget.style.setProperty('--homa-tilt-x', ((.5 - (event.clientY - rect.top) / rect.height) * 7).toFixed(2) + 'deg');
-        event.currentTarget.style.setProperty('--homa-tilt-y', (((event.clientX - rect.left) / rect.width - .5) * 8).toFixed(2) + 'deg');
-      }}
-      onPointerLeave={event => {
-        event.currentTarget.style.removeProperty('--homa-tilt-x');
-        event.currentTarget.style.removeProperty('--homa-tilt-y');
-      }}>
+    <section ref={heroRef} className="hex-hero hex-hero-architecture" aria-labelledby="hex-hero-title"
+      onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
       <div className="hex-landscape" aria-hidden="true">
-        <ResponsiveImage src={slides[slide]} alt="" sizes="100vw" />
+        <ResponsiveImage src={slides[slide]} alt="" sizes="100vw" loading={slide === 0 ? "eager" : "lazy"} fetchPriority={slide === 0 ? "high" : "auto"} quality={68} />
       </div>
       <div className="hex-hero-light" aria-hidden="true" />
       <div className="hex-phoenix" aria-hidden="true">
@@ -84,7 +77,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
       <div className="hex-hero-product hex-hero-tourism homa-heritage-3d" aria-hidden="true">
         <div className="hex-hero-halo"/>
         <div className="hex-hero-product-frame hex-hero-tourism-frame">
-          <ResponsiveImage src="/assets/backdrop/persepolis.webp" alt="" sizes="(max-width: 720px) 52vw, 31vw" fetchPriority="high"/>
+          <ResponsiveImage src="/assets/backdrop/persepolis.webp" alt="" sizes="(max-width: 720px) 52vw, 31vw" loading="eager" fetchPriority="auto" quality={70}/>
           <span className="homa-heritage-glass"/>
           <span className="homa-heritage-rim"/>
           <span className="homa-heritage-light"/>
