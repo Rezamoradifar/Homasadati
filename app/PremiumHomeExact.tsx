@@ -97,7 +97,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
     </section>
 
     <div className="hex-content">
-      <section className="hex-products-section" aria-labelledby="hex-product-title">
+      <section className="hex-products-section" id="hex-products" aria-labelledby="hex-product-title">
         <header className="hex-section-title">
           <h2 id="hex-product-title">{c.selected}</h2>
           <a href="/shop">{c.shopCta}<Arrow size={16} aria-hidden="true"/></a>
