@@ -665,6 +665,19 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
             )}
           </div>
         )}
+        <footer className="portal-unified-footer">
+          <a href="/" aria-label="بازگشت به صفحه اصلی">
+            <img src={site.site_logo || "/assets/brand-mark.png"} width={34} height={34} alt="" />
+            <strong>HOMA</strong>
+          </a>
+          <span>ریشه در ایران، رو به جهان.</span>
+          <nav aria-label="دسترسی سریع به خدمات">
+            <a href="/support">پشتیبانی</a>
+            <a href="/contact">ارتباط با ما</a>
+            <a href="/legal/terms">قوانین و مقررات</a>
+            <a href="/legal/privacy">حریم خصوصی</a>
+          </nav>
+        </footer>
       </div>
     </Localized>
   );
