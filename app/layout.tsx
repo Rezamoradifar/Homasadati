@@ -30,6 +30,7 @@ import './homa-home-tourism-v10.css';
 import './homa-tourism-immersive-v11.css';
 import './homa-heritage-live-v12.css';
 import './homa-ambient-v12.css';
+import './homa-responsive-performance-v13.css';
 import ScrollState from './ScrollState';
 import {JsonLd,organizationJsonLd,siteOrigin} from '../src/platform/seo';
 import {DEFAULT_ENAMAD,DEFAULT_SITE_EMAIL} from '../src/platform/site-defaults';
