@@ -1,0 +1,462 @@
+/* HOMA unified light/dark system.
+   Shared across premium landing, discovery navigation, footer, commerce and portal.
+   Does not touch brand logo, business state, product data, or wallet behavior. */
+
+:root,
+html[data-theme="light"]{
+  --hu-bg:#f7f2e9;
+  --hu-surface:#fffdf8;
+  --hu-surface-raised:#f0e7d8;
+  --hu-ink:#22251f;
+  --hu-muted:#5c5c52;
+  --hu-border:#e3d7c4;
+  --hu-accent:#a87625;
+  --hu-accent-bright:#d7ac58;
+  --hu-header:rgba(255,253,249,.94);
+  --hu-footer:#f0e6d6;
+  --hu-footer-ink:#252820;
+  --hu-shade:0 14px 40px rgba(59,45,24,.08);
+  color-scheme:light;
+}
+html[data-theme="dark"]{
+  --hu-bg:#0a1618;
+  --hu-surface:#14292b;
+  --hu-surface-raised:#1c3436;
+  --hu-ink:#f0e9dc;
+  --hu-muted:#cdc3b3;
+  --hu-border:#345052;
+  --hu-accent:#ecc67d;
+  --hu-accent-bright:#f0ce88;
+  --hu-header:rgba(12,27,29,.95);
+  --hu-footer:#0a1b1d;
+  --hu-footer-ink:#f1e7d6;
+  --hu-shade:0 16px 40px rgba(0,0,0,.2);
+  color-scheme:dark;
+}
+html[data-theme="light"] body,
+html[data-theme="dark"] body{
+  background:var(--hu-bg);
+  color:var(--hu-ink);
+}
+html[data-theme] :is(.homa-redesign,.commerce,.portal){
+  color:var(--hu-ink);
+}
+html[data-theme] :is(.homa-redesign,.commerce,.portal) :is(a,button,input,select,textarea){
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* A visible, consistent theme switch from 320px mobile to desktop. */
+html[data-theme] .theme-toggle{
+  min-height:40px;
+  padding:5px 9px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  border:1px solid var(--hu-border)!important;
+  border-radius:999px;
+  color:var(--hu-ink);
+  background:var(--hu-surface);
+  box-shadow:0 3px 12px rgba(47,35,18,.06);
+}
+html[data-theme] .theme-toggle:hover{border-color:var(--hu-accent-bright)!important}
+html[data-theme] .theme-toggle .theme-track{
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:52px;
+  height:29px;
+  border-radius:999px;
+  padding:0 6px;
+  direction:ltr;
+  border:1px solid var(--hu-border);
+  color:var(--hu-ink);
+  background:var(--hu-surface-raised);
+}
+html[data-theme] .theme-toggle .theme-track svg{position:relative;z-index:2;width:14px;height:14px}
+html[data-theme] .theme-toggle .theme-thumb{
+  position:absolute;
+  z-index:1;
+  left:3px;top:3px;
+  width:21px;height:21px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#ffe7a5,#d9a449);
+  box-shadow:0 2px 8px rgba(66,45,15,.22);
+  transition:transform .24s ease;
+}
+html[data-theme="dark"] .theme-toggle .theme-thumb{transform:translateX(22px)}
+html[data-theme="dark"] .theme-toggle{background:#173033;color:#f3e6d0;border-color:#455954!important}
+html[data-theme] .theme-toggle .theme-label{
+  color:inherit;
+  font-weight:700;
+  font-size:12px;
+  white-space:nowrap;
+}
+.discovery-mobile-theme{display:none}
+@media(max-width:1199px){
+  .discovery-header .discovery-mobile-theme{display:inline-flex;flex-shrink:0;align-items:center}
+  .discovery-header .discovery-mobile-theme .theme-label{display:none}
+  .discovery-header .discovery-mobile-theme .theme-toggle{
+    min-height:40px;min-width:52px;padding:4px;border-radius:999px;
+  }
+}
+@media(max-width:767px){
+  .discovery-header .discovery-mobile-theme .theme-toggle{
+    min-width:44px;min-height:44px;padding:3px;border:0!important;background:transparent;
+    box-shadow:none;
+  }
+  .discovery-header .discovery-mobile-theme .theme-track{width:43px;height:26px;padding:0 4px}
+  .discovery-header .discovery-mobile-theme .theme-thumb{width:19px;height:19px;top:2px;left:2px}
+  html[data-theme="dark"] .discovery-header .discovery-mobile-theme .theme-thumb{transform:translateX(19px)}
+}
+
+/* Shared header and slide-out navigation follow both modes. */
+html[data-theme] .discovery-header{
+  color:var(--hu-ink);
+  background:var(--hu-header);
+  border-bottom:1px solid var(--hu-border);
+  box-shadow:0 8px 25px rgba(28,26,19,.08);
+  backdrop-filter:blur(22px);
+}
+html[data-theme] .discovery-header :is(.discovery-brand strong,.discovery-desktop-nav a,.discovery-icon){
+  color:var(--hu-ink);
+}
+html[data-theme] .discovery-header .discovery-brand small{color:var(--hu-accent)}
+html[data-theme] .discovery-header .discovery-icon{
+  background:var(--hu-surface);
+  border-color:var(--hu-border);
+}
+html[data-theme] .discovery-header .discovery-icon:hover{
+  background:var(--hu-surface-raised);
+}
+html[data-theme] .discovery-menu{
+  color:var(--hu-ink);
+  background:var(--hu-surface);
+}
+html[data-theme] .discovery-menu .discovery-menu-panel{
+  color:var(--hu-ink);
+  background:var(--hu-surface);
+}
+html[data-theme] .discovery-menu :is(.discovery-menu-heading h2,.discovery-menu-services a,.discovery-menu-services strong,.discovery-menu-links a,.discovery-menu-links button){
+  color:var(--hu-ink);
+}
+html[data-theme] .discovery-menu :is(.discovery-menu-service-copy small){
+  color:var(--hu-muted);
+}
+html[data-theme] .discovery-menu :is(.discovery-menu-services a,.discovery-menu-preferences){
+  border-color:var(--hu-border);
+}
+html[data-theme] .discovery-menu .discovery-menu-preferences select{
+  background:var(--hu-surface-raised);
+  color:var(--hu-ink);
+  border-color:var(--hu-border);
+}
+html[data-theme] .discovery-menu :is(.discovery-menu-links a,.discovery-menu-services a):hover{
+  background:var(--hu-surface-raised);
+}
+html[data-theme] .discovery-menu .discovery-icon{
+  color:var(--hu-ink);
+  background:var(--hu-surface-raised);
+}
+html[data-theme="dark"] .discovery-header .discovery-desktop-nav a[href="/"]{
+  background:linear-gradient(145deg,#e8c885,#b88731);
+  color:#1b211a!important;
+}
+html[data-theme] .discovery-header .hex-header-search{
+  background:var(--hu-surface);
+  border-color:var(--hu-border);
+}
+html[data-theme] .discovery-header .hex-header-search button{color:var(--hu-muted)}
+html[data-theme] .discovery-header .hex-header-search input{
+  color:var(--hu-ink)!important;
+  background:transparent!important;
+}
+html[data-theme] .discovery-header .hex-header-search input::placeholder{color:var(--hu-muted)}
+html[data-theme="dark"] .discovery-desktop-preferences .site-language-picker select{
+  color:#f3ebdb;
+}
+
+/* Premium landing day & night: light ivory and deep obsidian share gold accents. */
+html[data-theme] .homa-redesign,
+html[data-theme] .homa-redesign .homa-exact{
+  background:var(--hu-bg);
+  color:var(--hu-ink);
+}
+html[data-theme] .homa-exact .hex-content{
+  background:var(--hu-bg);
+  color:var(--hu-ink);
+}
+html[data-theme] .homa-exact :is(.hex-section-title h2,.hex-rank-top h2,.hex-promises h2,.hex-ranks h2){
+  color:var(--hu-ink);
+}
+html[data-theme] .homa-exact :is(.hex-section-title a,.hex-rank-top a,.hex-fallback-cta){
+  color:var(--hu-accent);
+}
+html[data-theme] .homa-exact :is(.hex-product-card,.hex-ranks,.hex-promise-grid article){
+  background:var(--hu-surface);
+  color:var(--hu-ink);
+  border-color:var(--hu-border);
+  box-shadow:var(--hu-shade);
+}
+html[data-theme] .homa-exact .hex-product-card :is(a,h3,.hex-price),
+html[data-theme] .homa-exact .hex-rank-item strong,
+html[data-theme] .homa-exact .hex-promise-grid h3{color:var(--hu-ink)}
+html[data-theme] .homa-exact .hex-promise-grid p{color:var(--hu-muted)}
+html[data-theme] .homa-exact .hex-product-photo{
+  background:var(--hu-surface-raised);
+}
+html[data-theme] .homa-exact .hex-portal-cta{
+  background:linear-gradient(145deg,#f7dc9b,#d2a04b);
+  color:#222219;
+}
+html[data-theme] .homa-exact .hex-ranks{
+  background:var(--hu-surface);
+}
+html[data-theme="light"] .homa-exact .hex-portals{
+  background:linear-gradient(135deg,#f1e6d5,#eae0d1);
+}
+html[data-theme="light"] .homa-exact .hex-portal{
+  background:var(--hu-surface);
+  color:var(--hu-ink)!important;
+  border-color:var(--hu-border);
+  box-shadow:var(--hu-shade);
+}
+html[data-theme="light"] .homa-exact .hex-portal-text :is(strong,small){
+  color:var(--hu-ink);
+}
+html[data-theme="light"] .homa-exact .hex-portal-icon{
+  background:linear-gradient(145deg,#f6ead5,#e3cfa8);
+  color:#a2762d;
+  border-color:#e2cb9f;
+}
+html[data-theme="light"] .homa-exact .hex-benefits{
+  background:var(--hu-surface);
+  border:1px solid var(--hu-border);
+  box-shadow:var(--hu-shade);
+}
+html[data-theme="light"] .homa-exact .hex-benefits :is(h2,h3){color:var(--hu-ink)}
+html[data-theme="light"] .homa-exact .hex-benefits p{color:var(--hu-muted)}
+html[data-theme="light"] .homa-exact .hex-benefits-grid article{
+  border-color:var(--hu-border);
+}
+html[data-theme="light"] .homa-exact .hex-gift-card{
+  background:radial-gradient(ellipse at 12% 20%,rgba(239,196,111,.21),transparent 60%),linear-gradient(120deg,#f2e4d0,#fff8e9);
+  color:var(--hu-ink)!important;
+  border-color:var(--hu-border);
+}
+html[data-theme="light"] .homa-exact .hex-gift-copy :is(h2,p){color:var(--hu-ink)}
+html[data-theme="light"] .homa-exact .hex-gift-copy small{color:#885b1d}
+html[data-theme="light"] .homa-exact .hex-gift-copy .hex-gold-button{color:#191d1a!important}
+html[data-theme="light"] .homa-exact .hex-account-preview{
+  background:radial-gradient(ellipse at 6% 8%,rgba(232,184,91,.15),transparent 46%),linear-gradient(135deg,#eee1cc,#f8f0e4);
+  color:var(--hu-ink);
+  border-color:var(--hu-border);
+  box-shadow:var(--hu-shade);
+}
+html[data-theme="light"] .homa-exact .hex-account-text :is(h2,p){
+  color:var(--hu-ink);
+}
+html[data-theme="light"] .homa-exact .hex-account-text small{color:#90601e}
+
+/* Night mode: all bright landing cards become dark, but gold stays vivid. */
+html[data-theme="dark"] .homa-exact .hex-hero-light{
+  background:
+    radial-gradient(ellipse 47% 81% at 47% 25%,rgba(5,18,21,.62),rgba(7,19,20,.44) 60%,transparent 100%),
+    linear-gradient(0deg,rgba(5,13,15,.91),rgba(4,14,15,.35) 48%,rgba(5,15,17,.38)),
+    linear-gradient(90deg,rgba(3,12,14,.51),transparent 40%,rgba(1,9,10,.47));
+}
+html[data-theme="dark"] .homa-exact .hex-hero-body :is(.hex-hero-name,h1,.hex-overline,.hex-hero-description){
+  color:#fff0d1!important;
+  text-shadow:0 2px 16px rgba(0,0,0,.7);
+}
+html[data-theme="dark"] .homa-exact .hex-hero-body .hex-hero-description{
+  color:#ece0cb!important;
+}
+html[data-theme="dark"] .homa-exact .hex-portals{
+  background:linear-gradient(120deg,#091516,#0d2224);
+}
+html[data-theme="dark"] .homa-exact .hex-portal{
+  background:linear-gradient(145deg,#1d3031,#0d1b1d);
+  border-color:#465251;
+}
+html[data-theme="dark"] .homa-exact .hex-portal :is(strong,small){color:#f1e9da}
+html[data-theme="dark"] .homa-exact .hex-portal-icon{
+  background:linear-gradient(135deg,#312b22,#151c1b);
+  border-color:#8a7046;color:#f7d184;
+}
+html[data-theme="dark"] .homa-exact .hex-benefits{
+  background:linear-gradient(135deg,#182a2c,#0e1e20);
+  border:1px solid var(--hu-border);
+}
+html[data-theme="dark"] .homa-exact .hex-benefits :is(h2,h3){color:#fff0da}
+html[data-theme="dark"] .homa-exact .hex-benefits p{color:#d8d0c5}
+html[data-theme="dark"] .homa-exact .hex-gift-card{
+  background:radial-gradient(ellipse at 12% 20%,rgba(220,154,55,.19),transparent 66%),linear-gradient(130deg,#1b1b17,#090e0e);
+  border-color:#8a714b;color:#fff4dc!important;
+}
+html[data-theme="dark"] .homa-exact .hex-gift-copy :is(h2,p){color:#fff1d6}
+html[data-theme="dark"] .homa-exact .hex-account-preview{
+  background:radial-gradient(ellipse at 5% 8%,rgba(222,170,72,.15),transparent 46%),linear-gradient(145deg,#162e30,#08191b);
+  border-color:var(--hu-border);color:#eee5d7;
+}
+html[data-theme="dark"] .homa-exact .hex-account-text :is(h2,p){
+  color:#eee7db;
+}
+html[data-theme="dark"] .homa-exact .hex-story:after{
+  background:linear-gradient(90deg,rgba(0,11,14,.93),rgba(0,12,14,.34));
+}
+
+/* Same footer palette for landing and inner-page CommerceShell.
+   Footer styles contain utility text classes, so theme selectors are explicit. */
+html[data-theme="light"] .homa-redesign .landing-footer,
+html[data-theme="light"] .commerce .commerce-footer{
+  color-scheme:light!important;
+  color:var(--hu-footer-ink)!important;
+  background:radial-gradient(circle at 12% 8%,rgba(220,174,87,.12),transparent 28rem),linear-gradient(140deg,#f2e8d9,#eee2cf)!important;
+  border-top:1px solid var(--hu-border);
+}
+html[data-theme="dark"] .homa-redesign .landing-footer,
+html[data-theme="dark"] .commerce .commerce-footer{
+  color-scheme:dark!important;
+  color:var(--hu-footer-ink)!important;
+  background:radial-gradient(circle at 12% 8%,rgba(220,174,87,.11),transparent 28rem),linear-gradient(140deg,#102527,#081618)!important;
+  border-top:1px solid #334341;
+}
+html[data-theme] .landing-footer :is([data-footer-newsletter],[data-footer-columns],[data-footer-preferences],[data-footer-legal]){
+  border-color:var(--hu-border)!important;
+}
+html[data-theme="light"] .landing-footer :is(h2,h3,p,small,label,summary,li,a,button,span),
+html[data-theme="light"] .commerce-footer :is(h2,h3,p,small,label,summary,li,a,button,span){
+  color:var(--hu-footer-ink)!important;
+}
+html[data-theme="dark"] .landing-footer :is(h2,h3,p,small,label,summary,li,a,button,span),
+html[data-theme="dark"] .commerce-footer :is(h2,h3,p,small,label,summary,li,a,button,span){
+  color:var(--hu-footer-ink)!important;
+}
+html[data-theme] .landing-footer :is(a,button):hover,
+html[data-theme] .commerce-footer a:hover{
+  color:var(--hu-accent)!important;
+}
+html[data-theme] .landing-footer .footer-introduction{
+  border-color:var(--hu-border);
+  background:var(--hu-surface);
+  color:var(--hu-ink);
+}
+html[data-theme] .landing-footer :is(input,select){
+  background:var(--hu-surface)!important;
+  color:var(--hu-ink)!important;
+  border:1px solid var(--hu-border)!important;
+}
+html[data-theme] .landing-footer :is(input,select)::placeholder{color:var(--hu-muted)}
+html[data-theme] .landing-footer option{
+  color:var(--hu-ink);background:var(--hu-surface);
+}
+html[data-theme] .landing-footer [data-footer-newsletter] button[type="submit"]{
+  background:linear-gradient(145deg,#f3d99c,#d4a048)!important;
+  color:#1c201b!important;
+}
+html[data-theme] .landing-footer [data-footer-newsletter] button[type="submit"] :is(span,svg){
+  color:#1c201b!important;
+}
+html[data-theme] .landing-footer .footer-introduction :is(.gold-button,.footer-track){
+  color:var(--hu-ink)!important;
+  border-color:var(--hu-border);
+}
+html[data-theme] .landing-footer .footer-contact-actions .theme-toggle,
+html[data-theme] .commerce-footer .commerce-footer-mode .theme-toggle{
+  color:var(--hu-ink)!important;
+  background:var(--hu-surface-raised);
+  border:1px solid var(--hu-border)!important;
+}
+html[data-theme] .landing-footer .footer-contact-actions .theme-toggle .theme-track,
+html[data-theme] .commerce-footer .commerce-footer-mode .theme-toggle .theme-track{
+  color:var(--hu-ink)!important;
+  background:var(--hu-surface);
+}
+html[data-theme] .landing-footer [data-footer-legal] button{color:var(--hu-footer-ink)!important}
+html[data-theme] .commerce-footer details,
+html[data-theme] .commerce-footer .commerce-footer-bottom{
+  border-color:var(--hu-border);
+}
+html[data-theme] .commerce-footer .commerce-footer-mode{
+  display:flex;align-items:center;justify-content:flex-start;margin:18px 0;
+}
+html[data-theme="light"] .landing-footer .footer-introduction :is(.footer-track,.gold-button){color:#22251f!important}
+html[data-theme="dark"] .landing-footer .footer-introduction .gold-button{color:#161d1b!important}
+/* Avoid a light footer seam between the closing content and footer surface. */
+html[data-theme] .homa-redesign{background:var(--hu-bg)}
+html[data-theme] .homa-redesign .landing-footer{margin-top:0}
+
+/* Inner pages and the member portal also track dark mode; no hardcoded bright panels. */
+html[data-theme="dark"] .commerce :is(
+  .shop-toolbar,.shop-empty,.shop-notice,.shop-error,.craft-group,
+  .shop-card,.shop-product,.product-specs>div,.cart-row,.checkout-section,
+  .management-panel,.management-principles article,.company-licenses,
+  .company-contact-panel,.license-card,.rank-comparison,.rank-card,
+  .portal-card,.brand-chapter:not(:first-child),.brand-related a,
+  .checkout-steps,.shop-heading-adjacent,.store-filter
+){
+  background:var(--hu-surface)!important;
+  color:var(--hu-ink)!important;
+  border-color:var(--hu-border)!important;
+}
+html[data-theme="dark"] .commerce :is(
+  .shop-card h2,.shop-card a,.shop-card strong,.rank-card h2,.rank-card h3,
+  .company-page h2,.brand-chapter h2,.brand-chapter p
+){
+  color:var(--hu-ink);
+}
+html[data-theme="dark"] .commerce .cart-summary,
+html[data-theme="dark"] .commerce .checkout-summary{
+  color:#f7e6ce!important;
+  background:linear-gradient(135deg,#183234,#0c2022)!important;
+}
+html[data-theme="dark"] .commerce :is(input,select,textarea),
+html[data-theme="dark"] .portal :is(input,select,textarea){
+  background:#112427!important;
+  color:#f3eadb!important;
+  border-color:#3d595b!important;
+}
+html[data-theme="dark"] .portal :is(.portal-title,.portal-card,.portal-stat,.portal-product,.portal-table-wrap,.registration-shell,.portal-auth,.portal-dialog,.portal-modal>section){
+  background:var(--hu-surface)!important;
+  color:var(--hu-ink)!important;
+  border-color:var(--hu-border)!important;
+}
+html[data-theme="dark"] .portal :is(.portal-card h2,.portal-card h3,.portal-title h1,.portal-product h2,.portal-product h3){
+  color:var(--hu-ink)!important;
+}
+html[data-theme="dark"] .portal :is(.portal-stat small,.portal-title p,.portal-product p){
+  color:var(--hu-muted)!important;
+}
+html[data-theme="dark"] .portal .portal-table th{
+  background:var(--hu-surface-raised)!important;color:var(--hu-ink)!important;
+}
+html[data-theme="dark"] .portal .portal-table td{
+  color:var(--hu-ink)!important;border-color:var(--hu-border)!important;
+}
+html[data-theme="dark"] .portal :is(.member-profile-card,.portal-sidebar){
+  background:linear-gradient(145deg,#122b2d,#0d2022)!important;
+  color:#f1e9da!important;
+}
+html[data-theme="dark"] .portal .portal-notice{
+  background:#243536;color:#f0e6d9;border-color:#b08a49;
+}
+html[data-theme="dark"] .portal :is(.portal-empty,.portal-form-section,.authenticator-setup,.login-second-factor){
+  color:var(--hu-muted);background:var(--hu-surface-raised);border-color:var(--hu-border);
+}
+html[data-theme="dark"] .portal .portal-button:not(.primary):not(.gold):not(.danger){
+  color:var(--hu-ink);background:var(--hu-surface-raised);border-color:var(--hu-border);
+}
+
+/* Theme changes are soft, with motion preferences respected. */
+@media(prefers-reduced-motion:no-preference){
+  .homa-redesign,.homa-exact,.commerce,.portal,
+  .discovery-header,.landing-footer,.commerce-footer,.theme-toggle{
+    transition:background-color .24s ease,color .24s ease,border-color .24s ease;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-theme] .theme-toggle .theme-thumb{transition:none!important}
+}
