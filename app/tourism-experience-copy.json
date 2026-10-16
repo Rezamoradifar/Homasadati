@@ -61,8 +61,8 @@
         "description": "شکوه تاریخ ایران"
       },
       "north": {
-        "name": "شمال ایران",
-        "description": "دریا، جنگل و زندگی محلی"
+        "name": "دریای خزر",
+        "description": "ساحل، جنگل و طبیعت شمال ایران"
       },
       "kish": {
         "name": "کیش",
@@ -189,8 +189,8 @@
         "description": "The splendor of Persian history"
       },
       "north": {
-        "name": "Northern Iran",
-        "description": "Sea, forest and local culture"
+        "name": "Caspian Coast",
+        "description": "Sea, forest and Northern Iran"
       },
       "kish": {
         "name": "Kish Island",
@@ -317,8 +317,8 @@
         "description": "عظمة التاريخ الإيراني"
       },
       "north": {
-        "name": "شمال إيران",
-        "description": "البحر والغابات والثقافة"
+        "name": "ساحل بحر قزوين",
+        "description": "البحر والغابة وطبيعة شمال إيران"
       },
       "kish": {
         "name": "جزيرة كيش",
