@@ -51,7 +51,7 @@ export default function Storefront({
                     <Localized key={p.id}><article className="shop-card">
                       <a href={`/shop/${p.id}`}>
                         {images[0] ? (
-                          <ResponsiveImage src={images[0]} sizes="(max-width: 700px) 90vw, (max-width: 1050px) 44vw, 400px" alt={copy.title} loading="lazy" />
+                          <ResponsiveImage src={images[0]} sizes="(max-width: 767px) 42vw, (max-width: 999px) 32vw, (max-width: 1599px) 23vw, 18vw" alt={copy.title} loading="lazy" />
                         ) : (
                           <div className="no-image">
                             <img src="/assets/brand/homanet-horizontal-orange.png" alt="هما نت" loading="lazy" />
