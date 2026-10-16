@@ -14,6 +14,8 @@ export interface FooterColumnProps {
   children?: ReactNode;
   /** Mobile panels begin closed by default. Desktop panels are always visible. */
   defaultOpen?: boolean;
+  /** Expose primary links first and keep the remaining links in an accessible details section. */
+  maxVisibleLinks?: number;
   className?: string;
 }
 export interface FooterColumnConfig {
@@ -44,6 +46,8 @@ export interface FooterProps {
   variant?: 'default' | 'editorial';
   /** Optional lead-in section; caller supplies translated content. */
   introduction?: ReactNode;
+  /** Keep the homepage footer short while preserving secondary destinations. */
+  compactColumns?: boolean;
   /** Optional brand signature above the legal bar. */
   signature?: ReactNode;
   id?: string;
