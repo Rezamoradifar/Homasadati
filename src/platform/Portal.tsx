@@ -653,6 +653,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                       key={key}
                       type="button"
                       aria-current={tab === key ? "page" : undefined}
+                      aria-label={`${translateText(label, locale, dictionary)} — HOMA`}
                       onClick={() => selectTab(key)}
                     >
                       {Icon && <Icon size={21} aria-hidden="true" />}
