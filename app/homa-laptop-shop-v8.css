@@ -1,0 +1,598 @@
+/* HOMA V8 — laptop-friendly navigation, compact footers and coherent catalogue.
+   Loaded after V7 to replace an older global 470px horizontal-card rule.
+   It changes layout only: products, prices, payment APIs and branding stay intact. */
+
+/* Header: 6 long links + search cannot fit on a 1024–1440px laptop.
+   Keep cart/account/theme/search usable; all links stay accessible in the existing menu. */
+@media (min-width: 768px) and (max-width: 1599px) {
+  html body .discovery-header .discovery-header-inner {
+    width: min(calc(100% - 36px), 1410px);
+    min-height: 74px;
+    gap: clamp(10px, 1.35vw, 22px);
+  }
+  html body .discovery-header .discovery-desktop-nav {
+    display: none !important;
+  }
+  html body .discovery-header .discovery-menu-trigger {
+    display: inline-flex !important;
+    border: 1px solid var(--ha-outline);
+  }
+  html body .discovery-header .discovery-brand {
+    min-width: 0;
+    gap: 10px;
+  }
+  html body .discovery-header .discovery-brand strong {
+    font-size: clamp(19px, 1.65vw, 24px);
+  }
+  html body .discovery-header .discovery-header-actions {
+    min-width: 0;
+    gap: 5px;
+    margin-inline-start: auto;
+  }
+  html body .discovery-header .hex-header-search {
+    flex: 0 1 265px;
+    width: clamp(165px, 19vw, 265px);
+  }
+}
+@media (min-width: 1600px) {
+  html body .discovery-header .discovery-header-inner {
+    width: min(calc(100% - 56px), 1510px);
+    gap: 16px;
+  }
+  html body .discovery-header .discovery-desktop-nav { gap: clamp(7px, 1vw, 14px); }
+  html body .discovery-header .discovery-desktop-nav a { padding: 8px 7px; }
+  html body .discovery-header .hex-header-search { flex: 0 1 200px; width: 200px; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  html body .discovery-header .discovery-header-inner { width: calc(100% - 24px); gap: 9px; }
+  html body .discovery-header .discovery-brand strong { font-size: 19px; }
+  html body .discovery-header .hex-header-search { flex: 0 1 175px; width: 175px; }
+  html body .discovery-header .discovery-icon { min-width: 41px; min-height: 41px; }
+}
+
+/* The reference-driven home must not squeeze four products beside a gift panel. */
+@media (min-width: 900px) and (max-width: 1439px) {
+  html[data-theme] .homa-exact .hex-products-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  html[data-theme] .homa-exact .hex-product-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(9px, 1.2vw, 16px);
+  }
+  html[data-theme] .homa-exact .hex-product-photo {
+    height: auto;
+    aspect-ratio: 5/4;
+  }
+  html[data-theme] .homa-exact .hex-gift-card {
+    min-height: 205px;
+  }
+  html[data-theme] .homa-exact .hex-gift-art {
+    width: 39%;
+    height: 102%;
+    left: 8%;
+    bottom: -17%;
+  }
+  html[data-theme] .homa-exact .hex-gift-copy {
+    max-width: 48%;
+    margin-inline-start: auto;
+  }
+}
+@media (min-width: 900px) and (max-width: 1199px) {
+  html[data-theme] .homa-exact .hex-middle { grid-template-columns: minmax(0, 1fr); }
+  html[data-theme] .homa-exact .hex-account-preview {
+    min-height: 300px;
+    grid-template-columns: 1fr 1fr;
+  }
+  html[data-theme] .homa-exact .hex-hero-body { width: 51%; }
+  html[data-theme] .homa-exact .hex-hero-aside { display: none; }
+}
+@media (min-width: 768px) and (max-width: 899px) {
+  html[data-theme] .homa-exact .hex-products-row { grid-template-columns: minmax(0, 1fr); }
+  html[data-theme] .homa-exact .hex-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html[data-theme] .homa-exact .hex-middle { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Catalogue: the old app/mobile.css used minmax(470px), creating giant cards
+   even on 1366px laptops. Explicitly reset that rule at real desktop widths. */
+@media (min-width: 768px) {
+  html[data-theme] body .commerce .shop-wrap:not(.checkout-page) {
+    width: min(calc(100% - 32px), 1450px);
+    max-width: 1450px;
+    padding: 22px 0 52px;
+  }
+  html[data-theme] body .commerce .shop-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: clamp(10px, 1.1vw, 17px) !important;
+  }
+  html[data-theme] body .commerce .shop-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    min-width: 0;
+    max-width: 100%;
+    gap: 7px !important;
+    padding: 11px !important;
+    border-radius: 18px !important;
+    box-shadow: var(--ha-drop) !important;
+  }
+  html[data-theme] body .commerce .shop-card > a:first-child {
+    display: block !important;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 5/4 !important;
+    border-radius: 13px !important;
+    overflow: hidden;
+    grid-column: auto;
+    grid-row: auto;
+    background: var(--ha-soft);
+  }
+  html[data-theme] body .commerce .shop-card > a:first-child img,
+  html[data-theme] body .commerce .shop-card > a:first-child .no-image {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: auto !important;
+    max-height: none !important;
+    object-fit: cover;
+    border-radius: 13px;
+  }
+  html[data-theme] body .commerce .shop-card > :not(:first-child) {
+    grid-column: auto;
+  }
+  html[data-theme] body .commerce .shop-card > small {
+    font-size: 11px;
+    min-height: 19px;
+    line-height: 1.5;
+    color: var(--ha-gold);
+    font-weight: 800;
+  }
+  html[data-theme] body .commerce .shop-card h2 {
+    font-size: clamp(14px, 1.2vw, 18px) !important;
+    line-height: 1.55 !important;
+    margin: 0;
+    min-height: 3.1em;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  html[data-theme] body .commerce .shop-card > p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.7;
+    min-height: 3.4em;
+    max-height: 3.4em;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    color: var(--ha-muted) !important;
+  }
+  html[data-theme] body .commerce .shop-card > strong {
+    margin: 3px 0;
+    color: var(--ha-gold);
+    font-size: clamp(14px, 1.27vw, 18px);
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+  }
+  html[data-theme] body .commerce .shop-card > a:not(:first-child) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 3px 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ha-gold);
+  }
+  html[data-theme] body .commerce .shop-card > .add-cart-form {
+    margin-top: auto;
+    padding-top: 5px;
+    min-width: 0;
+  }
+  html[data-theme] body .commerce .shop-card .store-cta {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 6px;
+    min-width: 0;
+  }
+  html[data-theme] body .commerce .shop-card .quantity-selector {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    border-radius: 11px;
+    background: var(--ha-soft);
+    border-color: var(--ha-outline);
+    min-width: 0;
+  }
+  html[data-theme] body .commerce .shop-card .quantity-selector button {
+    width: 32px !important;
+    height: 42px;
+    min-width: 32px !important;
+    min-height: 42px;
+    padding: 0;
+    color: var(--ha-ink);
+  }
+  html[data-theme] body .commerce .shop-card .quantity-selector input {
+    width: 34px !important;
+    min-width: 34px;
+    height: 42px;
+    min-height: 42px;
+    padding: 2px 0 !important;
+    font-size: 14px;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--ha-ink);
+  }
+  html[data-theme] body .commerce .shop-card .store-cta .commerce-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    min-height: 42px;
+    padding: 7px 5px !important;
+    font-size: clamp(10px, .88vw, 12px) !important;
+    line-height: 1.5;
+    white-space: normal;
+    margin: 0;
+    text-align: center;
+  }
+  html[data-theme] body .commerce .shop-card .store-cta .commerce-button svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  html[data-theme] body .commerce .shop-heading {
+    padding: 19px 24px;
+    margin-bottom: 12px;
+    border-radius: 18px;
+  }
+  html[data-theme] body .commerce .shop-heading h1 {
+    font-size: clamp(23px, 2vw, 34px);
+    line-height: 1.5;
+    margin: 0 0 4px;
+  }
+  html[data-theme] body .commerce .shop-heading p {
+    font-size: 13px;
+    line-height: 1.7;
+    margin-top: 2px;
+  }
+  html[data-theme] body .commerce .shop-heading:after {
+    font-size: 70px;
+    opacity: .75;
+  }
+  html[data-theme] body .commerce .shop-toolbar {
+    display: grid;
+    grid-template-columns: minmax(205px, 2fr) minmax(140px, 1fr) repeat(3, minmax(88px, .65fr));
+    gap: 9px;
+    align-items: center;
+    position: relative;
+    top: auto;
+    z-index: auto;
+    padding: 11px;
+    margin: 0 0 16px;
+    border-radius: 15px;
+  }
+  html[data-theme] body .commerce .shop-toolbar > :is(input,select,button,a) {
+    min-width: 0;
+    width: 100%;
+    margin: 0;
+    min-height: 44px;
+    line-height: 1.5;
+    border-radius: 11px;
+  }
+  html[data-theme] body .commerce .shop-toolbar > :is(button,a) {
+    padding: 7px 9px;
+    font-size: 12px;
+    white-space: normal;
+  }
+}
+@media (min-width: 1000px) and (max-width: 1599px) {
+  html[data-theme] body .commerce .shop-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+@media (min-width: 1600px) {
+  html[data-theme] body .commerce .shop-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 1040px) {
+  html[data-theme] body .commerce .shop-toolbar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  html[data-theme] body .commerce .shop-toolbar > input { grid-column: span 2; }
+  html[data-theme] body .commerce .shop-toolbar > select { grid-column: 3; }
+  html[data-theme] body .commerce .shop-toolbar > :is(button,a) { grid-column: auto; }
+  html[data-theme] body .commerce .shop-grid { gap: 10px !important; }
+  html[data-theme] body .commerce .shop-card { padding: 9px !important; }
+  html[data-theme] body .commerce .shop-card .store-cta { flex-wrap: wrap; }
+  html[data-theme] body .commerce .shop-card .quantity-selector,
+  html[data-theme] body .commerce .shop-card .store-cta .commerce-button {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  html[data-theme] body .commerce .shop-card .quantity-selector { justify-content: space-between; }
+}
+@media (min-width: 1000px) and (max-width: 1040px) {
+  /* Narrowest 4-up laptop cards get a full-width order button below quantity. */
+  html[data-theme] body .commerce .shop-card h2 { font-size: 14px !important; }
+}
+
+/* Footer structure is three concise columns on laptops; secondary destinations
+   remain available in a native, keyboard-operable More links disclosure. */
+html[data-theme] body .commerce .commerce-footer.commerce-footer-compact {
+  display: grid !important;
+  grid-template-columns: minmax(250px, 1.27fr) minmax(160px, .7fr) minmax(220px, 1fr);
+  gap: clamp(10px, 1.6vw, 22px);
+  align-items: start;
+  padding: 21px max(18px, calc((100% - 1450px)/2)) 15px;
+  margin-top: 20px;
+}
+html[data-theme] body .commerce .commerce-footer-compact > :is(.commerce-footer-brand,.commerce-footer-section) {
+  min-width: 0;
+  padding: 15px 17px;
+  border: 1px solid var(--ha-outline);
+  border-radius: 16px;
+  background: var(--ha-panel);
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-brand {
+  background: var(--ha-soft);
+}
+html[data-theme] body .commerce .commerce-footer-compact h2 {
+  margin: 0 0 8px;
+  color: var(--ha-ink);
+  font-size: clamp(15px, 1.25vw, 18px);
+  font-weight: 800;
+  line-height: 1.6;
+}
+html[data-theme] body .commerce .commerce-footer-compact .footer-brand-mark {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  margin-bottom: 6px;
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-tagline {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--ha-muted);
+  margin-bottom: 8px;
+}
+html[data-theme] body .commerce .commerce-footer-compact .company-contact.compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 5px 12px;
+  min-width: 0;
+  margin: 0 0 8px;
+}
+html[data-theme] body .commerce .commerce-footer-compact .company-contact.compact > :is(p,a) {
+  min-width: 0;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+html[data-theme] body .commerce .commerce-footer-compact .company-contact.compact :is(.contact-phone,.contact-email) {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px 6px;
+}
+html[data-theme] body .commerce .commerce-footer-compact .company-contact.compact .trust-badge {
+  max-width: 85px;
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-mode { margin: 10px 0 0; }
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-mode .theme-toggle {
+  min-height: 40px;
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-section nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  margin: 0;
+  align-content: start;
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-section nav a {
+  display: flex;
+  align-items: center;
+  min-height: 29px;
+  padding: 3px 0;
+  font-size: 12px;
+  line-height: 1.45;
+  border-radius: 7px;
+  color: var(--ha-ink);
+  overflow-wrap: anywhere;
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-section nav a:hover {
+  color: var(--ha-gold);
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-more {
+  margin-top: 7px;
+  border-top: 1px solid var(--ha-outline);
+  padding-top: 5px;
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-more summary {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  width: fit-content;
+  cursor: pointer;
+  color: var(--ha-gold);
+  font-size: 12px;
+  font-weight: 800;
+  user-select: none;
+  list-style: revert;
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-more > nav {
+  padding-top: 7px;
+  border-top: 1px solid var(--ha-outline);
+}
+html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-bottom {
+  grid-column: 1/-1;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--ha-outline);
+  margin: 0;
+  font-size: 11px;
+}
+@media (min-width: 768px) and (max-width: 999px) {
+  html[data-theme] body .commerce .commerce-footer.commerce-footer-compact {
+    grid-template-columns: minmax(250px, 1.1fr) minmax(190px, 1fr);
+  }
+  html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-brand {
+    grid-column: 1/-1;
+  }
+  html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-brand .company-contact.compact {
+    gap: 6px 14px;
+  }
+}
+@media (max-width: 767px) {
+  html[data-theme] body .commerce .commerce-footer.commerce-footer-compact {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 12px 12px 20px;
+    gap: 8px;
+  }
+  html[data-theme] body .commerce .commerce-footer-compact > :is(.commerce-footer-brand,.commerce-footer-section) {
+    padding: 13px 15px;
+  }
+  html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-section nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px 11px;
+  }
+  html[data-theme] body .commerce .commerce-footer-compact .commerce-footer-bottom {
+    grid-column: 1;
+  }
+}
+
+/* Landing footer: reduce massive editorial padding and show only three
+   primary links from each group; the rest live in native More links details. */
+html[data-theme] body .homa-redesign .landing-footer .footer-introduction {
+  padding: 15px 18px;
+  margin: 0 0 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, .65fr) minmax(0, 1.05fr);
+  align-items: start;
+  gap: clamp(12px, 1.8vw, 26px);
+}
+html[data-theme] body .homa-redesign .landing-footer .footer-introduction h2 {
+  font-size: clamp(19px, 1.55vw, 27px) !important;
+  line-height: 1.6 !important;
+  margin: 5px 0 !important;
+}
+html[data-theme] body .homa-redesign .landing-footer .footer-introduction p {
+  font-size: 12px;
+  line-height: 1.65;
+}
+html[data-theme] body .homa-redesign .landing-footer .footer-contact-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+html[data-theme] body .homa-redesign .landing-footer .footer-contact-actions :is(button,a) {
+  min-height: 38px !important;
+  padding: 7px 10px !important;
+  font-size: 11px !important;
+  white-space: normal;
+}
+html[data-theme] body .homa-redesign .landing-footer .footer-introduction .company-contact.compact {
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+html[data-theme] body .homa-redesign .landing-footer .footer-introduction .company-contact.compact > * {
+  margin-block: 3px;
+}
+html[data-theme] body .homa-redesign .landing-footer .footer-introduction .company-contact.compact nav {
+  display: none; /* Company/contact/legal links remain in the footer columns. */
+}
+html[data-theme] body .homa-redesign .landing-footer [data-footer-newsletter] {
+  padding-block: 12px !important;
+  gap: 12px;
+}
+html[data-theme] body .homa-redesign .landing-footer [data-footer-newsletter] :is(h2,p) {
+  margin-block: 0 4px;
+  line-height: 1.6;
+}
+html[data-theme] body .homa-redesign .landing-footer [data-footer-columns] {
+  display: grid;
+  grid-template-columns: 1.25fr repeat(4, minmax(0, 1fr));
+  gap: clamp(10px, 1.5vw, 22px);
+  padding-block: 13px !important;
+}
+html[data-theme] body .homa-redesign .landing-footer [data-footer-columns] h2 {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+html[data-theme] body .homa-redesign .landing-footer [data-footer-columns] a {
+  min-height: 31px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+html[data-theme] body .homa-redesign .landing-footer [data-footer-columns] .footer-extra-links summary {
+  min-height: 34px;
+  padding: 5px 0;
+  color: var(--ha-gold);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: revert;
+}
+html[data-theme] body .homa-redesign .landing-footer [data-footer-columns] .footer-extra-links ul {
+  padding: 2px 0 0;
+}
+html[data-theme] body .homa-redesign .landing-footer :is([data-footer-preferences],[data-footer-legal]) {
+  padding-block: 9px !important;
+  gap: 11px;
+}
+html[data-theme] body .homa-redesign .landing-footer [data-footer-legal] {
+  padding-top: 9px;
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  html[data-theme] body .homa-redesign .landing-footer .footer-introduction {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .8fr);
+  }
+  html[data-theme] body .homa-redesign .landing-footer .footer-introduction .company-contact.compact {
+    grid-column: 1/-1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+  }
+  html[data-theme] body .homa-redesign .landing-footer .footer-introduction .company-contact.compact > * {
+    max-width: 42%;
+    margin: 0;
+  }
+  html[data-theme] body .homa-redesign .landing-footer [data-footer-columns] {
+    grid-template-columns: 1.2fr repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  html[data-theme] body .homa-redesign .landing-footer .footer-introduction {
+    grid-template-columns: minmax(0,1fr);
+    gap: 10px;
+  }
+  html[data-theme] body .homa-redesign .landing-footer [data-footer-columns] {
+    display: block;
+    padding-block: 8px !important;
+  }
+  html[data-theme] body .homa-redesign .landing-footer [data-footer-newsletter] {
+    padding-block: 15px !important;
+  }
+}
+
+/* Never trade legibility or controls for motion. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] .shop-card img,
+  html[data-theme] .shop-card,
+  html[data-theme] .commerce-footer-compact a {
+    transition: none !important;
+    transform: none !important;
+  }
+}
