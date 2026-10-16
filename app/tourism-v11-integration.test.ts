@@ -40,8 +40,8 @@ describe("tourism-only V11 page integration", () => {
       "/assets/heritage/yazd.webp",
       "/assets/heritage/tabriz.webp",
       "/assets/heritage/bam.webp",
-      "/assets/redesign/tourism.webp",
-      "/assets/tourism-wide.jpg",
+      "/assets/tourism/northern-iran.svg",
+      "/assets/tourism/kish-island.svg",
     ]) {
       expect(existsSync("public" + image), image).toBe(true);
     }
@@ -51,6 +51,8 @@ describe("tourism-only V11 page integration", () => {
     expect(landing).toContain('consent: true');
     expect(landing).toContain('"IRR"');
     expect(landing).toContain('"/shop?vertical=tourism"');
+    expect(landing).not.toContain('"/assets/tourism-wide.jpg"');
+    expect(landing).not.toContain('"/assets/tourism.jpg"');
     expect(landing).not.toMatch(/\/api\/checkout|\/api\/payment/);
   });
 
