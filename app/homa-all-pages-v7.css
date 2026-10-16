@@ -1,0 +1,675 @@
+/* HOMA v7 — one visual system for every public, commerce and portal surface.
+ * The selectors intentionally never alter data attributes, business logic or logo assets.
+ * Loaded last in app/layout.tsx after the v3/v5 brand styles.
+ */
+
+html[data-theme="light"]{
+  --ha-page:#f7f2e9;
+  --ha-panel:#fffdf8;
+  --ha-soft:#efe6d8;
+  --ha-deep:#11282a;
+  --ha-deepest:#09191b;
+  --ha-ink:#25261f;
+  --ha-muted:#686257;
+  --ha-outline:#e4d9c9;
+  --ha-outline-strong:#ccb58c;
+  --ha-gold:#a77a2b;
+  --ha-gold-dark:#855d1f;
+  --ha-cta-text:#1a231e;
+  --ha-header:rgba(255,253,248,.94);
+  --ha-drop:0 12px 34px rgba(56,41,20,.07);
+  --ha-drop-strong:0 25px 55px rgba(30,29,21,.10);
+  --ha-input:#fffdfb;
+  color-scheme:light;
+
+  /* Honor the existing public design-system tokens throughout the site. */
+  --hn-bg:var(--ha-page);
+  --hn-bg-alt:var(--ha-soft);
+  --hn-surface:var(--ha-panel);
+  --hn-surface-raised:#fff;
+  --hn-border:var(--ha-outline);
+  --hn-border-strong:var(--ha-outline-strong);
+  --hn-text:var(--ha-ink);
+  --hn-text-muted:var(--ha-muted);
+  --hn-focus:#956922;
+  --hn-gold:#d8af65;
+  --hn-turquoise:#155457;
+  --hn-turquoise-deep:#103d40;
+  --hn-turquoise-soft:#deebe6;
+  --hn-indigo:#172a2d;
+  --hn-indigo-deep:#0c1a1c;
+  --hn-radius-sm:10px;
+  --hn-radius:14px;
+  --hn-radius-lg:22px;
+  --homa-light-bg:var(--ha-page);
+}
+html[data-theme="dark"]{
+  --ha-page:#0b181a;
+  --ha-panel:#152b2d;
+  --ha-soft:#1b3335;
+  --ha-deep:#132e31;
+  --ha-deepest:#071719;
+  --ha-ink:#f0e9df;
+  --ha-muted:#c9beac;
+  --ha-outline:#345054;
+  --ha-outline-strong:#506668;
+  --ha-gold:#edc77e;
+  --ha-gold-dark:#d7af6b;
+  --ha-cta-text:#1b231e;
+  --ha-header:rgba(11,26,28,.95);
+  --ha-drop:0 15px 35px rgba(0,0,0,.20);
+  --ha-drop-strong:0 27px 65px rgba(0,0,0,.30);
+  --ha-input:#102327;
+  color-scheme:dark;
+
+  --hn-bg:var(--ha-page);
+  --hn-bg-alt:var(--ha-soft);
+  --hn-surface:var(--ha-panel);
+  --hn-surface-raised:#1e3739;
+  --hn-border:var(--ha-outline);
+  --hn-border-strong:var(--ha-outline-strong);
+  --hn-text:var(--ha-ink);
+  --hn-text-muted:var(--ha-muted);
+  --hn-focus:#f2cc87;
+  --hn-gold:#edc77e;
+  --hn-turquoise:#68b7ae;
+  --hn-turquoise-deep:#94c9bf;
+  --hn-turquoise-soft:#223f40;
+  --hn-indigo:#11282a;
+  --hn-indigo-deep:#09191b;
+  --homa-dark-bg:var(--ha-page);
+  --homa-dark-deep:#081416;
+  --homa-dark-surface:var(--ha-panel);
+  --homa-dark-raised:var(--ha-soft);
+  --homa-dark-line:var(--ha-outline);
+  --homa-dark-line-strong:var(--ha-outline-strong);
+}
+
+html[data-theme] body{
+  background:var(--ha-page);
+  color:var(--ha-ink);
+}
+html[data-theme] :is(.commerce,.portal,.homa-redesign,.homa-exact){
+  --hp-paper:var(--ha-panel);
+  --hp-cream:var(--ha-page);
+  --hp-soft:var(--ha-soft);
+  --hp-ink:var(--ha-ink);
+  --hp-muted:var(--ha-muted);
+  --hp-line:var(--ha-outline);
+  --p-ink:var(--ha-ink);
+  --p-gold:var(--ha-gold);
+  --p-line:var(--ha-outline);
+  --portal-surface:var(--ha-panel);
+  --portal-border:var(--ha-outline);
+  --portal-muted:var(--ha-muted);
+  --portal-text:var(--ha-ink);
+  color:var(--ha-ink);
+}
+html[data-theme] :is(.commerce,.portal,.homa-redesign){
+  font-family:var(--hn-font),var(--font-fa),sans-serif;
+}
+html[data-theme] :is(.commerce,.portal) :is(main,section,article,aside){
+  min-width:0;
+}
+
+/* Public navigation and the account/management header share the same surface. */
+html[data-theme] :is(.discovery-header,.portal-header){
+  background:var(--ha-header);
+  border-bottom:1px solid var(--ha-outline);
+  box-shadow:0 10px 30px rgba(24,30,25,.08);
+  -webkit-backdrop-filter:blur(18px) saturate(135%);
+  backdrop-filter:blur(18px) saturate(135%);
+}
+html[data-theme] :is(.discovery-header .discovery-brand strong,.discovery-header .discovery-icon){
+  color:var(--ha-ink);
+}
+html[data-theme="light"] .portal.portal-member .portal-header,
+html[data-theme="light"] .portal.portal-admin .portal-header{
+  background:var(--ha-header)!important;
+  color:var(--ha-ink);
+  border-bottom-color:var(--ha-outline);
+}
+html[data-theme="dark"] .portal.portal-member .portal-header,
+html[data-theme="dark"] .portal.portal-admin .portal-header{
+  background:linear-gradient(100deg,#0c1d1f,#142e30)!important;
+  color:#f3e9d9;
+  border-bottom-color:var(--ha-outline);
+}
+html[data-theme="light"] .portal .portal-header :is(.portal-brand strong,.portal-toplinks a){
+  color:var(--ha-ink);
+}
+html[data-theme="light"] .portal .portal-header .portal-brand small{color:var(--ha-gold)}
+html[data-theme="light"] .portal .portal-header .portal-toplinks .theme-toggle{
+  color:var(--ha-ink);
+  background:var(--ha-panel);
+  border-color:var(--ha-outline)!important;
+}
+html[data-theme="light"] .portal .portal-header .portal-toplinks .theme-toggle .theme-track{
+  color:var(--ha-ink);
+  background:var(--ha-soft);
+  border-color:var(--ha-outline);
+}
+html[data-theme="light"] .portal.portal-member .portal-header .portal-button.gold{
+  background:linear-gradient(135deg,#f6dda7,#d3a65c)!important;
+  border-color:#c7a160!important;
+  color:#25251e!important;
+}
+html[data-theme="dark"] .portal .portal-header :is(.portal-brand strong,.portal-toplinks a){
+  color:#f1dfb9;
+}
+html[data-theme] :is(.commerce,.portal) :is(a,button,summary):focus-visible{
+  outline:3px solid var(--ha-gold)!important;
+  outline-offset:3px;
+}
+
+/* Common page measure, section rhythm and surfaces across commerce routes. */
+html[data-theme] .commerce{
+  background:radial-gradient(circle at 5% 0%,rgba(200,160,87,.075),transparent 31rem),var(--ha-page);
+  color:var(--ha-ink);
+}
+html[data-theme] .commerce :is(.shop-wrap,.brand-body,.rank-page,.checkout-page){
+  width:min(100% - 42px,1430px);
+  max-width:1430px;
+  margin-inline:auto;
+  padding-block:clamp(25px,3vw,43px) 60px;
+}
+html[data-theme] .commerce :is(.shop-heading,.company-heading,.rank-page>header,.checkout-heading,.brand-chapter:first-child){
+  border:1px solid var(--ha-outline);
+  border-radius:24px;
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .commerce :is(.shop-heading,.company-heading,.rank-page>header,.checkout-heading,.brand-chapter:first-child) :is(h1,h2){
+  color:var(--ha-ink);
+  font-weight:850;
+  line-height:1.45;
+}
+html[data-theme] .commerce :is(.shop-heading,.company-heading,.rank-page>header,.checkout-heading,.brand-chapter:first-child) p{
+  color:var(--ha-muted);
+  line-height:1.95;
+}
+html[data-theme] .commerce .commerce-eyebrow,
+html[data-theme] .commerce :is(.shop-results strong,.company-brand,.story-source){
+  color:var(--ha-gold);
+}
+html[data-theme] .commerce :is(.shop-card,.shop-product,.brand-chapter,.brand-related a,.rank-card,.rank-comparison,.rank-page>section,.company-licenses,.company-contact-panel,.management-panel,.license-card,.craft-group,.product-specs>div,.cart-row,.checkout-section,.checkout-steps,.payment-result-card,.checkout-empty,.shop-empty){
+  background:var(--ha-panel)!important;
+  color:var(--ha-ink)!important;
+  border:1px solid var(--ha-outline)!important;
+  border-radius:20px;
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .commerce :is(.shop-card,.shop-product,.rank-card,.brand-chapter,.checkout-section,.license-card) :is(h2,h3,strong){
+  color:var(--ha-ink);
+}
+html[data-theme] .commerce :is(.shop-card,.brand-chapter,.shop-product,.rank-comparison,.checkout-section,.company-page,.rank-page) :is(p,small,dt){
+  color:var(--ha-muted);
+}
+html[data-theme] .commerce .shop-card{
+  overflow:hidden;
+  padding:13px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+html[data-theme] .commerce .shop-card>a:first-child{
+  display:block;
+  overflow:hidden;
+  border-radius:16px;
+  background:var(--ha-soft);
+}
+html[data-theme] .commerce .shop-card>a:first-child img{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  transition:transform .3s ease;
+}
+html[data-theme] .commerce .shop-card>a:first-child:hover img{transform:scale(1.035)}
+html[data-theme] .commerce .shop-card :is(h2,strong){color:var(--ha-ink)}
+html[data-theme] .commerce .shop-card h2{font-size:clamp(15px,1.3vw,20px);line-height:1.65}
+html[data-theme] .commerce .shop-card>strong{
+  font-variant-numeric:tabular-nums;
+  font-size:clamp(15px,1.5vw,21px);
+  color:var(--ha-gold-dark);
+}
+html[data-theme="dark"] .commerce .shop-card>strong{color:var(--ha-gold)}
+html[data-theme] .commerce :is(.shop-toolbar,.shop-filters,.checkout-methods,.cart-voucher,.income-rates>div,.management-principles article,.shop-product-images,.comparison-scroll,.checkout-address,.checkout-review-row){
+  border-color:var(--ha-outline);
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+  border-radius:16px;
+}
+html[data-theme] .commerce :is(.shop-error,.checkout-error){
+  background:var(--ha-panel)!important;
+  color:#b45043!important;
+  border-color:#be6e5b!important;
+}
+html[data-theme="dark"] .commerce :is(.shop-error,.checkout-error){color:#ffc2b4!important}
+
+/* Unified form controls without changing input names, values or payment flow. */
+html[data-theme] :is(.commerce,.portal) :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  select,textarea
+){
+  background:var(--ha-input)!important;
+  color:var(--ha-ink)!important;
+  border-color:var(--ha-outline-strong)!important;
+  border-radius:12px;
+}
+html[data-theme] :is(.commerce,.portal) :is(input,textarea)::placeholder{
+  color:var(--ha-muted);
+  opacity:.88;
+}
+html[data-theme] :is(.commerce,.portal) :is(input,select,textarea):disabled{
+  opacity:.65;
+  cursor:not-allowed;
+}
+html[data-theme] :is(.commerce,.portal) input[type="checkbox"],
+html[data-theme] :is(.commerce,.portal) input[type="radio"]{
+  accent-color:#b88c45;
+}
+html[data-theme] .commerce :is(.commerce-button:not(.outline),.checkout-pay,.checkout-continue,.checkout-back){
+  min-height:44px;
+  border:1px solid #d8b16d!important;
+  border-radius:13px;
+  background:linear-gradient(135deg,#f6dda2,#d4a65b)!important;
+  color:var(--ha-cta-text)!important;
+  font-weight:750;
+  box-shadow:0 8px 20px rgba(121,82,20,.1);
+}
+html[data-theme] .commerce .commerce-button.outline{
+  background:transparent!important;
+  color:var(--ha-ink)!important;
+  border:1px solid var(--ha-outline-strong)!important;
+  border-radius:13px;
+}
+html[data-theme] .commerce :is(.commerce-button,.checkout-pay):disabled{
+  opacity:.5;cursor:not-allowed;box-shadow:none;
+}
+html[data-theme] .commerce :is(.cart-summary,.checkout-summary,.checkout-review){
+  border:1px solid var(--ha-outline);
+  border-radius:20px;
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .commerce .checkout-payable,
+html[data-theme] .commerce .checkout-summary strong{color:var(--ha-ink)}
+html[data-theme] .commerce :is(.checkout-secure,.checkout-policy,.checkout-reservation){
+  border-color:var(--ha-outline);
+}
+html[data-theme] .commerce :is(.checkout-secure,.checkout-policy){
+  color:var(--ha-muted);
+}
+
+/* Unified data-heavy pages: tables retain scroll and status semantics. */
+html[data-theme] :is(.commerce,.portal) :is(.portal-table-wrap,.comparison-scroll){
+  max-width:100%;
+  overflow-x:auto;
+  border:1px solid var(--ha-outline);
+  border-radius:16px;
+  background:var(--ha-panel);
+}
+html[data-theme] :is(.commerce,.portal) :is(.portal-table,.comparison-scroll table){
+  color:var(--ha-ink);
+  border-color:var(--ha-outline);
+}
+html[data-theme] :is(.commerce,.portal) :is(.portal-table th,.comparison-scroll th){
+  background:var(--ha-soft);
+  color:var(--ha-ink)!important;
+  border-color:var(--ha-outline);
+}
+html[data-theme] :is(.commerce,.portal) :is(.portal-table td,.comparison-scroll td){
+  border-color:var(--ha-outline);
+  color:var(--ha-ink);
+}
+html[data-theme] .portal .portal-table tr:hover td{
+  background:var(--ha-soft);
+}
+html[data-theme] :is(.commerce,.portal) :is(.portal-pagination,.commerce-pager){
+  color:var(--ha-ink);
+}
+
+/* Shared shell for both account and administration; preserve member's V6 hero. */
+html[data-theme] .portal{
+  background:radial-gradient(circle at 8% 0%,rgba(208,161,78,.075),transparent 34rem),var(--ha-page);
+  color:var(--ha-ink);
+}
+html[data-theme] .portal :is(.portal-layout,.portal-main,.admin-workspace){min-width:0}
+html[data-theme] .portal :is(.portal-title,.portal-card,.portal-stat,.portal-table-wrap,.portal-auth,.portal-dialog,.portal-product){
+  border-color:var(--ha-outline);
+  border-radius:21px;
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .portal :is(.portal-title,.portal-card,.portal-stat,.portal-table-wrap,.portal-auth,.portal-dialog,.portal-product){
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+}
+html[data-theme] .portal :is(.portal-card h2,.portal-title h1,.portal-stat strong,.portal-product h2){
+  color:var(--ha-ink);
+}
+html[data-theme] .portal :is(.portal-title p,.portal-stat small,.portal-stat em,.portal-card p){
+  color:var(--ha-muted);
+}
+html[data-theme] .portal .portal-button:not(.danger):not(.secondary){
+  border:1px solid #d7ae66;
+  border-radius:13px;
+  background:linear-gradient(145deg,#f8dda3,#ce9f50);
+  color:#1a241d;
+  font-weight:750;
+}
+html[data-theme] .portal .portal-button.secondary{
+  background:var(--ha-soft);
+  color:var(--ha-ink);
+  border:1px solid var(--ha-outline);
+  border-radius:13px;
+}
+html[data-theme] .portal :is(.portal-tabs,.portal-filter,.portal-form fieldset,.portal-form-section,.portal-notice,.portal-empty){
+  border-color:var(--ha-outline);
+}
+html[data-theme] .portal :is(.portal-form,.portal-form label,.portal-modal>section){
+  color:var(--ha-ink);
+}
+html[data-theme] .portal .portal-sidebar{
+  background:radial-gradient(circle at 70% 0%,rgba(215,175,90,.12),transparent 35%),linear-gradient(160deg,#132c2e,#09191b);
+  border:1px solid rgba(214,182,120,.26);
+  border-radius:23px;
+  box-shadow:0 16px 43px rgba(6,22,22,.17);
+}
+html[data-theme] .portal .portal-sidebar nav :is(button,h2){
+  line-height:1.6;
+}
+html[data-theme] .portal .portal-sidebar nav button[aria-current="page"]{
+  background:linear-gradient(135deg,#ffe7ae,#d0a056)!important;
+  color:#15231c!important;
+  border-color:#efd195!important;
+}
+html[data-theme] .portal .portal-sidebar :is(.portal-user,.member-profile-card){
+  border-radius:18px!important;
+}
+html[data-theme] .portal :is(.portal-table-wrap,.portal-form,.portal-filter,.portal-dialog){
+  max-width:100%;
+}
+
+/* Admin dashboard: mirror the member premium visual language without fake stats. */
+html[data-theme] .portal-admin .admin-welcome{
+  border:1px solid rgba(227,190,116,.32);
+  border-radius:25px;
+  background:radial-gradient(ellipse at 10% 0%,rgba(225,176,90,.13),transparent 44%),linear-gradient(140deg,#172f31,#071516)!important;
+  color:#f6eddd;
+  box-shadow:0 22px 54px rgba(7,23,24,.18);
+}
+html[data-theme] .portal-admin .admin-welcome :is(h2,p,a){color:#f6eddd}
+html[data-theme] .portal-admin .admin-kicker{color:#e7c489}
+html[data-theme] .portal-admin .admin-site-link{
+  min-height:44px;border-radius:13px;
+  border-color:rgba(234,195,118,.5);
+}
+html[data-theme] .portal-admin .admin-shortcuts{
+  gap:14px;
+}
+html[data-theme] .portal-admin .admin-shortcuts a{
+  border:1px solid var(--ha-outline);
+  border-radius:19px;
+  padding:19px;
+  color:var(--ha-ink);
+  background:var(--ha-panel);
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .portal-admin .admin-shortcuts a:hover{
+  border-color:var(--ha-gold);
+  transform:translateY(-2px);
+}
+html[data-theme] .portal-admin .admin-shortcut-icon{
+  border:1px solid var(--ha-outline);
+  border-radius:13px;
+  background:var(--ha-soft);
+  color:var(--ha-gold);
+}
+html[data-theme] .portal-admin .admin-shortcuts :is(h2,h3,strong){
+  color:var(--ha-ink);
+}
+html[data-theme] .portal-admin .admin-shortcuts p,
+html[data-theme] .portal-admin .admin-section-heading span{
+  color:var(--ha-muted);
+}
+html[data-theme] .portal-admin .admin-nav-search :is(span,input){
+  color:var(--ha-ink);
+}
+html[data-theme] .portal-admin .admin-nav-search{
+  color:#f0e5d3;
+}
+html[data-theme] .portal-admin .admin-nav-search input{
+  background:rgba(255,255,255,.07)!important;
+  border-color:rgba(231,196,124,.36)!important;
+  color:#fff2d8!important;
+}
+html[data-theme] .portal-admin .admin-nav-search input::placeholder{color:#c3bdb0}
+
+/* Auth, registration, security and admin forms keep the same tokens. */
+html[data-theme] .portal :is(.auth-login,.registration-shell,.registration,.portal-auth){
+  --auth-bg:var(--ha-panel);
+  --auth-ink:var(--ha-ink);
+  --auth-muted:var(--ha-muted);
+  --auth-line:var(--ha-outline);
+  --auth-soft:var(--ha-soft);
+  border-color:var(--ha-outline);
+  border-radius:23px;
+}
+html[data-theme] .portal :is(.auth-login,.registration){
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+}
+html[data-theme] .portal .registration-story{
+  background:radial-gradient(circle at 18% 0%,rgba(230,183,83,.18),transparent 48%),linear-gradient(150deg,#142d30,#081a1c);
+  color:#f2e6d2;
+}
+html[data-theme] .portal :is(.registration h2,.auth-login h1,.auth-login h2){
+  color:var(--ha-ink);
+}
+html[data-theme] .portal .auth-eyebrow{color:var(--ha-gold)}
+html[data-theme] .portal :is(.registration-steps,.registration-checks,.auth-check,.invitation-options label){
+  border-color:var(--ha-outline);
+}
+html[data-theme] .portal :is(.auth-login,.registration) :is(button,a){
+  border-radius:12px;
+}
+html[data-theme="dark"] .portal :is(.registration,.auth-login){
+  background:var(--ha-panel)!important;
+  color:var(--ha-ink)!important;
+}
+html[data-theme="dark"] .portal :is(.registration h2,.auth-login h1,.auth-login h2,.registration legend){
+  color:var(--ha-ink)!important;
+}
+
+/* All footers: same cream/obsidian surfaces, separator and brand rhythm. */
+html[data-theme] :is(.homa-redesign .landing-footer,.commerce .commerce-footer,.portal .portal-unified-footer){
+  border-top:2px solid var(--ha-outline)!important;
+  background:radial-gradient(circle at 7% 0%,rgba(210,165,72,.10),transparent 30rem),var(--ha-panel)!important;
+  color:var(--ha-ink)!important;
+}
+html[data-theme="dark"] :is(.homa-redesign .landing-footer,.commerce .commerce-footer,.portal .portal-unified-footer){
+  background:radial-gradient(circle at 7% 0%,rgba(210,165,72,.12),transparent 30rem),linear-gradient(140deg,#102527,#081719)!important;
+  color:#f3ebdc!important;
+  border-top-color:#465151!important;
+}
+html[data-theme] :is(.homa-redesign .landing-footer,.commerce .commerce-footer) :is(h2,h3,summary){
+  font-family:var(--hn-font);
+  font-weight:800;
+  letter-spacing:0;
+}
+html[data-theme] .commerce .commerce-footer{
+  padding:clamp(28px,4vw,56px) clamp(18px,4vw,65px) 22px;
+  grid-template-columns:minmax(240px,1.5fr) repeat(2,minmax(190px,1fr));
+  gap:clamp(15px,2.5vw,35px);
+}
+html[data-theme] .commerce .commerce-footer>div:first-child{
+  padding:20px;
+  border:1px solid var(--ha-outline);
+  border-radius:20px;
+  background:var(--ha-soft);
+}
+html[data-theme] .commerce .commerce-footer .footer-brand-mark{
+  display:block;width:63px;height:63px;object-fit:contain;
+  border-radius:15px;margin-bottom:12px;
+}
+html[data-theme] .commerce .commerce-footer h2{
+  color:var(--ha-ink)!important;
+  font-size:clamp(18px,1.8vw,26px);
+  line-height:1.5;
+}
+html[data-theme="dark"] .commerce .commerce-footer h2{color:#f7dfa4!important}
+html[data-theme] .commerce .commerce-footer :is(p,a,summary){
+  color:var(--ha-ink);
+}
+html[data-theme="dark"] .commerce .commerce-footer :is(p,a,summary){color:#ede5d7}
+html[data-theme] .commerce .commerce-footer a:hover{color:var(--ha-gold)}
+html[data-theme] .commerce .commerce-footer>details{
+  border:1px solid var(--ha-outline);
+  border-radius:19px;
+  padding:17px 20px;
+  background:var(--ha-panel);
+  align-self:start;
+}
+html[data-theme="dark"] .commerce .commerce-footer>details{background:#11272a}
+html[data-theme] .commerce .commerce-footer>details summary{
+  color:var(--ha-ink);
+  border-bottom:1px solid var(--ha-outline);
+  padding-bottom:10px;
+  font-size:15px;
+}
+html[data-theme="dark"] .commerce .commerce-footer>details summary{color:#f5e8cd}
+html[data-theme] .commerce .commerce-footer nav{gap:7px;margin-top:9px}
+html[data-theme] .commerce .commerce-footer nav a{
+  display:block;padding:6px 0;
+  border-radius:8px;
+  font-size:13px;line-height:1.65;
+  transition:color .2s ease;
+}
+html[data-theme] .commerce .commerce-footer .commerce-footer-bottom{
+  grid-column:1/-1;
+  display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;
+  border-top:1px solid var(--ha-outline);
+  padding:18px 0 0;
+  font-size:12px;
+}
+html[data-theme] .commerce .commerce-footer-mode{
+  display:flex;align-items:center;margin-block:15px;
+}
+html[data-theme] .homa-redesign .landing-footer :is([data-footer-newsletter],[data-footer-preferences],[data-footer-legal]){
+  border-color:var(--ha-outline)!important;
+}
+html[data-theme] .homa-redesign .landing-footer :is(.footer-introduction,[data-footer-newsletter]){
+  max-width:1450px;
+  margin-inline:auto;
+}
+html[data-theme] .homa-redesign .landing-footer .footer-introduction{
+  background:var(--ha-soft);
+  border:1px solid var(--ha-outline);
+  border-radius:20px;
+}
+html[data-theme="dark"] .homa-redesign .landing-footer .footer-introduction{background:#132b2d}
+html[data-theme] .homa-redesign .landing-footer [data-footer-newsletter] button[type="submit"]{
+  background:linear-gradient(135deg,#f9dfa4,#d5a45a)!important;
+  color:#1b211b!important;
+}
+html[data-theme] .homa-redesign .landing-footer :is(input,select){
+  background:var(--ha-input)!important;
+  color:var(--ha-ink)!important;
+  border-color:var(--ha-outline-strong)!important;
+}
+
+/* Portal footer is intentionally compact to avoid repeating the whole commerce nav. */
+html[data-theme] .portal .portal-unified-footer{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:16px;
+  padding:20px max(22px,calc((100% - 1470px)/2));
+  margin-top:22px;
+  font-size:12px;
+}
+html[data-theme] .portal .portal-unified-footer>a{
+  display:inline-flex;align-items:center;gap:9px;
+  font-weight:800;text-decoration:none;color:inherit;
+}
+html[data-theme] .portal .portal-unified-footer img{
+  width:34px;height:34px;object-fit:contain;
+}
+html[data-theme] .portal .portal-unified-footer nav{
+  display:flex;align-items:center;justify-content:flex-start;gap:10px 24px;flex-wrap:wrap;
+}
+html[data-theme] .portal .portal-unified-footer nav a{
+  color:inherit;text-decoration:none;opacity:.87;
+}
+html[data-theme] .portal .portal-unified-footer nav a:hover{
+  color:var(--ha-gold);
+  opacity:1;
+}
+html[data-theme] .portal .portal-unified-footer small{color:var(--ha-muted)}
+html[data-theme="dark"] .portal .portal-unified-footer small{color:#c6bcae}
+
+/* Page breakpoints: no horizontal document overflow, keep tables horizontally scrollable. */
+@media(max-width:1000px){
+  html[data-theme] .commerce :is(.shop-wrap,.brand-body,.rank-page,.checkout-page){
+    width:calc(100% - 28px);
+  }
+  html[data-theme] .commerce .commerce-footer{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  html[data-theme] .commerce .commerce-footer>div:first-child{
+    grid-column:1/-1;
+  }
+}
+@media(max-width:780px){
+  html[data-theme] .commerce :is(.shop-wrap,.brand-body,.rank-page,.checkout-page){
+    width:calc(100% - 20px);
+    padding-block:20px 40px;
+  }
+  html[data-theme] .commerce :is(.shop-heading,.company-heading,.rank-page>header,.checkout-heading){
+    padding:20px 17px;
+    border-radius:18px;
+  }
+  html[data-theme] .commerce .commerce-footer{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+    padding:22px 12px 16px;
+  }
+  html[data-theme] .commerce .commerce-footer>details{
+    padding:13px;min-width:0;
+  }
+  html[data-theme] .portal .portal-unified-footer{
+    padding:17px 15px 95px;
+  }
+}
+@media(max-width:550px){
+  html[data-theme] .commerce .commerce-footer{
+    grid-template-columns:minmax(0,1fr);
+  }
+  html[data-theme] .commerce .commerce-footer>div:first-child{
+    grid-column:auto;
+  }
+  html[data-theme] .commerce .commerce-footer .commerce-footer-bottom{
+    align-items:flex-start;
+  }
+  html[data-theme] .portal .portal-unified-footer{
+    gap:14px;
+    align-items:flex-start;
+  }
+  html[data-theme] .portal .portal-unified-footer nav{gap:9px 17px}
+  html[data-theme] .portal-admin .admin-shortcuts{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  html[data-theme] :is(.commerce,.portal) :is(.portal-table-wrap,.comparison-scroll){
+    width:100%;
+    max-width:100%;
+    overflow-x:auto;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-theme] :is(.commerce,.portal,.homa-redesign) :is(a,button,img){
+    transition:none!important;
+    animation:none!important;
+  }
+}
