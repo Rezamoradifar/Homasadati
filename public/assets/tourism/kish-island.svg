@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780" role="img" aria-label="Illustration of Kish Island in the Persian Gulf">
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#20304a"/><stop offset=".38" stop-color="#c98772"/><stop offset=".68" stop-color="#f0b67b"/><stop offset="1" stop-color="#f1d3a5"/></linearGradient>
+ <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#7ab9b9"/><stop offset=".35" stop-color="#328c98"/><stop offset=".80" stop-color="#09576c"/><stop offset="1" stop-color="#0a394f"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#ffebc0" stop-opacity=".95"/><stop offset=".38" stop-color="#ffd49c" stop-opacity=".52"/><stop offset="1" stop-color="#ffd49c" stop-opacity="0"/></radialGradient>
+ <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ead0a3"/><stop offset="1" stop-color="#b58d61"/></linearGradient>
+ <pattern id="grain" width="21" height="21" patternUnits="userSpaceOnUse"><circle cx="2" cy="5" r=".6" fill="#fff" opacity=".14"/><circle cx="13" cy="16" r=".7" fill="#0f3b40" opacity=".16"/></pattern>
+</defs>
+<rect width="1200" height="780" fill="url(#sky)"/>
+<ellipse cx="874" cy="250" rx="298" ry="233" fill="url(#glow)"/>
+<circle cx="878" cy="276" r="47" fill="#fff1c9"/>
+<path d="M0 469Q256 462 490 472T1200 467V780H0Z" fill="url(#sea)"/>
+<path d="M0 482Q185 466 392 480T815 481T1200 478" fill="none" stroke="#def4dc" stroke-width="4" opacity=".52"/>
+<path d="M440 512Q700 500 900 519T1200 512M375 590Q629 565 855 590T1200 575M320 681Q646 654 909 681T1200 662" fill="none" stroke="#eef5d9" stroke-width="3" opacity=".33"/>
+<path d="M0 470Q70 442 138 453Q231 460 325 443L425 471V501H0Z" fill="#a49e89"/>
+<g fill="#e5d4b8"><rect x="41" y="360" width="62" height="99"/><rect x="112" y="331" width="77" height="132"/><rect x="203" y="380" width="70" height="80"/><rect x="283" y="344" width="44" height="114"/></g>
+<g fill="#9b7d67" opacity=".8"><path d="M36 358 70 339 106 358Z"/><path d="M112 330 150 302 190 330Z"/><path d="M196 377 236 360 279 377Z"/></g>
+<g stroke="#e1aa66" stroke-width="5"><path d="M42 383H104M114 360H189M209 397H268M282 370H326"/></g>
+<path d="M0 525Q112 507 184 525Q260 554 286 620L244 780H0Z" fill="url(#sand)"/>
+<path d="M0 557Q140 531 214 588Q244 608 275 654" fill="none" stroke="#fff5d6" stroke-width="7" opacity=".64"/>
+<path d="M330 550Q361 511 399 547" stroke="#f3f3dc" stroke-width="4" fill="none" opacity=".32"/>
+<g transform="translate(680 490)">
+<path d="M0 80Q82 91 170 78L154 102H19Z" fill="#573b31"/>
+<path d="M80 80V-56" stroke="#422e2c" stroke-width="5"/>
+<path d="M77 -51 10 66H77Z" fill="#f4e0bb" opacity=".93"/>
+<path d="M85 -32 145 65H85Z" fill="#e3b079" opacity=".88"/>
+<path d="M2 81Q82 94 173 80" fill="none" stroke="#e7b56f" stroke-width="4"/>
+</g>
+<g fill="#223f3b"><path d="M64 500 72 359 83 500ZM87 497 96 388 106 497ZM115 502 120 415 129 502Z"/></g>
+<g stroke="#254943" stroke-width="7" fill="none"><path d="M75 389Q43 350 15 371M75 389Q76 354 112 333M75 389Q107 362 141 381"/><path d="M98 414Q61 379 45 403M98 414Q106 379 139 388"/></g>
+<path d="M0 0H1200V780H0Z" fill="url(#grain)" opacity=".5"/>
+</svg>
