@@ -53,8 +53,8 @@
 }
 .hex-phoenix img{
   width:100%!important;height:100%!important;object-fit:contain;
-  filter:sepia(.55) saturate(1.6) drop-shadow(0 0 10px rgba(252,206,111,.66)) drop-shadow(0 20px 18px rgba(70,44,7,.4));
-  transform:rotate(-8deg);
+  filter:drop-shadow(0 0 10px rgba(252,206,111,.36)) drop-shadow(0 20px 18px rgba(70,44,7,.25));
+  transform:none;
 }
 .hex-left-copy{
   position:absolute;inset-inline-start:3.2%;bottom:12%;z-index:2;
