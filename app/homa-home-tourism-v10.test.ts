@@ -10,7 +10,7 @@ describe("HOMA V10 homepage travel-first hero", () => {
     expect(hero).toContain('src="/assets/tourism.jpg"');
     expect(hero).not.toContain('src="/assets/premium/hero-cosmetics.svg"');
     expect(hero).toContain('className="hex-hero-product hex-hero-tourism"');
-    expect(hero).toContain("className=\"hex-hero-tourism-frame\"".replace("className=\"hex-hero-tourism-frame\"", "hex-hero-tourism-frame"));
+    expect(hero).toContain('className="hex-hero-product-frame hex-hero-tourism-frame"');
     expect(existsSync("public/assets/tourism.jpg")).toBe(true);
   });
 
