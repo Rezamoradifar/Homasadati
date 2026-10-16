@@ -7,10 +7,8 @@ import {
   CheckCircle,
   Compass,
   Headset,
-  Leaf,
   MagnifyingGlass,
   MapPin,
-  SealCheck,
   ShieldCheck,
   Sparkle,
   UsersThree,
@@ -28,8 +26,8 @@ const destinations: { id: Destination; image: string }[] = [
   { id: "shiraz", image: "/assets/heritage/garden.webp" },
   { id: "isfahan", image: "/assets/heritage/isfahan.webp" },
   { id: "persepolis", image: "/assets/heritage/persepolis.webp" },
-  { id: "north", image: "/assets/redesign/tourism.webp" },
-  { id: "kish", image: "/assets/tourism-wide.jpg" },
+  { id: "north", image: "/assets/tourism/northern-iran.svg" },
+  { id: "kish", image: "/assets/tourism/kish-island.svg" },
 ];
 
 const experiences: { id: Experience; image: string }[] = [
