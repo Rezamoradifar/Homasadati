@@ -4,6 +4,7 @@ import {useSiteLocale} from "../../i18n/SiteLocale";
 import {translateText} from "../../i18n/core";
 import { forwardRef, type ImgHTMLAttributes } from "react";
 import { imageDimensions } from "./image-dimensions";
+import { safeMediaSrc } from "./retired-image-aliases";
 type Props = Omit<
   ImgHTMLAttributes<HTMLImageElement>,
   "srcSet" | "width" | "height"
@@ -25,6 +26,7 @@ const ResponsiveImage = forwardRef<HTMLImageElement, Props>(
     ref,
   ) {
     const {locale,dictionary}=useSiteLocale();
+    src = src ? safeMediaSrc(src) : src;
     alt=translateText(alt,locale,dictionary);
     const uploaded=!!src&&/^\/api\/platform\/media\/[a-f0-9-]{36}\.webp$/.test(src);
     if(uploaded)return <img {...rest} ref={ref} src={src} srcSet={[320,640,960,1440].map(w=>`${src}?w=${w} ${w}w`).join(', ')} sizes={sizes} alt={alt} width={width} height={height} loading={loading} decoding="async"/>;
