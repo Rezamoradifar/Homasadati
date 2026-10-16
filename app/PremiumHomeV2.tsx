@@ -176,7 +176,7 @@ export default function PremiumHomeV2({locale}:{locale:Locale}) {
 
   return <div className="homa-v2" dir={rtl?'rtl':'ltr'}>
     <section className="homa-v2-hero" id="home">
-      <ResponsiveImage className="homa-v2-hero-bg" src="/assets/redesign/heritage-hero.webp" alt="" priority sizes="100vw"/>
+      <ResponsiveImage className="homa-v2-hero-bg" src="/assets/redesign/heritage-hero.webp" alt="" sizes="100vw"/>
       <div className="homa-v2-hero-shade"/>
       <div className="homa-v2-hero-copy">
         <div className="homa-v2-brandline"><ResponsiveImage src="/assets/brand-mark.png" alt="" width={78} height={78}/><span>HOMA</span></div>
