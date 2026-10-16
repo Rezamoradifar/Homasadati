@@ -460,3 +460,39 @@ html[data-theme="dark"] .portal .portal-button:not(.primary):not(.gold):not(.dan
 @media(prefers-reduced-motion:reduce){
   html[data-theme] .theme-toggle .theme-thumb{transition:none!important}
 }
+
+/* Registration/login maintain legible text when the dark surface is active. */
+html[data-theme="dark"] .portal :is(.registration-shell,.registration,.auth-login),
+html[data-theme="dark"] .registration-shell{
+  --auth-bg:#14292b;
+  --auth-ink:#f1eadd;
+  --auth-muted:#c7bdae;
+  --auth-line:#385354;
+  --auth-soft:#1d3537;
+}
+html[data-theme="dark"] .portal :is(.registration,.auth-login){
+  color:var(--auth-ink)!important;
+  background:var(--auth-bg)!important;
+  border-color:var(--auth-line)!important;
+}
+html[data-theme="dark"] .portal :is(.registration h1,.registration h2,.auth-login h1,.auth-login h2,.registration legend,.auth-login label,.registration label){
+  color:var(--auth-ink)!important;
+}
+html[data-theme="dark"] .portal :is(.registration p,.auth-login p,.registration label small,.auth-login label small){
+  color:var(--auth-muted)!important;
+}
+html[data-theme="dark"] .portal :is(.authenticator-setup,.verified-email,.login-second-factor,.invitation-options label,.auth-footer){
+  background:var(--auth-soft)!important;
+  color:var(--auth-ink)!important;
+  border-color:var(--auth-line)!important;
+}
+html[data-theme="dark"] .portal .invitation-options label.selected{
+  background:#2a3733!important;
+  border-color:#d4a95d!important;
+}
+html[data-theme="dark"] .portal .auth-secret,
+html[data-theme="dark"] .portal .recovery-grid code{
+  background:var(--auth-bg)!important;
+  color:var(--auth-ink)!important;
+  border-color:var(--auth-line)!important;
+}
