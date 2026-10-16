@@ -6,18 +6,13 @@ import Localized from "../src/i18n/Localized";
 import ResponsiveImage from "../src/components/media/ResponsiveImage";
 
 import {useSiteLocale} from '../src/i18n/SiteLocale';
-import ClubPreview from './ClubPreview';
-import CatalogHighlights from './CatalogHighlights';
 import SiteHeader from '../src/commerce/SiteHeader';
-import ServiceLanding from './ServiceLanding';
-import {HeritageSections} from './HeritageSections';
 import './heritage.css';
 import '../src/commerce/commerce.css';
-import PublicContent from '../src/platform/PublicContent';
 import {useSiteSettings} from '../src/platform/SiteSettings';
 import {useEffect, useRef, useState, type FormEvent} from 'react';
 import {NextIntlClientProvider, useTranslations} from 'next-intl';
-import {ArrowRight, ArrowLeft, Gift, Diamond, UsersThree, X, CaretLeft, CaretRight} from '@phosphor-icons/react';
+import {ArrowRight, ArrowLeft, X, CaretLeft, CaretRight} from '@phosphor-icons/react';
 import {Footer, localeDirection, defaultColumns} from '../src/components/footer';
 import en from '../src/messages/en.json';
 import fa from '../src/messages/fa.json';
@@ -26,8 +21,9 @@ import {copy, type Locale} from './landing-copy';
 import './landing.css';
 import './editorial.css';
 import './premium-home.css';
+import './premium-v2.css';
+import PremiumHomeV2 from './PremiumHomeV2';
 import {editorialCopy} from './editorial-copy';
-import {BrandIntroduction,TravelCollection,CraftSection,BeautySection,CreativeStudio,Journal,BusinessPartnership,EnquiryProcess} from './BusinessSections';
 import {completionCopy} from './completion-copy';
 import {functionalCopy} from './function-copy';
 import {sectionContent} from './section-content';
@@ -68,18 +64,7 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
  <a href="#main" className="skip-link">رفتن به محتوای اصلی</a>
  <SiteHeader home onTrackRequest={()=>open('tracking')}/>
  <main id="main" tabIndex={-1}>
- <ServiceLanding/>
- <PublicContent/>
- <BrandIntroduction onStory={()=>open('story')}/>
- <HeritageSections/><TravelCollection onEnquire={enquire}/>
- <CraftSection onEnquire={enquire}/><CatalogHighlights/><BeautySection onCategory={open}/>
- <CreativeStudio onEnquire={enquire}/>
- <section className="gallery-section" aria-labelledby="gallery-title"><div className="gallery-heading"><h2 id="gallery-title">{c.gallery}</h2><p>{c.gallerySub}</p><button onClick={()=>{setGalleryIndex(0);open('gallery');}}>{c.viewGallery}<Arrow size={18}/></button></div><div className="gallery-strip">{galleryImages.map((src,i)=><Localized key={src}><button aria-label={`${c.picture} ${i+1}`} onClick={()=>{setGalleryIndex(i);open('gallery');}}><ResponsiveImage src={`/assets/${src}`} alt={`${c.gallery} — ${i+1}`} sizes={i === galleryImages.length - 1 ? "(max-width: 767px) 90vw, 16vw" : "(max-width: 767px) 45vw, 16vw"} loading="lazy"/></button></Localized>)}</div></section>
- <section id="club" className="club-banner"><div className="club-heading"><h2>{c.club}</h2><p className="club-description">{c.clubSub}</p></div><div className="club-right"><div className="club-perks">{c.perks.map((p,i)=>{const Icon=[Gift,Diamond,UsersThree][i];return <Localized key={p}><div><Icon weight="thin" size={30}/><p>{p}</p></div></Localized>;})}</div><button className="gold-button" onClick={()=>open('club')}>{c.join}<Arrow size={19}/></button></div></section>
- <ClubPreview/>
- <Journal onArticle={index=>{setArticle(index);open('journal');}}/>
- <BusinessPartnership onEnquire={enquire}/>
- <EnquiryProcess/>
+ <PremiumHomeV2 locale={locale}/>
  <section className="landing-faq content-section" aria-labelledby="faq-title"><div><p className="eyebrow">{tf('columns.support')}</p><h2 id="faq-title">{f('faqTitle')}</h2><p>{f('faqIntro')}</p><button className="text-button" onClick={()=>open('tracking')}>{u('tracking')}<Arrow size={20}/></button></div><div className="faq-items">{[1,2,3,4].map(i=><Localized key={i}><details><summary>{f(`q${i}`)}</summary><p>{f(`a${i}`)}</p></details></Localized>)}</div></section>
  </main>
  <Footer variant="editorial" introduction={<div className="footer-introduction"><div><p className="eyebrow">{e('collection')}</p><h2>{e('footerTitle')}</h2><p>{e('footerText')}</p></div><div className="footer-contact-actions"><a className="gold-button" href="/contact">{e('footerContact')}<Arrow size={22}/></a><button className="footer-track" onClick={()=>open('tracking')}>{u('tracking')}<Arrow size={18}/></button></div><ContactDetails compact/></div>} newsletterSuccessContent={unsubscribe?<div className="newsletter-cancellation"><p>{f('newsletterSave')}</p><a href={`/unsubscribe?token=${unsubscribe}`} rel="nofollow">{u('unsubscribe')}</a></div>:undefined} onSubscribe={subscribe} columns={defaultColumns.map(column=>({...column,links:column.links.map(link=>({...link,onClick:event=>{event.preventDefault(); const index=sections.indexOf(link.href.replace(/^[/#]/,'')); if(index>=0)open(index);else if(link.href==='/leather')window.location.assign('/worlds/leather');else if(link.href==='/club')window.location.assign('/club/ranks');else if(link.href==='/content'){document.getElementById('journal')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}else if(link.href==='/help')window.location.assign('/support');else if(link.href==='/about'||link.href==='/contact')window.location.assign(link.href);else if(['/terms','/privacy'].includes(link.href))window.location.assign('/legal'+link.href);else if(['/booking','/concierge','/contact','/partners'].includes(link.href))enquire(tf(link.labelKey));else{setInfoTitle(tf(link.labelKey));setInfoKey(link.href.slice(1));open('info');}}}))}))} className="landing-footer" logo={<ResponsiveImage src={siteSettings.site_logo||'/assets/brand-mark.png'} alt="" width={58} height={58}/>} currencies={usd?[{value:'IRR',labelKey:'currencies.IRR'},{value:'USD',labelKey:'currencies.USD'}]:[{value:'IRR',labelKey:'currencies.IRR'}]} currency={currency} onCurrencyChange={changeCurrency} onLocaleChange={l=>setLocale(l as Locale)} homeHref="#home" resolveHref={path=>['/tourism','/beauty','/handicrafts','/ai','/leather'].includes(path)?'/worlds/'+(path==='/handicrafts'?'craft':path.slice(1)):path==='/'?'#home':path==='/help'?'/support':path==='/content'?'#journal':path==='/club'?'/club/ranks':['/about','/contact'].includes(path)?path:path==='/global-shipping'||path==='/dalarit'?'#international':['/privacy','/terms'].includes(path)?'/legal'+path:'#about'} backToTopTargetId="main" year={2026}/>
