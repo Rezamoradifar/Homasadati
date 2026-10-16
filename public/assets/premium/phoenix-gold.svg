@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="680" viewBox="0 0 560 680" role="img" aria-label="Decorative golden phoenix">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#72400f"/><stop offset=".13" stop-color="#e8aa42"/><stop offset=".32" stop-color="#fff1a9"/><stop offset=".47" stop-color="#b67320"/><stop offset=".68" stop-color="#f8cf6e"/><stop offset=".86" stop-color="#8a4d14"/><stop offset="1" stop-color="#ffe0a0"/></linearGradient>
+<linearGradient id="w" x1="0" x2="1"><stop offset="0" stop-color="#8e5015"/><stop offset=".28" stop-color="#d8952c"/><stop offset=".54" stop-color="#fff0aa"/><stop offset=".75" stop-color="#e0a93c"/><stop offset="1" stop-color="#63360a"/></linearGradient>
+<linearGradient id="t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f9d57f"/><stop offset=".38" stop-color="#d58a1e"/><stop offset=".6" stop-color="#ffe5a6"/><stop offset="1" stop-color="#8d5012"/></linearGradient>
+<filter id="d" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="7"/><feOffset dy="7"/><feComponentTransfer><feFuncA type="linear" slope=".45"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<g filter="url(#d)">
+<!-- back wing: large, layered gilded feathers -->
+<path d="M312 318C270 251 203 192 168 105C209 129 244 156 271 192C245 149 219 100 227 48C260 115 295 159 326 202C321 150 319 111 340 70C352 139 365 175 368 222L352 315Z" fill="url(#g)" stroke="#b57b22" stroke-width="2"/>
+<path d="M303 304C218 261 164 201 118 127C142 185 189 252 237 279C162 250 106 210 57 156C93 243 178 309 254 340Z" fill="url(#w)" stroke="#9d6014" stroke-width="2"/>
+<path d="M289 310C202 305 117 271 35 225C100 312 191 364 291 355Z" fill="url(#g)" stroke="#a46c20" stroke-width="2"/>
+<!-- wing individual luminous feather veins -->
+<g fill="none" stroke="#ffe7a0" stroke-linecap="round" opacity=".94">
+<path d="M332 267C266 205 226 139 185 104" stroke-width="4"/>
+<path d="M320 274C261 229 220 198 151 159" stroke-width="3"/>
+<path d="M308 300C221 257 179 236 93 185" stroke-width="4"/>
+<path d="M305 315C216 295 159 263 67 242" stroke-width="3"/>
+<path d="M328 250C294 171 270 129 246 78" stroke-width="3"/>
+<path d="M349 250C337 182 337 127 340 90" stroke-width="4"/>
+</g>
+<!-- long tail feathers and streamers -->
+<path d="M308 350C333 411 289 496 232 567C188 621 133 640 71 658C166 648 246 599 297 543C372 455 369 390 342 336Z" fill="url(#t)" opacity=".88"/>
+<path d="M322 365C316 463 236 552 171 596C103 641 78 627 35 638C141 658 241 618 304 554C386 469 371 393 352 351Z" fill="url(#g)" opacity=".9"/>
+<path d="M329 354C394 429 354 510 320 548C282 586 235 588 185 606C286 593 354 572 393 514C438 448 407 377 357 326Z" fill="url(#t)" opacity=".72"/>
+<path d="M297 366C275 440 214 502 183 525C137 559 91 577 68 572C145 600 217 570 272 519C332 464 349 410 338 359Z" fill="url(#w)"/>
+<path d="M342 376C412 442 418 523 356 581C326 608 286 627 251 634C349 624 430 576 445 495C456 439 421 372 361 341Z" fill="url(#g)" opacity=".68"/>
+<!-- elegant curved wing on opposite side -->
+<path d="M349 295C390 261 418 213 431 153C436 217 425 261 403 293C440 269 475 229 497 181C491 251 461 312 411 344Z" fill="url(#w)" stroke="#ae731d" stroke-width="2"/>
+<path d="M391 314C443 302 495 271 533 223C527 287 480 335 414 353Z" fill="url(#g)" stroke="#b17a23" stroke-width="2"/>
+<!-- neck, body, head -->
+<path d="M305 330C315 303 327 285 339 248C355 207 358 168 378 153C392 144 407 145 414 151C403 161 400 175 396 196C385 246 376 272 393 298C406 317 430 331 440 346C415 361 383 365 359 349C343 370 314 382 286 368C280 353 291 340 305 330Z" fill="url(#g)" stroke="#90530f" stroke-width="3"/>
+<path d="M361 234C374 200 372 170 382 153C392 148 403 147 414 151" fill="none" stroke="#ffe8a1" stroke-width="6"/>
+<path d="M384 145Q384 122 376 109Q399 122 405 143Q415 126 428 124Q416 139 411 153Z" fill="url(#w)" stroke="#8f510f"/>
+<path d="M406 158Q436 154 449 169Q432 174 411 170Z" fill="url(#t)" stroke="#925b16" stroke-width="1"/>
+<circle cx="399" cy="159" r="3" fill="#2d2415"/>
+<!-- chest embossed feather lines -->
+<g stroke="#fff0b8" fill="none" opacity=".8" stroke-width="3">
+<path d="M331 288Q347 315 377 324"/>
+<path d="M319 310Q340 339 374 341"/>
+<path d="M302 337Q324 356 351 359"/>
+<path d="M412 328Q424 333 433 342"/>
+</g>
+<!-- golden particles at wing tips -->
+<circle cx="112" cy="124" r="3" fill="#ffe1a0"/><circle cx="54" cy="212" r="2" fill="#ffe7b0"/><circle cx="505" cy="212" r="2" fill="#ffe3a1"/>
+</g>
+</svg>
