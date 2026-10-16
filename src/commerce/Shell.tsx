@@ -8,12 +8,12 @@ import { menuLine, menuSectors } from "./brands";
 import "./commerce.css";
 import "../../app/heritage.css";
 
-export function CommerceShell({ children }: { children: ReactNode }) {
+export function CommerceShell({ children, tourism = false }: { children: ReactNode; tourism?: boolean }) {
   return (
     <Localized>
-      <div className="commerce" dir="rtl" lang="fa" id="page-top">
+      <div className={tourism ? "commerce commerce-tourism" : "commerce"} dir="rtl" lang="fa" id="page-top">
         <a className="commerce-skip" href="#commerce-main">رفتن به محتوا</a>
-        <SiteHeader />
+        <SiteHeader tourism={tourism} />
         {children}
         <footer className="commerce-footer commerce-footer-compact" aria-label="پیوندها و خدمات هما نت">
           <section className="commerce-footer-brand" aria-label="اطلاعات هما نت">
