@@ -17,7 +17,7 @@ export default function ClubPage() {
   return (
     <CommerceShell>
       <Localized>
-        <main id="commerce-main" className="portal">
+        <main id="commerce-main" className="portal club-public-page">
           <div className="portal-main">
             <header className="portal-card">
               <p>هما نت · باشگاه مشتریان</p>
