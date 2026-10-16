@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780" role="img" aria-label="Illustration of Iran's Caspian coast">
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#203c59"/><stop offset=".40" stop-color="#eeb27a"/><stop offset=".81" stop-color="#bbd5c8"/><stop offset="1" stop-color="#719f95"/></linearGradient>
+ <linearGradient id="water" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#8dbab1"/><stop offset=".44" stop-color="#4e8c87"/><stop offset="1" stop-color="#173c4b"/></linearGradient>
+ <linearGradient id="mount" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#38546c"/><stop offset="1" stop-color="#17342e"/></linearGradient>
+ <radialGradient id="sun"><stop stop-color="#ffecd0" stop-opacity=".95"/><stop offset=".45" stop-color="#efae65" stop-opacity=".6"/><stop offset="1" stop-color="#efae65" stop-opacity="0"/></radialGradient>
+ <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
+ <pattern id="grain" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="3" cy="6" r=".65" fill="#fff" opacity=".13"/><circle cx="11" cy="14" r=".65" fill="#142d33" opacity=".23"/></pattern>
+</defs>
+<rect width="1200" height="780" fill="url(#sky)"/>
+<ellipse cx="840" cy="235" rx="315" ry="220" fill="url(#sun)"/>
+<circle cx="833" cy="255" r="48" fill="#ffe7c0" opacity=".92"/>
+<path d="M0 411 72 371 135 388 206 328 284 372 350 296 420 360 493 307 565 355 655 294 748 381 820 335 920 360 1002 304 1114 362 1200 332 1200 550 0 550Z" fill="#506978" opacity=".7"/>
+<path d="M0 472 98 398 200 455 306 362 388 398 493 354 628 451 747 381 875 434 963 371 1104 437 1200 391 1200 568 0 568Z" fill="url(#mount)"/>
+<path d="M0 480C196 478 308 498 433 473S822 475 1200 471V780H0Z" fill="url(#water)"/>
+<path d="M0 515Q200 495 405 515T900 502T1200 510" fill="none" stroke="#cbe4ce" stroke-width="4" opacity=".46"/>
+<path d="M0 555Q220 538 480 551T1200 550M0 622Q282 593 560 622T1200 620M0 708Q280 686 615 714T1200 698" fill="none" stroke="#e4f1d3" stroke-width="3" opacity=".26"/>
+<path d="M0 456 74 426 138 450 217 414 286 450 340 433 340 780H0Z" fill="#18372f"/>
+<path d="M0 490 95 463 173 482 240 459 323 486 390 465 390 780H0Z" fill="#1c4135"/>
+<g fill="#102e28"><path d="M30 482 50 300 70 482ZM78 488 102 281 126 488ZM140 490 160 331 180 490ZM204 495 234 315 265 495ZM279 510 305 343 333 510Z"/><path d="M975 475 999 324 1024 475ZM1026 479 1054 302 1080 479ZM1085 473 1111 335 1139 473ZM1142 471 1174 317 1200 471Z"/></g>
+<path d="M0 530Q126 512 239 558Q330 602 357 780H0Z" fill="#a39768"/><path d="M0 558Q130 533 240 580Q303 616 340 780H0Z" fill="#c5ad7c" opacity=".8"/>
+<g opacity=".86"><path d="M643 561Q677 559 710 561L694 582H659Z" fill="#4a3329"/><path d="M679 561V508" stroke="#312827" stroke-width="4"/><path d="M682 512 715 551H682Z" fill="#fae1b5"/></g>
+<path d="M0 0H1200V780H0Z" fill="url(#grain)" opacity=".4"/>
+<rect y="0" width="1200" height="780" fill="none" stroke="#dcc48c" stroke-opacity=".12" stroke-width="10"/>
+</svg>
