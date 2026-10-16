@@ -1,8 +1,10 @@
-
 import Localized from "../../../src/i18n/Localized";
+import { CommerceShell } from "../../../src/commerce/Shell";
 import { notFound } from "next/navigation";
 import { one } from "../../../src/platform/schema";
+
 export const dynamic = "force-dynamic";
+
 export default async function ContentPage({
   params: pendingParams,
 }: {
@@ -15,28 +17,27 @@ export default async function ContentPage({
   );
   if (!p) notFound();
   return (
-    <Localized><main
-      dir="rtl"
-      style={{
-        fontFamily: "var(--font-fa)",
-        maxWidth: 900,
-        margin: "50px auto",
-        padding: 25,
-        lineHeight: 2,
-        color: "#232a34",
-      }}
-    >
-      <a href="/">هما نت</a>
-      <h1 style={{ fontSize: 36, marginBlock: 30 }}>{p.title}</h1>
-      {p.image && (
-        <img
-          src={p.image}
-          alt=""
-          style={{ width: "100%", maxHeight: 440, objectFit: "cover" }}
-        />
-      )}
-      <div style={{ whiteSpace: "pre-wrap", marginBlock: 30 }}>{p.body}</div>
-      <a href="/account">ورود به حساب کاربری</a>
-    </main></Localized>
+    <Localized>
+      <CommerceShell>
+        <main id="commerce-main" className="shop-wrap editorial-content-page" dir="rtl">
+          <article className="editorial-content-card" aria-labelledby="editorial-title">
+            <nav className="editorial-content-links" aria-label="دسترسی سریع">
+              <a href="/">صفحه اصلی</a>
+              <a href="/shop">فروشگاه</a>
+            </nav>
+            <header>
+              <h1 id="editorial-title">{p.title}</h1>
+            </header>
+            {p.image && (
+              <img className="editorial-content-image" src={p.image} alt="" loading="lazy" decoding="async" />
+            )}
+            <div className="editorial-content-body">{p.body}</div>
+            <footer className="editorial-content-bottom">
+              <a href="/account">ورود به حساب کاربری</a>
+            </footer>
+          </article>
+        </main>
+      </CommerceShell>
+    </Localized>
   );
 }
