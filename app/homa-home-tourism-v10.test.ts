@@ -9,7 +9,7 @@ describe("HOMA V10 homepage travel-first hero", () => {
   it("shows person-free Iranian architectural photography instead of the cosmetics mockup", () => {
     expect(hero).toContain('src="/assets/backdrop/persepolis.webp"');
     expect(hero).not.toContain('src="/assets/premium/hero-cosmetics.svg"');
-    expect(hero).toContain('className="hex-hero-product hex-hero-tourism"');
+    expect(hero).toContain('className="hex-hero-product hex-hero-tourism homa-heritage-3d"');
     expect(hero).toContain('className="hex-hero-product-frame hex-hero-tourism-frame"');
     expect(existsSync("public/assets/backdrop/persepolis.webp")).toBe(true);
   });
