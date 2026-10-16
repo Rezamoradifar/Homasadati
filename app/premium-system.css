@@ -794,3 +794,28 @@ html[data-theme="dark"] .auth-login input:not([type="checkbox"]){
   .commerce *,
   .portal *{transition:none!important;animation:none!important}
 }
+
+/* Shared header search (the original configured logo is unchanged). */
+.discovery-header .hex-header-search{
+ display:flex;align-items:center;gap:2px;width:clamp(150px,16vw,270px);
+ min-height:42px;border:1px solid #e1d5c3;border-radius:999px;
+ background:rgba(255,253,249,.91);padding:3px 8px 3px 12px;
+}
+.discovery-header .hex-header-search input{
+ width:100%;min-width:0;min-height:34px;outline:0;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ padding:5px 9px;font-size:12px;color:#272823!important;
+}
+.discovery-header .hex-header-search button{
+ display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;
+ border:0;border-radius:50%;background:transparent;color:#776c5b;cursor:pointer;
+}
+.discovery-header .hex-header-search button:hover{background:#efe1cb}
+@media(max-width:1020px){.discovery-header .hex-header-search{width:155px}}
+@media(max-width:790px){.discovery-header .hex-header-search{display:none}}
+html[data-theme="dark"] .discovery-header .hex-header-search{
+ background:rgba(16,32,34,.9);border-color:#374545;
+}
+html[data-theme="dark"] .discovery-header .hex-header-search input{
+ color:#f0e9dd!important;
+}
