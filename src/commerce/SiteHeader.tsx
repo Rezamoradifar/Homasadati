@@ -114,9 +114,11 @@ export default function SiteHeader({
             />
           </a>
           <nav className="discovery-desktop-nav" aria-label="منوی اصلی">
-            <a href={home ? "#hex-products" : "/#hex-products"}>خدمات هما</a>
+            <a href="/">خانه</a>
             <a href="/shop">فروشگاه</a>
+            <a href={home ? "#hex-products" : "/#hex-products"}>خدمات هما</a>
             <a href="/club">باشگاه مشتریان</a>
+            <a href="/income-plan">طرح درآمد</a>
             <a href="/about">درباره ما</a>
           </nav>
           <div className="discovery-header-actions">
