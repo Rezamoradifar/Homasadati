@@ -1,0 +1,1037 @@
+/* HOMA Iran Tourism V11 — scoped travel microsite.
+   Based on the approved Iran-focused dark/navy/gold reference design.
+   No checkout, finance, logo assets or global layouts are modified. */
+
+html[data-theme] body .commerce.commerce-tourism {
+  --tourism-ink: #f9f0e2;
+  --tourism-muted: #cbc8c1;
+  --tourism-gold: #e3b366;
+  --tourism-line: rgba(237,193,126,.30);
+  --tourism-deep: #09131b;
+  --tourism-panel: #14222c;
+  background: var(--tourism-deep);
+  color: var(--tourism-ink);
+  color-scheme: dark;
+  overflow-x: clip;
+}
+
+/* Site-wide original logo and account/cart controls stay operational.
+   On this single route the nav links point to real tourism sections. */
+html[data-theme] body .commerce.commerce-tourism .discovery-header {
+  background: linear-gradient(105deg,rgba(12,22,33,.98),rgba(21,30,44,.96)) !important;
+  color: #f7ebda !important;
+  border-bottom: 1px solid rgba(242,205,138,.23) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.25) !important;
+  backdrop-filter: saturate(130%) blur(15px);
+  -webkit-backdrop-filter: saturate(130%) blur(15px);
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-header-inner {
+  max-width: 1590px;
+  min-height: 72px;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-brand :is(strong,small) {
+  color: #f5e8d5 !important;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-brand small {
+  color: var(--tourism-gold) !important;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-desktop-nav {
+  gap: clamp(4px,.75vw,16px);
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-desktop-nav a {
+  color: #f7eddb !important;
+  font-size: clamp(11px,.82vw,14px);
+  opacity: .9;
+  border-radius: 11px;
+  padding-inline: clamp(6px,.72vw,13px);
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-desktop-nav a[aria-current] {
+  color: var(--tourism-gold) !important;
+  background: rgba(224,171,90,.13);
+  border: 1px solid rgba(237,194,126,.27);
+  opacity: 1;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-desktop-nav a:hover {
+  color: var(--tourism-gold) !important;
+  background: rgba(231,183,107,.11);
+  opacity: 1;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-header .discovery-icon {
+  border: 1px solid rgba(248,215,169,.16) !important;
+  color: #f6ebdd !important;
+  background: rgba(255,255,255,.065) !important;
+  box-shadow: none;
+  border-radius: 12px;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-header .discovery-icon:hover {
+  color: #ffe0a2 !important;
+  background: rgba(236,190,122,.13) !important;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-header .hex-header-search {
+  color: #f6edda !important;
+  border-color: rgba(239,203,143,.23) !important;
+  background: rgba(255,255,255,.065) !important;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-header .hex-header-search input {
+  color: #fff2dc !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-header .hex-header-search input::placeholder {
+  color: #dfcfb8;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-header .hex-header-search button {
+  color: #f5d197 !important;
+  background: transparent;
+}
+html[data-theme] body .commerce.commerce-tourism .discovery-desktop-preferences .site-language-picker select,
+html[data-theme] body .commerce.commerce-tourism .discovery-mobile-theme {
+  color: #f4e3ca !important;
+}
+html[data-theme] .discovery-menu .discovery-menu-travel-links {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px;
+  padding: 14px 0 19px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--ha-outline);
+}
+html[data-theme] .discovery-menu .discovery-menu-travel-links a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 45px;
+  padding: 9px;
+  border-radius: 10px;
+  text-decoration: none;
+  background: var(--ha-soft);
+  color: var(--ha-ink);
+  font-weight: 700;
+}
+html[data-theme] .discovery-menu .discovery-menu-travel-links a:hover {
+  border-color: var(--ha-gold);
+}
+
+/* Hero: monumental Iranian architecture, amber light and a translucent
+   travel inquiry bar. Its input semantics match the real /api/requests API. */
+html[data-theme] body .commerce.commerce-tourism .tourism-lux-page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  background: var(--tourism-deep);
+  color: var(--tourism-ink);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-immersive * {
+  box-sizing: border-box;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-immersive {
+  background: var(--tourism-deep);
+  color: var(--tourism-ink);
+  font-family: var(--hn-font), var(--font-fa), sans-serif;
+  isolation: isolate;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: clamp(515px,35vw,610px);
+  overflow: hidden;
+  color: #fff2df;
+  padding: clamp(22px,3vw,42px) 4.2% 24px;
+  background: #172532;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero-photo img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  object-position: center 54%;
+  filter: saturate(1.10) contrast(1.09);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(0deg,rgba(9,18,27,.97) 0%,rgba(12,23,33,.70) 21%,rgba(11,20,31,.46) 56%,rgba(11,23,35,.64) 100%),
+    linear-gradient(90deg,rgba(10,18,27,.31),transparent 60%);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 45% 30% at 75% 28%,rgba(244,159,63,.16),transparent 90%);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero-arch {
+  position: absolute;
+  z-index: -1;
+  inset-block: 0;
+  inset-inline-end: auto;
+  inset-inline-start: -9%;
+  width: 33%;
+  max-width: 505px;
+  overflow: hidden;
+  opacity: .65;
+  border-start-end-radius: 47% 29%;
+  border-end-end-radius: 27% 13%;
+  border-inline-end: 3px solid rgba(244,198,114,.35);
+  box-shadow: 35px 0 65px rgba(5,13,20,.24);
+  -webkit-mask-image: linear-gradient(90deg,transparent,#000 24%,#000 65%,transparent 100%);
+  mask-image: linear-gradient(90deg,transparent,#000 24%,#000 65%,transparent 100%);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero-arch img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  object-position: center;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero-content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  width: min(100%,1320px);
+  margin: 0 auto;
+  text-align: center;
+  z-index: 2;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-kicker {
+  font: 600 clamp(9px,.78vw,13px)/1.8 var(--hn-font-latin), sans-serif;
+  color: #ebc27b;
+  letter-spacing: .18em;
+  margin: 0 0 6px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero h1 {
+  color: #fff4e6 !important;
+  font-weight: 900;
+  font-size: clamp(37px,4.2vw,72px);
+  line-height: 1.25;
+  text-shadow: 0 3px 26px rgba(2,6,14,.48);
+  letter-spacing: -.028em;
+  margin: 0 auto 5px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero h1 span {
+  color: #e5a84d;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-hero-lead {
+  color: #fff2e4 !important;
+  font-size: clamp(13px,1.07vw,18px);
+  line-height: 1.95;
+  margin: 0 0 clamp(18px,2.3vw,34px);
+  max-width: 830px;
+  text-shadow: 0 2px 14px rgba(5,12,16,.48);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search {
+  display: grid;
+  grid-template-columns: minmax(190px,1.4fr) minmax(165px,1fr) minmax(145px,.9fr) minmax(170px,.95fr);
+  gap: 0;
+  align-items: stretch;
+  width: min(100%,1130px);
+  padding: 7px;
+  border-radius: 20px;
+  color: #34302c;
+  text-align: start;
+  background: rgba(255,252,247,.97);
+  box-shadow: 0 2px 0 rgba(255,255,255,.75) inset, 0 10px 40px rgba(5,10,16,.4),0 0 0 2px rgba(232,199,146,.44);
+  overflow: hidden;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-field {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 10px clamp(10px,1.5vw,22px);
+  min-width: 0;
+  border-inline-end: 1px solid #e4ddd4;
+  color: #4b4950;
+  cursor: pointer;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-field>svg {
+  color: #3a424b;
+  flex: 0 0 auto;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-field>span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-field strong {
+  color: #343138;
+  font-size: clamp(11px,.92vw,14px);
+  font-weight: 850;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-field :is(select,input) {
+  border: 0 !important;
+  outline-offset: 4px;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #62616a !important;
+  font-family: inherit;
+  font-size: clamp(11px,.85vw,13px);
+  cursor: pointer;
+  width: 100%;
+  min-width: 0;
+  height: 23px;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-field input {
+  direction: ltr;
+  text-align: start;
+  color-scheme: light;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-submit {
+  min-height: 68px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg,#e7b965,#b87922);
+  color: #fffdf6;
+  border: 1px solid #ddab52;
+  border-radius: 14px;
+  box-shadow: 0 4px 19px rgba(125,71,18,.24);
+  font-weight: 850;
+  font-size: clamp(12px,.93vw,15px);
+  white-space: normal;
+  line-height: 1.5;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-submit:hover {
+  background: linear-gradient(135deg,#f0c57a,#c38b31);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-subline {
+  width: min(100%,1130px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 13px;
+  font-size: 11px;
+  line-height: 1.65;
+  color: #f0e5d6;
+  text-shadow: 0 1px 8px rgba(2,7,10,.6);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-search-subline a {
+  color: #f6d395;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 34px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-features {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  width: min(100%,900px);
+  margin: clamp(18px,3vw,49px) auto 0;
+  padding: 12px;
+  border: 1px solid rgba(250,210,153,.20);
+  border-radius: 15px;
+  background: rgba(11,19,27,.70);
+  box-shadow: 0 9px 25px rgba(2,9,15,.20);
+  backdrop-filter: blur(16px);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+  padding: 3px 10px;
+  border-inline-end: 1px solid rgba(239,204,153,.16);
+  min-width: 0;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-feature:last-child { border: 0; }
+html[data-theme] .commerce.commerce-tourism .tourism-feature svg { color:#f5e2c4; margin-bottom:1px; }
+html[data-theme] .commerce.commerce-tourism .tourism-feature strong {
+  color: #fff1dd;
+  font-size: clamp(11px,.86vw,14px);
+  font-weight: 800;
+  line-height: 1.6;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-feature span {
+  color: #d4c8b9;
+  font-size: clamp(9px,.69vw,11px);
+  line-height: 1.65;
+}
+
+/* Sapphire-black destination/experience showroom from the supplied reference. */
+html[data-theme] .commerce.commerce-tourism .tourism-content {
+  position: relative;
+  padding: clamp(24px,2.6vw,40px) 0 clamp(20px,3vw,48px);
+  background: radial-gradient(ellipse 40% 28% at 0 0,rgba(62,74,72,.16),transparent),linear-gradient(180deg,#0b161e,#0a141c 66%,#101f29);
+  color: #fff1de;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-feature-section,
+html[data-theme] .commerce.commerce-tourism .tourism-invitation {
+  width: min(calc(100% - 64px),1450px);
+  margin: 0 auto clamp(27px,2.6vw,43px);
+  min-width: 0;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-section-heading {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: center;
+  margin: 0 0 13px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-section-heading h2 {
+  color: #fff2e0 !important;
+  font-size: clamp(19px,1.7vw,27px);
+  line-height: 1.45;
+  font-weight: 850;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-section-heading h2:before {
+  content: "";
+  display: block;
+  background: linear-gradient(90deg,#d69b3b,#f2d08b);
+  width: 36px;
+  height: 3px;
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-section-heading>a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 37px;
+  border: 1px solid rgba(235,187,105,.7);
+  border-radius: 100px;
+  padding: 6px 14px;
+  color: #f6d8a9 !important;
+  font-weight: 700;
+  font-size: 12px;
+  text-decoration: none;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-section-heading>a:hover {
+  background: rgba(236,185,102,.13);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-destination-grid {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: clamp(10px,1vw,16px);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-destination-card {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(180px,13vw,235px);
+  border-radius: 13px;
+  border: 1px solid rgba(220,192,145,.16);
+  background: #162530;
+  overflow: hidden;
+  box-shadow: 0 6px 19px rgba(0,0,0,.16);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-destination-card:after {
+  position: absolute;
+  content: "";
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg,rgba(7,13,18,.9),rgba(6,15,20,.12) 50%,transparent 84%);
+  pointer-events: none;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-destination-card>img,
+html[data-theme] .commerce.commerce-tourism .tourism-experience-card>img {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  z-index: -2;
+  transition: transform .4s ease;
+}
+html[data-theme] .commerce.commerce-tourism :is(.tourism-destination-card,.tourism-experience-card):hover>img {
+  transform: scale(1.055);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-destination-info {
+  position: absolute;
+  inset-inline: 16px 52px;
+  bottom: 14px;
+  display: grid;
+  gap: 2px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-destination-info h3 {
+  color: #fff7e8;
+  font-size: clamp(15px,1.14vw,20px);
+  line-height: 1.45;
+  font-weight: 850;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-destination-info p {
+  font-size: 11px;
+  line-height: 1.65;
+  color: #ebded0;
+  margin: 0;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-destination-card>button {
+  position: absolute;
+  inset-inline-start: 12px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(254,246,224,.82);
+  border-radius: 50%;
+  color: #fff5e8;
+  background: rgba(7,22,29,.55);
+  width: 37px;
+  height: 37px;
+  min-width: 37px;
+  padding: 0;
+}
+html[data-theme] .commerce.commerce-tourism :is(.tourism-destination-card,.tourism-experience-card)>button:hover {
+  color: #1f221c;
+  background: #f3d39a;
+  border-color: #f3d39a;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-experience-grid {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: clamp(10px,1vw,16px);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-experience-card {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(135px,9.2vw,170px);
+  overflow: hidden;
+  border: 1px solid rgba(214,182,125,.23);
+  border-radius: 13px;
+  background: #142834;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-experience-card:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg,rgba(11,21,31,.92),rgba(13,24,34,.35) 60%,rgba(10,20,30,.3));
+}
+html[data-theme] .commerce.commerce-tourism .tourism-experience-info {
+  position: absolute;
+  inset-inline: 12px 46px;
+  bottom: 20px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-experience-info h3 {
+  color: #fff8ec;
+  font-weight: 850;
+  font-size: clamp(14px,1.08vw,18px);
+  line-height: 1.5;
+  margin: 0 0 4px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-experience-info p {
+  color: #dfd5c6;
+  line-height: 1.7;
+  font-size: 11px;
+  margin: 0;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-experience-card>button {
+  position: absolute;
+  inset-inline-end: auto;
+  inset-inline-start: 12px;
+  bottom: 19px;
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(234,193,121,.75);
+  background: rgba(7,16,24,.67);
+  color: #f1c881;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-invitation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(18px,2.5vw,38px);
+  padding: clamp(22px,3.5vw,42px);
+  border: 1px solid rgba(222,172,92,.28);
+  border-radius: 20px;
+  background: radial-gradient(ellipse 42% 95% at 5% 0,rgba(199,143,55,.15),transparent),linear-gradient(120deg,#182b35,#101d25);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-invitation h2 {
+  margin: 0 0 6px;
+  font-size: clamp(19px,2.3vw,32px);
+  color: #fff0d8;
+  line-height: 1.55;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-invitation p:not(.tourism-kicker) {
+  margin: 0;
+  max-width: 710px;
+  color: #dfd2bd;
+  line-height: 1.9;
+  font-size: 13px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-invitation-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-invitation-actions :is(button,a) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 9px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 13px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-invitation-actions button {
+  color: #18221e;
+  background: linear-gradient(135deg,#f3d18b,#ca944a);
+  border: 1px solid #e7ba78;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-invitation-actions a {
+  color: #f6dda8;
+  background: transparent;
+  border: 1px solid rgba(239,203,145,.43);
+}
+
+/* Existing travel knowledge and policy panels stay intact beneath the
+   dedicated showroom; make them part of the same visual system. */
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page > :is(.brand-intro,.tourism-media,.economic-model,.brand-faq,.brand-final,.brand-related),
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .story-chapter {
+  background: #152530 !important;
+  border: 1px solid rgba(230,198,143,.22) !important;
+  border-radius: 20px;
+  color: #f4e8d7;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page :is(.brand-intro,.tourism-media,.economic-model,.story-layout,.brand-faq,.brand-final,.brand-related) :is(h2,h3,strong) {
+  color: #fff0d7 !important;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page :is(.brand-intro,.tourism-media,.economic-model,.story-layout,.brand-faq,.brand-final,.brand-related) :is(p,li,summary,span) {
+  color: #e5d5bf;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page :is(.tourism-media,.brand-intro,.brand-faq) {
+  padding: clamp(18px,2.5vw,32px);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .story-layout>aside {
+  border-radius: 17px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .story-layout a {
+  color: #e4bc77;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .tourism-media a.commerce-button,
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .brand-final a.commerce-button {
+  background: linear-gradient(135deg,#efca84,#c59445)!important;
+  color: #17221d !important;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .brand-related a {
+  background: #192a35 !important;
+  border: 1px solid var(--tourism-line);
+  color: #f6e6c9;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .brand-faq details {
+  border-color: rgba(231,196,137,.19);
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .brand-faq summary {
+  color: #f1dcbb;
+  cursor: pointer;
+  min-height: 44px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .brand-final {
+  background: linear-gradient(120deg,#253943,#11212a) !important;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page :is(.brand-intro,.tourism-media,.story-layout,.economic-model,.brand-faq,.brand-final,.brand-related) {
+  scroll-margin-top: 92px;
+}
+html[data-theme] .commerce.commerce-tourism .tourism-lux-page .tourism-immersive :is(#tourism-destinations,#tourism-experiences) {
+  scroll-margin-top: 92px;
+}
+
+/* Real travel inquiry dialog: the form goes to the same rate-limited,
+   idempotent lead API as the main HOMA contact journey. */
+html[data-theme] .tourism-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(calc(100vw - 24px),600px);
+  max-width: none;
+  max-height: min(88dvh,880px);
+  padding: clamp(18px,2.7vw,28px);
+  border: 1px solid rgba(237,196,126,.52);
+  border-radius: 21px;
+  background: #13232d;
+  color: #fff2e0;
+  box-shadow: 0 25px 80px rgba(0,0,0,.45);
+  font-family: var(--hn-font), sans-serif;
+  direction: rtl;
+  overflow: auto;
+}
+html[data-theme] .tourism-dialog:modal {display: block}
+html[data-theme] .tourism-dialog::backdrop {
+  background: rgba(4,11,18,.8);
+  backdrop-filter: blur(8px);
+}
+html[data-theme] .tourism-dialog .tourism-dialog-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 17px;
+  border-bottom: 1px solid rgba(234,193,134,.2);
+  padding-bottom: 14px;
+  margin-bottom: 17px;
+}
+html[data-theme] .tourism-dialog .tourism-dialog-top h2 {
+  font-size: clamp(19px,2vw,27px);
+  line-height: 1.55;
+  color: #ffe5b3;
+  margin: 0;
+}
+html[data-theme] .tourism-dialog .tourism-dialog-top button {
+  border: 1px solid rgba(241,207,158,.2);
+  border-radius: 10px;
+  color: #f5e7cf;
+  background: #223541;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-form {
+  display: grid;
+  gap: 14px;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-form>p {
+  color: #ded1be;
+  font-size: 13px;
+  line-height: 1.9;
+  margin: 0;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-summary {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 7px;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-summary>div {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  background: #20333e;
+  border: 1px solid rgba(226,190,134,.22);
+  border-radius: 11px;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-summary dt {
+  color: #ddc49f;
+  font-size: 11px;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-summary dd {
+  margin: 0;
+  color: #f9efe1;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-form>label {
+  display: grid;
+  gap: 6px;
+  color: #f4e3c7;
+  font-size: 13px;
+  font-weight: 700;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-form :is(input:not([type="checkbox"]),textarea) {
+  min-height: 44px;
+  width: 100%;
+  border: 1px solid rgba(225,190,134,.29);
+  border-radius: 11px;
+  padding: 10px 13px;
+  font: inherit;
+  font-size: 15px;
+  color: #f7e9d6;
+  background: #1f3441;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-form textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-form input::placeholder,
+html[data-theme] .tourism-dialog .tourism-inquiry-form textarea::placeholder {
+  color: #beb6ac;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-form>.tourism-consent {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  line-height: 1.8;
+  color: #e7d8c2;
+  font-size: 12px;
+  font-weight: 400;
+}
+html[data-theme] .tourism-dialog .tourism-consent input {
+  margin-top: 5px;
+  accent-color: #dbaa58;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+html[data-theme] .tourism-dialog .tourism-inquiry-error {
+  padding: 9px 12px;
+  border: 1px solid #bd755e;
+  border-radius: 10px;
+  color: #ffd2bd !important;
+  background: rgba(195,86,61,.12);
+}
+html[data-theme] .tourism-dialog .tourism-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  padding-top: 10px;
+}
+html[data-theme] .tourism-dialog .tourism-dialog-actions :is(button,a) {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 43px;
+  border: 1px solid rgba(238,190,114,.5);
+  border-radius: 11px;
+  padding: 9px 13px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff2dc;
+  background: #253842;
+  text-decoration: none;
+}
+html[data-theme] .tourism-dialog .tourism-dialog-actions button:first-child {
+  color: #20241b;
+  background: linear-gradient(135deg,#f3d18e,#c68c33);
+}
+html[data-theme] .tourism-dialog .tourism-dialog-actions button:disabled {opacity:.52;cursor:not-allowed}
+html[data-theme] .tourism-dialog .tourism-dialog-success {
+  display: grid;
+  gap: 14px;
+  line-height: 1.8;
+  font-size: 13px;
+}
+html[data-theme] .tourism-dialog .tourism-dialog-success>svg {color: #b6d8aa}
+html[data-theme] .tourism-dialog .tourism-dialog-success>p {margin:0;color:#e4d5c2}
+html[data-theme] .tourism-dialog .tourism-dialog-success>label {display:grid;gap:8px}
+html[data-theme] .tourism-dialog .tourism-tracking-code {
+  display:block;
+  width:100%;
+  overflow-wrap:anywhere;
+  font:600 13px/1.8 ui-monospace,Consolas,monospace;
+  border:1px solid rgba(241,198,130,.3);
+  border-radius:10px;
+  padding:10px;
+  background:#20333f;
+  color:#ffe7bc;
+  user-select:all;
+  text-align:start;
+}
+html[data-theme] .tourism-dialog :is(input,select,button,a,textarea):focus-visible,
+html[data-theme] .commerce.commerce-tourism .tourism-immersive :is(input,select,button,a):focus-visible {
+  outline: 3px solid #f9d48b !important;
+  outline-offset: 3px;
+}
+
+/* Responsive laptop and tablet views. */
+@media (min-width:1200px) and (max-width:1599px) {
+  html[data-theme] body .commerce.commerce-tourism .discovery-header .discovery-desktop-nav a:nth-child(4) {display:inline-flex!important}
+  html[data-theme] body .commerce.commerce-tourism .tourism-search {max-width:1050px}
+}
+@media (max-width:1100px) {
+  html[data-theme] body .commerce.commerce-tourism .tourism-hero {
+    min-height: 570px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-hero-arch {
+    width: 38%;
+    opacity: .35;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    max-width: 820px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search-submit {
+    grid-column: 1/-1;
+    min-height: 48px;
+    margin-top: 5px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search-field {
+    padding: 7px 12px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-destination-grid {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-destination-card {min-height:210px}
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-invitation {
+    flex-direction:column;
+    align-items:stretch;
+  }
+}
+@media (max-width:767px) {
+  html[data-theme] body .commerce.commerce-tourism .discovery-header-inner {
+    min-height: 60px;
+  }
+  html[data-theme] body .commerce.commerce-tourism .tourism-hero {
+    min-height: 690px;
+    padding: 28px 14px 16px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-hero-photo img {
+    object-position: 40% center;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-hero-arch {display:none}
+  html[data-theme] .commerce.commerce-tourism .tourism-hero h1 {
+    font-size:clamp(31px,7vw,48px);
+    line-height:1.32;
+    max-width:690px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-kicker {
+    font-size:9px;
+    letter-spacing:.08em;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-hero-lead {
+    font-size:13px;
+    line-height:1.85;
+    margin-bottom:15px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    padding:8px;
+    border-radius:16px;
+    gap:0;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search-field {
+    min-height:68px;
+    padding:8px 10px;
+    border-bottom:1px solid #e4ddd4;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search-destination {
+    grid-column:1/-1;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search-date {
+    border-inline-end:1px solid #e4ddd4;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search-travelers {
+    border-inline-end:none;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search-submit {
+    grid-column:1/-1;
+    min-height:48px;
+    margin-top:7px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-search-subline {
+    font-size:10px;
+    margin-top:11px;
+    justify-content:center;
+    text-align:center;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-features {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    width:100%;
+    gap:9px 0;
+    padding:12px 8px;
+    margin-top:25px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-feature {
+    gap:1px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-feature:nth-child(2) {border:0}
+  html[data-theme] .commerce.commerce-tourism .tourism-feature svg {width:24px;height:24px}
+  html[data-theme] .commerce.commerce-tourism .tourism-feature strong {font-size:11px}
+  html[data-theme] .commerce.commerce-tourism .tourism-feature span {font-size:9px}
+  html[data-theme] .commerce.commerce-tourism .tourism-feature-section,
+  html[data-theme] .commerce.commerce-tourism .tourism-invitation {
+    width:calc(100% - 24px);
+    margin-bottom:25px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-content {
+    padding-top:22px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-section-heading {
+    margin-bottom:10px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-section-heading h2 {
+    font-size:clamp(17px,4.7vw,23px);
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-section-heading>a {
+    font-size:10px;
+    min-height:33px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-destination-grid {
+    display:grid;
+    grid-auto-columns:minmax(225px,72vw);
+    grid-auto-flow:column;
+    grid-template-columns:none;
+    gap:11px;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    scroll-snap-type:x proximity;
+    padding:3px 3px 13px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-destination-card {
+    min-height:215px;
+    scroll-snap-align:start;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-card {
+    min-height:175px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-info {
+    inset-inline:10px 12px;
+    bottom:53px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-info h3 {font-size:13px}
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-info p {font-size:10px}
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-card>button {
+    bottom:11px;
+    inset-inline-start:11px;
+  }
+  html[data-theme] .commerce.commerce-tourism .tourism-invitation {padding:19px}
+  html[data-theme] .commerce.commerce-tourism .tourism-invitation-actions{align-items:stretch}
+  html[data-theme] .commerce.commerce-tourism .tourism-invitation-actions :is(button,a){flex:1 1 100%}
+  html[data-theme] .tourism-dialog {width:calc(100vw - 14px);max-height:93dvh;padding:17px;border-radius:17px}
+}
+@media (max-width:420px) {
+  html[data-theme] body .commerce.commerce-tourism .tourism-hero {min-height:735px}
+  html[data-theme] .commerce.commerce-tourism .tourism-hero h1 {font-size:clamp(28px,7.4vw,35px)}
+  html[data-theme] .commerce.commerce-tourism .tourism-search-field>svg{width:19px;height:19px}
+  html[data-theme] .commerce.commerce-tourism .tourism-feature{padding-inline:3px}
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-grid{grid-template-columns:minmax(0,1fr)}
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-card{min-height:147px}
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-info{bottom:20px;inset-inline-end:52px}
+  html[data-theme] .commerce.commerce-tourism .tourism-experience-card>button{bottom:19px}
+  html[data-theme] .tourism-dialog .tourism-inquiry-summary{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce) {
+  html[data-theme] .commerce.commerce-tourism .tourism-immersive * {
+    animation:none!important;
+    transition:none!important;
+    scroll-behavior:auto!important;
+  }
+}
