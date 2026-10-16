@@ -13,8 +13,8 @@ import copy from './premium-home-copy.json';
 type Locale = 'fa' | 'en' | 'ar';
 
 const slides = [
-  '/assets/redesign/heritage-hero.webp',
   '/assets/redesign/tourism.webp',
+  '/assets/redesign/heritage-hero.webp',
   '/assets/redesign/craft-feature.webp',
 ] as const;
 
@@ -62,7 +62,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
         <ResponsiveImage src="/assets/premium/phoenix-gold.svg" alt="" sizes="(max-width: 720px) 30vw, 30vw"/>
       </div>
       <div className="hex-left-copy" aria-hidden="true">
-        <span>{c.beauty}</span><span>{c.quality}</span><span>{c.journey}</span>
+        <span>{c.travel}</span><span>{c.quality}</span><span>{c.journey}</span>
       </div>
       <div className="hex-hero-body">
         <div className="hex-overline">BRIGHTER YOU <i/> BRIGHTER TOMORROW</div>
@@ -71,10 +71,11 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
         <p className="hex-hero-description">{c.subtitle}</p>
         <a className="hex-gold-button" href="/shop"><Arrow size={19} aria-hidden="true"/>{c.start}</a>
       </div>
-      <div className="hex-hero-product" aria-hidden="true">
+      <div className="hex-hero-product hex-hero-tourism" aria-hidden="true">
         <div className="hex-hero-halo"/>
-        <div className="hex-hero-product-frame">
-          <ResponsiveImage src="/assets/premium/hero-cosmetics.svg" alt="" sizes="(max-width: 720px) 52vw, 31vw"/>
+        <div className="hex-hero-product-frame hex-hero-tourism-frame">
+          <ResponsiveImage src="/assets/tourism.jpg" alt="" sizes="(max-width: 720px) 52vw, 31vw" fetchPriority="high"/>
+          <span className="hex-hero-tourism-label">{c.travel}</span>
         </div>
         <div className="hex-hero-plinth"/>
       </div>
