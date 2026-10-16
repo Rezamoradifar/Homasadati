@@ -74,7 +74,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
       <div className="hex-hero-product" aria-hidden="true">
         <div className="hex-hero-halo"/>
         <div className="hex-hero-product-frame">
-          <ResponsiveImage src="/assets/redesign/beauty.webp" alt="" sizes="(max-width: 720px) 32vw, 28vw"/>
+          <ResponsiveImage src="/assets/premium/hero-cosmetics.svg" alt="" sizes="(max-width: 720px) 52vw, 31vw"/>
         </div>
         <div className="hex-hero-plinth"/>
       </div>
