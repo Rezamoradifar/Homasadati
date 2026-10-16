@@ -78,10 +78,12 @@ export function MemberOverview({
   onNavigate,
   notice,
   summary,
+  showWelcome = true,
 }: {
   notice?: ReactNode;
   /** Money figures and the live chart, shown right under the welcome. */
   summary?: ReactNode;
+  showWelcome?: boolean;
   user: RecordData;
   activity: RecordData;
   onNavigate: (tab: string) => void;
@@ -133,7 +135,7 @@ export function MemberOverview({
   ];
   return (
     <Localized>
-      <section className="member-welcome">
+      {showWelcome && <section className="member-welcome">
         <div>
           <span>هما نت · باشگاه همراهان</span>
           <h2>
@@ -155,7 +157,7 @@ export function MemberOverview({
         <a href="/account?tab=profile" onClick={(e) => follow(e, "profile")}>
           مشاهده پروفایل <ArrowUpLeft size={18} aria-hidden="true" />
         </a>
-      </section>
+      </section>}
       {summary}
       <section className="member-activity" aria-label="وضعیت خدمات من">
         {counters.map(({ tab, label, value, icon: Icon }) => (
