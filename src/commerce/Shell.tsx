@@ -1,6 +1,7 @@
 import ContactDetails from "./ContactDetails";
 
 import SiteHeader from './SiteHeader';
+import ThemeToggle from './ThemeToggle';
 import Localized from "../i18n/Localized";
 import type { ReactNode } from "react";
 import { menuLine, menuSectors } from "./brands";
@@ -24,7 +25,7 @@ export function CommerceShell({ children }: { children: ReactNode }) {
             src="/assets/brand-mark.png"
             alt="هما نت"
           />
-          <h2>ریشه در ایران، رو به جهان.</h2><ContactDetails compact/>
+          <h2>ریشه در ایران، رو به جهان.</h2><ContactDetails compact/><div className="commerce-footer-mode"><ThemeToggle/></div>
           <p>
             گردشگری، هنر، مراقبت، فناوری و طراحی؛ پنج مسیر برای انتخاب آگاهانه.
           </p>
