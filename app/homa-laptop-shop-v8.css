@@ -34,6 +34,29 @@
     width: clamp(165px, 19vw, 265px);
   }
 }
+/* On roomy 13–15 inch laptops retain the three most-used links;
+   other destinations remain in the accessible menu. */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  html body .discovery-header .discovery-desktop-nav {
+    display: flex !important;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  html body .discovery-header .discovery-desktop-nav a {
+    min-height: 42px;
+    padding: 6px 9px;
+    font-size: 12px;
+  }
+  html body .discovery-header .discovery-desktop-nav a:nth-child(n+4) {
+    display: none !important;
+  }
+  html body .discovery-header .hex-header-search {
+    flex-basis: 185px;
+    width: clamp(145px, 14vw, 195px);
+  }
+}
+
 @media (min-width: 1600px) {
   html body .discovery-header .discovery-header-inner {
     width: min(calc(100% - 56px), 1510px);
