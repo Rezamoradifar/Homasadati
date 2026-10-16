@@ -7,6 +7,7 @@ import {
   List,
   ShoppingBag,
   User,
+  MagnifyingGlass,
   X,
 } from "@phosphor-icons/react";
 import Localized from "../i18n/Localized";
@@ -113,12 +114,17 @@ export default function SiteHeader({
             />
           </a>
           <nav className="discovery-desktop-nav" aria-label="منوی اصلی">
-            <a href={home ? "#worlds" : "/#worlds"}>خدمات هما</a>
+            <a href={home ? "#hex-products" : "/#hex-products"}>خدمات هما</a>
             <a href="/shop">فروشگاه</a>
             <a href="/club">باشگاه مشتریان</a>
             <a href="/about">درباره ما</a>
           </nav>
           <div className="discovery-header-actions">
+            <form role="search" className="hex-header-search" action="/shop" method="get">
+              <label htmlFor="homa-header-query" className="sr-only">جست‌وجوی محصول</label>
+              <input type="search" id="homa-header-query" name="q" maxLength={200} placeholder="نام محصول یا SKU…" />
+              <button type="submit" aria-label="جست‌وجوی محصول"><MagnifyingGlass size={21} aria-hidden="true"/></button>
+            </form>
             <div className="discovery-desktop-preferences">
               <LanguagePicker />
               <ThemeToggle />
