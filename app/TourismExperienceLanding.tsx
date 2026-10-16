@@ -146,10 +146,12 @@ export default function TourismExperienceLanding() {
             alt=""
             sizes="100vw"
             fetchPriority="high"
+            loading="eager"
+            quality={68}
           />
         </div>
         <div className="tourism-hero-arch" aria-hidden="true">
-          <ResponsiveImage src="/assets/heritage/lotfollah.webp" alt="" sizes="(max-width:1100px) 32vw, 28vw" loading="lazy" />
+          <ResponsiveImage src="/assets/heritage/lotfollah.webp" alt="" sizes="(max-width:1100px) 32vw, 28vw" loading="lazy" quality={63} />
         </div>
         <div className="tourism-hero-content">
           <p className="tourism-kicker">{c.hero.eyebrow}</p>
@@ -216,7 +218,7 @@ export default function TourismExperienceLanding() {
           <div className="tourism-destination-grid">
             {destinations.map(item => (
               <article className="tourism-destination-card" key={item.id}>
-                <ResponsiveImage src={item.image} alt="" loading="lazy" sizes="(max-width:640px) 78vw, (max-width:1080px) 45vw, 20vw" />
+                <ResponsiveImage src={item.image} alt="" loading="lazy" sizes="(max-width:640px) 78vw, (max-width:1080px) 45vw, 20vw" quality={66} />
                 <div className="tourism-destination-info">
                   <h3>{c.destinations[item.id].name}</h3>
                   <p>{c.destinations[item.id].description}</p>
@@ -241,7 +243,7 @@ export default function TourismExperienceLanding() {
           <div className="tourism-experience-grid">
             {experiences.map(item => (
               <article className="tourism-experience-card" key={item.id}>
-                <ResponsiveImage src={item.image} alt="" loading="lazy" sizes="(max-width:640px) 70vw, (max-width:1050px) 44vw, 23vw" />
+                <ResponsiveImage src={item.image} alt="" loading="lazy" sizes="(max-width:640px) 70vw, (max-width:1050px) 44vw, 23vw" quality={66} />
                 <div className="tourism-experience-info">
                   <h3>{c.experiences[item.id].name}</h3>
                   <p>{c.experiences[item.id].description}</p>
