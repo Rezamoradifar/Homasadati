@@ -5,7 +5,7 @@ export default function Help() {
   return (
     <Localized>
       <CommerceShell>
-        <main id="commerce-main" className="shop-wrap help-page">
+        <main id="commerce-main" className="shop-wrap help-page support-guide-page">
           <header>
             <p className="commerce-eyebrow">باشگاه مشتریان هما نت</p>
             <h1>راهنمای خرید و پشتیبانی</h1>
