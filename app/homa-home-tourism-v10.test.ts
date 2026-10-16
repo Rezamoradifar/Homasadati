@@ -6,12 +6,12 @@ const css = readFileSync("app/homa-home-tourism-v10.css", "utf8");
 const layout = readFileSync("app/layout.tsx", "utf8");
 
 describe("HOMA V10 homepage travel-first hero", () => {
-  it("shows the existing tourism photo instead of the cosmetics mockup", () => {
-    expect(hero).toContain('src="/assets/tourism.jpg"');
+  it("shows person-free Iranian architectural photography instead of the cosmetics mockup", () => {
+    expect(hero).toContain('src="/assets/backdrop/persepolis.webp"');
     expect(hero).not.toContain('src="/assets/premium/hero-cosmetics.svg"');
     expect(hero).toContain('className="hex-hero-product hex-hero-tourism"');
     expect(hero).toContain('className="hex-hero-product-frame hex-hero-tourism-frame"');
-    expect(existsSync("public/assets/tourism.jpg")).toBe(true);
+    expect(existsSync("public/assets/backdrop/persepolis.webp")).toBe(true);
   });
 
   it("starts the landing slideshow with a tourism landscape", () => {
@@ -30,7 +30,7 @@ describe("HOMA V10 homepage travel-first hero", () => {
     expect(hero).toContain("src={site_logo || '/assets/brand-mark.png'}");
   });
 
-  it("makes a portrait card usable in light/dark themes and on mobile", () => {
+  it("makes the architectural glass frame usable in light/dark themes and on mobile", () => {
     expect(css).toContain(".hex-hero-tourism-frame img");
     expect(css).toContain("object-fit:cover!important");
     expect(css).toContain("hex-hero-tourism-label");
