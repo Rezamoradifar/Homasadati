@@ -14,8 +14,8 @@ type Locale = 'fa' | 'en' | 'ar';
 
 const slides = [
   '/assets/redesign/tourism.webp',
-  '/assets/redesign/heritage-hero.webp',
-  '/assets/redesign/craft-feature.webp',
+  '/assets/heritage/isfahan.webp',
+  '/assets/backdrop/yazd.webp',
 ] as const;
 
 function firstImage(product: RecordData): string | null {
@@ -53,7 +53,17 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
   const ranks = ['Member','Silver','Gold','Platinum','VIP'];
 
   return <div className="homa-exact" dir={rtl ? 'rtl':'ltr'} id="home">
-    <section className="hex-hero" aria-labelledby="hex-hero-title">
+    <section className="hex-hero hex-hero-architecture" aria-labelledby="hex-hero-title"
+      onPointerMove={event => {
+        if (event.pointerType !== 'mouse') return;
+        const rect = event.currentTarget.getBoundingClientRect();
+        event.currentTarget.style.setProperty('--homa-tilt-x', ((.5 - (event.clientY - rect.top) / rect.height) * 7).toFixed(2) + 'deg');
+        event.currentTarget.style.setProperty('--homa-tilt-y', (((event.clientX - rect.left) / rect.width - .5) * 8).toFixed(2) + 'deg');
+      }}
+      onPointerLeave={event => {
+        event.currentTarget.style.removeProperty('--homa-tilt-x');
+        event.currentTarget.style.removeProperty('--homa-tilt-y');
+      }}>
       <div className="hex-landscape" aria-hidden="true">
         <ResponsiveImage src={slides[slide]} alt="" sizes="100vw" />
       </div>
@@ -71,13 +81,16 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
         <p className="hex-hero-description">{c.subtitle}</p>
         <a className="hex-gold-button" href="/shop"><Arrow size={19} aria-hidden="true"/>{c.start}</a>
       </div>
-      <div className="hex-hero-product hex-hero-tourism" aria-hidden="true">
+      <div className="hex-hero-product hex-hero-tourism homa-heritage-3d" aria-hidden="true">
         <div className="hex-hero-halo"/>
         <div className="hex-hero-product-frame hex-hero-tourism-frame">
-          <ResponsiveImage src="/assets/tourism.jpg" alt="" sizes="(max-width: 720px) 52vw, 31vw" fetchPriority="high"/>
+          <ResponsiveImage src="/assets/backdrop/persepolis.webp" alt="" sizes="(max-width: 720px) 52vw, 31vw" fetchPriority="high"/>
+          <span className="homa-heritage-glass"/>
+          <span className="homa-heritage-rim"/>
+          <span className="homa-heritage-light"/>
           <span className="hex-hero-tourism-label">{c.travel}</span>
         </div>
-        <div className="hex-hero-plinth"/>
+        <span className="homa-heritage-shadow"/>
       </div>
       <div className="hex-hero-aside" aria-hidden="true">PEOPLE <span>PRODUCTS</span> POSSIBILITIES</div>
       <div className="hex-hero-pagination" role="group" aria-label="HOMA slides">
