@@ -25,6 +25,7 @@ import ar from '../src/messages/ar.json';
 import {copy, type Locale} from './landing-copy';
 import './landing.css';
 import './editorial.css';
+import './premium-home.css';
 import {editorialCopy} from './editorial-copy';
 import {BrandIntroduction,TravelCollection,CraftSection,BeautySection,CreativeStudio,Journal,BusinessPartnership,EnquiryProcess} from './BusinessSections';
 import {completionCopy} from './completion-copy';
