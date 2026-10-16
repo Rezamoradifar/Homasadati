@@ -265,6 +265,7 @@ export default function Cart() {
                     onChange={(e) => setMethod(e.target.value)}
                   >
                     <option value="bank_transfer">واریز بانکی با رسید</option>
+                    <option value="zibal">زیبال</option>
                     <option value="zarinpal">زرین‌پال</option>
                     <option value="wallet">کیف پول</option>
                   </select>

@@ -81,6 +81,7 @@ import {
   saveSetting,
   policy,
   paymentRequest,
+  paymentUrl,
   verifyPayment,
 } from "./providers";
 import {
@@ -768,6 +769,7 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "sms_template",
           "sms_sender",
           "zarinpal_merchant",
+          "zibal_merchant",
           "site_name",
           "site_logo",
           "site_contact",
@@ -782,14 +784,17 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       z.string()
         .regex(/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/)
         .parse(d.value);
-    if (d.key === "email_from" || d.key === "site_email") z.string().email().parse(d.value);
-    if(d.key === "site_ceo_name") z.string().trim().min(2).max(120).parse(d.value);
+    if (d.key === "email_from" || d.key === "site_email")
+      z.string().email().parse(d.value);
+    if (d.key === "site_ceo_name")
+      z.string().trim().min(2).max(120).parse(d.value);
     if (d.key === "site_logo") httpsImage.parse(d.value);
     const secret = [
       "resend_key",
       "turnstile_secret_key",
       "kavenegar_key",
       "zarinpal_merchant",
+      "zibal_merchant",
     ].includes(d.key);
     atomic(() => {
       const before = one("SELECT key FROM p_settings WHERE key=?", d.key);
@@ -1218,7 +1223,11 @@ export async function handle(req: Request, path: string[]) {
       method = req.method,
       get = method === "GET";
     if (path[0] === "media") return await media(req, path);
-    if (path[0] === "bank-payments" || (path[0] === "admin" && path[1] === "bank-receipts")) return await bankPayments(req,path);
+    if (
+      path[0] === "bank-payments" ||
+      (path[0] === "admin" && path[1] === "bank-receipts")
+    )
+      return await bankPayments(req, path);
     let data: Row = {};
     if (path.join("/") === "auth/config" && get)
       return json({
@@ -1263,18 +1272,33 @@ export async function handle(req: Request, path: string[]) {
     if (path[0] === "auth" && method === "POST")
       return await auth(req, path, data);
     if (path.join("/") === "payment/callback" && get) {
-      const authority = z
-        .string()
-        .min(10)
-        .max(100)
-        .parse(url.searchParams.get("Authority"));
+      const gateway =
+        url.searchParams.get("gateway") === "zibal" ? "zibal" : "zarinpal";
+      const authority =
+        gateway === "zibal"
+          ? "zibal:" +
+            z
+              .string()
+              .regex(/^[1-9]\d{0,15}$/)
+              .parse(url.searchParams.get("trackId"))
+          : z
+              .string()
+              .min(10)
+              .max(100)
+              .parse(url.searchParams.get("Authority"));
       const checkout = one(
         "SELECT * FROM p_checkouts WHERE authority=?",
         authority,
       );
       if (checkout) {
+        if (checkout.method !== gateway)
+          throw new ApiError(409, "payment_unverified");
         if (checkout.status !== "paid") {
-          const ref = await verifyPayment(authority, checkout.amount);
+          const ref = await verifyPayment(
+            authority,
+            checkout.amount,
+            checkout.method,
+          );
           settleCheckout(checkout.id, ref);
         }
         return Response.redirect(
@@ -1284,8 +1308,14 @@ export async function handle(req: Request, path: string[]) {
       }
       const order = one("SELECT * FROM p_orders WHERE authority=?", authority);
       if (!order) throw new ApiError(404, "not_found");
+      if (order.payment_method !== gateway)
+        throw new ApiError(409, "payment_unverified");
       if (!order.paid_at) {
-        const ref = await verifyPayment(authority, order.amount);
+        const ref = await verifyPayment(
+          authority,
+          order.amount,
+          order.payment_method,
+        );
         settleOrder(order.id, ref);
       }
       return Response.redirect(
@@ -1678,7 +1708,10 @@ export async function handle(req: Request, path: string[]) {
           u.id,
         );
         if (!order) throw new ApiError(404, "not_found");
-        if (order.payment_method !== "zarinpal" || order.status !== "pending")
+        if (
+          !["zarinpal", "zibal"].includes(order.payment_method) ||
+          order.status !== "pending"
+        )
           throw new ApiError(409, "invalid_state");
         if (order.expires_at < now()) {
           refundOrder(order.id, u.id, false, "انقضای درخواست پرداخت");
@@ -1686,7 +1719,7 @@ export async function handle(req: Request, path: string[]) {
         }
         if (order.authority)
           return json({
-            url: "https://www.zarinpal.com/pg/StartPay/" + order.authority,
+            url: paymentUrl(order.authority, order.payment_method),
           });
         const claim = randomUUID();
         if (
@@ -1698,7 +1731,11 @@ export async function handle(req: Request, path: string[]) {
         )
           throw new ApiError(409, "payment_request_in_progress");
         try {
-          const authority = await paymentRequest(order.id, order.amount);
+          const authority = await paymentRequest(
+            order.id,
+            order.amount,
+            order.payment_method,
+          );
           if (
             !run(
               "UPDATE p_orders SET authority=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
@@ -1709,7 +1746,7 @@ export async function handle(req: Request, path: string[]) {
           )
             throw new ApiError(409, "invalid_state");
           return json({
-            url: "https://www.zarinpal.com/pg/StartPay/" + authority,
+            url: paymentUrl(authority, order.payment_method),
           });
         } catch (e) {
           run(
@@ -1724,7 +1761,7 @@ export async function handle(req: Request, path: string[]) {
         .object({
           productId: id,
           quantity: z.number().int().min(1).max(100),
-          method: z.enum(["wallet", "zarinpal", "bank_transfer"]),
+          method: z.enum(["wallet", "zarinpal", "zibal", "bank_transfer"]),
           idempotencyKey: id,
         })
         .parse(data);
