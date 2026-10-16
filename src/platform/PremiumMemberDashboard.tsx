@@ -36,8 +36,8 @@ export default function PremiumMemberDashboard({ user, data, onNavigate }: Props
         <div className="member-luxe-halo" aria-hidden="true" />
         <div className="member-luxe-copy">
           <div className="member-luxe-kicker"><span className="member-luxe-sparkle" aria-hidden="true">✦</span> HOMA MEMBER</div>
-          <h2>خوش آمدید، <bdi translate="no">{user.name}</bdi></h2>
-          <p>حساب شما در یک نگاه</p>
+          <h2>حساب شما در یک نگاه</h2>
+          <p>خوش آمدید، <bdi translate="no">{user.name}</bdi></p>
           <div className="member-luxe-identity">
             <span><Crown size={18} aria-hidden="true" /> <span>رتبه</span> <bdi translate="no">{activeRank}</bdi></span>
             {referralCode && <span className="member-luxe-referral"><span>REFERRAL ID</span><bdi dir="ltr" translate="no">{referralCode}</bdi></span>}
@@ -71,7 +71,7 @@ export default function PremiumMemberDashboard({ user, data, onNavigate }: Props
             </button>
           </div>
           <div className="member-luxe-goldcard">
-            <div className="member-luxe-goldcard-top"><Wallet size={21} aria-hidden="true"/><span>موجودی قابل برداشت</span></div>
+            <div className="member-luxe-goldcard-top"><Wallet size={21} aria-hidden="true"/><span>قابل برداشت</span></div>
             <strong className="member-luxe-amount" dir="ltr">{money(wallet.available)}</strong>
             <small>ریال</small>
             <div className="member-luxe-goldcard-mark" aria-hidden="true">✦</div>
