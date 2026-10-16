@@ -131,6 +131,9 @@ export default function SiteHeader({
               <LanguagePicker />
               <ThemeToggle />
             </div>
+            <div className="discovery-mobile-theme">
+              <ThemeToggle />
+            </div>
             <a
               className="discovery-icon discovery-cart"
               href="/cart"
