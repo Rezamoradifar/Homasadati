@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import ThemeToggle from "./ThemeToggle";
 
 vi.mock("../i18n/SiteLocale", () => ({
@@ -43,7 +43,7 @@ describe("shared HOMA day and night mode", () => {
   it("reflects a theme selection made in another browser tab", () => {
     render(<ThemeToggle />);
     localStorage.setItem("homa-theme", "dark");
-    window.dispatchEvent(new StorageEvent("storage", { key: "homa-theme", newValue: "dark" }));
+    act(() => window.dispatchEvent(new StorageEvent("storage", { key: "homa-theme", newValue: "dark" })));
     expect(document.documentElement.dataset.theme).toBe("dark");
     expect(screen.getByRole("button", { name: "تغییر به حالت روز" })).toBeTruthy();
   });
