@@ -52,6 +52,14 @@
 - `app/homa-route-audit-v9.test.ts`: فهرست همهٔ ۲۴ مسیر، پوسته مشترک و رفتار مسیرهای مستقل.
 - `app/homa-route-audit-v9.css`: قانون‌های اختصاصی هر نوع صفحه برای روشن/تیره و صفحه‌های ۳۸۰، ۷۶۷، ۱۱۹۹ پیکسل.
 - GitHub Actions: `npm test`، بررسی متن و Build تولیدی.
+- `scripts/homa-live-route-smoke.mjs`: ابزار خواندنیِ HTTP برای صفحات عمومی؛ **پس از انتشار** با فرمان زیر قابل اجراست:
+
+  ```bash
+  node scripts/homa-live-route-smoke.mjs https://homanets.com
+  ```
+
+  برای نمونه واقعی محصولات و مقاله‌ها می‌توان متغیرهای `HOMA_PUBLIC_PRODUCT_ID` و `HOMA_PUBLIC_CONTENT_SLUG` را تعیین کرد. ابزار فقط GET می‌فرستد، بدون ورود، پرداخت یا داده خصوصی. اجرای این ابزار روی سرور فعلی هنوز تأیید نشده است.
+
 
 ## محدودیت‌های بررسی
 
