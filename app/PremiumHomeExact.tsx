@@ -115,7 +115,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
               const img=firstImage(p);
               return <article className="hex-product-card" key={p.id}>
                 <a className="hex-product-photo" href={`/shop/${p.id}`} aria-label={p.title}>
-                  {img ? <ResponsiveImage src={img} alt={p.title} loading="lazy" sizes="(max-width:700px) 46vw, 18vw"/> :
+                  {img ? <ResponsiveImage src={img} alt={p.title} loading="lazy" sizes="(max-width:700px) 46vw, 18vw" quality={68}/> :
                     <ResponsiveImage src="/assets/redesign/beauty.webp" alt="" sizes="(max-width:700px) 46vw, 18vw" loading="lazy"/>}
                   <span className="hex-product-decoration" aria-hidden="true">♡</span>
                 </a>
@@ -125,7 +125,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
               </article>;
             }) : productFallback.map(item=><article className="hex-product-card" key={item.href}>
               <a className="hex-product-photo" href={item.href}>
-                <ResponsiveImage src={item.image} alt={item.name} loading="lazy" sizes="(max-width:700px) 46vw, 18vw" />
+                <ResponsiveImage src={item.image} alt={item.name} loading="lazy" sizes="(max-width:700px) 46vw, 18vw" quality={68} />
               </a>
               <h3><a href={item.href}>{item.name}</a></h3>
               <a className="hex-fallback-cta" href={item.href}>{c.explore} <Arrow size={14}/></a>
