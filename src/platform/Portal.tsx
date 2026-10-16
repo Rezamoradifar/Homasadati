@@ -205,13 +205,13 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
   return (
     <Localized>
       <div
-        className={`portal ${admin ? "portal-admin" : "portal-member"}`}
+        className={`portal ${admin ? "portal-admin" : "portal-member"} ${!admin && tab === "dashboard" ? "portal-member-dashboard" : ""}`}
         dir="rtl"
         lang="fa"
       >
         <header className="portal-header">
           <a href="/" className="portal-brand">
-            <img src="/assets/brand-mark.png" alt="" width={40} height={40} />
+            <img src={site.site_logo || "/assets/brand-mark.png"} alt="" width={40} height={40} />
             <span>
               <strong>{site.site_name || "هما نت"}</strong>
               <small>HOMANET / {admin ? "MANAGEMENT" : "MEMBERS"}</small>
@@ -638,6 +638,29 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                 </>
               )}
             </main>
+            {!admin && (
+              <nav className="member-luxe-bottomnav" aria-label="دسترسی سریع">
+                {([
+                  ["dashboard", "نمای کلی"],
+                  ["catalog", "خرید و رزرو"],
+                  ["wallet", "کیف پول"],
+                  ["profile", "پروفایل"],
+                ] as const).map(([key, label]) => {
+                  const Icon = memberTabIcons[key];
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      aria-current={tab === key ? "page" : undefined}
+                      onClick={() => selectTab(key)}
+                    >
+                      {Icon && <Icon size={21} aria-hidden="true" />}
+                      <span>{label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            )}
           </div>
         )}
       </div>
