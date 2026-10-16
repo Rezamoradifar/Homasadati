@@ -21,7 +21,7 @@ function BadgeRow({items, titleKey}: {items: readonly FooterBadge[]; titleKey: s
   </section>;
 }
 
-export function Footer({variant = 'default', introduction, signature, id, className = '', direction, logo, homeHref, resolveHref = localizedHref,
+export function Footer({variant = 'default', compactColumns = false, introduction, signature, id, className = '', direction, logo, homeHref, resolveHref = localizedHref,
   columns = defaultColumns, socials = [], paymentMethods = [], certifications = [],
   languages = defaultLanguages, currencies = defaultCurrencies, currency = 'USD',
   onLocaleChange, onCurrencyChange, onSubscribe, newsletterSuccessContent, year = new Date().getUTCFullYear(), backToTopTargetId}: FooterProps) {
@@ -108,7 +108,7 @@ export function Footer({variant = 'default', introduction, signature, id, classN
             <a href={social.href} aria-label={t(social.labelKey)} className={`flex size-11 items-center justify-center rounded-full border border-white/20 text-[#d5e1e5] transition-colors hover:border-[#ceb798] hover:text-[#ceb798] ${focusRing}`}><span aria-hidden="true">{social.icon}</span></a>
           </li>)}</ul>}
         </FooterColumn>
-        {columns.map(column => <FooterColumn key={column.id} titleKey={column.titleKey} links={column.links.map(link => ({...link, href: resolveHref(link.href, locale)}))} />)}
+        {columns.map(column => <FooterColumn key={column.id} titleKey={column.titleKey} maxVisibleLinks={compactColumns ? 3 : undefined} links={column.links.map(link => ({...link, href: resolveHref(link.href, locale)}))} />)}
       </div>
 
       {(paymentMethods.length > 0 || certifications.length > 0) && <div className="grid gap-7 border-t border-white/15 py-7 sm:grid-cols-2">
