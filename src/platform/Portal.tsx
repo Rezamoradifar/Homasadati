@@ -6,6 +6,7 @@ import { memberTabIcons } from "./member-icons";
 import Localized from "../i18n/Localized";
 import { useEffect, useState } from "react";
 import "./panel.css";
+import "./member-luxury.css";
 import { useSiteSettings } from "./SiteSettings";
 import { LanguagePicker } from "../i18n/SiteLocale";
 import ThemeToggle from "../commerce/ThemeToggle";
