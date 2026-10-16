@@ -65,6 +65,11 @@ describe("HOMA V13 image and animation budgets", () => {
     expect(tourism).toContain('quality={68}');
     expect(tourism).toContain('loading="lazy"');
     expect(tourism).toContain('quality={66}');
+    expect(read("src/commerce/ProductGallery.tsx")).toContain('fetchPriority="high"');
+    expect(read("src/commerce/ProductGallery.tsx")).toContain('quality={55}');
+    expect(read("src/commerce/Storefront.tsx")).toContain('quality={68}');
+    expect(home).toContain('alt={p.title} loading="lazy" sizes="(max-width:700px) 46vw, 18vw" quality={68}');
+
   });
 
   it("pauses animation when offscreen, hidden, Save-Data or reduced-motion are active", () => {
