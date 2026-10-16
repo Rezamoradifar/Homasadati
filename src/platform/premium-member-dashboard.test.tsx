@@ -27,7 +27,7 @@ describe("premium member dashboard", () => {
     expect(screen.getByText("Silver")).toBeTruthy();
     expect(screen.getByText("HOMA-TEST-1")).toBeTruthy();
     expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("42");
-    expect(screen.getByRole("img", { hidden: true })).toBeTruthy();
+    expect(document.querySelector('img[src="/assets/brand-mark.png"]')).toBeTruthy();
   });
 
   it("uses existing panel navigation callbacks, without placing orders or moving funds", () => {
