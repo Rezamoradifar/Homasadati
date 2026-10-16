@@ -43,7 +43,7 @@ export default async function BrandPage({
     s = stories[k];
   return (
     <Localized><CommerceShell>
-      <main id="commerce-main">
+      <main id="commerce-main" className="worlds-public-page">
         <section
           className={`brand-hero ${k}`}
           style={{ backgroundColor: b.tone }}
