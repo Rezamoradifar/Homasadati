@@ -8,7 +8,7 @@ export default function Merchants() {
   return (
     <CommerceShell>
       <Localized>
-        <main id="commerce-main" className="portal">
+        <main id="commerce-main" className="portal shop-wrap merchants-public-page">
           <div className="portal-main">
             <h1>پذیرندگان باشگاه</h1>
             <MerchantDirectory />
