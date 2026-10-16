@@ -526,3 +526,40 @@
 @media(prefers-reduced-motion:reduce){
  .homa-exact *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* Functional catalog search is shared by the original header: its logo stays unchanged. */
+.discovery-header .hex-header-search{
+  display:flex;align-items:center;gap:2px;
+  width:clamp(155px,16vw,270px);
+  min-height:42px;
+  border:1px solid #e1d5c3;
+  border-radius:999px;
+  background:rgba(255,253,249,.91);
+  padding:3px 8px 3px 12px;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.8);
+}
+.discovery-header .hex-header-search input{
+  width:100%;min-width:0;background:transparent!important;
+  border:0!important;box-shadow:none!important;color:#272823!important;
+  min-height:34px;font-size:12px;padding:5px 9px;text-align:start;
+  outline:0;
+}
+.discovery-header .hex-header-search input::-webkit-search-cancel-button{-webkit-appearance:none}
+.discovery-header .hex-header-search button{
+  display:grid;place-items:center;width:34px;height:34px;
+  flex-shrink:0;padding:0;border:0;border-radius:50%;
+  color:#776c5b;background:transparent;cursor:pointer;
+}
+.discovery-header .hex-header-search button:hover{background:#efe1cb;color:#6f4e19}
+.discovery-header .discovery-desktop-nav a[href="/"]{
+  background:#f0d296;color:#2a261f;border-radius:12px;font-weight:800;
+}
+.hex-buy .store-cta{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.hex-buy .store-cta .quantity-selector{max-width:100%;transform:scale(.86);transform-origin:center}
+.hex-buy .store-cta button.commerce-button{white-space:normal}
+@media(max-width:1020px){
+  .discovery-header .hex-header-search{width:160px}
+}
+@media(max-width:790px){
+  .discovery-header .hex-header-search{display:none}
+}
