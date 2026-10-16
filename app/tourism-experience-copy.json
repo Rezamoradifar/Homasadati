@@ -1,0 +1,386 @@
+{
+  "fa": {
+    "nav": {
+      "home": "گردشگری ایران",
+      "domestic": "تورهای داخلی",
+      "destinations": "مقصدها",
+      "experiences": "تجربه‌ها",
+      "travelCard": "کارت سفر",
+      "guide": "راهنمای سفر",
+      "support": "پشتیبانی",
+      "search": "جست‌وجوی سفر"
+    },
+    "hero": {
+      "eyebrow": "HOMA SAADAT · DISCOVER IRAN",
+      "first": "ایران،",
+      "last": "سفری فراتر از همیشه",
+      "description": "از شهرهای تاریخی تا طبیعت بکر؛ با هما ایران را متفاوت کشف کنید.",
+      "destination": "مقصد",
+      "destinationPlaceholder": "کجا دوست دارید سفر کنید؟",
+      "date": "تاریخ پیشنهادی سفر",
+      "travelers": "تعداد مسافران",
+      "passenger": "مسافر",
+      "request": "بررسی و درخواست سفر",
+      "offers": "مشاهده خدمات منتشرشده",
+      "disclaimer": "ارسال درخواست، رزرو قطعی نیست؛ ظرفیت و هزینه سفر پس از بررسی اعلام می‌شود."
+    },
+    "highlights": [
+      {
+        "title": "انتخاب آگاهانه",
+        "text": "اطلاعات روشن سفر"
+      },
+      {
+        "title": "تجربه‌های ایرانی",
+        "text": "فرهنگ و میراث زنده"
+      },
+      {
+        "title": "راهنمای مقصد",
+        "text": "شناخت بهتر مسیر"
+      },
+      {
+        "title": "پیگیری درخواست",
+        "text": "از طریق هما"
+      }
+    ],
+    "destinationsHeader": {
+      "title": "مقصدهای محبوب ایران",
+      "all": "مشاهده همه مقصدها",
+      "select": "انتخاب مقصد"
+    },
+    "destinations": {
+      "shiraz": {
+        "name": "شیراز",
+        "description": "شعر، باغ و عطر بهارنارنج"
+      },
+      "isfahan": {
+        "name": "اصفهان",
+        "description": "نصف جهان، همیشه دیدنی"
+      },
+      "persepolis": {
+        "name": "تخت جمشید",
+        "description": "شکوه تاریخ ایران"
+      },
+      "north": {
+        "name": "شمال ایران",
+        "description": "دریا، جنگل و زندگی محلی"
+      },
+      "kish": {
+        "name": "کیش",
+        "description": "جزیره و آرامش خلیج فارس"
+      }
+    },
+    "experiencesHeader": {
+      "title": "تجربه‌های خاص در ایران",
+      "all": "مشاهده خدمات سفر",
+      "explore": "بررسی تجربه"
+    },
+    "experiences": {
+      "nature": {
+        "name": "طبیعت‌گردی",
+        "description": "از کویر تا جنگل و دریا"
+      },
+      "culture": {
+        "name": "تورهای فرهنگی",
+        "description": "هنر، تاریخ و معماری"
+      },
+      "food": {
+        "name": "بازار و خوراک بومی",
+        "description": "چشیدن طعم اصیل ایران"
+      },
+      "stay": {
+        "name": "اقامتگاه‌های خاص",
+        "description": "اقامت در فضاهای بومی"
+      }
+    },
+    "bottom": {
+      "title": "سفر را با برنامه‌ای روشن آغاز کنید",
+      "description": "مقصد، زمان و تعداد مسافران را انتخاب کنید تا درخواست شما بررسی شود. خدمات قابل خرید را نیز در فروشگاه گردشگری ببینید.",
+      "start": "درخواست برنامه سفر",
+      "catalog": "فروشگاه گردشگری",
+      "disclosure": "اطلاعات کامل سفر و باشگاه"
+    },
+    "inquiry": {
+      "title": "درخواست برنامه سفر در ایران",
+      "description": "این فرم فقط درخواست هماهنگی ثبت می‌کند؛ رزرو یا قیمت قطعی نیست.",
+      "name": "نام و نام خانوادگی",
+      "email": "ایمیل برای پیگیری",
+      "destination": "مقصد",
+      "date": "تاریخ پیشنهادی",
+      "travelers": "مسافران",
+      "none": "تعیین نشده",
+      "notes": "توضیحات بیشتر (اختیاری)",
+      "notesPlaceholder": "علایق، امکانات موردنیاز یا بازه بودجه را بنویسید.",
+      "consent": "موافقم اطلاعات این درخواست برای پیگیری توسط هما ثبت و پردازش شود.",
+      "submit": "ثبت درخواست سفر",
+      "sending": "در حال ثبت…",
+      "close": "بستن",
+      "successTitle": "درخواست شما ثبت شد",
+      "successText": "کد پیگیری را نگه دارید. پاسخ و هماهنگی نهایی از طرف مجموعه انجام می‌شود.",
+      "tracking": "کد پیگیری",
+      "copy": "کپی کد",
+      "copied": "کد کپی شد",
+      "error": "ثبت درخواست انجام نشد؛ دوباره تلاش کنید.",
+      "rateError": "درخواست‌های زیادی ثبت شده است. کمی بعد تلاش کنید.",
+      "invalid": "نام، ایمیل و پذیرش شرایط لازم است.",
+      "support": "پیگیری از پشتیبانی",
+      "restart": "درخواست جدید"
+    },
+    "moreInfo": "مطالعه معرفی کامل گردشگری هما"
+  },
+  "en": {
+    "nav": {
+      "home": "Discover Iran",
+      "domestic": "Iran Tours",
+      "destinations": "Destinations",
+      "experiences": "Experiences",
+      "travelCard": "Travel Cards",
+      "guide": "Travel Guide",
+      "support": "Support",
+      "search": "Find tours"
+    },
+    "hero": {
+      "eyebrow": "HOMA SAADAT · DISCOVER IRAN",
+      "first": "Iran,",
+      "last": "a journey beyond the ordinary",
+      "description": "From historic cities to untouched landscapes—discover Iran in a new way with Homa.",
+      "destination": "Destination",
+      "destinationPlaceholder": "Where would you like to go?",
+      "date": "Preferred travel date",
+      "travelers": "Travelers",
+      "passenger": "traveler",
+      "request": "Plan a trip",
+      "offers": "Browse published services",
+      "disclaimer": "Submitting an inquiry is not a confirmed booking; availability and prices require verification."
+    },
+    "highlights": [
+      {
+        "title": "Informed choices",
+        "text": "Clear travel information"
+      },
+      {
+        "title": "Iranian experiences",
+        "text": "Living culture and heritage"
+      },
+      {
+        "title": "Destination insight",
+        "text": "Know the route"
+      },
+      {
+        "title": "Inquiry follow-up",
+        "text": "Through Homa"
+      }
+    ],
+    "destinationsHeader": {
+      "title": "Explore Iran's destinations",
+      "all": "View all destinations",
+      "select": "Choose destination"
+    },
+    "destinations": {
+      "shiraz": {
+        "name": "Shiraz",
+        "description": "Poetry, gardens and orange blossoms"
+      },
+      "isfahan": {
+        "name": "Isfahan",
+        "description": "A city of timeless beauty"
+      },
+      "persepolis": {
+        "name": "Persepolis",
+        "description": "The splendor of Persian history"
+      },
+      "north": {
+        "name": "Northern Iran",
+        "description": "Sea, forest and local culture"
+      },
+      "kish": {
+        "name": "Kish Island",
+        "description": "An island in the Persian Gulf"
+      }
+    },
+    "experiencesHeader": {
+      "title": "Distinctive experiences in Iran",
+      "all": "Browse travel services",
+      "explore": "Explore"
+    },
+    "experiences": {
+      "nature": {
+        "name": "Nature escapes",
+        "description": "Desert, forest and sea"
+      },
+      "culture": {
+        "name": "Cultural journeys",
+        "description": "Art, history and architecture"
+      },
+      "food": {
+        "name": "Bazaars and flavors",
+        "description": "Discover local food traditions"
+      },
+      "stay": {
+        "name": "Unique stays",
+        "description": "Iranian heritage accommodations"
+      }
+    },
+    "bottom": {
+      "title": "Begin with a clear travel plan",
+      "description": "Choose a destination, date and group size to send an inquiry, or browse published travel services in the shop.",
+      "start": "Plan a journey",
+      "catalog": "Travel shop",
+      "disclosure": "Full travel and club information"
+    },
+    "inquiry": {
+      "title": "Iran travel inquiry",
+      "description": "This form requests a travel plan; it does not confirm bookings or prices.",
+      "name": "Full name",
+      "email": "Email address for replies",
+      "destination": "Destination",
+      "date": "Preferred date",
+      "travelers": "Travelers",
+      "none": "Not specified",
+      "notes": "More details (optional)",
+      "notesPlaceholder": "Tell us about your interests, needs or budget.",
+      "consent": "I agree to have these details processed by Homa to respond to my inquiry.",
+      "submit": "Send travel inquiry",
+      "sending": "Submitting…",
+      "close": "Close",
+      "successTitle": "Inquiry submitted",
+      "successText": "Keep this tracking code. The team will follow up with you.",
+      "tracking": "Tracking code",
+      "copy": "Copy code",
+      "copied": "Code copied",
+      "error": "Could not submit the inquiry. Please try again.",
+      "rateError": "Too many requests. Please try again later.",
+      "invalid": "Please enter a name and email and accept the terms.",
+      "support": "Contact support",
+      "restart": "New inquiry"
+    },
+    "moreInfo": "Read about Homa tourism"
+  },
+  "ar": {
+    "nav": {
+      "home": "اكتشف إيران",
+      "domestic": "جولات داخل إيران",
+      "destinations": "الوجهات",
+      "experiences": "التجارب",
+      "travelCard": "بطاقات السفر",
+      "guide": "دليل السفر",
+      "support": "الدعم",
+      "search": "ابحث عن رحلة"
+    },
+    "hero": {
+      "eyebrow": "HOMA SAADAT · DISCOVER IRAN",
+      "first": "إيران،",
+      "last": "رحلة تتجاوز المألوف",
+      "description": "من المدن التاريخية إلى الطبيعة الساحرة؛ اكتشف إيران مع هما.",
+      "destination": "الوجهة",
+      "destinationPlaceholder": "إلى أين تريد السفر؟",
+      "date": "تاريخ السفر المقترح",
+      "travelers": "عدد المسافرين",
+      "passenger": "مسافر",
+      "request": "استفسر عن رحلة",
+      "offers": "الخدمات المنشورة",
+      "disclaimer": "إرسال الطلب لا يعني حجزاً مؤكداً؛ تخضع الأسعار والتوافر للتحقق."
+    },
+    "highlights": [
+      {
+        "title": "اختيار واعٍ",
+        "text": "معلومات سفر واضحة"
+      },
+      {
+        "title": "تجارب إيرانية",
+        "text": "ثقافة وتراث حي"
+      },
+      {
+        "title": "دليل الوجهة",
+        "text": "تعرّف إلى الطريق"
+      },
+      {
+        "title": "متابعة الطلب",
+        "text": "عبر هما"
+      }
+    ],
+    "destinationsHeader": {
+      "title": "وجهات إيران المميزة",
+      "all": "جميع الوجهات",
+      "select": "اختر الوجهة"
+    },
+    "destinations": {
+      "shiraz": {
+        "name": "شيراز",
+        "description": "الشعر والحدائق وأزهار البرتقال"
+      },
+      "isfahan": {
+        "name": "أصفهان",
+        "description": "جمال لا ينتهي"
+      },
+      "persepolis": {
+        "name": "برسبوليس",
+        "description": "عظمة التاريخ الإيراني"
+      },
+      "north": {
+        "name": "شمال إيران",
+        "description": "البحر والغابات والثقافة"
+      },
+      "kish": {
+        "name": "جزيرة كيش",
+        "description": "الهدوء في الخليج الفارسي"
+      }
+    },
+    "experiencesHeader": {
+      "title": "تجارب فريدة في إيران",
+      "all": "خدمات السفر",
+      "explore": "استكشف"
+    },
+    "experiences": {
+      "nature": {
+        "name": "رحلات الطبيعة",
+        "description": "الصحراء والغابة والبحر"
+      },
+      "culture": {
+        "name": "جولات ثقافية",
+        "description": "الفن والتاريخ والعمارة"
+      },
+      "food": {
+        "name": "الأسواق والمذاقات",
+        "description": "نكهات إيران المحلية"
+      },
+      "stay": {
+        "name": "إقامات مميزة",
+        "description": "ضيافة إيرانية أصيلة"
+      }
+    },
+    "bottom": {
+      "title": "ابدأ رحلتك بخطة واضحة",
+      "description": "اختر الوجهة والتاريخ وعدد المسافرين وأرسل طلبك أو شاهد خدمات السفر المنشورة.",
+      "start": "طلب برنامج رحلة",
+      "catalog": "متجر السفر",
+      "disclosure": "معلومات السفر والنادي"
+    },
+    "inquiry": {
+      "title": "طلب برنامج سفر في إيران",
+      "description": "هذا النموذج للاستفسار ولا يؤكد أي حجز أو سعر.",
+      "name": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "destination": "الوجهة",
+      "date": "التاريخ",
+      "travelers": "المسافرون",
+      "none": "غير محدد",
+      "notes": "تفاصيل إضافية (اختياري)",
+      "notesPlaceholder": "اكتب اهتماماتك أو احتياجاتك أو ميزانيتك.",
+      "consent": "أوافق على معالجة هذه التفاصيل للرد على طلبي.",
+      "submit": "إرسال الطلب",
+      "sending": "جارٍ الإرسال…",
+      "close": "إغلاق",
+      "successTitle": "تم تسجيل طلبك",
+      "successText": "احتفظ برمز المتابعة للرجوع إليه لاحقاً.",
+      "tracking": "رمز المتابعة",
+      "copy": "نسخ الرمز",
+      "copied": "تم النسخ",
+      "error": "تعذر إرسال الطلب. حاول مرة أخرى.",
+      "rateError": "طلبات كثيرة، يرجى المحاولة لاحقاً.",
+      "invalid": "أدخل الاسم والبريد الإلكتروني ووافق على الشروط.",
+      "support": "اتصل بالدعم",
+      "restart": "طلب جديد"
+    },
+    "moreInfo": "اقرأ المزيد عن السياحة مع هما"
+  }
+}
