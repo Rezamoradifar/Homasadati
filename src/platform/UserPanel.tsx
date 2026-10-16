@@ -13,6 +13,7 @@ import LiveChart from "./LiveChart";
 import { ClubAccountCard } from "./ClubAccountCard";
 import { MemberStartGuide } from "./MemberStartGuide";
 import { AccountQuickSummary } from "./AccountQuickSummary";
+import PremiumMemberDashboard from "./PremiumMemberDashboard";
 import {useSiteLocale} from "../i18n/SiteLocale";
 import {catalogCopy,isPublicSpecification} from "../i18n/catalog";
 import Localized from "../i18n/Localized";
@@ -62,12 +63,14 @@ export function Dashboard({ refresh, user, onNavigate }: {
   return (
     <Localized><DataState state={s}>
       {(d) => (
-        <Localized><>
+        <Localized><div className="member-luxe-workspace">
+          <PremiumMemberDashboard user={user} data={d} onNavigate={onNavigate}/>
           <AccountQuickSummary club={d.club} invitation={d.invitation} wallet={d.wallet} onNavigate={onNavigate}/>
           <AccountAlerts guide={d.startGuide} company={d.company} onNavigate={onNavigate}/>
           <MemberStartGuide guide={d.startGuide} code={d.invitation.code} onNavigate={onNavigate}/>
           <details className="dashboard-club-details"><summary>جزئیات کارت و جایگاه‌های من</summary><ClubAccountCard status={d.club} available={d.wallet.available} onNavigate={onNavigate} /></details>
           <MemberOverview
+            showWelcome={false}
             user={user}
             activity={d.activity}
             onNavigate={onNavigate}
@@ -141,7 +144,7 @@ export function Dashboard({ refresh, user, onNavigate }: {
             <h2>آخرین پورسانت‌ها</h2>
             <Table rows={d.commissions} columns={commissionColumns} />
           </div>
-        </></Localized>
+        </div></Localized>
       )}
     </DataState></Localized>
   );
