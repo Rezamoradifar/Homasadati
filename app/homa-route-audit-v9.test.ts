@@ -115,7 +115,8 @@ describe("route-by-route HOMA V9 page shell audit", () => {
     expect(css).toContain("max-width:380px");
     expect(css).toContain("overflow-x:auto");
     expect(css).toContain("prefers-reduced-motion:reduce");
-    expect(css).toContain('html[data-theme="dark"]');
+    // V9 consumes the shared V7 day/night tokens; only the daylight deck needs a direct override.
+    expect(read("app/homa-all-pages-v7.css")).toContain('html[data-theme="dark"]');
     expect(css).toContain('html[data-theme="light"]');
     expect(read("app/layout.tsx")).toContain("import './homa-route-audit-v9.css';");
   });
