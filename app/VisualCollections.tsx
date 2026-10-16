@@ -141,9 +141,9 @@ const collections = {
   beauty: [
     ["beauty-cream", "همای زیبا؛ آیین مراقبت روزانه"],
     ["beauty-care", "مراقبت پوست و مو با هویت همای"],
-    ["beauty-portrait", "زیبایی آرام، انتخاب آگاهانه"],
+    ["beauty-ritual", "زیبایی آرام، انتخاب آگاهانه"],
   ],
-  ai: [["ai-human", "همای هوشمند؛ انسان، خلاقیت و فناوری"]],
+  ai: [["ai-studio", "همای هوشمند؛ انسان، خلاقیت و فناوری"]],
 };
 export function BrandCollection({ sector }: { sector: string }) {
   const rail = useRef<HTMLDivElement>(null);
@@ -250,7 +250,7 @@ export function BrandCollection({ sector }: { sector: string }) {
         {items.map(([id, title]) => (
           <Localized key={id}><figure>
             <ResponsiveImage
-              src={"/assets/collections/" + id + ".webp"}
+              src={id === "beauty-ritual" ? "/assets/redesign/beauty.webp" : id === "ai-studio" ? "/assets/redesign/ai-studio.webp" : "/assets/collections/" + id + ".webp"}
               sizes="(max-width: 700px) calc(100vw - 40px), (max-width: 1500px) 44vw, 640px"
               alt={title + "؛ تصویر مفهومی برند"}
               loading="lazy"
