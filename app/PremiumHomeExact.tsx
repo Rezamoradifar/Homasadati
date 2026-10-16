@@ -59,7 +59,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
       </div>
       <div className="hex-hero-light" aria-hidden="true" />
       <div className="hex-phoenix" aria-hidden="true">
-        <ResponsiveImage src={site_logo || '/assets/brand-mark.png'} alt="" sizes="(max-width: 720px) 30vw, 30vw"/>
+        <ResponsiveImage src="/assets/premium/phoenix-gold.svg" alt="" sizes="(max-width: 720px) 30vw, 30vw"/>
       </div>
       <div className="hex-left-copy" aria-hidden="true">
         <span>{c.beauty}</span><span>{c.quality}</span><span>{c.journey}</span>
