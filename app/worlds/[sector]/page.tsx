@@ -5,7 +5,7 @@ import Localized from "../../../src/i18n/Localized";
 import ResponsiveImage from "../../../src/components/media/ResponsiveImage";
 import { BrandCollection } from "../../VisualCollections";
 import TourismMedia from "../../TourismMedia";
-import HeroMotion from "../../HeroMotion";
+import TourismExperienceLanding from "../../TourismExperienceLanding";
 import ClubCards from "../../ClubCards";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
@@ -42,22 +42,21 @@ export default async function BrandPage({
     b = brands[k],
     s = stories[k];
   return (
-    <Localized><CommerceShell>
-      <main id="commerce-main" className="worlds-public-page">
+    <Localized><CommerceShell tourism={k === "tourism"}>
+      <main id="commerce-main" className={k === "tourism" ? "worlds-public-page tourism-lux-page" : "worlds-public-page"}>
+        {k === "tourism" ? (
+          <TourismExperienceLanding />
+        ) : (
         <section
           className={`brand-hero ${k}`}
           style={{ backgroundColor: b.tone }}
         >
-          {k === "tourism" ? (
-            <HeroMotion />
-          ) : (
-            b.image && (
-              <ResponsiveImage
-                src={b.image}
-                fetchPriority="high"
-                alt="تصویر مفهومی حوزه فعالیت؛ تصویر محصول قابل خرید نیست"
-              />
-            )
+          {b.image && (
+            <ResponsiveImage
+              src={b.image}
+              fetchPriority="high"
+              alt="تصویر مفهومی حوزه فعالیت؛ تصویر محصول قابل خرید نیست"
+            />
           )}
           <div>
             <span className="commerce-eyebrow">
@@ -78,8 +77,9 @@ export default async function BrandPage({
             </span>
           )}
         </section>
+        )}
         {k === "tourism" && <ClubCards />}
-        <section id="story" className="brand-intro">
+        <section id={k === "tourism" ? "tourism-info" : "story"} className="brand-intro">
           <span className="commerce-eyebrow">هویت، کیفیت و ارزش اقتصادی</span>
           <h2>{b.label}؛ فراتر از یک انتخاب</h2>
           <p>{s.intro}</p>
