@@ -27,11 +27,21 @@ describe("HOMA V12 no-woman architecture-first hero", () => {
 
   it("contains no stale links to the deleted portraits in runtime code", () => {
     const filenames = removed.map(x=>x.slice("public/assets/".length));
-    const stale = walk("app").concat(walk("src")).flatMap(path => {
+    const stale = walk("app").concat(walk("src"))
+      .filter(path => !path.endsWith("retired-image-aliases.ts"))
+      .flatMap(path => {
       const content = read(path);
       return filenames.filter(name => content.includes(name)).map(name => path + ": " + name);
     });
     expect(stale).toEqual([]);
+  });
+
+  it("maps existing product media safely without editing database records", async () => {
+    const { safeMediaSrc } = await import("../src/components/media/retired-image-aliases");
+    expect(safeMediaSrc("/assets/collections/beauty-portrait.webp")).toBe("/assets/collections/beauty-care.webp");
+    expect(safeMediaSrc("/assets/tourism.jpg")).toBe("/assets/backdrop/persepolis.webp");
+    expect(safeMediaSrc("/api/platform/media/123.webp")).toBe("/api/platform/media/123.webp");
+    expect(safeMediaSrc("https://images.example/item.jpg")).toBe("https://images.example/item.jpg");
   });
 
   it("renders a stone Persian heritage monument within the original hero", () => {
