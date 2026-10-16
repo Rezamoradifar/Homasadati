@@ -1,6 +1,7 @@
 import { translatedMetadata } from "../../../src/i18n/server";
 import Localized from "../../../src/i18n/Localized";
 import PlanPresentation from "../../../src/commerce/PlanPresentation";
+import { CommerceShell } from "../../../src/commerce/Shell";
 export async function generateMetadata() {
   return translatedMetadata({
     title: "ارائهٔ طرح هفت کارت | هما نت",
@@ -10,9 +11,11 @@ export async function generateMetadata() {
 export default function Page() {
   return (
     <Localized>
-      <main className="plan-page">
-        <PlanPresentation />
-      </main>
+      <CommerceShell>
+        <main id="commerce-main" className="plan-page plan-presentation-page">
+          <PlanPresentation />
+        </main>
+      </CommerceShell>
     </Localized>
   );
 }
