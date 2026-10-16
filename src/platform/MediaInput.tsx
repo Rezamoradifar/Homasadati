@@ -3,6 +3,7 @@
 import Localized from "../i18n/Localized";
 import { useState } from "react";
 import { errors } from "./client";
+import { safeMediaSrc } from "../components/media/retired-image-aliases";
 export function MediaInput({
   name,
   initial,
@@ -91,7 +92,7 @@ export function MediaInput({
           )
           .slice(0, 12)
           .map((src, i) => (
-            <Localized key={src+i}><span className="media-edit-thumb"><img src={src} alt={`تصویر ${i + 1}`} loading="lazy" /><span><button type="button" disabled={busy||i===0} onClick={()=>move(src)}>{i===0?"تصویر اصلی":"اصلی شود"}</button><button type="button" disabled={busy} onClick={()=>remove(src)}>حذف تصویر</button></span></span></Localized>
+            <Localized key={src+i}><span className="media-edit-thumb"><img src={safeMediaSrc(src)} alt={`تصویر ${i + 1}`} loading="lazy" /><span><button type="button" disabled={busy||i===0} onClick={()=>move(src)}>{i===0?"تصویر اصلی":"اصلی شود"}</button><button type="button" disabled={busy} onClick={()=>remove(src)}>حذف تصویر</button></span></span></Localized>
           ))}
       </span>
       <small>
