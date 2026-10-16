@@ -1,5 +1,6 @@
 import {Money,UsdNote} from '../../../src/commerce/currency';
 import ProductGallery from "../../../src/commerce/ProductGallery";
+import { safeMediaSrc } from "../../../src/components/media/retired-image-aliases";
 import {siteLocale} from "../../../src/i18n/server";
 import {catalogCopy,isPublicSpecification} from "../../../src/i18n/catalog";
 
@@ -28,7 +29,7 @@ export async function generateMetadata({
   const p = get(params.id);
   if (!p) return {};
   const d = publicCatalogDetails(p.details),copy=catalogCopy({...p,details:d} as {title:string;description:string;details:Record<string,unknown>},await siteLocale());
-  const images = (JSON.parse(p.images) as string[]).slice(0, 1);
+  const images = (JSON.parse(p.images) as string[]).slice(0, 1).map(safeMediaSrc);
   return {
     title: copy.title,
     description: copy.description.slice(0, 170),
@@ -46,7 +47,7 @@ export default async function ProductPage({
   const p = get(params.id);
   if (!p) notFound();
   const d = publicCatalogDetails(p.details),
-    images = JSON.parse(p.images),
+    images = (JSON.parse(p.images) as string[]).map(safeMediaSrc),
     brand = isSector(p.vertical) ? brands[p.vertical] : null;
   const copy=catalogCopy({...p,details:d} as {title:string;description:string;details:Record<string,unknown>},await siteLocale());
   return (
