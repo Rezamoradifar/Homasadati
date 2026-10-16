@@ -70,7 +70,6 @@ export function Dashboard({ refresh, user, onNavigate }: {
           <MemberStartGuide guide={d.startGuide} code={d.invitation.code} onNavigate={onNavigate}/>
           <details className="dashboard-club-details"><summary>جزئیات کارت و جایگاه‌های من</summary><ClubAccountCard status={d.club} available={d.wallet.available} onNavigate={onNavigate} /></details>
           <MemberOverview
-            showWelcome={false}
             user={user}
             activity={d.activity}
             onNavigate={onNavigate}
