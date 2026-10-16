@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import FooterBrandLogo from "./FooterBrandLogo";
 
-const settings = { site_logo: "/api/platform/media/123.webp" };
+const { settings } = vi.hoisted(() => ({ settings: { site_logo: "/api/platform/media/123.webp" } }));
 vi.mock("../platform/SiteSettings", () => ({
   useSiteSettings: () => settings,
 }));
