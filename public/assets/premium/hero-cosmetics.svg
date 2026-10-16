@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="590" viewBox="0 0 700 590" role="img" aria-label="HOMA luxury skincare bottles">
+<defs>
+  <linearGradient id="ivory" x1="0" y1="0" x2="1" y2=".12"><stop offset="0" stop-color="#9a8964"/><stop offset=".06" stop-color="#eee7d8"/><stop offset=".22" stop-color="#fffdf3"/><stop offset=".60" stop-color="#fffefa"/><stop offset=".85" stop-color="#dfd6c8"/><stop offset="1" stop-color="#b3a68d"/></linearGradient>
+  <linearGradient id="glass" x1="0" x2="1"><stop offset="0" stop-color="#ada18d"/><stop offset=".10" stop-color="#f8f4e9"/><stop offset=".27" stop-color="#ffffff"/><stop offset=".68" stop-color="#fbf5e8"/><stop offset=".87" stop-color="#d1c7b2"/><stop offset="1" stop-color="#8f816b"/></linearGradient>
+  <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#64440b"/><stop offset=".10" stop-color="#aa7626"/><stop offset=".23" stop-color="#ffeaae"/><stop offset=".40" stop-color="#d6a34d"/><stop offset=".58" stop-color="#fff2bc"/><stop offset=".78" stop-color="#bc8a2f"/><stop offset=".93" stop-color="#785116"/><stop offset="1" stop-color="#b58123"/></linearGradient>
+  <linearGradient id="goldvert" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1bc"/><stop offset=".24" stop-color="#d3a14c"/><stop offset=".52" stop-color="#a36d25"/><stop offset=".85" stop-color="#f6d782"/><stop offset="1" stop-color="#65430e"/></linearGradient>
+  <linearGradient id="leaf" x1="0" x2="1"><stop offset="0" stop-color="#091e0d"/><stop offset=".42" stop-color="#3f752b"/><stop offset=".73" stop-color="#81a84b"/><stop offset="1" stop-color="#142912"/></linearGradient>
+  <linearGradient id="stone" x1=".15" y1="0" x2=".74" y2="1"><stop offset="0" stop-color="#d5c4a2"/><stop offset=".5" stop-color="#8c816e"/><stop offset="1" stop-color="#4b514d"/></linearGradient>
+  <radialGradient id="glow"><stop offset="0" stop-color="#fce2a6" stop-opacity=".9"/><stop offset="1" stop-color="#fce2a6" stop-opacity="0"/></radialGradient>
+  <filter id="shadow" x="-60%" y="-60%" width="220%" height="240%"><feGaussianBlur stdDeviation="16"/></filter>
+  <filter id="soft"><feGaussianBlur stdDeviation="2"/></filter>
+</defs>
+<ellipse cx="352" cy="274" rx="295" ry="264" fill="url(#glow)" opacity=".40"/>
+<!-- botanical backdrop -->
+<path d="M522 415Q625 246 655 43" stroke="#385c25" stroke-width="9" fill="none"/>
+<path d="M552 321Q643 250 666 183M568 278Q610 152 602 79M603 230Q683 121 697 91" stroke="#547135" stroke-width="5" fill="none"/>
+<path d="M578 254Q552 147 627 55Q665 137 578 254Z" fill="url(#leaf)"/>
+<path d="M614 203Q614 97 688 23Q708 128 614 203Z" fill="url(#leaf)"/>
+<path d="M559 312Q560 217 652 183Q649 261 559 312Z" fill="url(#leaf)"/>
+<path d="M573 353Q601 269 689 261Q655 350 573 353Z" fill="url(#leaf)"/>
+<path d="M554 340Q483 237 505 158Q570 234 554 340Z" fill="url(#leaf)"/>
+<path d="M558 261Q485 186 497 105Q559 157 558 261Z" fill="url(#leaf)"/>
+<path d="M523 412Q583 341 682 352Q646 417 523 412Z" fill="url(#leaf)"/>
+<!-- stone podium -->
+<path d="M0 501Q107 467 211 475L370 462Q565 436 700 469V590H0Z" fill="url(#stone)"/>
+<path d="M0 506Q145 477 272 488T700 477" fill="none" stroke="#efe2ca" stroke-width="7" opacity=".55"/>
+<path d="M38 552L200 504L340 530L489 479L637 521" fill="none" stroke="#5b594e" stroke-width="7" opacity=".24"/>
+<!-- product ground shadows -->
+<ellipse cx="295" cy="490" rx="157" ry="30" fill="#1d201f" opacity=".45" filter="url(#shadow)"/>
+<ellipse cx="455" cy="497" rx="93" ry="24" fill="#181b1b" opacity=".35" filter="url(#shadow)"/>
+<!-- tall serum bottle -->
+<rect x="409" y="124" width="130" height="369" rx="21" fill="url(#glass)" stroke="#d6c7a3" stroke-width="3"/>
+<rect x="426" y="135" width="12" height="342" fill="white" opacity=".42" filter="url(#soft)"/>
+<rect x="521" y="136" width="8" height="342" fill="#907349" opacity=".17" filter="url(#soft)"/>
+<rect x="410" y="81" width="127" height="91" rx="9" fill="url(#gold)" stroke="#9c6b2d" stroke-width="2"/>
+<rect x="411" y="154" width="126" height="23" rx="5" fill="url(#goldvert)" stroke="#cfaa5c"/>
+<rect x="422" y="91" width="10" height="55" fill="#fff3bc" opacity=".34"/>
+<rect x="513" y="92" width="10" height="55" fill="#48300c" opacity=".35"/>
+<rect x="434" y="262" width="78" height="2" fill="#c8a35e"/>
+<text x="474" y="292" font-family="Georgia,serif" font-size="25" fill="#775928" text-anchor="middle" letter-spacing="2">HOMA</text>
+<text x="474" y="310" font-family="Georgia,serif" font-size="9" fill="#967950" text-anchor="middle" letter-spacing="2">SKINCARE</text>
+<text x="474" y="396" font-family="Georgia,serif" font-size="8" fill="#96836b" text-anchor="middle" letter-spacing="1.5">GOLDEN RITUAL</text>
+<!-- elegant jar shadow -->
+<ellipse cx="264" cy="480" rx="139" ry="24" fill="#4b4232" opacity=".20"/>
+<!-- jar glass body -->
+<rect x="118" y="299" width="272" height="180" rx="34" fill="url(#ivory)" stroke="#f8e4b5" stroke-width="3"/>
+<path d="M119 327Q146 342 254 339T389 328" fill="none" stroke="#fffef9" stroke-width="9" opacity=".55"/>
+<rect x="126" y="307" width="11" height="136" rx="6" fill="#fff" opacity=".55" filter="url(#soft)"/>
+<rect x="375" y="322" width="7" height="134" rx="3" fill="#77613f" opacity=".16"/>
+<rect x="134" y="283" width="239" height="49" rx="9" fill="url(#gold)" stroke="#a37d3f" stroke-width="2"/>
+<rect x="146" y="264" width="217" height="33" rx="8" fill="url(#goldvert)" stroke="#b98e45"/>
+<path d="M137 320Q248 332 379 321" stroke="#f7df9b" stroke-width="3" opacity=".6" fill="none"/>
+<rect x="168" y="352" width="170" height="91" rx="3" fill="#fffdf6" opacity=".85"/>
+<path d="M168 359H338" stroke="#cbb07d" stroke-width="2" opacity=".55"/>
+<text x="253" y="391" font-family="Georgia,serif" font-size="37" fill="#785924" letter-spacing="4" text-anchor="middle">HOMA</text>
+<text x="253" y="412" font-family="Georgia,serif" font-size="10" fill="#927b56" letter-spacing="2" text-anchor="middle">GOLD CREAM</text>
+<text x="254" y="436" font-family="Georgia,serif" font-size="8" fill="#998564" text-anchor="middle" letter-spacing="1">ELEGANCE • CARE</text>
+<!-- white flowers -->
+<g transform="translate(393 237)" opacity=".95">
+<ellipse cx="-12" cy="-13" rx="16" ry="33" fill="#fffdf0" transform="rotate(-43 -12 -13)"/>
+<ellipse cx="17" cy="-17" rx="15" ry="30" fill="#f9f4df" transform="rotate(39 17 -17)"/>
+<ellipse cx="20" cy="11" rx="16" ry="32" fill="#fffdf1" transform="rotate(105 20 11)"/>
+<ellipse cx="-17" cy="19" rx="15" ry="31" fill="#fff8e5" transform="rotate(-120 -17 19)"/>
+<circle cx="0" cy="0" r="14" fill="#f1c46f"/><circle cx="0" cy="0" r="7" fill="#bc872e"/>
+</g>
+<g transform="translate(563 420) scale(.66)" opacity=".9">
+<ellipse cx="-12" cy="-13" rx="16" ry="33" fill="#fffdf0" transform="rotate(-43 -12 -13)"/>
+<ellipse cx="17" cy="-17" rx="15" ry="30" fill="#f9f4df" transform="rotate(39 17 -17)"/>
+<ellipse cx="20" cy="11" rx="16" ry="32" fill="#fffdf1" transform="rotate(105 20 11)"/>
+<ellipse cx="-17" cy="19" rx="15" ry="31" fill="#fff8e5" transform="rotate(-120 -17 19)"/>
+<circle cx="0" cy="0" r="14" fill="#f1c46f"/><circle cx="0" cy="0" r="7" fill="#bc872e"/>
+</g>
+<!-- gold particulate -->
+<circle cx="150" cy="131" r="3" fill="#ffda82" opacity=".8"/><circle cx="612" cy="66" r="2" fill="#fce7ae"/>
+<circle cx="371" cy="73" r="2" fill="#f5d18b"/><circle cx="125" cy="237" r="2" fill="#f0cf88"/>
+</svg>
