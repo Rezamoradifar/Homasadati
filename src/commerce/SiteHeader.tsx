@@ -15,6 +15,7 @@ import { LanguagePicker, useSiteLocale } from "../i18n/SiteLocale";
 import { useSiteSettings } from "../platform/SiteSettings";
 import { menuName } from "./brands";
 import ThemeToggle from "./ThemeToggle";
+import tourismCopy from "../../app/tourism-experience-copy.json";
 
 const services = [
   ["tourism", "گردشگری"],
@@ -26,14 +27,17 @@ const services = [
 type SiteHeaderProps = {
   home?: boolean;
   onTrackRequest?: () => void;
+  tourism?: boolean;
 };
 
 /** Shared navigation uses the native dialog's focus trap and inert backdrop. */
 export default function SiteHeader({
   home = false,
   onTrackRequest,
+  tourism = false,
 }: SiteHeaderProps) {
   const { locale } = useSiteLocale();
+  const travel = tourismCopy[locale];
   const settings = useSiteSettings();
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -93,7 +97,7 @@ export default function SiteHeader({
 
   return (
     <Localized>
-      <header className="discovery-header">
+      <header className={tourism ? "discovery-header discovery-tourism-header" : "discovery-header"}>
         <div className="discovery-header-inner">
           <a
             className="discovery-brand"
@@ -114,18 +118,33 @@ export default function SiteHeader({
             />
           </a>
           <nav className="discovery-desktop-nav" aria-label="منوی اصلی">
-            <a href="/">خانه</a>
-            <a href="/shop">فروشگاه</a>
-            <a href={home ? "#hex-products" : "/#hex-products"}>خدمات هما</a>
-            <a href="/club">باشگاه مشتریان</a>
-            <a href="/income-plan">طرح درآمد</a>
-            <a href="/about">درباره ما</a>
+            {tourism ? (
+              <>
+                <a href="/worlds/tourism" aria-current="page">{travel.nav.home}</a>
+                <a href="/shop?vertical=tourism">{travel.nav.domestic}</a>
+                <a href="#tourism-destinations">{travel.nav.destinations}</a>
+                <a href="#tourism-experiences">{travel.nav.experiences}</a>
+                <a href="/account?tab=travel-cards">{travel.nav.travelCard}</a>
+                <a href="#tourism-info">{travel.nav.guide}</a>
+                <a href="/support">{travel.nav.support}</a>
+              </>
+            ) : (
+              <>
+                <a href="/">خانه</a>
+                <a href="/shop">فروشگاه</a>
+                <a href={home ? "#hex-products" : "/#hex-products"}>خدمات هما</a>
+                <a href="/club">باشگاه مشتریان</a>
+                <a href="/income-plan">طرح درآمد</a>
+                <a href="/about">درباره ما</a>
+              </>
+            )}
           </nav>
           <div className="discovery-header-actions">
             <form role="search" className="hex-header-search" action="/shop" method="get">
-              <label htmlFor="homa-header-query" className="sr-only">جست‌وجوی محصول</label>
-              <input type="search" id="homa-header-query" name="q" maxLength={200} placeholder="نام محصول یا SKU…" />
-              <button type="submit" aria-label="جست‌وجوی محصول"><MagnifyingGlass size={21} aria-hidden="true"/></button>
+              {tourism && <input type="hidden" name="vertical" value="tourism" />}
+              <label htmlFor="homa-header-query" className="sr-only">{tourism ? travel.nav.search : "جست‌وجوی محصول"}</label>
+              <input type="search" id="homa-header-query" name="q" maxLength={200} placeholder={tourism ? travel.nav.search : "نام محصول یا SKU…"} />
+              <button type="submit" aria-label={tourism ? travel.nav.search : "جست‌وجوی محصول"}><MagnifyingGlass size={21} aria-hidden="true"/></button>
             </form>
             <div className="discovery-desktop-preferences">
               <LanguagePicker />
@@ -213,6 +232,14 @@ export default function SiteHeader({
               if ((event.target as Element).closest("a[href]")) closeMenu();
             }}
           >
+            {tourism && <div className="discovery-menu-travel-links">
+              <a href="#tourism-destinations">{travel.nav.destinations}</a>
+              <a href="#tourism-experiences">{travel.nav.experiences}</a>
+              <a href="/shop?vertical=tourism">{travel.nav.domestic}</a>
+              <a href="/account?tab=travel-cards">{travel.nav.travelCard}</a>
+              <a href="#tourism-info">{travel.nav.guide}</a>
+              <a href="/support">{travel.nav.support}</a>
+            </div>}
             <div className="discovery-menu-services">
               {services.map(([sector, title]) => (
                 <Localized key={sector}>
