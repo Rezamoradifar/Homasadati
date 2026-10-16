@@ -39,7 +39,7 @@ afterAll(() => {
 describe("Iran tourism experience", () => {
   it("renders actual Iranian destinations, travel information and an accessible inquiry search", () => {
     const {container}=render(<TourismExperienceLanding />);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("ایران، سفری فراتر از همیشه");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("ایران، سفری فراتر از همیشه");
     expect(container.querySelector(".tourism-hero-photo img")?.getAttribute("src")).toBe("/assets/heritage/isfahan.webp");
     expect(container.querySelectorAll(".tourism-destination-card")).toHaveLength(5);
     expect(container.querySelectorAll(".tourism-experience-card")).toHaveLength(4);
@@ -91,7 +91,7 @@ describe("Iran tourism experience", () => {
     fireEvent.change(within(modal).getByRole("textbox",{name:"ایمیل برای پیگیری"}),{target:{value:"name@example.com"}});
     fireEvent.click(within(modal).getByRole("checkbox",{name:/موافقم اطلاعات/}));
     fireEvent.click(within(modal).getByRole("button",{name:"ثبت درخواست سفر"}));
-    expect(await within(modal).findByRole("alert")).toHaveTextContent("درخواست‌های زیادی ثبت شده است");
+    expect((await within(modal).findByRole("alert")).textContent).toContain("درخواست‌های زیادی ثبت شده است");
     expect(within(modal).queryByText("درخواست شما ثبت شد")).toBeNull();
   });
 });
