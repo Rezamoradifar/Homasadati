@@ -23,8 +23,10 @@ export default function ProductGallery({
           <ResponsiveImage
             src={images[selected]}
             alt={`${title} — تصویر ${selected + 1}`}
-            sizes="(max-width: 760px) calc(100vw - 36px), 46vw"
+            sizes="(max-width: 760px) calc(100vw - 36px), (max-width: 960px) 75vw, 46vw"
             loading="eager"
+            fetchPriority="high"
+            quality={72}
           />
         </div>
         {images.length > 1 && (
@@ -41,7 +43,7 @@ export default function ProductGallery({
                 aria-pressed={i === selected}
                 onClick={() => setSelected(i)}
               >
-                <ResponsiveImage src={src} alt="" sizes="80px" loading="lazy" />
+                <ResponsiveImage src={src} alt="" sizes="80px" loading="lazy" quality={55} />
               </button>
             ))}
           </div>
