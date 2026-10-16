@@ -5,8 +5,11 @@ import EnamadSeal from "./EnamadSeal";
 
 export default function ContactDetails({
   compact = false,
+  hideNav = false,
 }: {
   compact?: boolean;
+  /** The shared footer already exposes company links in its own navigation. */
+  hideNav?: boolean;
 }) {
   const settings = useSiteSettings();
   const landline = settings.site_landline?.trim();
@@ -71,7 +74,7 @@ export default function ContactDetails({
           </p>
         )}
         <TrustBadge id={settings.enamad_id} code={settings.enamad_code} />
-        {compact && (
+        {compact && !hideNav && (
           <nav aria-label="درباره شرکت و ارتباط">
             <a href="/about">درباره شرکت و مدیریت</a>
             <a href="/about#licenses">مجوزها و اسناد</a>
