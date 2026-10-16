@@ -22,6 +22,7 @@ import './catalog-polish.css';
 import './journey-polish.css';
 import './premium-system.css';
 import './homa-unified-theme.css';
+import './homa-all-pages-v7.css';
 import ScrollState from './ScrollState';
 import {JsonLd,organizationJsonLd,siteOrigin} from '../src/platform/seo';
 import {DEFAULT_ENAMAD,DEFAULT_SITE_EMAIL} from '../src/platform/site-defaults';
