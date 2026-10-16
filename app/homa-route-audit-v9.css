@@ -1,0 +1,693 @@
+/* HOMA V9 — route-by-route consolidation of the 24 Next.js page routes.
+ * Loaded after V8. Purely visual: does not modify logos, wallet values,
+ * registration, permissions, checkout, refunds or user data.
+ */
+
+/* ---- Shared accessibility and content flow ---- */
+html[data-theme] :is(.commerce,.portal,.plan-presentation-page) :is(
+  a,button,input,textarea,select,summary
+):focus-visible{
+  outline:3px solid var(--ha-gold)!important;
+  outline-offset:3px;
+}
+html[data-theme] :is(.commerce,.portal) :is(
+  .editorial-content-card,.help-page,.merchants-public-page,
+  .club-public-page,.portal-registration-page,.unsubscribe-page,
+  .admin-legacy-page,.member-kit-public-page
+){min-width:0;max-width:100%}
+html[data-theme] :is(.commerce,.portal) :is(
+  .company-page,.rank-page,.brand-body,.checkout-page,.product-page,
+  .member-kit-public-page,.help-page,.merchants-public-page,
+  .club-public-page,.editorial-content-page
+){
+  margin-inline:auto;
+}
+html[data-theme] :is(.commerce,.portal) :is(
+  .help-page,.editorial-content-page,.merchants-public-page,
+  .portal-registration-page,.unsubscribe-page,.admin-legacy-page
+) :is(h1,h2,h3){
+  font-family:var(--hn-font);
+  line-height:1.5;
+  color:var(--ha-ink);
+}
+html[data-theme] :is(.commerce,.portal) :is(.portal-table-wrap,.comparison-scroll,.admin-table){
+  max-width:100%;
+  overflow-x:auto;
+  overscroll-behavior-x:contain;
+}
+
+/* ---- Published article /pages/[slug]: replaces a hard-coded light inline view ---- */
+html[data-theme] .commerce .editorial-content-page{
+  width:min(calc(100% - 28px),1030px);
+  padding-block:clamp(18px,2.8vw,40px) clamp(32px,5vw,60px);
+}
+html[data-theme] .commerce .editorial-content-card{
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+  border:1px solid var(--ha-outline);
+  border-radius:clamp(18px,2.5vw,27px);
+  padding:clamp(19px,3.3vw,47px);
+  box-shadow:var(--ha-drop);
+  min-width:0;
+}
+html[data-theme] .commerce .editorial-content-links{
+  display:flex;
+  gap:13px;
+  align-items:center;
+  flex-wrap:wrap;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--ha-outline);
+}
+html[data-theme] .commerce .editorial-content-links a,
+html[data-theme] .commerce .editorial-content-bottom a{
+  display:inline-flex;align-items:center;min-height:41px;
+  color:var(--ha-gold);font-weight:800;
+  padding:6px 13px;border:1px solid var(--ha-outline);
+  border-radius:12px;
+}
+html[data-theme] .commerce .editorial-content-card h1{
+  margin:clamp(19px,2.8vw,30px) 0 14px;
+  font-size:clamp(23px,2.5vw,40px);
+  overflow-wrap:anywhere;
+}
+html[data-theme] .commerce .editorial-content-image{
+  width:100%;height:auto;max-height:460px;display:block;
+  object-fit:contain;
+  background:var(--ha-soft);
+  border-radius:17px;
+  margin-block:20px;
+}
+html[data-theme] .commerce .editorial-content-body{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  line-height:2.08;
+  font-size:clamp(14px,1.05vw,17px);
+  color:var(--ha-ink);
+}
+html[data-theme] .commerce .editorial-content-bottom{
+  margin-top:27px;
+  padding-top:17px;
+  border-top:1px solid var(--ha-outline);
+}
+
+/* ---- Registration /register: shared header/footer, original OTP flow ---- */
+html[data-theme] .commerce .portal-registration-page{
+  background:transparent;
+  width:min(calc(100% - 24px),1250px);
+  padding:clamp(14px,2vw,26px) 0 42px;
+  margin-inline:auto;
+  min-height:auto;
+}
+html[data-theme] .commerce .registration-back-nav{
+  margin-bottom:14px;
+  display:flex;align-items:center;gap:12px;
+}
+html[data-theme] .commerce .registration-back-nav a{
+  display:inline-flex;min-height:42px;align-items:center;
+  background:var(--ha-panel);color:var(--ha-gold);
+  border:1px solid var(--ha-outline);
+  padding:8px 15px;border-radius:13px;
+  font-weight:800;text-decoration:none;
+}
+html[data-theme] .commerce .portal-registration-page .registration-shell{
+  width:100%;max-width:100%;margin:0 auto;
+  border-radius:23px;
+  border:1px solid var(--ha-outline);
+  box-shadow:var(--ha-drop-strong,var(--ha-drop));
+  overflow:hidden;
+}
+html[data-theme] .commerce .portal-registration-page .registration{
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+  border-color:var(--ha-outline);
+}
+html[data-theme] .commerce .portal-registration-page .registration-story{
+  background:radial-gradient(circle at 15% 0%,rgba(214,175,102,.18),transparent 45%),linear-gradient(140deg,#132e30,#081a1d);
+  color:#f6ebdc;
+}
+html[data-theme] .commerce .portal-registration-page .registration :is(input,select,textarea){
+  color:var(--ha-ink);
+}
+
+/* ---- Newsletter cancellation: no more old admin form styling ---- */
+html[data-theme] .commerce .unsubscribe-page{
+  width:min(calc(100% - 26px),800px);
+  margin-inline:auto;
+  padding:clamp(30px,5vw,65px) 0 65px;
+  min-height:45vh;
+  background:transparent;
+}
+html[data-theme] .commerce .unsubscribe-back-nav{margin-bottom:15px}
+html[data-theme] .commerce .unsubscribe-back-nav a{
+  color:var(--ha-gold);
+  text-decoration:none;
+  font-size:13px;
+  font-weight:800;
+  display:inline-flex;
+  min-height:42px;
+  align-items:center;
+}
+html[data-theme] .commerce .unsubscribe-form{
+  display:grid;gap:18px;
+  width:100%;
+  max-width:700px;
+  padding:clamp(22px,4vw,44px);
+  border:1px solid var(--ha-outline);
+  border-radius:22px;
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .commerce .unsubscribe-form h1{
+  font-size:clamp(22px,2.3vw,31px);
+  margin:0;line-height:1.5;
+}
+html[data-theme] .commerce .unsubscribe-form p{line-height:1.8;margin:0}
+html[data-theme] .commerce .unsubscribe-form label{
+  display:grid;gap:8px;min-width:0;font-weight:700;
+}
+html[data-theme] .commerce .unsubscribe-form input{
+  width:100%;
+  min-height:48px;
+  padding:12px 14px;
+  font-size:16px;
+  direction:ltr;
+}
+html[data-theme] .commerce .unsubscribe-form button{
+  justify-self:start;min-height:46px;
+  padding:10px 25px;border:1px solid #d7b374;
+  border-radius:13px;font-weight:800;
+  background:linear-gradient(140deg,#f8dda3,#d2a356);
+  color:#1c221b;
+}
+html[data-theme] .commerce .unsubscribe-form button:disabled{
+  opacity:.55;cursor:not-allowed;
+}
+html[data-theme] .commerce .unsubscribe-form [role="alert"]{color:#c36655}
+html[data-theme] .commerce .unsubscribe-form [role="status"]{color:var(--ha-ink)}
+
+/* ---- Legacy request administration: preserve original auth and CSV actions ---- */
+html[data-theme] .commerce .admin-legacy-page{
+  width:min(calc(100% - 28px),1380px);
+  max-width:1380px;
+  min-height:60vh;
+  margin:clamp(20px,3vw,40px) auto;
+  padding:clamp(18px,3vw,35px);
+  border:1px solid var(--ha-outline);
+  border-radius:22px;
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .commerce .admin-legacy-page header{
+  gap:12px;flex-wrap:wrap;
+  border-bottom-color:var(--ha-outline);
+}
+html[data-theme] .commerce .admin-legacy-page header p,
+html[data-theme] .commerce .admin-legacy-page header a{color:var(--ha-gold)}
+html[data-theme] .commerce .admin-legacy-page h1{
+  font-size:clamp(23px,2.25vw,32px);
+  margin:4px 0;
+}
+html[data-theme] .commerce .admin-legacy-page :is(.admin-login,.admin-tools,.admin-table){
+  max-width:100%;
+}
+html[data-theme] .commerce .admin-legacy-page .admin-login{
+  margin:clamp(20px,3vw,50px) auto;
+  padding:clamp(17px,2vw,26px);
+  background:var(--ha-soft);
+  border:1px solid var(--ha-outline);
+  border-radius:18px;
+}
+html[data-theme] .commerce .admin-legacy-page :is(input,select){
+  color:var(--ha-ink);
+  background:var(--ha-input);
+  border-color:var(--ha-outline-strong);
+  border-radius:11px;
+}
+html[data-theme] .commerce .admin-legacy-page button{
+  background:linear-gradient(145deg,#f6dfa7,#d2a255);
+  border:1px solid #c8a25f;
+  border-radius:12px;
+  color:#1e241d;
+  min-height:44px;
+}
+html[data-theme] .commerce .admin-legacy-page button:disabled{opacity:.5}
+html[data-theme] .commerce .admin-legacy-page .admin-tools{
+  margin-block:18px;
+  gap:12px;
+}
+html[data-theme] .commerce .admin-legacy-page .admin-table{
+  border:1px solid var(--ha-outline);
+  border-radius:16px;
+  background:var(--ha-panel);
+}
+html[data-theme] .commerce .admin-legacy-page table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:630px;
+  font-size:13px;
+}
+html[data-theme] .commerce .admin-legacy-page th{
+  background:var(--ha-soft);
+  color:var(--ha-ink);
+}
+html[data-theme] .commerce .admin-legacy-page td{
+  color:var(--ha-ink);
+}
+html[data-theme] .commerce .admin-legacy-page :is(td,th){
+  border-bottom-color:var(--ha-outline);
+  padding:13px 16px;
+}
+html[data-theme] .commerce .admin-legacy-page code{
+  color:var(--ha-gold);
+  overflow-wrap:anywhere;
+}
+html[data-theme] .commerce .admin-legacy-page>footer{
+  padding:8px;gap:13px;flex-wrap:wrap;
+}
+
+/* ---- Plan presentation: retain slide navigation, match brand and site chrome ---- */
+html[data-theme] .commerce .plan-presentation-page{
+  color:#f7eedc;
+  background:radial-gradient(circle at 10% 10%,rgba(227,179,84,.15),transparent 42%),linear-gradient(135deg,#102a2c,#091719);
+  min-height:calc(100dvh - 82px);
+  width:100%;
+  margin:0;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-deck{
+  min-height:calc(100dvh - 82px);
+  max-width:1190px;
+  margin-inline:auto;
+  padding-inline:clamp(13px,3vw,32px);
+}
+html[data-theme] .commerce .plan-presentation-page .plan-progress{
+  margin-top:15px;background:rgba(239,211,165,.16);
+}
+html[data-theme] .commerce .plan-presentation-page .plan-progress span{
+  background:linear-gradient(90deg,#b9832d,#f5d691);
+}
+html[data-theme] .commerce .plan-presentation-page .plan-stage{
+  min-height:0;min-width:0;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-slide :is(h1,h2){
+  color:#fff0d4;line-height:1.45;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-kicker{
+  color:#e8c68b;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-steps li,
+html[data-theme] .commerce .plan-presentation-page .plan-leg{
+  border:1px solid rgba(241,203,136,.24);
+  border-radius:17px;
+  background:rgba(239,220,175,.065);
+}
+html[data-theme] .commerce .plan-presentation-page .plan-steps li::before{
+  background:linear-gradient(135deg,#f4ddaa,#bd8430);
+  color:#1b251f;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-highlight{
+  border:1px solid rgba(238,195,111,.35);
+  border-radius:20px;
+  background:linear-gradient(145deg,rgba(230,176,77,.15),rgba(16,42,44,.6));
+}
+html[data-theme] .commerce .plan-presentation-page .plan-nav{
+  border-color:rgba(239,211,165,.19);
+  color:#f4e8cf;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-nav button{
+  min-height:44px;
+  color:#f6e8ca;
+  border-color:rgba(235,197,130,.28);
+  border-radius:12px;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-nav button.primary{
+  background:linear-gradient(135deg,#fae2ad,#c89545);
+  color:#1b231b;
+  border-color:#e3bc7d;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-nav button:disabled{opacity:.4}
+html[data-theme] .commerce .plan-presentation-page .plan-dots{
+  flex-wrap:wrap;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,148px),1fr));
+  gap:10px;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-card{
+  min-width:0;
+}
+html[data-theme] .commerce .plan-presentation-page .plan-equation{max-width:100%;overflow-x:auto}
+html[data-theme="light"] .commerce .plan-presentation-page{
+  background:radial-gradient(circle at 12% 10%,rgba(235,193,118,.20),transparent 45%),linear-gradient(135deg,#e9ddc7,#f5efe5);
+  color:#25261e;
+}
+html[data-theme="light"] .commerce .plan-presentation-page .plan-slide :is(h1,h2){
+  color:#22261e;
+}
+html[data-theme="light"] .commerce .plan-presentation-page .plan-kicker{color:#996e2f}
+html[data-theme="light"] .commerce .plan-presentation-page .plan-steps li,
+html[data-theme="light"] .commerce .plan-presentation-page .plan-leg{
+  background:rgba(255,253,248,.78);
+  color:#28251e;
+  border-color:#d6c5a9;
+}
+html[data-theme="light"] .commerce .plan-presentation-page .plan-highlight{
+  background:linear-gradient(135deg,#f9eacb,#ebd9b5);
+  color:#28231c;
+  border-color:#d2b981;
+}
+html[data-theme="light"] .commerce .plan-presentation-page .plan-nav button{
+  color:#27231d;border-color:#bda67f;
+}
+html[data-theme="light"] .commerce .plan-presentation-page .plan-nav{
+  color:#33332a;border-color:#d6c5a9;
+}
+
+/* ---- /help and /support: align headings, steps, FAQs and contact details ---- */
+html[data-theme] .commerce .help-page > header{
+  padding:clamp(19px,2.5vw,32px);
+  margin:0 0 18px;
+  border:1px solid var(--ha-outline);
+  border-radius:21px;
+  background:var(--ha-panel);
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .commerce .help-page>header h1{
+  margin:4px 0 7px;
+  font-size:clamp(24px,2.6vw,39px);
+}
+html[data-theme] .commerce .help-page>header p{line-height:1.8;color:var(--ha-muted)}
+html[data-theme] .commerce .help-page>header .commerce-eyebrow{color:var(--ha-gold)}
+html[data-theme] .commerce .help-page > :is(section,nav.help-actions){
+  margin-block:13px;
+}
+html[data-theme] .commerce .help-page > section{
+  border:1px solid var(--ha-outline);
+  border-radius:19px;
+  padding:clamp(17px,2vw,28px);
+  color:var(--ha-ink);
+  background:var(--ha-panel);
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .commerce .help-page > section h2{margin:0 0 12px;font-size:clamp(18px,1.8vw,25px)}
+html[data-theme] .commerce .help-page .help-actions{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,175px),1fr));
+  gap:9px;
+}
+html[data-theme] .commerce .help-page .help-actions a,
+html[data-theme] .commerce .help-page .company-actions a{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:9px 12px;
+  border:1px solid var(--ha-outline-strong);
+  border-radius:12px;background:var(--ha-soft);
+  color:var(--ha-ink);
+  text-align:center;
+  font-size:13px;text-decoration:none;font-weight:700;
+}
+html[data-theme] .commerce .help-page .help-actions a:hover{border-color:var(--ha-gold)}
+html[data-theme] .commerce .help-page .help-faq details{
+  border-bottom:1px solid var(--ha-outline);
+  padding:11px 7px;
+  color:var(--ha-ink);
+}
+html[data-theme] .commerce .help-page .help-faq summary{
+  min-height:44px;cursor:pointer;
+  font-weight:800;color:var(--ha-ink);
+}
+html[data-theme] .commerce .help-page .help-faq details p{
+  line-height:1.9;color:var(--ha-muted);
+}
+html[data-theme] .commerce .help-page ol{padding-inline-start:24px;line-height:2}
+html[data-theme] .commerce .help-page .company-contact-panel{
+  border:1px solid var(--ha-outline);
+}
+html[data-theme] .commerce .help-page .company-contact{
+  max-width:100%;overflow-wrap:anywhere;
+}
+
+/* ---- /club, /merchants, /member-kit: correct page measure in both modes ---- */
+html[data-theme] .commerce .club-public-page,
+html[data-theme] .commerce .merchants-public-page{
+  width:min(calc(100% - 28px),1400px);
+  min-height:0;
+  max-width:1400px;
+  margin:clamp(16px,2.8vw,40px) auto;
+  padding:clamp(12px,2vw,25px);
+  color:var(--ha-ink);
+  background:transparent;
+}
+html[data-theme] .commerce .club-public-page .portal-main,
+html[data-theme] .commerce .merchants-public-page .portal-main{
+  padding:0;
+  min-width:0;
+}
+html[data-theme] .commerce .club-public-page :is(.portal-card,.portal-row),
+html[data-theme] .commerce .merchants-public-page :is(.portal-card,.portal-row){
+  max-width:100%;min-width:0;
+  border-color:var(--ha-outline);
+}
+html[data-theme] .commerce .merchants-public-page .portal-main>h1,
+html[data-theme] .commerce .club-public-page h1{
+  font-size:clamp(24px,2.3vw,37px);
+  margin:0 0 17px;
+  line-height:1.5;
+}
+html[data-theme] .commerce .member-kit-public-page{
+  width:min(calc(100% - 28px),1370px);
+  padding-top:clamp(20px,3vw,40px);
+}
+html[data-theme] .commerce .member-kit-public-page :is(.member-kit,.portal-card){
+  max-width:100%;
+  min-width:0;
+}
+
+/* ---- /worlds/[sector]: preserve cinematic images, contain long sections ---- */
+html[data-theme] .commerce .worlds-public-page{
+  min-width:0;
+  width:100%;
+}
+html[data-theme] .commerce .worlds-public-page .brand-hero{
+  overflow:hidden;
+  min-height:clamp(320px,31vw,540px);
+}
+html[data-theme] .commerce .worlds-public-page .brand-hero>div{
+  min-width:0;max-width:100%;
+}
+html[data-theme] .commerce .worlds-public-page :is(
+  .brand-intro,.story-layout,.brand-faq,.brand-related,.brand-final,.economic-model
+){
+  width:min(calc(100% - 34px),1400px);
+  max-width:1400px;
+  margin-inline:auto;
+  min-width:0;
+}
+html[data-theme] .commerce .worlds-public-page :is(
+  .brand-intro,.brand-faq,.brand-final,.story-chapter
+){
+  border-radius:20px;
+  border-color:var(--ha-outline);
+}
+html[data-theme] .commerce .worlds-public-page .brand-intro :is(h2,p),
+html[data-theme] .commerce .worlds-public-page .brand-faq :is(h2,p,summary){
+  color:var(--ha-ink);
+}
+html[data-theme] .commerce .worlds-public-page .brand-related>div{
+  max-width:100%;
+  gap:12px;
+}
+html[data-theme] .commerce .worlds-public-page .brand-related a{
+  overflow-wrap:anywhere;
+}
+
+/* ---- Product detail, payment result and checkout: 1024px laptop protection ---- */
+html[data-theme] .commerce .product-page{
+  width:min(calc(100% - 28px),1430px);
+  max-width:1430px;
+}
+html[data-theme] .commerce .product-page .shop-product{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:start;
+  gap:clamp(18px,3vw,43px);
+}
+html[data-theme] .commerce .product-page .shop-product>div{
+  min-width:0;
+}
+html[data-theme] .commerce .product-page :is(.product-purchase-panel,.product-specs>div){
+  border-color:var(--ha-outline);
+  border-radius:17px;
+  background:var(--ha-panel);
+}
+html[data-theme] .commerce .product-page .product-specs{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:11px;
+}
+html[data-theme] .commerce .product-page :is(.product-gallery-main,.product-gallery-thumbs){
+  max-width:100%;
+}
+html[data-theme] .commerce :is(.product-page,.payment-result) img{max-width:100%}
+html[data-theme] .commerce .checkout-page :is(
+  .checkout-layout,.checkout-content,.checkout-summary,.checkout-section
+){min-width:0}
+html[data-theme] .commerce .checkout-page .checkout-layout{
+  gap:clamp(13px,2vw,26px);
+}
+html[data-theme] .commerce .checkout-page .checkout-steps{
+  max-width:100%;overflow-x:auto;
+}
+html[data-theme] .commerce .payment-result .payment-result-card{
+  width:100%;max-width:880px;margin-inline:auto;
+  border-radius:22px;
+  color:var(--ha-ink);
+  background:var(--ha-panel);
+  border-color:var(--ha-outline);
+}
+html[data-theme] .commerce .payment-result :is(h1,p,dd,dt){
+  color:var(--ha-ink);
+}
+
+/* ---- Shared 404 and error states; important on both themes ---- */
+html[data-theme] .site-error{
+  width:min(calc(100% - 26px),830px);
+  min-height:50dvh;
+  margin:clamp(22px,6vw,66px) auto;
+  padding:clamp(23px,4vw,52px);
+  display:flex;flex-direction:column;align-items:flex-start;
+  justify-content:center;gap:15px;
+  border:1px solid var(--ha-outline);
+  border-radius:24px;
+  background:var(--ha-panel);
+  color:var(--ha-ink);
+  box-shadow:var(--ha-drop);
+}
+html[data-theme] .site-error h1{margin:0;color:var(--ha-ink);font-size:clamp(24px,3vw,38px)}
+html[data-theme] .site-error p{margin:0;color:var(--ha-muted);line-height:1.9}
+html[data-theme] .site-error>div{display:flex;gap:10px;flex-wrap:wrap}
+html[data-theme] .site-error :is(button,a){
+  min-height:44px;display:inline-flex;align-items:center;
+  justify-content:center;gap:7px;padding:10px 15px;
+  border:1px solid var(--ha-outline-strong);
+  border-radius:12px;color:var(--ha-ink);
+  background:var(--ha-soft);
+  text-decoration:none;
+}
+
+/* ---- Responsive checks for tablets, laptops and narrow phones ---- */
+@media (min-width:768px) and (max-width:1199px){
+  html[data-theme] .commerce .product-page .shop-product{
+    grid-template-columns:minmax(0,1fr) minmax(0,1.03fr);
+    gap:17px;
+  }
+  html[data-theme] .commerce .checkout-page .checkout-layout{
+    grid-template-columns:minmax(0,1fr);
+  }
+  html[data-theme] .commerce .checkout-page .checkout-summary{
+    position:static;
+    width:100%;
+  }
+  html[data-theme] .commerce .plan-presentation-page .plan-cards{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+  html[data-theme] .commerce .worlds-public-page .story-layout{
+    grid-template-columns:minmax(0,1fr);
+    gap:22px;
+  }
+  html[data-theme] .portal-admin .portal-layout{
+    grid-template-columns:230px minmax(0,1fr);
+    gap:13px;
+    max-width:100%;
+  }
+  html[data-theme] .portal-admin .admin-shortcuts{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width:767px){
+  html[data-theme] .commerce .editorial-content-page{
+    width:calc(100% - 18px);
+    padding-block:12px 28px;
+  }
+  html[data-theme] .commerce .editorial-content-card{
+    padding:18px 16px;
+    border-radius:17px;
+  }
+  html[data-theme] .commerce .portal-registration-page{
+    width:calc(100% - 16px);
+    padding-block:12px 20px;
+  }
+  html[data-theme] .commerce .portal-registration-page .registration-shell{
+    border-radius:17px;
+  }
+  html[data-theme] .commerce .admin-legacy-page{
+    width:calc(100% - 18px);
+    padding:15px;
+    margin-block:13px;
+  }
+  html[data-theme] .commerce .admin-legacy-page .admin-tools{
+    align-items:stretch;
+  }
+  html[data-theme] .commerce .admin-legacy-page .admin-tools>button{
+    flex:1 1 150px;
+  }
+  html[data-theme] .commerce .plan-presentation-page .plan-deck{
+    min-height:calc(100dvh - 66px);
+    padding-inline:12px;
+  }
+  html[data-theme] .commerce .plan-presentation-page .plan-stage{
+    padding:18px 0;
+  }
+  html[data-theme] .commerce .plan-presentation-page .plan-cards{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  html[data-theme] .commerce .plan-presentation-page .plan-steps{
+    grid-template-columns:minmax(0,1fr);
+  }
+  html[data-theme] .commerce .club-public-page,
+  html[data-theme] .commerce .merchants-public-page{
+    width:calc(100% - 18px);
+    padding:11px;
+  }
+  html[data-theme] .commerce .worlds-public-page :is(
+    .brand-intro,.story-layout,.brand-faq,.brand-related,.brand-final,.economic-model
+  ){
+    width:calc(100% - 20px);
+  }
+  html[data-theme] .commerce .worlds-public-page .brand-hero{
+    min-height:280px;
+  }
+  html[data-theme] .commerce .product-page .shop-product{
+    grid-template-columns:minmax(0,1fr);
+    gap:13px;
+  }
+  html[data-theme] .commerce .product-page .product-specs{
+    grid-template-columns:minmax(0,1fr);
+  }
+  html[data-theme] .commerce .checkout-page .checkout-layout{
+    grid-template-columns:minmax(0,1fr);
+  }
+  html[data-theme] .commerce .checkout-page .checkout-summary{position:static}
+  html[data-theme] .commerce .help-page .help-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width:380px){
+  html[data-theme] .commerce .plan-presentation-page .plan-cards{
+    grid-template-columns:minmax(0,1fr);
+  }
+  html[data-theme] .commerce .help-page .help-actions{
+    grid-template-columns:minmax(0,1fr);
+  }
+  html[data-theme] .commerce .admin-legacy-page th,
+  html[data-theme] .commerce .admin-legacy-page td{
+    padding:10px 11px;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  html[data-theme] .commerce .plan-presentation-page .plan-slide{animation:none!important}
+  html[data-theme] .commerce :is(.editorial-content-card,.help-page,.portal-registration-page) *{
+    scroll-behavior:auto;
+    animation:none!important;
+  }
+}
