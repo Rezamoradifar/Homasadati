@@ -645,7 +645,7 @@
       "description": "جعبهٔ هدیه شامل کرم شب، شامپو، نرم‌کننده و کیسهٔ پارچه‌ای؛ هدیه‌ای آماده برای مناسبت‌ها.",
       "descriptionEn": "Gift box with night cream, shampoo, conditioner and a cloth pouch.",
       "images": [
-        "/assets/collections/beauty-portrait.webp"
+        "/assets/collections/beauty-care.webp"
       ],
       "details": {
         "brand": "همای",
@@ -757,7 +757,7 @@
       "description": "یک ماه دسترسی به استودیو تولید متن و تصویر با هوش مصنوعی برای کسب‌وکارها، با آموزش شروع کار و پشتیبانی فارسی.",
       "descriptionEn": "One month of AI text and image studio access for businesses, with onboarding and Persian support.",
       "images": [
-        "/assets/collections/ai-human.webp"
+        "/assets/redesign/ai-studio.webp"
       ],
       "details": {
         "seats": 1,
@@ -800,7 +800,7 @@
       "description": "بررسی فرایندهای کسب‌وکار شما، پیشنهاد و راه‌اندازی ابزارهای هوش مصنوعی مناسب و آموزش تیم در چهار جلسهٔ آنلاین.",
       "descriptionEn": "Review of your processes, setup of suitable AI tools and team training over four online sessions.",
       "images": [
-        "/assets/collections/ai-human.webp"
+        "/assets/redesign/ai-studio.webp"
       ],
       "details": {
         "delivery": "هماهنگی جلسهٔ اول حداکثر ۴۸ ساعت پس از پرداخت؛ چهار جلسهٔ آنلاین در یک ماه.",
