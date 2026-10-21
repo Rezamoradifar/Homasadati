@@ -23,14 +23,14 @@ import './landing.css';
 import './editorial.css';
 import './premium-home.css';
 import './premium-exact.css';
-import PremiumHomeExact from './PremiumHomeExact';
+import ClassicHome, {classicGalleryImages} from './ClassicHome';
 import {editorialCopy} from './editorial-copy';
 import {completionCopy} from './completion-copy';
 import {functionalCopy} from './function-copy';
 import {sectionContent} from './section-content';
 const translations={en,fa,ar};
 const images=['heritage/isfahan.webp','collections/beauty-care.webp','craft.jpg','redesign/ai-studio.webp'];
-const galleryImages=['heritage/persepolis.webp','heritage/cyrus.webp','heritage/simurgh.webp','redesign/ai-studio.webp','craft-wide.jpg'];
+const galleryImages=classicGalleryImages;
 const sections=['tourism','beauty','handicrafts','ai'];
 function requestKey(){const bytes=crypto.getRandomValues(new Uint8Array(16));bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;const hex=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;}
 type Modal = 'story' | 'contact' | 'club' | 'gallery' | 'info' | 'tracking' | 'journal' | number | null;
@@ -65,7 +65,13 @@ function Landing({locale,setLocale}:{locale:Locale;setLocale:(locale:Locale)=>vo
  <a href="#main" className="skip-link">رفتن به محتوای اصلی</a>
  <SiteHeader home onTrackRequest={()=>open('tracking')}/>
  <main id="main" tabIndex={-1}>
- <PremiumHomeExact locale={locale}/>
+ <ClassicHome locale={locale} c={c}
+   onStory={()=>open('story')}
+   onEnquire={enquire}
+   onCategory={i=>open(i)}
+   onArticle={i=>{setArticle(i);open('journal');}}
+   onGallery={i=>{setGalleryIndex(i);open('gallery');}}
+ />
 
  </main>
  <Footer variant="editorial" compactColumns introduction={<div className="footer-introduction"><div><p className="eyebrow">{e('collection')}</p><h2>{e('footerTitle')}</h2><p>{e('footerText')}</p></div><div className="footer-contact-actions"><ThemeToggle/><a className="gold-button" href="/contact">{e('footerContact')}<Arrow size={22}/></a><button className="footer-track" onClick={()=>open('tracking')}>{u('tracking')}<Arrow size={18}/></button></div><ContactDetails compact/></div>} newsletterSuccessContent={unsubscribe?<div className="newsletter-cancellation"><p>{f('newsletterSave')}</p><a href={`/unsubscribe?token=${unsubscribe}`} rel="nofollow">{u('unsubscribe')}</a></div>:undefined} onSubscribe={subscribe} columns={defaultColumns.map(column=>({...column,links:column.links.map(link=>({...link,onClick:event=>{event.preventDefault(); const index=sections.indexOf(link.href.replace(/^[/#]/,'')); if(index>=0)open(index);else if(link.href==='/leather')window.location.assign('/worlds/leather');else if(link.href==='/club')window.location.assign('/club/ranks');else if(link.href==='/content'){document.getElementById('journal')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}else if(link.href==='/help')window.location.assign('/support');else if(link.href==='/about'||link.href==='/contact')window.location.assign(link.href);else if(['/terms','/privacy'].includes(link.href))window.location.assign('/legal'+link.href);else if(['/booking','/concierge','/contact','/partners'].includes(link.href))enquire(tf(link.labelKey));else{setInfoTitle(tf(link.labelKey));setInfoKey(link.href.slice(1));open('info');}}}))}))} className="landing-footer" logo={<ResponsiveImage src={siteSettings.site_logo||'/assets/brand-mark.png'} alt="" width={58} height={58}/>} currencies={usd?[{value:'IRR',labelKey:'currencies.IRR'},{value:'USD',labelKey:'currencies.USD'}]:[{value:'IRR',labelKey:'currencies.IRR'}]} currency={currency} onCurrencyChange={changeCurrency} onLocaleChange={l=>setLocale(l as Locale)} homeHref="#home" resolveHref={path=>['/tourism','/beauty','/handicrafts','/ai','/leather'].includes(path)?'/worlds/'+(path==='/handicrafts'?'craft':path.slice(1)):path==='/'?'#home':path==='/help'?'/support':path==='/content'?'#journal':path==='/club'?'/club/ranks':['/about','/contact'].includes(path)?path:path==='/global-shipping'||path==='/dalarit'?'#international':['/privacy','/terms'].includes(path)?'/legal'+path:'#about'} backToTopTargetId="main" year={2026}/>
