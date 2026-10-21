@@ -54,7 +54,7 @@ export function PersonalPositions({data,onOpen}:{data:RecordData;onOpen:(id:stri
     <div className="position-inspector" dir="rtl" aria-live="polite"><div className="position-inspector-title"><div><span>جایگاه {selected.toLocaleString("fa-IR")}</span><strong>{labels[selected-1]}</strong></div><span className={"position-badge "+(current.active?"active":"inactive")}>{current.active?"فعال":"خاموش"}</span></div>
     <div className="position-sales"><div><span>فروش این هفته</span><strong>{rialAmount(current.weeklySales || 0)}<small> ریال</small></strong></div><div><span>مجموع فروش</span><strong>{rialAmount(current.totalSales || 0)}<small> ریال</small></strong></div></div>
     <div className="position-leg-details"><div><span>شاخهٔ چپ</span><strong>{rialAmount(current.leftVolume)} <small>ریال</small></strong><p>سیوینگ: <b>{rialAmount(current.savings.left)}</b></p></div><div><span>شاخهٔ راست</span><strong>{rialAmount(current.rightVolume)} <small>ریال</small></strong><p>سیوینگ: <b>{rialAmount(current.savings.right)}</b></p></div></div>
-    </div><p className="position-volume-note" dir="rtl">حجم این جایگاه از خریدهای پس از فعال‌شدن آن محاسبه می‌شود؛ خریدهای قبل از فعال‌سازی پورسانت ندارند.</p><p className="position-purchase-note" dir="rtl">هر ۱۰۰ میلیون ریال خرید واجد شرایط و پرداخت‌شده، یک جایگاه را روشن می‌کند. محاسبهٔ پورسانت پس از پایان مهلت برگشت خرید انجام می‌شود.</p>
+    </div><p className="position-purchase-note" dir="rtl">هر ۱۰۰ میلیون ریال خرید واجد شرایط و پرداخت‌شده، یک جایگاه را روشن می‌کند. محاسبهٔ پورسانت پس از پایان مهلت برگشت خرید انجام می‌شود.</p>
   </section>;
 }
 
