@@ -8,11 +8,20 @@ import { useAutoGallery } from "../src/commerce/useAutoGallery";
 import { useLocale } from "next-intl";
 export const heritageSlides = [
   ["persepolis", "تخت‌جمشید", "Persepolis"],
+  ["griffin", "شیردال", "Griffin"],
+  ["simurgh", "سیمرغ", "Simurgh"],
+  ["cyrus", "کوروش", "Cyrus"],
   ["darius", "داریوش", "Darius"],
-  ["pasargadae", "آرامگاه کوروش، پاسارگاد", "Tomb of Cyrus, Pasargadae"],
+  ["pasargadae", "پاسارگاد", "Pasargadae"],
   ["apadana", "آپادانا", "Apadana"],
   ["isfahan", "اصفهان", "Isfahan"],
+  ["lotfollah", "نقش و نور", "Light and pattern"],
+  ["shushtar", "شوشتر", "Shushtar"],
+  ["bam", "ارگ بم", "Bam"],
   ["yazd", "یزد", "Yazd"],
+  ["sassanid", "میراث ساسانی", "Sassanid heritage"],
+  ["tabriz", "بازار تبریز", "Tabriz"],
+  ["garden", "باغ ایرانی", "Persian garden"],
 ];
 export function CivilizationHero() {
   const locale = useLocale(),
@@ -50,9 +59,11 @@ export function CivilizationHero() {
       <ResponsiveImage
         ref={hero}
         className="hero-photo"
-        src={"/assets/backdrop/" + heritageSlides[index][0] + ".webp"}
+        src={"/assets/heritage/" + heritageSlides[index][0] + ".webp"}
         alt={heritageSlides[index][fa ? 1 : 2]}
         fetchPriority="high"
+        loading="eager"
+        quality={68}
       />
       <div
         className="civilization-controls"
