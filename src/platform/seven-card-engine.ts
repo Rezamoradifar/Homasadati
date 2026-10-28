@@ -1,5 +1,5 @@
 import { SEVEN_LEVEL_DESK_CAP, sevenLevelCardForPurchase } from "./card-levels";
-import { positionMode, positionAncestors, positionVolume, positionDesks, positionPurchaseTotal, sevenLevelMode } from "./card-positions";
+import { positionMode, positionAncestors, positionVolume, positionDesks, positionPurchaseTotal, confirmedRootPositionVolumes, sevenLevelMode } from "./card-positions";
 import { updatedCardSchedule, mondayStart, UPDATED_DESK_WEEKLY_CAP } from "./card-schedule";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
@@ -426,6 +426,7 @@ export function reverseCardOrder(orderId: string) {
 }
 
 export function memberCardStatus(user: string) {
+  const confirmedLegs=positionMode() ? confirmedRootPositionVolumes(user) : null;
   const m = one("SELECT * FROM p_card_members WHERE user_id=?", user);
   const counters = all("SELECT desk,matches FROM p_card_desks WHERE user_id=? ORDER BY desk", user);
   const leg = (l: string) =>
@@ -445,6 +446,10 @@ export function memberCardStatus(user: string) {
     weeklyCapToman: (positionMode() ? positionDesks(user) : m?.desks || 0) * (sevenLevelMode() ? SEVEN_LEVEL_DESK_CAP : updatedCardSchedule()? UPDATED_DESK_WEEKLY_CAP: DESK_WEEKLY_CAP),
     leftVolume: leg("left"),
     rightVolume: leg("right"),
+    confirmedLeftVolume:confirmedLegs?.left,
+    confirmedRightVolume:confirmedLegs?.right,
+    pendingLeftVolume:confirmedLegs?.awaitingLeft,
+    pendingRightVolume:confirmedLegs?.awaitingRight,
     deskCounters: counters,
     slots: Array.from({ length: DESKS_PER_MEMBER }, (_, index) => ({
       desk: index + 1,
