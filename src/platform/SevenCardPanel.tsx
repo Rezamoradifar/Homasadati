@@ -126,9 +126,13 @@ function MemberStatus({ status }: { status: RecordData }) {
           <dt>مجموع خرید محاسبه‌شده</dt>
           <dd>{rialAmount(status.totalPurchase)} ریال</dd>
           <dt>حجم سمت چپ</dt>
-          <dd>{rialAmount(status.leftVolume)} ریال</dd>
+          <dd>{rialAmount(status.confirmedLeftVolume ?? status.leftVolume)} ریال</dd>
           <dt>حجم سمت راست</dt>
-          <dd>{rialAmount(status.rightVolume)} ریال</dd>
+          <dd>{rialAmount(status.confirmedRightVolume ?? status.rightVolume)} ریال</dd>
+          {status.confirmedLeftVolume !== undefined && <>
+            <dt>در انتظار تسویه</dt>
+            <dd>{rialAmount(Number(status.pendingLeftVolume || 0) + Number(status.pendingRightVolume || 0))} ریال</dd>
+          </>}
           <dt>پاداش در انتظار پرداخت</dt>
           <dd>{rialAmount(status.pendingRewards || 0)} ریال</dd>
           <dt>سقف هفتگی جایگاه‌های روشن</dt>
