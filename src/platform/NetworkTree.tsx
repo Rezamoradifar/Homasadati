@@ -36,6 +36,7 @@ export function PersonalPositions({data,onOpen}:{data:RecordData;onOpen:(id:stri
     <header className="position-header" dir="rtl"><div><span className="position-eyebrow">باشگاه هما نت</span><h3>جایگاه‌های من</h3><p>کارت خریداری‌شده مشخص می‌کند چند جایگاه از جایگاه‌های ۱ تا ۷ روشن باشد.</p></div><div className="position-count"><strong>{data.desks.toLocaleString("fa-IR")}<small> / ۷</small></strong><span>جایگاه فعال</span></div></header>
     {data.member&&<div className="position-owner" dir="rtl"><img src="/assets/brand/homanet-mark-orange.png" alt="هما نت"/><div><strong>{data.member.name}</strong><ManagerActivationBadge active={data.managerActivated}/><small dir="ltr">{data.member.referral_code}</small></div></div>}
     {data.company&&<div className="position-company-note" dir="rtl" role="status"><strong>{data.company.exempt ? "جایگاه‌های دائماً فعال" : data.company.status==="qualified"?"شرط خرید واقعی تکمیل شد":data.company.status==="suspended"?"جایگاه شرکتی معلق است":"جایگاه شرکتی با مهلت خرید"}</strong>{data.company.exempt ? <p>این حساب شرط خرید و مهلت زمانی ندارد.</p> : <p>خرید واقعی: {rialAmount(data.company.realPurchaseToman)} از ۲۰۰ میلیون ریال · {Number(data.company.remainingDays).toLocaleString("fa-IR")} روز باقی‌مانده</p>}</div>}
+    <div className="position-personal-volume" dir="rtl" role="status"><span>حجم خرید شخصی پرداخت‌شده</span><strong>{rialAmount(data.personalPaidVolume || 0)} ریال</strong><small>مستقل از حجم شاخه‌ها و زمان تسویه پورسانت</small></div>
     <div className="position-legend" dir="rtl"><span><i className="is-active"/>فعال</span><span><i/>خاموش</span><strong>ظرفیت معرفی مستقیم: {data.directCapacity.toLocaleString("fa-IR")}</strong></div>
     <details className="position-help" dir="rtl"><summary>راهنمای استفاده از نقشه جایگاه‌ها</summary><ol><li>این هفت خانه، جایگاه‌های همین حساب هستند. یک جایگاه را لمس کنید تا حجم چپ، راست و سیوینگ آن را ببینید.</li><li>شاخه‌های پایین نقشه محل ورود اعضای جدید هستند. محل هر ورودی را قبل از ارسال دعوت در پنل دعوت انتخاب کنید.</li><li>با ثبت‌نام هر عضو، انتخاب محل مصرف می‌شود؛ برای نفر بعد دوباره انتخاب کنید. حجم فقط از خریدهای بعد از فعال‌شدن همان جایگاه محاسبه می‌شود.</li></ol><a className="portal-button secondary" href="/account?tab=network">انتخاب محل و لینک دعوت</a></details>
     {full&&<p className="position-next-entry" dir="rtl" role="status">{next ? <>ورودی بعدی: شاخه {Number(next.ordinal).toLocaleString("fa-IR")} · جایگاه {Number(next.desk).toLocaleString("fa-IR")} · {next.leg==="left"?"چپ":"راست"}</> : "محل ورودی بعدی انتخاب نشده است؛ پیش از اشتراک‌گذاری دعوت، یک شاخه خالی انتخاب کنید."}</p>}
@@ -85,6 +86,7 @@ function NodeCard({ n, onOpen, root }: { n: TreeNode; onOpen: (id: string) => vo
         {n.level ? " · کارت " + n.level.toLocaleString("fa-IR") : ""}
         {n.sponsoredByRoot && !root ? " · معرفی مستقیم" : ""}
       </small>
+      <small>حجم کل خرید شخصی: {rialAmount(n.personalVolume)} ریال</small>
       <small>خرید شخصی هفته: {rialAmount(n.weeklyPersonalVolume)}</small>
       <small>فروش شبکه این هفته: {rialAmount(n.weeklySales)}</small>
       <small>مجموع فروش شبکه: {rialAmount(n.totalSales)}</small>
