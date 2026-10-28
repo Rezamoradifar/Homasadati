@@ -118,6 +118,19 @@ function awaitingPositionVolumes(user: string, at = Date.now()) {
   return totals;
 }
 
+/** Member card summary: show posted and paid-awaiting volumes separately,
+ * leaving the remaining (savings) pools untouched for settlement. */
+export function confirmedRootPositionVolumes(user: string) {
+  const pending=awaitingPositionVolumes(user);
+  const awaitingLeft=pending.get("1:left")?.volume || 0;
+  const awaitingRight=pending.get("1:right")?.volume || 0;
+  return {
+    left:positionVolume(user,1,"left","volume")+awaitingLeft,
+    right:positionVolume(user,1,"right","volume")+awaitingRight,
+    awaitingLeft,awaitingRight,
+  };
+}
+
 export function personalPositionTree(user: string) {
   const desks=positionDesks(user);
   const personalPaidVolume = one("SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND refunded_at IS NULL AND status NOT IN ('refunded','cancelled') AND payment_method!='company_credit'",user)!.n as number;
