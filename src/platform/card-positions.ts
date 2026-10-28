@@ -82,21 +82,74 @@ export function positionPath(top: string, target: string) {
   }
   return null;
 }
+
+/** Read-only paid-but-not-yet-posted purchases for this member's positions.
+ * Exactly the same historical routing and desk activation rule as countOrders:
+ * it cannot create lots, matches, ledger entries or change commission timing.
+ * Exclude counted orders so a weekly settlement never double-counts volume. */
+function awaitingPositionVolumes(user: string, at = Date.now()) {
+  const since = new Date(Number(setting("seven_card_live_since") || 0)).toISOString();
+  const cutoff = new Date(at).toISOString();
+  const weekStart = new Date(mondayStart(at)).toISOString();
+  const orders = all(`WITH RECURSIVE descendants(id) AS (
+      SELECT child_id FROM p_card_direct_positions WHERE sponsor_id=?
+      UNION
+      SELECT d.child_id FROM p_card_direct_positions d JOIN descendants s ON d.sponsor_id=s.id
+    )
+    SELECT o.user_id,o.amount,o.paid_at FROM p_orders o JOIN descendants d ON d.id=o.user_id
+    WHERE o.paid_at IS NOT NULL AND o.paid_at>=? AND o.paid_at<=?
+      AND o.refunded_at IS NULL AND o.status NOT IN ('refunded','cancelled')
+      AND o.payment_method!='company_credit'
+      AND NOT EXISTS (SELECT 1 FROM p_card_orders c WHERE c.order_id=o.id)
+    ORDER BY o.paid_at,o.id`,user,since,cutoff);
+  const totals = new Map<string,{volume:number;weekly:number}>();
+  for(const order of orders) {
+    const paidAt = Date.parse(order.paid_at);
+    if(!Number.isFinite(paidAt) || !Number.isSafeInteger(order.amount) || order.amount<=0) continue;
+    for(const route of positionAncestors(order.user_id,paidAt)) {
+      if(route.user!==user) continue;
+      const key = route.desk + ":" + route.leg;
+      const amount = totals.get(key) || {volume:0,weekly:0};
+      amount.volume += order.amount;
+      if(order.paid_at>=weekStart) amount.weekly += order.amount;
+      totals.set(key,amount);
+    }
+  }
+  return totals;
+}
+
 export function personalPositionTree(user: string) {
   const desks=positionDesks(user);
-  const directs=all("SELECT d.ordinal,d.child_id,u.name FROM p_card_direct_positions d JOIN p_users u ON u.id=d.child_id WHERE d.sponsor_id=? ORDER BY d.ordinal",user);
+  const personalPaidVolume = one("SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND refunded_at IS NULL AND status NOT IN ('refunded','cancelled') AND payment_method!='company_credit'",user)!.n as number;
+  const pending=awaitingPositionVolumes(user);
+  const directs=all(`SELECT d.ordinal,d.child_id,u.name,
+    (SELECT COALESCE(SUM(o.amount),0) FROM p_orders o WHERE o.user_id=d.child_id
+      AND o.paid_at IS NOT NULL AND o.refunded_at IS NULL
+      AND o.status NOT IN ('refunded','cancelled') AND o.payment_method!='company_credit') paid_purchase_volume
+    FROM p_card_direct_positions d JOIN p_users u ON u.id=d.child_id
+    WHERE d.sponsor_id=? ORDER BY d.ordinal`,user);
   // One aggregate query for all seven desks, rather than repeatedly scanning each pool.
   const pools=all(`SELECT l.desk,l.leg,SUM(l.volume) volume,SUM(l.remaining) remaining,
     SUM(CASE WHEN o.paid_at>=? THEN l.volume ELSE 0 END) weekly
     FROM p_card_position_lots l JOIN p_orders o ON o.id=l.order_id
     WHERE l.user_id=? AND l.void=0 GROUP BY l.desk,l.leg`,new Date(mondayStart(Date.now())).toISOString(),user);
   const pool=(desk:number,leg:string)=>pools.find(p=>p.desk===desk&&p.leg===leg)||{volume:0,remaining:0,weekly:0};
-  const build=(desk:number):any=>{const left=pool(desk,"left"),right=pool(desk,"right");return {desk,path:POSITION_PATHS[desk-1],active:desk<=desks,
+  const build=(desk:number):any=>{const left=pool(desk,"left"),right=pool(desk,"right");
+    const pendingLeft=pending.get(desk+":left") || {volume:0,weekly:0};
+    const pendingRight=pending.get(desk+":right") || {volume:0,weekly:0};
+    return {desk,path:POSITION_PATHS[desk-1],active:desk<=desks,
     left:desk<4?build(desk*2):null,right:desk<4?build(desk*2+1):null,
+    // Posted totals remain the authoritative financial history; confirmed
+    // totals additionally show valid paid orders awaiting the weekly posting.
     leftVolume:left.volume,rightVolume:right.volume,weeklySales:left.weekly+right.weekly,
-    totalSales:left.volume+right.volume,savings:{left:left.remaining,right:right.remaining}};};
-  return {nextReferralOrdinal:manualReferralMode() ? one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user)?.ordinal || null : null,version:setting("seven_card_position_version"),member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),managerActivated:managerActivated(user),desks,directCapacity:positionDirectCapacity(desks),tree:build(1),
-    directs:(fourReferralMode() ? FOUR_DIRECT_PATHS : DIRECT_PATHS).map((path,i)=>({ordinal:i+1,desk:fourReferralMode() ? i+4 : POSITION_PATHS.indexOf(path.slice(0,2) as any)+1,leg:path.endsWith("L") ? "left" : "right",path,enabled:i<positionDirectCapacity(desks),member:(()=>{const member=directs.find(d=>d.ordinal===i+1);return member?{ordinal:member.ordinal,child_id:member.child_id,name:member.name,managerActivated:managerActivated(member.child_id)}:null;})()}))};
+    totalSales:left.volume+right.volume,
+    pendingLeftVolume:pendingLeft.volume,pendingRightVolume:pendingRight.volume,
+    confirmedLeftVolume:left.volume+pendingLeft.volume,confirmedRightVolume:right.volume+pendingRight.volume,
+    confirmedWeeklySales:left.weekly+right.weekly+pendingLeft.weekly+pendingRight.weekly,
+    confirmedTotalSales:left.volume+right.volume+pendingLeft.volume+pendingRight.volume,
+    savings:{left:left.remaining,right:right.remaining}};};
+  return {nextReferralOrdinal:manualReferralMode() ? one("SELECT ordinal FROM p_referral_endpoint_choice WHERE user_id=?",user)?.ordinal || null : null,version:setting("seven_card_position_version"),member:one("SELECT id,name,referral_code,created_at FROM p_users WHERE id=?",user),company:companyPositionStatus(user),managerActivated:managerActivated(user),desks,personalPaidVolume,directCapacity:positionDirectCapacity(desks),tree:build(1),
+    directs:(fourReferralMode() ? FOUR_DIRECT_PATHS : DIRECT_PATHS).map((path,i)=>({ordinal:i+1,desk:fourReferralMode() ? i+4 : POSITION_PATHS.indexOf(path.slice(0,2) as any)+1,leg:path.endsWith("L") ? "left" : "right",path,enabled:i<positionDirectCapacity(desks),member:(()=>{const member=directs.find(d=>d.ordinal===i+1);return member?{ordinal:member.ordinal,child_id:member.child_id,name:member.name,paidPurchaseVolume:member.paid_purchase_volume,managerActivated:managerActivated(member.child_id)}:null;})()}))};
 }
 
 /** Never reinterpret an existing binding or a historical financial route. */
