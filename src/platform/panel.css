@@ -2567,3 +2567,20 @@ html[data-theme="dark"] :is(.guide-status.done,.guide-step.done .guide-number){b
   .portal-member .portal-product .store-cta { flex-wrap:wrap; }
   .portal-member .portal-product .store-cta .commerce-button { flex-basis:100%; font-size:14px; }
 }
+
+/* Paid network volume visibility only; settlement and savings remain separate. */
+.refined-positions .position-personal-purchases{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  margin:12px 0 2px;padding:12px 14px;border:1px solid var(--pos-border);
+  border-radius:12px;background:var(--pos-surface);color:var(--pos-ink);
+}
+.refined-positions .position-personal-purchases span{font-size:12px}
+.refined-positions .position-personal-purchases strong{
+  font-size:14px;font-weight:700;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;
+}
+.refined-positions .position-member-purchase{display:block;color:var(--pos-muted);overflow-wrap:anywhere}
+.refined-positions .position-member-purchase b{font-variant-numeric:tabular-nums;color:var(--pos-ink)}
+@media(max-width:480px){
+  .refined-positions .position-personal-purchases{padding:10px 12px}
+  .refined-positions .position-personal-purchases strong{font-size:13px}
+}
