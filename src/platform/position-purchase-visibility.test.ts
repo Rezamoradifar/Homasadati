@@ -8,7 +8,7 @@ import {platformDb,run,now,one} from "./schema";
 import {saveSetting} from "./providers";
 import {createOrder,settleOrder,refundOrder} from "./finance";
 import {personalPositionTree} from "./card-positions";
-import {runCardSettlement,setCardLive,weekStartAt} from "./seven-card-engine";
+import {runCardSettlement,setCardLive,weekStartAt,memberCardStatus} from "./seven-card-engine";
 import {SEVEN_LEVEL_VERSION} from "./card-levels";
 
 const dir=mkdtempSync(join(tmpdir(),"homa-visible-purchases-"));
@@ -35,6 +35,7 @@ beforeAll(()=>{
   saveSetting("seven_card_plan_draft",JSON.stringify({revision:1,decisions:{overflow:"flush",counterScope:"member",voucherCountsTowardCap:true,topology:"own-desks",purchaseCredit:"purchase-value",weekStart:1}}));
   saveSetting("seven_card_schedule_version","2026-10-06");
   saveSetting("seven_card_position_version",SEVEN_LEVEL_VERSION);
+  saveSetting("seven_card_live_since",String(Date.now()-3600_000));
   setCardLive(admin,{live:true,unlimitedBudget:true,reason:"isolated fixture"});
 });
 afterAll(()=>{platformDb().close();rmSync(dir,{recursive:true,force:true});});
@@ -47,7 +48,8 @@ it("shows paid purchases immediately on the correct position legs, separates per
 
   // This payment predates sponsor desk activation; it must not create
   // retrospective commissionable volume when the sponsor later activates.
-  paid(left,4*M);
+  const early=paid(left,4*M);
+  run("UPDATE p_orders SET paid_at=? WHERE id=?",new Date(Date.now()-60_000).toISOString(),early.id);
   paid(root,10*M);
   const initially=personalPositionTree(root);
   expect(initially.personalPaidVolume).toBe(10*M);
@@ -72,6 +74,7 @@ it("shows paid purchases immediately on the correct position legs, separates per
   expect(before.directs[0].member.paidPurchaseVolume).toBe(34*M);
   expect(before.directs[1].member.paidPurchaseVolume).toBe(40*M);
   expect(before.personalPaidVolume).toBe(10*M);
+  expect(memberCardStatus(root)).toMatchObject({leftVolume:0,rightVolume:0,confirmedLeftVolume:30*M,confirmedRightVolume:40*M,pendingLeftVolume:30*M,pendingRightVolume:40*M});
   expect(one("SELECT COUNT(*) n FROM p_card_position_lots WHERE user_id=?",root)!.n).toBe(0);
 
   // Weekly posting transfers exactly these amounts from awaiting to posted.
@@ -86,6 +89,7 @@ it("shows paid purchases immediately on the correct position legs, separates per
   expect(after.tree.confirmedLeftVolume).toBe(30*M);
   expect(after.tree.confirmedRightVolume).toBe(40*M);
   expect(after.personalPaidVolume).toBe(10*M);
+  expect(memberCardStatus(root)).toMatchObject({confirmedLeftVolume:30*M,confirmedRightVolume:40*M,pendingLeftVolume:0,pendingRightVolume:0});
   expect(one("SELECT COUNT(*) n FROM p_card_position_lots WHERE user_id=? AND order_id=?",root,leftOrder.id)!.n).toBe(1);
   expect(runCardSettlement(monday+WEEK+3600_000)).toEqual([]);
   expect(personalPositionTree(root).tree.confirmedTotalSales).toBe(70*M);
