@@ -10,6 +10,7 @@ import {Money} from '../src/commerce/currency';
 import AddToCart from '../src/commerce/AddToCart';
 import {type RecordData} from '../src/platform/client';
 import copy from './premium-home-copy.json';
+import OriginalLandingHero from './OriginalLandingHero';
 
 type Locale = 'fa' | 'en' | 'ar';
 
@@ -28,7 +29,7 @@ function firstImage(product: RecordData): string | null {
   }
 }
 
-export default function PremiumHomeExact({locale}: {locale: Locale}) {
+export default function PremiumHomeExact({locale, heroVariant = 'original'}: {locale: Locale; heroVariant?: 'original' | 'premium'}) {
   const c = copy[locale] || copy.fa;
   const rtl = locale !== 'en';
   const Arrow = rtl ? ArrowLeft : ArrowRight;
@@ -55,7 +56,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
   const ranks = ['Member','Silver','Gold','Platinum','VIP'];
 
   return <div className="homa-exact" dir={rtl ? 'rtl':'ltr'} id="home">
-    <section ref={heroRef} className="hex-hero hex-hero-architecture" aria-labelledby="hex-hero-title"
+    {heroVariant === 'original' ? <OriginalLandingHero locale={locale}/> : <section ref={heroRef} className="hex-hero hex-hero-architecture" aria-labelledby="hex-hero-title"
       onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
       <div className="hex-landscape" aria-hidden="true">
         <ResponsiveImage src={slides[slide]} alt="" sizes="100vw" loading={slide === 0 ? "eager" : "lazy"} fetchPriority={slide === 0 ? "high" : "auto"} quality={68} />
@@ -90,7 +91,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
         {slides.map((_,i) => <button key={i} type="button" aria-label={`Slide ${i+1}`} aria-pressed={slide===i}
           onClick={()=>setSlide(i)}/>)}
       </div>
-    </section>
+    </section>}
 
     <section className="hex-portals" aria-label="HOMA">
       {[
@@ -107,7 +108,7 @@ export default function PremiumHomeExact({locale}: {locale: Locale}) {
       <section className="hex-products-section" id="hex-products" aria-labelledby="hex-product-title">
         <header className="hex-section-title">
           <h2 id="hex-product-title">{c.selected}</h2>
-          <a href="/shop">{c.shopCta}<Arrow size={16} aria-hidden="true"/></a>
+          <a href="/shop">{c.shopCta}<Arrow size={16}/></a>
         </header>
         <div className="hex-products-row">
           <div className="hex-product-grid" aria-busy={catalog.loading}>
