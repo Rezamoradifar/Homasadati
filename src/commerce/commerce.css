@@ -121,22 +121,32 @@
 .brand-hero .commerce-eyebrow {
   color: #d9c7af;
 }
-.brand-hero .homa-club-button {
-  display: inline-block;
-  margin-inline-end: 12px;
-  margin-block: 8px;
-  padding: 14px 30px;
-  border-radius: 10px;
-  background: #d4a52c;
-  color: #071b3a;
-  font-size: 16px;
-  font-weight: bold;
-  text-decoration: none;
-  cursor: pointer;
+.homa-club-entry {
+  display: grid;
+  justify-items: center;
+  padding: clamp(18px, 3vw, 32px) 20px;
+  background: var(--ha-panel, #fffdf8);
+  border-block-end: 1px solid var(--ha-outline, #e4d9c9);
 }
-.brand-hero .homa-club-button:hover,
-.brand-hero .homa-club-button:focus-visible {
-  background: #f0c451;
+.homa-club-entry .homa-club-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: min(100%, 440px);
+  min-height: 64px;
+  padding: 12px 20px;
+  border: 1px solid #368871;
+  border-radius: 14px;
+  background: #08634e;
+  color: #fff;
+  font-size: clamp(21px, 3vw, 25px);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.homa-club-entry .homa-club-button:hover,
+.homa-club-entry .homa-club-button:focus-visible {
+  background: #054e3e;
 }
 .commerce-button {
   display: inline-flex;

@@ -15,6 +15,7 @@ import { stories } from "../../../src/commerce/content";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import Economics from "../../../src/commerce/Economics";
 import { CraftCategoryGrid } from "../../../src/commerce/CraftNav";
+import { ExternalLink } from "lucide-react";
 export async function generateMetadata({
   params: pendingParams,
 }: {
@@ -64,16 +65,6 @@ export default async function BrandPage({
             </span>
             <h1>{b.name}</h1>
             <p>{b.tagline}</p>
-            {k === "ai" && (
-              <a
-                className="homa-club-button"
-                href="https://www.homanetclub.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                ورود به Homa Net Club
-              </a>
-            )}
             <a className="commerce-button gold" href={`/shop?vertical=${k}`}>
               مشاهده محصولات و خدمات
             </a>
@@ -87,6 +78,19 @@ export default async function BrandPage({
             </span>
           )}
         </section>
+        )}
+        {k === "ai" && (
+          <div className="homa-club-entry">
+            <a
+              className="homa-club-button"
+              href="https://www.homanetclub.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ورود به هما کلاب
+              <ExternalLink size={22} aria-hidden="true" />
+            </a>
+          </div>
         )}
         {k === "tourism" && <ClubCards />}
         <section id={k === "tourism" ? "tourism-info" : "story"} className="brand-intro">
