@@ -64,6 +64,16 @@ export default async function BrandPage({
             </span>
             <h1>{b.name}</h1>
             <p>{b.tagline}</p>
+            {k === "ai" && (
+              <a
+                className="homa-club-button"
+                href="https://www.homanetclub.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                ورود به Homa Net Club
+              </a>
+            )}
             <a className="commerce-button gold" href={`/shop?vertical=${k}`}>
               مشاهده محصولات و خدمات
             </a>
