@@ -1254,12 +1254,12 @@ export async function handle(req: Request, path: string[]) {
       const providerId = String(callback.providerId || "");
       const trackingCode = String(callback.trackingCode || "");
       const callbackAmount = Number(callback.amount);
-      if ((callback.type !== undefined && Number(callback.type) !== 11) || String(callback.result || "").toUpperCase() !== "SUCCESS" || !Number.isSafeInteger(callbackAmount) || !providerId || !trackingCode) {
+      if (Number(callback.type) !== 0 || String(callback.result || "").toUpperCase() !== "SUCCESS" || !Number.isSafeInteger(callbackAmount) || !providerId || !trackingCode) {
         throw new ApiError(409, "digipay_callback_rejected");
       }
       if (checkoutId) {
         const checkout = one("SELECT * FROM p_checkouts WHERE id=?", checkoutId);
-        if (!checkout || checkout.method !== "digipay" || callbackAmount !== checkout.amount * 10) {
+        if (!checkout || checkout.method !== "digipay" || providerId !== checkout.id || callbackAmount !== checkout.amount * 10) {
           throw new ApiError(409, "digipay_callback_mismatch");
         }
         if (checkout.status !== "paid") {
@@ -1267,12 +1267,12 @@ export async function handle(req: Request, path: string[]) {
           if (one("SELECT id FROM p_checkouts WHERE payment_ref=? AND id<>?", referenceKey, checkout.id) || one("SELECT id FROM p_orders WHERE payment_ref=?", referenceKey)) {
             throw new ApiError(409, "digipay_duplicate_payment");
           }
-          const reference = await digipayVerifyPayment(trackingCode, providerId);
+          const reference = await digipayVerifyPayment(trackingCode, providerId, Number(callback.type));
           settleCheckout(checkout.id, referenceKey);
         }
       } else if (orderId) {
         const order = one("SELECT * FROM p_orders WHERE id=?", orderId);
-        if (!order || order.payment_method !== "digipay" || callbackAmount !== order.amount * 10) {
+        if (!order || order.payment_method !== "digipay" || providerId !== order.id || callbackAmount !== order.amount * 10) {
           throw new ApiError(409, "digipay_callback_mismatch");
         }
         if (!order.paid_at) {
@@ -1766,7 +1766,7 @@ export async function handle(req: Request, path: string[]) {
             if (!/^09\d{9}$/.test(cellNumber)) throw new ApiError(400, "digipay_phone_required");
             if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
             const callbackUrl = origin + "/api/platform/payment/callback?provider=digipay&orderId=" + encodeURIComponent(order.id);
-            const ticket = await digipayCreateTicket(order.amount, cellNumber, callbackUrl);
+            const ticket = await digipayCreateTicket(order.amount, cellNumber, callbackUrl, order.id);
             if (!run(
               "UPDATE p_orders SET authority=?,provider_url=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
               ticket.ticket, ticket.redirectUrl, order.id, claim,
