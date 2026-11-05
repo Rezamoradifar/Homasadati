@@ -276,8 +276,18 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     expect((await payment.json()).url).toBe("https://pay.mydigipay.test/ticket");
     expect(one("SELECT provider_url FROM p_orders WHERE id=?", order.id)!.provider_url).toBe("https://pay.mydigipay.test/ticket");
 
+    const callbackPath = "payment/callback?provider=digipay&orderId=" + order.id;
+    const wrongProvider = await request(callbackPath, "POST", {
+      amount: 1000000, providerId: randomUUID(), trackingCode: "digipay-tracking-wrong", result: "SUCCESS", type: 0,
+    });
+    expect(wrongProvider.status).toBe(409);
+    const wrongType = await request(callbackPath, "POST", {
+      amount: 1000000, providerId: order.id, trackingCode: "digipay-tracking-wrong-type", result: "SUCCESS", type: 11,
+    });
+    expect(wrongType.status).toBe(409);
+    expect(one("SELECT paid_at FROM p_orders WHERE id=?", order.id)!.paid_at).toBeNull();
     const callback = await request(
-      "payment/callback?provider=digipay&orderId=" + order.id,
+      callbackPath,
       "POST",
       { amount: 1000000, providerId: order.id, trackingCode: "digipay-tracking-123", result: "SUCCESS", type: 0 },
     );
