@@ -83,6 +83,7 @@ import {
   paymentRequest,
   verifyPayment,
   digipayCreateTicket,
+  digipayBasketDetails,
   digipayVerifyPayment,
 } from "./providers";
 import {
@@ -774,6 +775,11 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "digipay_client_secret",
           "digipay_username",
           "digipay_password",
+          "digipay_seller_id",
+          "digipay_supplier_id",
+          "digipay_category_id",
+          "digipay_brand",
+          "digipay_product_type",
           "site_name",
           "site_logo",
           "site_contact",
@@ -1253,7 +1259,7 @@ export async function handle(req: Request, path: string[]) {
       const providerId = String(callback.providerId || "");
       const trackingCode = String(callback.trackingCode || "");
       const callbackAmount = Number(callback.amount);
-      if (Number(callback.type) !== 0 || String(callback.result || "").toUpperCase() !== "SUCCESS" || !Number.isSafeInteger(callbackAmount) || !providerId || !trackingCode) {
+      if (![0, 5, 11, 13, 24].includes(Number(callback.type)) || String(callback.result || "").toUpperCase() !== "SUCCESS" || !Number.isSafeInteger(callbackAmount) || !providerId || !trackingCode) {
         throw new ApiError(409, "digipay_callback_rejected");
       }
       if (checkoutId) {
@@ -1765,7 +1771,10 @@ export async function handle(req: Request, path: string[]) {
             if (!/^09\d{9}$/.test(cellNumber)) throw new ApiError(400, "digipay_phone_required");
             if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
             const callbackUrl = origin + "/api/platform/payment/callback?provider=digipay&orderId=" + encodeURIComponent(order.id);
-            const ticket = await digipayCreateTicket(order.amount, cellNumber, callbackUrl, order.id);
+            const product = one("SELECT id FROM p_products WHERE id=?", order.product_id);
+            if (!product) throw new ApiError(409, "product_unavailable");
+            const basketDetailsDto = digipayBasketDetails(order.id, [{ productCode: String(product.id), count: Number(order.quantity) }]);
+            const ticket = await digipayCreateTicket(order.amount, cellNumber, callbackUrl, order.id, basketDetailsDto);
             if (!run(
               "UPDATE p_orders SET authority=?,provider_url=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
               ticket.ticket, ticket.redirectUrl, order.id, claim,
