@@ -1766,7 +1766,7 @@ export async function handle(req: Request, path: string[]) {
             if (!/^09\d{9}$/.test(cellNumber)) throw new ApiError(400, "digipay_phone_required");
             if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
             const callbackUrl = origin + "/api/platform/payment/callback?provider=digipay&orderId=" + encodeURIComponent(order.id);
-            const ticket = await digipayCreateTicket(order.id, order.amount, cellNumber, callbackUrl);
+            const ticket = await digipayCreateTicket(order.amount, cellNumber, callbackUrl);
             if (!run(
               "UPDATE p_orders SET authority=?,provider_url=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
               ticket.ticket, ticket.redirectUrl, order.id, claim,
