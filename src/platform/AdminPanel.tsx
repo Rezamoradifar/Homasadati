@@ -1091,7 +1091,6 @@ export function Settings({
                 ["digipay_client_secret", "کلید محرمانه برنامه دیجی‌پی"],
                 ["digipay_username", "نام کاربری API دیجی‌پی"],
                 ["digipay_password", "رمز عبور API دیجی‌پی"],
-                ["digipay_provider_id", "شناسه پذیرنده دیجی‌پی"],
                 ["site_name", "نام سایت"],
                 ["site_logo", "نشانی لوگو"],
                 ["site_contact", "اطلاعات تماس"],
