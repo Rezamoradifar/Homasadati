@@ -86,8 +86,9 @@ export default async function BrandPage({
               href="https://www.homanetclub.com/"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="ورود به باشگاه مشتریان هما"
             >
-              ورود به هما کلاب
+              ورود به باشگاه مشتریان هما
               <ExternalLink size={22} aria-hidden="true" />
             </a>
           </div>
