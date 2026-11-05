@@ -24,7 +24,8 @@ let admin: string,
   orderId: string,
   challenge: string,
   code: string,
-  authority: string;
+  authority: string,
+  digipayProviderId: string;
 const pw = "test-strong-password-2026";
 function request(path: string, method = "GET", payload?: unknown, cookie = "") {
   return handle(
@@ -127,11 +128,13 @@ beforeAll(() => {
       if (url.includes("/tickets/business")) {
         expect(payload.amount).toBe(1000000);
         expect(payload.cellNumber).toBe("09120000000");
-        expect(payload.providerId).toBe(777);
+        expect(payload.providerId).toMatch(/^[A-Za-z0-9-]{3,80}$/);
+        digipayProviderId = payload.providerId;
         return Response.json({ redirectUrl: "https://pay.mydigipay.test/ticket", ticket: "ticket-" + randomUUID() });
       }
       if (url.includes("/purchases/verify")) {
-        expect(payload.providerId).toBe(777);
+        expect(url).toContain("purchases/verify?type=0");
+        expect(payload.providerId).toBe(digipayProviderId);
         expect(payload.trackingCode).toBe("digipay-tracking-123");
         return Response.json({ result: { status: 0 } });
       }
@@ -259,7 +262,6 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     saveSetting("digipay_client_secret", "test-client-secret", true);
     saveSetting("digipay_username", "test-api-user", true);
     saveSetting("digipay_password", "test-api-password", true);
-    saveSetting("digipay_provider_id", "777");
 
     const created = await request(
       "orders",
@@ -277,7 +279,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     const callback = await request(
       "payment/callback?provider=digipay&orderId=" + order.id,
       "POST",
-      { amount: 1000000, providerId: 777, trackingCode: "digipay-tracking-123", result: "SUCCESS", type: 11 },
+      { amount: 1000000, providerId: order.id, trackingCode: "digipay-tracking-123", result: "SUCCESS", type: 0 },
     );
     expect(callback.status).toBe(200);
     expect(one("SELECT paid_at,payment_ref FROM p_orders WHERE id=?", order.id)!.paid_at).toBeTruthy();
