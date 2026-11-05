@@ -132,6 +132,7 @@ beforeAll(() => {
         expect(payload.basketDetailsDto.items).toHaveLength(1);
         expect(payload.basketDetailsDto.items[0].productType).toBe(3);
         expect(payload.additionalInfo).toBeUndefined();
+        expect(payload.preferredGateway).toBeUndefined();
         digipayProviderId = payload.providerId;
         return Response.json({ redirectUrl: "https://pay.mydigipay.test/ticket", ticket: "ticket-" + randomUUID() });
       }
@@ -297,7 +298,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     const callback = await request(
       callbackPath,
       "POST",
-      { amount: 1000000, providerId: order.id, trackingCode: "digipay-tracking-123", result: "SUCCESS", type: 0 },
+      { amount: 1000000, providerId: order.id, trackingCode: "digipay-tracking-123", result: "SUCCESS", type: 13 },
     );
     expect(callback.status).toBe(200);
     expect(one("SELECT paid_at,payment_ref FROM p_orders WHERE id=?", order.id)!.paid_at).toBeTruthy();
