@@ -152,7 +152,7 @@ function digipayConfig() {
   const username = setting("digipay_username");
   const password = setting("digipay_password");
   const providerId = setting("digipay_provider_id");
-  if (!clientId || !clientSecret || !username || !password || !providerId || !/^\\d+$/.test(providerId)) {
+  if (!clientId || !clientSecret || !username || !password || !providerId || !/^\d+$/.test(providerId)) {
     throw new ApiError(503, "digipay_not_configured");
   }
   return { clientId, clientSecret, username, password, providerId };
@@ -194,7 +194,7 @@ export async function digipayCreateTicket(
   if (!Number.isSafeInteger(amount) || amount <= 0 || amount > 1e12) {
     throw new ApiError(400, "invalid_input");
   }
-  if (!/^https:\\/\\//.test(callbackUrl) || !/^09\\d{9}$/.test(cellNumber)) {
+  if (!/^https:\/\//.test(callbackUrl) || !/^09\d{9}$/.test(cellNumber)) {
     throw new ApiError(400, "invalid_input");
   }
   const token = await digipayAccessToken();
@@ -216,7 +216,7 @@ export async function digipayCreateTicket(
   });
   const redirectUrl = response.redirectUrl || response.data?.redirectUrl;
   const ticket = response.ticket || response.data?.ticket;
-  if (typeof redirectUrl !== "string" || !/^https:\\/\\//.test(redirectUrl) || typeof ticket !== "string" || !ticket) {
+  if (typeof redirectUrl !== "string" || !/^https:\/\//.test(redirectUrl) || typeof ticket !== "string" || !ticket) {
     throw new ApiError(502, "digipay_ticket_failed");
   }
   return { redirectUrl, ticket };
