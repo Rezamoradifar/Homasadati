@@ -774,7 +774,6 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "digipay_client_secret",
           "digipay_username",
           "digipay_password",
-          "digipay_provider_id",
           "site_name",
           "site_logo",
           "site_contact",
@@ -1280,7 +1279,7 @@ export async function handle(req: Request, path: string[]) {
           if (one("SELECT id FROM p_orders WHERE payment_ref=? AND id<>?", referenceKey, order.id) || one("SELECT id FROM p_checkouts WHERE payment_ref=?", referenceKey)) {
             throw new ApiError(409, "digipay_duplicate_payment");
           }
-          const reference = await digipayVerifyPayment(trackingCode, providerId);
+          const reference = await digipayVerifyPayment(trackingCode, providerId, Number(callback.type));
           settleOrder(order.id, referenceKey);
         }
       } else {
