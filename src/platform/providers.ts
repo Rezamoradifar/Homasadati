@@ -183,11 +183,25 @@ async function digipayAccessToken() {
   return digipayToken.value;
 }
 
+export type DigiPayBasketItem = { productCode: string; count: number };
+
+export function digipayBasketDetails(basketId: string, items: DigiPayBasketItem[]) {
+  const sellerId = setting("digipay_seller_id");
+  const supplierId = setting("digipay_supplier_id");
+  const categoryId = setting("digipay_category_id");
+  const brand = setting("digipay_brand");
+  const productType = Number(setting("digipay_product_type"));
+  if (!sellerId || !supplierId || !categoryId || !brand || ![1, 2, 3, 4].includes(productType)) throw new ApiError(503, "digipay_basket_config_incomplete");
+  if (!items.length || items.length > 30 || items.some((item) => !item.productCode || !Number.isSafeInteger(item.count) || item.count < 1)) throw new ApiError(400, "invalid_input");
+  return { basketId, items: items.map((item) => ({ sellerId, supplierId, productCode: item.productCode, brand, productType, count: item.count, categoryId })) };
+}
+
 export async function digipayCreateTicket(
   amount: number,
   cellNumber: string,
   callbackUrl: string,
   providerId: string,
+  basketDetailsDto: ReturnType<typeof digipayBasketDetails>,
 ) {
   const config = digipayConfig();
   if (!Number.isSafeInteger(amount) || amount <= 0 || amount > 1e12) {
@@ -210,7 +224,7 @@ export async function digipayCreateTicket(
       cellNumber,
       providerId,
       callbackUrl,
-      additionalInfo: { preferredGateway: 2 },
+      basketDetailsDto,
     }),
   });
   const redirectUrl = response.redirectUrl || response.data?.redirectUrl;
@@ -223,7 +237,7 @@ export async function digipayCreateTicket(
 
 export async function digipayVerifyPayment(trackingCode: string, providerId: string, paymentType: number) {
   digipayConfig();
-  if (!/^[A-Za-z0-9-]{3,80}$/.test(providerId) || !trackingCode || trackingCode.length > 128 || ![0, 11].includes(paymentType)) {
+  if (!/^[A-Za-z0-9-]{3,80}$/.test(providerId) || !trackingCode || trackingCode.length > 128 || ![0, 5, 11, 13, 24].includes(paymentType)) {
     throw new ApiError(409, "digipay_callback_mismatch");
   }
   const token = await digipayAccessToken();
