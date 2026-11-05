@@ -3,7 +3,7 @@ import { z } from "zod";
 import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
 import { createOrder, settleOrder } from "./finance";
-import { paymentRequest, digipayCreateTicket } from "./providers";
+import { paymentRequest, digipayCreateTicket, digipayBasketDetails } from "./providers";
 import {publicCatalogDetails} from './catalog-model';
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
@@ -144,7 +144,9 @@ export async function payCheckout(checkoutId: string, user: string) {
       if (!/^09\d{9}$/.test(cellNumber)) throw new ApiError(400, "digipay_phone_required");
       if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
       const callbackUrl = origin + "/api/platform/payment/callback?provider=digipay&checkoutId=" + encodeURIComponent(c.id);
-      const ticket = await digipayCreateTicket(c.amount, cellNumber, callbackUrl, c.id);
+      const basketRows = all("SELECT o.product_id, p.id, o.quantity FROM p_checkout_items ci JOIN p_orders o ON o.id=ci.order_id JOIN p_products p ON p.id=o.product_id WHERE ci.checkout_id=?", c.id);
+      const basketDetailsDto = digipayBasketDetails(c.id, basketRows.map((row) => ({ productCode: String(row.product_id || row.id), count: Number(row.quantity) })));
+      const ticket = await digipayCreateTicket(c.amount, cellNumber, callbackUrl, c.id, basketDetailsDto);
       if (!run(
         "UPDATE p_checkouts SET authority=?,provider_url=?,claim=NULL WHERE id=? AND claim=? AND status='pending' AND expires_at>?",
         ticket.ticket, ticket.redirectUrl, c.id, claim, now(),
