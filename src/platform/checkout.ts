@@ -144,7 +144,7 @@ export async function payCheckout(checkoutId: string, user: string) {
       if (!/^09\d{9}$/.test(cellNumber)) throw new ApiError(400, "digipay_phone_required");
       if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
       const callbackUrl = origin + "/api/platform/payment/callback?provider=digipay&checkoutId=" + encodeURIComponent(c.id);
-      const ticket = await digipayCreateTicket(c.id, c.amount, cellNumber, callbackUrl);
+      const ticket = await digipayCreateTicket(c.amount, cellNumber, callbackUrl);
       if (!run(
         "UPDATE p_checkouts SET authority=?,provider_url=?,claim=NULL WHERE id=? AND claim=? AND status='pending' AND expires_at>?",
         ticket.ticket, ticket.redirectUrl, c.id, claim, now(),
