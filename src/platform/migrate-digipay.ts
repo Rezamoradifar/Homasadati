@@ -23,7 +23,7 @@ export function migrateDigipay(d: Database.Database) {
         const temporary = name + "_digipay_v10";
         const nextSql = current.sql
           .replace(new RegExp("CREATE TABLE\\s+[\"\x60]?" + name + "[\"\x60]?", "i"), "CREATE TABLE " + temporary)
-          .replace(/'wallet'\\s*,\\s*'zarinpal'\\s*,\\s*'bank_transfer'/g, "'wallet','zarinpal','bank_transfer','digipay'");
+          .replace(/'wallet'\s*,\s*'zarinpal'\s*,\s*'bank_transfer'/g, "'wallet','zarinpal','bank_transfer','digipay'");
         if (!nextSql.includes("'digipay'")) throw new Error("Unknown payment schema for " + name);
         d.exec(nextSql);
         d.exec(`INSERT INTO ${temporary} SELECT * FROM ${name}; DROP TABLE ${name}; ALTER TABLE ${temporary} RENAME TO ${name};`);
