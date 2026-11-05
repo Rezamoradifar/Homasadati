@@ -29,7 +29,13 @@ export function migrateDigipay(d: Database.Database) {
         d.exec(`INSERT INTO ${temporary} SELECT * FROM ${name}; DROP TABLE ${name}; ALTER TABLE ${temporary} RENAME TO ${name};`);
         extras.forEach((entry) => d.exec(entry.sql));
       }
-      for (const name of tables) {\n        const columns = d.pragma("table_info(" + name + ")") as { name: string }[];\n        if (columns.length && !columns.some((column) => column.name === "provider_url")) {\n          d.exec("ALTER TABLE " + name + " ADD COLUMN provider_url TEXT");\n        }\n      }\n      if ((d.pragma("foreign_key_check") as unknown[]).length) {
+      for (const name of tables) {
+        const columns = d.pragma("table_info(" + name + ")") as { name: string }[];
+        if (columns.length && !columns.some((column) => column.name === "provider_url")) {
+          d.exec("ALTER TABLE " + name + " ADD COLUMN provider_url TEXT");
+        }
+      }
+      if ((d.pragma("foreign_key_check") as unknown[]).length) {
         throw new Error("DigiPay migration foreign key check failed");
       }
     }).immediate();
