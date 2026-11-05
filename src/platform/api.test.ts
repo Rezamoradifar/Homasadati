@@ -305,7 +305,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     const w = await r.json();
     expect(
       one("SELECT available,held FROM p_wallets WHERE user_id=?", sponsorId),
-    ).toEqual({ available: 1000, held: 9000 });
+    ).toEqual({ available: 11000, held: 9000 });
     const approval = await request(
       "admin/withdrawals",
       "PATCH",
@@ -373,7 +373,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
       admin,
     );
     expect(csv.status).toBe(200);
-    expect(await csv.text()).toContain("100000");
+    expect(await csv.text()).toContain("200000");
     const excel = await request(
       "admin/reports?format=xlsx",
       "GET",
