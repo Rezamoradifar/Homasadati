@@ -82,6 +82,8 @@ import {
   policy,
   paymentRequest,
   verifyPayment,
+  digipayCreateTicket,
+  digipayVerifyPayment,
 } from "./providers";
 import {
   createOrder,
@@ -768,6 +770,11 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
           "sms_template",
           "sms_sender",
           "zarinpal_merchant",
+          "digipay_client_id",
+          "digipay_client_secret",
+          "digipay_username",
+          "digipay_password",
+          "digipay_provider_id",
           "site_name",
           "site_logo",
           "site_contact",
@@ -790,6 +797,9 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       "turnstile_secret_key",
       "kavenegar_key",
       "zarinpal_merchant",
+      "digipay_client_secret",
+      "digipay_username",
+      "digipay_password",
     ].includes(d.key);
     atomic(() => {
       const before = one("SELECT key FROM p_settings WHERE key=?", d.key);
