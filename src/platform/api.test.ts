@@ -105,7 +105,10 @@ beforeAll(() => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init: RequestInit) => {
-      const payload = JSON.parse(String(init.body));
+      const contentType = new Headers(init.headers).get("Content-Type") || "";
+      const payload = contentType.includes("application/x-www-form-urlencoded")
+        ? Object.fromEntries(new URLSearchParams(String(init.body)))
+        : JSON.parse(String(init.body || "{}"));
       if (url.includes("resend")) {
         code = payload.text.match(/\d{6}/)[0];
         return Response.json({ id: randomUUID() });
@@ -117,6 +120,20 @@ beforeAll(() => {
       if (url.includes("verify.json")) {
         expect(payload.amount).toBe(1000000);
         return Response.json({ data: { code: 100, ref_id: 123456789 } });
+      }
+      if (url.includes("/oauth/token")) {
+        return Response.json({ access_token: "digipay-test-access", expires_in: 3599 });
+      }
+      if (url.includes("/tickets/business")) {
+        expect(payload.amount).toBe(1000000);
+        expect(payload.cellNumber).toBe("09120000000");
+        expect(payload.providerId).toBe(777);
+        return Response.json({ redirectUrl: "https://pay.mydigipay.test/ticket", ticket: "ticket-" + randomUUID() });
+      }
+      if (url.includes("/purchases/verify")) {
+        expect(payload.providerId).toBe(777);
+        expect(payload.trackingCode).toBe("digipay-tracking-123");
+        return Response.json({ result: { status: 0 } });
       }
       throw new Error("Unexpected provider endpoint");
     }),
@@ -235,6 +252,37 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
         .toString(),
     ).toBe("%PDF");
   });
+  it("creates a DigiPay ticket and settles only after server-side verification", async () => {
+    const buyerId = one("SELECT id FROM p_users WHERE email=?", "buyer@test.example")!.id;
+    run("UPDATE p_users SET phone=? WHERE id=?", "09120000000", buyerId);
+    saveSetting("digipay_client_id", "test-client-id");
+    saveSetting("digipay_client_secret", "test-client-secret", true);
+    saveSetting("digipay_username", "test-api-user", true);
+    saveSetting("digipay_password", "test-api-password", true);
+    saveSetting("digipay_provider_id", "777");
+
+    const created = await request(
+      "orders",
+      "POST",
+      { productId, quantity: 1, method: "digipay", idempotencyKey: randomUUID() },
+      buyer,
+    );
+    expect(created.status).toBe(201);
+    const order = await created.json();
+    const payment = await request("orders/" + order.id + "/payment", "POST", {}, buyer);
+    expect(payment.status).toBe(200);
+    expect((await payment.json()).url).toBe("https://pay.mydigipay.test/ticket");
+    expect(one("SELECT provider_url FROM p_orders WHERE id=?", order.id)!.provider_url).toBe("https://pay.mydigipay.test/ticket");
+
+    const callback = await request(
+      "payment/callback?provider=digipay&orderId=" + order.id,
+      "POST",
+      { amount: 1000000, providerId: 777, trackingCode: "digipay-tracking-123", result: "SUCCESS", type: 11 },
+    );
+    expect(callback.status).toBe(200);
+    expect(one("SELECT paid_at,payment_ref FROM p_orders WHERE id=?", order.id)!.paid_at).toBeTruthy();
+    expect(one("SELECT payment_ref FROM p_orders WHERE id=?", order.id)!.payment_ref).toBe("digipay:digipay-tracking-123");
+  });
   it("requests withdrawal and admin approval debits the held wallet atomically", async () => {
     const r = await request(
       "withdrawals",
@@ -257,7 +305,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     const w = await r.json();
     expect(
       one("SELECT available,held FROM p_wallets WHERE user_id=?", sponsorId),
-    ).toEqual({ available: 1000, held: 9000 });
+    ).toEqual({ available: 11000, held: 9000 });
     const approval = await request(
       "admin/withdrawals",
       "PATCH",
@@ -267,7 +315,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     expect(approval.status).toBe(200);
     expect(
       one("SELECT available,held FROM p_wallets WHERE user_id=?", sponsorId),
-    ).toEqual({ available: 1000, held: 0 });
+    ).toEqual({ available: 11000, held: 0 });
     expect(
       one("SELECT status FROM p_withdrawals WHERE id=?", w.id)!.status,
     ).toBe("approved");
@@ -325,7 +373,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
       admin,
     );
     expect(csv.status).toBe(200);
-    expect(await csv.text()).toContain("100000");
+    expect(await csv.text()).toContain("200000");
     const excel = await request(
       "admin/reports?format=xlsx",
       "GET",

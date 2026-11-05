@@ -230,7 +230,7 @@ function Product({
                 method: form.get("method"),
                 idempotencyKey: key.current,
               });
-              if (o.payment_method === "zarinpal" && !o.paid_at) {
+              if (["zarinpal", "digipay"].includes(o.payment_method) && !o.paid_at) {
                 const r = await api(`orders/${o.id}/payment`, "POST");
                 window.location.assign(r.url);
               } else if (o.payment_method === "bank_transfer" && !o.paid_at) {
@@ -266,6 +266,7 @@ function Product({
               >
                 <option value="bank_transfer">واریز بانکی با رسید</option>
                 <option value="zarinpal">زرین‌پال</option>
+                <option value="digipay">دیجی‌پی</option>
                 <option value="wallet">کیف پول</option>
               </select>
             </label>
@@ -357,7 +358,7 @@ export function Orders({
               </DownloadButton>
             )}
             {selected.status === "pending" &&
-              selected.payment_method === "zarinpal" && (
+              ["zarinpal", "digipay"].includes(selected.payment_method) && (
                 <button
                   disabled={busy}
                   className="portal-button primary"

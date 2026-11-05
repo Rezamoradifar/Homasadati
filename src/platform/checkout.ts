@@ -3,7 +3,7 @@ import { z } from "zod";
 import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
 import { createOrder, settleOrder } from "./finance";
-import { paymentRequest } from "./providers";
+import { paymentRequest, digipayCreateTicket } from "./providers";
 import {publicCatalogDetails} from './catalog-model';
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
@@ -122,48 +122,43 @@ export function settleCheckout(checkoutId: string, reference: string) {
   });
 }
 export async function payCheckout(checkoutId: string, user: string) {
-  const c = one(
-    "SELECT * FROM p_checkouts WHERE id=? AND user_id=?",
-    checkoutId,
-    user,
-  );
+  const c = one("SELECT * FROM p_checkouts WHERE id=? AND user_id=?", checkoutId, user);
   if (!c) throw new ApiError(404, "not_found");
-  if (
-    c.method !== "zarinpal" ||
-    c.status !== "pending" ||
-    c.expires_at <= now()
-  )
+  if (!["zarinpal", "digipay"].includes(c.method) || c.status !== "pending" || c.expires_at <= now()) {
     throw new ApiError(409, "invalid_state");
-  if (c.authority)
-    return { url: "https://www.zarinpal.com/pg/StartPay/" + c.authority };
+  }
+  if (c.authority) {
+    if (c.method === "digipay" && c.provider_url) return { url: c.provider_url };
+    if (c.method === "zarinpal") return { url: "https://www.zarinpal.com/pg/StartPay/" + c.authority };
+  }
   const claim = randomUUID();
-  if (
-    !run(
-      "UPDATE p_checkouts SET claim=? WHERE id=? AND claim IS NULL AND authority IS NULL",
-      claim,
-      c.id,
-    ).changes
-  )
+  if (!run("UPDATE p_checkouts SET claim=? WHERE id=? AND claim IS NULL AND authority IS NULL", claim, c.id).changes) {
     throw new ApiError(409, "payment_request_in_progress");
+  }
   try {
+    if (c.method === "digipay") {
+      const origin = process.env.APP_ORIGIN;
+      const userRow = one("SELECT phone FROM p_users WHERE id=?", user);
+      const digits = String(userRow?.phone || "").replace(/\D/g, "");
+      const cellNumber = digits.startsWith("0098") ? "0" + digits.slice(4) : digits.startsWith("98") ? "0" + digits.slice(2) : digits;
+      if (!/^09\d{9}$/.test(cellNumber)) throw new ApiError(400, "digipay_phone_required");
+      if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
+      const callbackUrl = origin + "/api/platform/payment/callback?provider=digipay&checkoutId=" + encodeURIComponent(c.id);
+      const ticket = await digipayCreateTicket(c.amount, cellNumber, callbackUrl);
+      if (!run(
+        "UPDATE p_checkouts SET authority=?,provider_url=?,claim=NULL WHERE id=? AND claim=? AND status='pending' AND expires_at>?",
+        ticket.ticket, ticket.redirectUrl, c.id, claim, now(),
+      ).changes) throw new ApiError(409, "invalid_state");
+      return { url: ticket.redirectUrl };
+    }
     const authority = await paymentRequest(c.id, c.amount);
-    if (
-      !run(
-        "UPDATE p_checkouts SET authority=?,claim=NULL WHERE id=? AND claim=? AND status='pending' AND expires_at>?",
-        authority,
-        c.id,
-        claim,
-        now(),
-      ).changes
-    )
-      throw new ApiError(409, "invalid_state");
+    if (!run(
+      "UPDATE p_checkouts SET authority=?,claim=NULL WHERE id=? AND claim=? AND status='pending' AND expires_at>?",
+      authority, c.id, claim, now(),
+    ).changes) throw new ApiError(409, "invalid_state");
     return { url: "https://www.zarinpal.com/pg/StartPay/" + authority };
   } catch (e) {
-    run(
-      "UPDATE p_checkouts SET claim=NULL WHERE id=? AND claim=?",
-      c.id,
-      claim,
-    );
+    run("UPDATE p_checkouts SET claim=NULL WHERE id=? AND claim=?", c.id, claim);
     throw e;
   }
 }

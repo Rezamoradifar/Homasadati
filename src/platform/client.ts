@@ -62,6 +62,14 @@ export const errors: Record<string, string> = {
     "ارتباط با سرویس ارائه‌دهنده برقرار نشد. دوباره تلاش کنید.",
   provider_rejected: "سرویس ارائه‌دهنده درخواست را نپذیرفت.",
   payment_unverified: "پرداخت تأیید نشده است.",
+  digipay_not_configured: "تنظیمات دیجی‌پی توسط مدیر تکمیل نشده است.",
+  digipay_auth_failed: "احراز هویت با دیجی‌پی ناموفق بود.",
+  digipay_ticket_failed: "ساخت لینک پرداخت دیجی‌پی ناموفق بود.",
+  digipay_payment_unverified: "دیجی‌پی پرداخت را تأیید نکرده است.",
+  digipay_callback_rejected: "نتیجه بازگشتی دیجی‌پی موفق نیست.",
+  digipay_callback_mismatch: "اطلاعات بازگشتی دیجی‌پی با سفارش مطابقت ندارد.",
+  digipay_duplicate_payment: "این تراکنش قبلاً برای سفارش دیگری ثبت شده است.",
+  digipay_phone_required: "برای پرداخت با دیجی‌پی، شماره موبایل معتبر ایران در حساب ثبت کنید.",
   payment_request_in_progress:
     "درخواست درگاه در حال پردازش است. کمی بعد دوباره بررسی کنید.",
   payment_reconciliation_required:
@@ -143,6 +151,7 @@ export const labels: Record<string, string> = {
   finance: "مدیر مالی",
   wallet: "کیف پول",
   zarinpal: "زرین‌پال",
+  digipay: "دیجی‌پی",
   bank_transfer: "واریز بانکی با رسید",
   personal_sales: "فروش شخصی",
   group_sales: "فروش گروهی",

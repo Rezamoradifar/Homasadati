@@ -143,3 +143,103 @@ export async function verifyPayment(authority: string, amount: number) {
     throw new ApiError(409, "payment_unverified");
   return String(r.data.ref_id);
 }
+
+let digipayToken: { value: string; expiresAt: number } | undefined;
+
+function digipayConfig() {
+  const clientId = setting("digipay_client_id");
+  const clientSecret = setting("digipay_client_secret");
+  const username = setting("digipay_username");
+  const password = setting("digipay_password");
+  const providerId = setting("digipay_provider_id");
+  if (!clientId || !clientSecret || !username || !password || !providerId || !/^\d+$/.test(providerId)) {
+    throw new ApiError(503, "digipay_not_configured");
+  }
+  return { clientId, clientSecret, username, password, providerId };
+}
+
+async function digipayAccessToken() {
+  const config = digipayConfig();
+  if (digipayToken && digipayToken.expiresAt > Date.now() + 60000) return digipayToken.value;
+  const response = await providerFetch("https://api.mydigipay.com/digipay/api/oauth/token", {
+    method: "POST",
+    headers: {
+      Authorization: "Basic " + Buffer.from(config.clientId + ":" + config.clientSecret).toString("base64"),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      username: config.username,
+      password: config.password,
+      grant_type: "password",
+    }).toString(),
+  });
+  if (typeof response.access_token !== "string" || !response.access_token) {
+    throw new ApiError(502, "digipay_auth_failed");
+  }
+  const expiresIn = Number(response.expires_in) || 3600;
+  digipayToken = {
+    value: response.access_token,
+    expiresAt: Date.now() + Math.max(60, expiresIn - 60) * 1000,
+  };
+  return digipayToken.value;
+}
+
+export async function digipayCreateTicket(
+  amount: number,
+  cellNumber: string,
+  callbackUrl: string,
+) {
+  const config = digipayConfig();
+  if (!Number.isSafeInteger(amount) || amount <= 0 || amount > 1e12) {
+    throw new ApiError(400, "invalid_input");
+  }
+  if (!/^https:\/\//.test(callbackUrl) || !/^09\d{9}$/.test(cellNumber)) {
+    throw new ApiError(400, "invalid_input");
+  }
+  const token = await digipayAccessToken();
+  const response = await providerFetch("https://api.mydigipay.com/digipay/api/tickets/business?type=11", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token,
+      "Content-Type": "application/json",
+      Agent: "WEB",
+      "Digipay-Version": "2022-02-02",
+    },
+    body: JSON.stringify({
+      amount: amount * 10,
+      cellNumber,
+      providerId: Number(config.providerId),
+      callbackUrl,
+      additionalInfo: { preferredGateway: 2 },
+    }),
+  });
+  const redirectUrl = response.redirectUrl || response.data?.redirectUrl;
+  const ticket = response.ticket || response.data?.ticket;
+  if (typeof redirectUrl !== "string" || !/^https:\/\//.test(redirectUrl) || typeof ticket !== "string" || !ticket) {
+    throw new ApiError(502, "digipay_ticket_failed");
+  }
+  return { redirectUrl, ticket };
+}
+
+export async function digipayVerifyPayment(trackingCode: string, providerId: string) {
+  const config = digipayConfig();
+  if (providerId !== config.providerId || !trackingCode || trackingCode.length > 128) {
+    throw new ApiError(409, "digipay_callback_mismatch");
+  }
+  const token = await digipayAccessToken();
+  const response = await providerFetch(
+    "https://api.mydigipay.com/digipay/api/purchases/verify?type=11",
+    {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+        Agent: "WEB",
+        "Digipay-Version": "2022-02-02",
+      },
+      body: JSON.stringify({ trackingCode, providerId: Number(config.providerId) }),
+    },
+  );
+  if (response.result?.status !== 0) throw new ApiError(409, "digipay_payment_unverified");
+  return trackingCode;
+}
