@@ -68,6 +68,19 @@ export default async function BrandPage({
             <a className="commerce-button outline" href="#story">
               شناخت حوزه و فرصت‌ها
             </a>
+            {k === "ai" && (
+              <div className="ai-club-entry-wrap">
+                <a
+                  className="commerce-button ai-club-entry"
+                  href="/account"
+                  aria-label="ورود به باشگاه مشتریان هما"
+                >
+                  <span aria-hidden="true">✦</span>
+                  ورود به باشگاه مشتریان هما
+                  <span aria-hidden="true">←</span>
+                </a>
+              </div>
+            )}
           </div>
           {!b.image && (
             <span className="leather-monogram" aria-hidden="true">
