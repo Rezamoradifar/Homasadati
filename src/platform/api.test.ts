@@ -129,11 +129,14 @@ beforeAll(() => {
         expect(payload.amount).toBe(1000000);
         expect(payload.cellNumber).toBe("09120000000");
         expect(payload.providerId).toMatch(/^[A-Za-z0-9-]{3,80}$/);
+        expect(payload.basketDetailsDto.items).toHaveLength(1);
+        expect(payload.basketDetailsDto.items[0].productType).toBe(3);
+        expect(payload.additionalInfo).toBeUndefined();
         digipayProviderId = payload.providerId;
         return Response.json({ redirectUrl: "https://pay.mydigipay.test/ticket", ticket: "ticket-" + randomUUID() });
       }
       if (url.includes("/purchases/verify")) {
-        expect(url).toContain("purchases/verify?type=0");
+        expect(url).toContain("purchases/verify?type=13");
         expect(payload.providerId).toBe(digipayProviderId);
         expect(payload.trackingCode).toBe("digipay-tracking-123");
         return Response.json({ result: { status: 0 } });
@@ -262,6 +265,11 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     saveSetting("digipay_client_secret", "test-client-secret", true);
     saveSetting("digipay_username", "test-api-user", true);
     saveSetting("digipay_password", "test-api-password", true);
+    saveSetting("digipay_seller_id", "test-seller");
+    saveSetting("digipay_supplier_id", "test-supplier");
+    saveSetting("digipay_category_id", "test-category");
+    saveSetting("digipay_brand", "Homanets");
+    saveSetting("digipay_product_type", "3");
 
     const created = await request(
       "orders",
@@ -282,7 +290,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     });
     expect(wrongProvider.status).toBe(409);
     const wrongType = await request(callbackPath, "POST", {
-      amount: 1000000, providerId: order.id, trackingCode: "digipay-tracking-wrong-type", result: "SUCCESS", type: 11,
+      amount: 1000000, providerId: order.id, trackingCode: "digipay-tracking-wrong-type", result: "SUCCESS", type: 99,
     });
     expect(wrongType.status).toBe(409);
     expect(one("SELECT paid_at FROM p_orders WHERE id=?", order.id)!.paid_at).toBeNull();
