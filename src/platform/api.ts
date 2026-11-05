@@ -1228,6 +1228,47 @@ export async function handle(req: Request, path: string[]) {
         ),
         googleEnabled: !!googleClientId(),
       });
+    if (path.join("/") === "payment/callback" && method === "POST" && url.searchParams.get("provider") === "digipay") {
+      let callback: Row;
+      const raw = await req.text();
+      try {
+        callback = (req.headers.get("content-type") || "").includes("application/json")
+          ? JSON.parse(raw)
+          : Object.fromEntries(new URLSearchParams(raw));
+      } catch {
+        throw new ApiError(400, "invalid_input");
+      }
+      const checkoutId = url.searchParams.get("checkoutId");
+      const orderId = url.searchParams.get("orderId");
+      const providerId = String(callback.providerId || "");
+      const trackingCode = String(callback.trackingCode || "");
+      const callbackAmount = Number(callback.amount);
+      if (String(callback.result || "").toUpperCase() !== "SUCCESS" || !Number.isSafeInteger(callbackAmount) || !providerId || !trackingCode) {
+        throw new ApiError(409, "digipay_callback_rejected");
+      }
+      if (checkoutId) {
+        const checkout = one("SELECT * FROM p_checkouts WHERE id=?", checkoutId);
+        if (!checkout || checkout.method !== "digipay" || callbackAmount !== checkout.amount * 10) {
+          throw new ApiError(409, "digipay_callback_mismatch");
+        }
+        if (checkout.status !== "paid") {
+          const reference = await digipayVerifyPayment(trackingCode, providerId);
+          settleCheckout(checkout.id, "digipay:" + reference);
+        }
+      } else if (orderId) {
+        const order = one("SELECT * FROM p_orders WHERE id=?", orderId);
+        if (!order || order.payment_method !== "digipay" || callbackAmount !== order.amount * 10) {
+          throw new ApiError(409, "digipay_callback_mismatch");
+        }
+        if (!order.paid_at) {
+          const reference = await digipayVerifyPayment(trackingCode, providerId);
+          settleOrder(order.id, "digipay:" + reference);
+        }
+      } else {
+        throw new ApiError(400, "invalid_input");
+      }
+      return json({ ok: true });
+    }
     if (!get) {
       sameOrigin(req);
       data = await body(req, 65536);
@@ -1678,16 +1719,16 @@ export async function handle(req: Request, path: string[]) {
           u.id,
         );
         if (!order) throw new ApiError(404, "not_found");
-        if (order.payment_method !== "zarinpal" || order.status !== "pending")
+        if (!["zarinpal", "digipay"].includes(order.payment_method) || order.status !== "pending")
           throw new ApiError(409, "invalid_state");
         if (order.expires_at < now()) {
           refundOrder(order.id, u.id, false, "انقضای درخواست پرداخت");
           throw new ApiError(409, "invalid_state");
         }
-        if (order.authority)
-          return json({
-            url: "https://www.zarinpal.com/pg/StartPay/" + order.authority,
-          });
+        if (order.authority) {
+          if (order.payment_method === "digipay" && order.provider_url) return json({ url: order.provider_url });
+          if (order.payment_method === "zarinpal") return json({ url: "https://www.zarinpal.com/pg/StartPay/" + order.authority });
+        }
         const claim = randomUUID();
         if (
           !run(
@@ -1698,19 +1739,26 @@ export async function handle(req: Request, path: string[]) {
         )
           throw new ApiError(409, "payment_request_in_progress");
         try {
+          if (order.payment_method === "digipay") {
+            const origin = process.env.APP_ORIGIN;
+            const userRow = one("SELECT phone FROM p_users WHERE id=?", u.id);
+            const digits = String(userRow?.phone || "").replace(/\\D/g, "");
+            const cellNumber = digits.startsWith("0098") ? "0" + digits.slice(4) : digits.startsWith("98") ? "0" + digits.slice(2) : digits;
+            if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
+            const callbackUrl = origin + "/api/platform/payment/callback?provider=digipay&orderId=" + encodeURIComponent(order.id);
+            const ticket = await digipayCreateTicket(order.id, order.amount, cellNumber, callbackUrl);
+            if (!run(
+              "UPDATE p_orders SET authority=?,provider_url=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
+              ticket.ticket, ticket.redirectUrl, order.id, claim,
+            ).changes) throw new ApiError(409, "invalid_state");
+            return json({ url: ticket.redirectUrl });
+          }
           const authority = await paymentRequest(order.id, order.amount);
-          if (
-            !run(
-              "UPDATE p_orders SET authority=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
-              authority,
-              order.id,
-              claim,
-            ).changes
-          )
-            throw new ApiError(409, "invalid_state");
-          return json({
-            url: "https://www.zarinpal.com/pg/StartPay/" + authority,
-          });
+          if (!run(
+            "UPDATE p_orders SET authority=?,checkout_claim=NULL WHERE id=? AND checkout_claim=? AND status='pending'",
+            authority, order.id, claim,
+          ).changes) throw new ApiError(409, "invalid_state");
+          return json({ url: "https://www.zarinpal.com/pg/StartPay/" + authority });
         } catch (e) {
           run(
             "UPDATE p_orders SET checkout_claim=NULL WHERE id=? AND checkout_claim=?",
@@ -1724,7 +1772,7 @@ export async function handle(req: Request, path: string[]) {
         .object({
           productId: id,
           quantity: z.number().int().min(1).max(100),
-          method: z.enum(["wallet", "zarinpal", "bank_transfer"]),
+          method: z.enum(["wallet", "zarinpal", "bank_transfer", "digipay"]),
           idempotencyKey: id,
         })
         .parse(data);
