@@ -1250,10 +1250,11 @@ export async function handle(req: Request, path: string[]) {
       }
       const checkoutId = url.searchParams.get("checkoutId");
       const orderId = url.searchParams.get("orderId");
+      limit("digipay-callback:" + ipOf(req), 120, 300);
       const providerId = String(callback.providerId || "");
       const trackingCode = String(callback.trackingCode || "");
       const callbackAmount = Number(callback.amount);
-      if (String(callback.result || "").toUpperCase() !== "SUCCESS" || !Number.isSafeInteger(callbackAmount) || !providerId || !trackingCode) {
+      if ((callback.type !== undefined && Number(callback.type) !== 11) || String(callback.result || "").toUpperCase() !== "SUCCESS" || !Number.isSafeInteger(callbackAmount) || !providerId || !trackingCode) {
         throw new ApiError(409, "digipay_callback_rejected");
       }
       if (checkoutId) {
@@ -1262,8 +1263,12 @@ export async function handle(req: Request, path: string[]) {
           throw new ApiError(409, "digipay_callback_mismatch");
         }
         if (checkout.status !== "paid") {
+          const referenceKey = "digipay:" + trackingCode;
+          if (one("SELECT id FROM p_checkouts WHERE payment_ref=? AND id<>?", referenceKey, checkout.id) || one("SELECT id FROM p_orders WHERE payment_ref=?", referenceKey)) {
+            throw new ApiError(409, "digipay_duplicate_payment");
+          }
           const reference = await digipayVerifyPayment(trackingCode, providerId);
-          settleCheckout(checkout.id, "digipay:" + reference);
+          settleCheckout(checkout.id, referenceKey);
         }
       } else if (orderId) {
         const order = one("SELECT * FROM p_orders WHERE id=?", orderId);
@@ -1271,8 +1276,12 @@ export async function handle(req: Request, path: string[]) {
           throw new ApiError(409, "digipay_callback_mismatch");
         }
         if (!order.paid_at) {
+          const referenceKey = "digipay:" + trackingCode;
+          if (one("SELECT id FROM p_orders WHERE payment_ref=? AND id<>?", referenceKey, order.id) || one("SELECT id FROM p_checkouts WHERE payment_ref=?", referenceKey)) {
+            throw new ApiError(409, "digipay_duplicate_payment");
+          }
           const reference = await digipayVerifyPayment(trackingCode, providerId);
-          settleOrder(order.id, "digipay:" + reference);
+          settleOrder(order.id, referenceKey);
         }
       } else {
         throw new ApiError(400, "invalid_input");
@@ -1754,6 +1763,7 @@ export async function handle(req: Request, path: string[]) {
             const userRow = one("SELECT phone FROM p_users WHERE id=?", u.id);
             const digits = String(userRow?.phone || "").replace(/\\D/g, "");
             const cellNumber = digits.startsWith("0098") ? "0" + digits.slice(4) : digits.startsWith("98") ? "0" + digits.slice(2) : digits;
+            if (!/^09\\d{9}$/.test(cellNumber)) throw new ApiError(400, "digipay_phone_required");
             if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
             const callbackUrl = origin + "/api/platform/payment/callback?provider=digipay&orderId=" + encodeURIComponent(order.id);
             const ticket = await digipayCreateTicket(order.id, order.amount, cellNumber, callbackUrl);
