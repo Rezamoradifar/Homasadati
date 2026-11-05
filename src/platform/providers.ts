@@ -185,7 +185,6 @@ async function digipayAccessToken() {
 }
 
 export async function digipayCreateTicket(
-  referenceId: string,
   amount: number,
   cellNumber: string,
   callbackUrl: string,
