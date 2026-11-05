@@ -24,7 +24,8 @@ let admin: string,
   orderId: string,
   challenge: string,
   code: string,
-  authority: string;
+  authority: string,
+  digipayProviderId: string;
 const pw = "test-strong-password-2026";
 function request(path: string, method = "GET", payload?: unknown, cookie = "") {
   return handle(
@@ -127,11 +128,17 @@ beforeAll(() => {
       if (url.includes("/tickets/business")) {
         expect(payload.amount).toBe(1000000);
         expect(payload.cellNumber).toBe("09120000000");
-        expect(payload.providerId).toBe(777);
+        expect(payload.providerId).toMatch(/^[A-Za-z0-9-]{3,80}$/);
+        expect(payload.basketDetailsDto.items).toHaveLength(1);
+        expect(payload.basketDetailsDto.items[0].productType).toBe(3);
+        expect(payload.additionalInfo).toBeUndefined();
+        expect(payload.preferredGateway).toBeUndefined();
+        digipayProviderId = payload.providerId;
         return Response.json({ redirectUrl: "https://pay.mydigipay.test/ticket", ticket: "ticket-" + randomUUID() });
       }
       if (url.includes("/purchases/verify")) {
-        expect(payload.providerId).toBe(777);
+        expect(url).toContain("purchases/verify?type=13");
+        expect(payload.providerId).toBe(digipayProviderId);
         expect(payload.trackingCode).toBe("digipay-tracking-123");
         return Response.json({ result: { status: 0 } });
       }
@@ -259,7 +266,11 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     saveSetting("digipay_client_secret", "test-client-secret", true);
     saveSetting("digipay_username", "test-api-user", true);
     saveSetting("digipay_password", "test-api-password", true);
-    saveSetting("digipay_provider_id", "777");
+    saveSetting("digipay_seller_id", "test-seller");
+    saveSetting("digipay_supplier_id", "test-supplier");
+    saveSetting("digipay_category_id", "test-category");
+    saveSetting("digipay_brand", "Homanets");
+    saveSetting("digipay_product_type", "3");
 
     const created = await request(
       "orders",
@@ -274,10 +285,20 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     expect((await payment.json()).url).toBe("https://pay.mydigipay.test/ticket");
     expect(one("SELECT provider_url FROM p_orders WHERE id=?", order.id)!.provider_url).toBe("https://pay.mydigipay.test/ticket");
 
+    const callbackPath = "payment/callback?provider=digipay&orderId=" + order.id;
+    const wrongProvider = await request(callbackPath, "POST", {
+      amount: 1000000, providerId: randomUUID(), trackingCode: "digipay-tracking-wrong", result: "SUCCESS", type: 0,
+    });
+    expect(wrongProvider.status).toBe(409);
+    const wrongType = await request(callbackPath, "POST", {
+      amount: 1000000, providerId: order.id, trackingCode: "digipay-tracking-wrong-type", result: "SUCCESS", type: 99,
+    });
+    expect(wrongType.status).toBe(409);
+    expect(one("SELECT paid_at FROM p_orders WHERE id=?", order.id)!.paid_at).toBeNull();
     const callback = await request(
-      "payment/callback?provider=digipay&orderId=" + order.id,
+      callbackPath,
       "POST",
-      { amount: 1000000, providerId: 777, trackingCode: "digipay-tracking-123", result: "SUCCESS", type: 11 },
+      { amount: 1000000, providerId: order.id, trackingCode: "digipay-tracking-123", result: "SUCCESS", type: 13 },
     );
     expect(callback.status).toBe(200);
     expect(one("SELECT paid_at,payment_ref FROM p_orders WHERE id=?", order.id)!.paid_at).toBeTruthy();
