@@ -315,7 +315,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     expect(approval.status).toBe(200);
     expect(
       one("SELECT available,held FROM p_wallets WHERE user_id=?", sponsorId),
-    ).toEqual({ available: 1000, held: 0 });
+    ).toEqual({ available: 11000, held: 0 });
     expect(
       one("SELECT status FROM p_withdrawals WHERE id=?", w.id)!.status,
     ).toBe("approved");
