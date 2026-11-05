@@ -139,9 +139,9 @@ export async function payCheckout(checkoutId: string, user: string) {
     if (c.method === "digipay") {
       const origin = process.env.APP_ORIGIN;
       const userRow = one("SELECT phone FROM p_users WHERE id=?", user);
-      const digits = String(userRow?.phone || "").replace(/\\D/g, "");
+      const digits = String(userRow?.phone || "").replace(/\D/g, "");
       const cellNumber = digits.startsWith("0098") ? "0" + digits.slice(4) : digits.startsWith("98") ? "0" + digits.slice(2) : digits;
-      if (!/^09\\d{9}$/.test(cellNumber)) throw new ApiError(400, "digipay_phone_required");
+      if (!/^09\d{9}$/.test(cellNumber)) throw new ApiError(400, "digipay_phone_required");
       if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
       const callbackUrl = origin + "/api/platform/payment/callback?provider=digipay&checkoutId=" + encodeURIComponent(c.id);
       const ticket = await digipayCreateTicket(c.id, c.amount, cellNumber, callbackUrl);
