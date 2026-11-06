@@ -67,7 +67,12 @@ export interface DigiPayRefundInquiry {
 
 /** Carries only a numeric provider code, never its raw body or credentials. */
 export class DigiPayError extends ApiError {
-  constructor(code: string, public readonly providerStatus?: number) {
+  constructor(
+    code: string,
+    public readonly providerStatus?: number,
+    public readonly httpStatus?: number,
+    public readonly oauthError?: string,
+  ) {
     super(503, code);
     this.name = "DigiPayError";
   }
@@ -80,6 +85,10 @@ const API_BASES: Record<DigiPayEnvironment, string> = {
 const REQUEST_TIMEOUT_MS = 12_000;
 const MAX_RESPONSE_BYTES = 128 * 1024;
 const PURCHASE_TYPES = new Set<number>([0, 5, 11, 13, 24]);
+const OAUTH_ERRORS = new Set([
+  "invalid_grant", "unauthorized_client", "invalid_client",
+  "unsupported_grant_type", "invalid_request", "access_denied",
+]);
 
 function configuration(): PrivateConfiguration {
   const environment = process.env.DIGIPAY_ENVIRONMENT;
@@ -241,8 +250,12 @@ async function authenticate(config: PrivateConfiguration, refreshToken?: string)
     },
     body,
   });
-  if (response.status !== 200) throw new DigiPayError("digipay_authentication_failed");
   const data = record(response.data);
+  if (response.status !== 200) {
+    const oauthError = typeof data?.error === "string" && OAUTH_ERRORS.has(data.error)
+      ? data.error : undefined;
+    throw new DigiPayError("digipay_authentication_failed", undefined, response.status, oauthError);
+  }
   if (!data || typeof data.access_token !== "string" || !data.access_token ||
       data.access_token.length > 16384 || /\s/.test(data.access_token) ||
       typeof data.token_type !== "string" || data.token_type.toLowerCase() !== "bearer" ||
@@ -256,6 +269,18 @@ async function authenticate(config: PrivateConfiguration, refreshToken?: string)
       ? data.refresh_token : undefined,
     // Renew before expiry; the provider's expires_in remains authoritative.
     expiresAt: Date.now() + ttl - Math.min(30_000, Math.floor(ttl / 10)),
+  };
+}
+
+/** An explicit operator diagnostic. Always performs fresh authentication, does
+ * not enable checkout or call a purchase endpoint, and never returns a token. */
+export async function checkDigiPayAuthentication() {
+  const config = configuration();
+  const token = await authenticate(config);
+  return {
+    authenticated: true as const,
+    environment: config.environment,
+    expiresInSeconds: Math.max(0, Math.floor((token.expiresAt - Date.now()) / 1000)),
   };
 }
 

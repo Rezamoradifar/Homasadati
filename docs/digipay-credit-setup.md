@@ -85,6 +85,22 @@ Use `-- --require-ready` to make an incomplete configuration fail an operator ga
 Older test branches stored `digipay_*` database settings; this release uses the
 documented environment variables and does not silently copy a test credential.
 
+### Explicit authentication check
+
+After installing this release, authenticate from the actual server using its
+existing private configuration with `NODE_ENV=production npm run digipay:auth-check`.
+Alternatively, run `python3 scripts/digipay-auth-prompt.py` in a private terminal
+to enter all four credentials with echo disabled. The prompt passes values only
+to the child process, disables new checkout in that process and writes no files.
+Never put credentials in command arguments. Both commands call only the OAuth
+endpoint and print an allowlisted result, never an access/refresh token or secret.
+
+A successful result proves authentication at that time, not credit-service
+activation, product eligibility or a successful purchase. A failure exits nonzero
+and may include an HTTP status and recognized OAuth error. A generic 401 cannot
+identify which credential or account permission needs correction. Use the actual
+server when the merchant's access rules may depend on its source IP.
+
 ## Deployment
 
 Publish and review the exact release before installing. Use the existing staged

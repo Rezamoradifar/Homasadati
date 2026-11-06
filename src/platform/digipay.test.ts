@@ -87,6 +87,55 @@ describe("configuration", () => {
   });
 });
 
+describe("explicit authentication check", () => {
+  it("uses all four credentials without enabling checkout or returning tokens", async () => {
+    vi.stubEnv("DIGIPAY_ENABLED", "0");
+    vi.stubEnv("DIGIPAY_PASSWORD", "fixture-password-$&!");
+    vi.stubEnv("DIGIPAY_CLIENT_SECRET", "fixture-secret-$&!");
+    fetchMock.mockResolvedValueOnce(authenticated("private-access", "private-refresh"));
+    const result = await gateway.checkDigiPayAuthentication();
+    expect(result).toMatchObject({ authenticated: true, environment: "sandbox" });
+    expect(result.expiresInSeconds).toBeGreaterThan(0);
+    expect(result.expiresInSeconds).toBeLessThanOrEqual(3600);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://uat.mydigipay.info/digipay/api/oauth/token");
+    expect(init?.headers).toMatchObject({ Authorization: `Basic ${Buffer.from("test-client:fixture-secret-$&!").toString("base64")}` });
+    expect(Object.fromEntries((init?.body as FormData).entries())).toEqual({
+      username: "test-merchant", password: "fixture-password-$&!", grant_type: "password",
+    });
+    expect(JSON.stringify(result)).not.toMatch(/private-access|private-refresh|fixture-password|fixture-secret|test-merchant|test-client/);
+    expect(process.env.DIGIPAY_ENABLED).toBe("0");
+  });
+
+  it("checks the production endpoint explicitly with no basket or payment", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DIGIPAY_ENVIRONMENT", "production");
+    vi.stubEnv("DIGIPAY_ENABLED", "0");
+    fetchMock.mockResolvedValueOnce(authenticated());
+    await expect(gateway.checkDigiPayAuthentication()).resolves.toMatchObject({ authenticated: true, environment: "production" });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][0]).toBe("https://api.mydigipay.com/digipay/api/oauth/token");
+  });
+
+  it("reports an allowlisted OAuth error and HTTP status without a raw provider response", async () => {
+    fetchMock.mockResolvedValueOnce(response({ error: "invalid_client", error_description: "private-provider-detail" }, 401));
+    await expect(gateway.checkDigiPayAuthentication()).rejects.toMatchObject({
+      code: "digipay_authentication_failed", httpStatus: 401, oauthError: "invalid_client",
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not expose unknown provider errors or repeat a rejected authentication", async () => {
+    fetchMock.mockResolvedValueOnce(response({ error: "private-credential-echo", error_description: "test-secret-never-exposed" }, 401));
+    const error = await gateway.checkDigiPayAuthentication().catch(error => error);
+    expect(error).toMatchObject({ code: "digipay_authentication_failed", httpStatus: 401 });
+    expect(error.oauthError).toBeUndefined();
+    expect(JSON.stringify(error)).not.toMatch(/private-credential-echo|test-secret-never-exposed/);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("ticket and authentication", () => {
   it("sends exact server-owned rial amounts and basket data with the documented UPG ticket type", async () => {
     fetchMock.mockResolvedValueOnce(authenticated()).mockResolvedValueOnce(ticketResponse());
