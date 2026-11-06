@@ -16,6 +16,7 @@ async function main() {
       authenticated: false,
       errorCode: error instanceof ApiError && errors.has(error.code) ? error.code : "diagnostic_failed",
       httpStatus: error instanceof DigiPayError && Number.isInteger(error.httpStatus) && error.httpStatus! >= 100 && error.httpStatus! <= 599 ? error.httpStatus : undefined,
+      providerStatus: error instanceof DigiPayError && Number.isSafeInteger(error.providerStatus) ? error.providerStatus : undefined,
       oauthError: error instanceof DigiPayError && error.oauthError && oauthErrors.has(error.oauthError) ? error.oauthError : undefined,
       purchaseAttempted: false,
     }, null, 2));

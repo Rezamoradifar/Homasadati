@@ -35,6 +35,15 @@ it("returns a failure exit code and safe provider diagnostics", async () => {
   expect(process.exitCode).toBe(2);
 });
 
+it("reports the numeric DigiPay authentication code without copying a provider message", async () => {
+  fixture.check.mockRejectedValue(new DigiPayError("digipay_authentication_failed", 2001, 401));
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
+  await import("./digipay-auth-check");
+  await vi.waitFor(() => expect(log).toHaveBeenCalledOnce());
+  expect(JSON.parse(log.mock.calls[0][0])).toEqual({ authenticated: false, errorCode: "digipay_authentication_failed", httpStatus: 401, providerStatus: 2001, purchaseAttempted: false });
+  expect(process.exitCode).toBe(2);
+});
+
 it.each([new Error("private-password"), new ApiError(503, "private-secret"), new DigiPayError("digipay_authentication_failed", undefined, 9000, "private-provider-body")])("never prints arbitrary exception contents", async error => {
   fixture.check.mockRejectedValue(error);
   const log = vi.spyOn(console, "log").mockImplementation(() => {});

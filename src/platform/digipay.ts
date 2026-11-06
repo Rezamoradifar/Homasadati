@@ -233,7 +233,9 @@ function credentialKey(config: PrivateConfiguration): string {
 }
 
 async function authenticate(config: PrivateConfiguration, refreshToken?: string): Promise<CachedToken> {
-  const body = new FormData();
+  // Match DPGateway.php in DigiPay's official UPG plugin: OAuth uses
+  // http_build_query/form-urlencoded, while purchase requests remain JSON.
+  const body = new URLSearchParams();
   if (refreshToken) {
     body.set("grant_type", "refresh_token");
     body.set("refresh_token", refreshToken);
@@ -247,6 +249,9 @@ async function authenticate(config: PrivateConfiguration, refreshToken?: string)
     headers: {
       Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString("base64")}`,
       Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+      Agent: "WEB",
+      "Digipay-Version": "2022-02-02",
     },
     body,
   });
@@ -254,7 +259,10 @@ async function authenticate(config: PrivateConfiguration, refreshToken?: string)
   if (response.status !== 200) {
     const oauthError = typeof data?.error === "string" && OAUTH_ERRORS.has(data.error)
       ? data.error : undefined;
-    throw new DigiPayError("digipay_authentication_failed", undefined, response.status, oauthError);
+    const providerStatus = record(data?.result)?.status;
+    throw new DigiPayError("digipay_authentication_failed",
+      typeof providerStatus === "number" && Number.isSafeInteger(providerStatus) ? providerStatus : undefined,
+      response.status, oauthError);
   }
   if (!data || typeof data.access_token !== "string" || !data.access_token ||
       data.access_token.length > 16384 || /\s/.test(data.access_token) ||

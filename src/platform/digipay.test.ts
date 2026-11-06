@@ -100,8 +100,14 @@ describe("explicit authentication check", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("https://uat.mydigipay.info/digipay/api/oauth/token");
-    expect(init?.headers).toMatchObject({ Authorization: `Basic ${Buffer.from("test-client:fixture-secret-$&!").toString("base64")}` });
-    expect(Object.fromEntries((init?.body as FormData).entries())).toEqual({
+    expect(init?.headers).toMatchObject({
+      Authorization: `Basic ${Buffer.from("test-client:fixture-secret-$&!").toString("base64")}`,
+      "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+      Agent: "WEB", "Digipay-Version": "2022-02-02",
+    });
+    expect(init?.body).toBeInstanceOf(URLSearchParams);
+    expect(String(init?.body)).toContain("password=fixture-password-%24%26%21");
+    expect(Object.fromEntries((init?.body as URLSearchParams).entries())).toEqual({
       username: "test-merchant", password: "fixture-password-$&!", grant_type: "password",
     });
     expect(JSON.stringify(result)).not.toMatch(/private-access|private-refresh|fixture-password|fixture-secret|test-merchant|test-client/);
@@ -134,6 +140,16 @@ describe("explicit authentication check", () => {
     expect(JSON.stringify(error)).not.toMatch(/private-credential-echo|test-secret-never-exposed/);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("preserves the provider's numeric authentication result without its raw message", async () => {
+    fetchMock.mockResolvedValueOnce(response({ result: {
+      status: 2001, title: "AUTHENTICATION_FAILURE", message: "private-credential-echo",
+    } }, 401));
+    const error = await gateway.checkDigiPayAuthentication().catch(error => error);
+    expect(error).toMatchObject({ code: "digipay_authentication_failed", httpStatus: 401, providerStatus: 2001 });
+    expect(JSON.stringify(error)).not.toContain("private-credential-echo");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("ticket and authentication", () => {
@@ -146,7 +162,7 @@ describe("ticket and authentication", () => {
     expect(authUrl).toBe("https://uat.mydigipay.info/digipay/api/oauth/token");
     expect(authInit?.redirect).toBe("error");
     expect(authInit?.headers).toMatchObject({ Authorization: `Basic ${Buffer.from("test-client:test-secret-never-exposed").toString("base64")}` });
-    expect(Object.fromEntries((authInit?.body as FormData).entries())).toEqual({
+    expect(Object.fromEntries((authInit?.body as URLSearchParams).entries())).toEqual({
       username: "test-merchant", password: "test-password-never-exposed", grant_type: "password",
     });
     const [url, init] = fetchMock.mock.calls[1];
@@ -204,7 +220,7 @@ describe("ticket and authentication", () => {
     expect(fetchMock).toHaveBeenCalledTimes(3);
     clock.mockReturnValue(1_059_000);
     await gateway.createDigiPayTicket({ ...ticketInput(), providerId: "attempt-3" });
-    expect(Object.fromEntries((fetchMock.mock.calls[3][1]?.body as FormData).entries())).toEqual({
+    expect(Object.fromEntries((fetchMock.mock.calls[3][1]?.body as URLSearchParams).entries())).toEqual({
       grant_type: "refresh_token", refresh_token: "refresh-1",
     });
     expect(fetchMock.mock.calls[4][1]?.headers).toMatchObject({ Authorization: "Bearer access-2" });

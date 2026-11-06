@@ -95,9 +95,16 @@ to the child process, disables new checkout in that process and writes no files.
 Never put credentials in command arguments. Both commands call only the OAuth
 endpoint and print an allowlisted result, never an access/refresh token or secret.
 
+OAuth requests use URL-encoded form fields and the `Agent: WEB` and
+`Digipay-Version: 2022-02-02` headers, matching `DPGateway.php` in DigiPay's
+[official UPG WordPress plugin](https://www.mydigipay.com/api/website/proxy/get-file/public/2026/10/wp-digipay-V1.7.2.zip).
+The public UPG page also shows multipart examples. Credential characters are
+encoded by the form serializer; do not manually escape or HTML-decode the values.
+
 A successful result proves authentication at that time, not credit-service
 activation, product eligibility or a successful purchase. A failure exits nonzero
-and may include an HTTP status and recognized OAuth error. A generic 401 cannot
+and may include an HTTP status, a numeric `providerStatus` and a recognized OAuth
+error. Raw provider messages and response bodies are never printed. A generic 401 cannot
 identify which credential or account permission needs correction. Use the actual
 server when the merchant's access rules may depend on its source IP.
 
