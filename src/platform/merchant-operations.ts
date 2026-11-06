@@ -2,6 +2,7 @@ import { paymentActor } from "./payment-controls";
 import { merchantReviewSchema } from "./operations-model";
 import { randomUUID } from "node:crypto";
 import { all, one, run, atomic, now, Row } from "./schema";
+import { digipayRefundHeldOrderIdsSql } from "./digipay-financial-holds";
 import { ApiError } from "../server/http";
 import { audit } from "./security";
 import {
@@ -70,8 +71,9 @@ function entry(
   );
 }
 export function matureMerchantSales() {
+  return atomic(() => {
   for (const s of all(
-    "SELECT s.* FROM p_merchant_sales s JOIN p_orders o ON o.id=s.order_id WHERE s.status='pending' AND s.available_at<=? AND o.status='delivered' AND o.refunded_at IS NULL LIMIT 500",
+    `SELECT s.* FROM p_merchant_sales s JOIN p_orders o ON o.id=s.order_id WHERE s.status='pending' AND s.available_at<=? AND o.status='delivered' AND o.refunded_at IS NULL AND s.order_id NOT IN (${digipayRefundHeldOrderIdsSql}) LIMIT 500`,
     now(),
   )) {
     entry(s.merchant_id, s.amount, "sale:" + s.order_id, s.order_id, "sale");
@@ -80,6 +82,7 @@ export function matureMerchantSales() {
       s.order_id,
     );
   }
+  });
 }
 export function reverseMerchantSale(order: string) {
   const s = one("SELECT * FROM p_merchant_sales WHERE order_id=?", order);
@@ -346,6 +349,8 @@ export function merchantFulfill(user: string, input: unknown) {
     );
     if (!o) throw new ApiError(404, "not_found");
     if (o.status === d.status) return { ok: true };
+    if (one("SELECT id FROM p_digipay_refunds WHERE order_id=? AND status IN ('requesting','pending','review','succeeded')", o.id))
+      throw new ApiError(409, "digipay_refund_pending");
     if (
       !o.paid_at ||
       o.refunded_at ||

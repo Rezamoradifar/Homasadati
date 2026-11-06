@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { all, one, run, now, atomic, Row } from "./schema";
+import { digipayRefundHeldOrderIdsSql } from "./digipay-financial-holds";
 import { setting, saveSetting } from "./providers";
 import { audit } from "./security";
 import { ApiError } from "../server/http";
@@ -223,8 +224,9 @@ export function accrueOrderPoints(order: Row) {
   );
 }
 export function matureLoyalty(user: string | null = null) {
+  return atomic(() => {
   for (const a of all(
-    "SELECT a.* FROM p_loyalty_accruals a JOIN p_orders o ON o.id=a.order_id WHERE a.status='pending' AND a.available_at<=? AND o.refunded_at IS NULL AND (? IS NULL OR a.user_id=?) ORDER BY a.available_at,a.order_id LIMIT 500",
+    `SELECT a.* FROM p_loyalty_accruals a JOIN p_orders o ON o.id=a.order_id WHERE a.status='pending' AND a.available_at<=? AND o.refunded_at IS NULL AND a.order_id NOT IN (${digipayRefundHeldOrderIdsSql}) AND (? IS NULL OR a.user_id=?) ORDER BY a.available_at,a.order_id LIMIT 500`,
     now(),
     user,
     user,
@@ -244,6 +246,7 @@ export function matureLoyalty(user: string | null = null) {
       a.order_id,
     );
   }
+  });
 }
 export function reverseOrderPoints(order: string, actor: string) {
   const a = one("SELECT * FROM p_loyalty_accruals WHERE order_id=?", order);

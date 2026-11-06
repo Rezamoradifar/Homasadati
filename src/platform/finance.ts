@@ -36,6 +36,10 @@ import { publicCatalogDetails } from "./catalog-model";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
+import {
+  digipayRefundHeldOrderIdsSql,
+  digipayRefundHeldBinaryCommissionIdsSql,
+} from "./digipay-financial-holds";
 import { policy, setting } from "./providers";
 import { audit } from "./security";
 import type { Policy } from "./validation";
@@ -141,15 +145,15 @@ export function descendants(root: string) {
     root,
   );
 }
-export function sales(user: string, since = "0000", until = "9999") {
+export function sales(user: string, since = "0000", until = "9999", excludeRefundHolds = false) {
   const personal = one(
-    "SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE payment_method!='company_credit' AND user_id=? AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL",
+    `SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE payment_method!='company_credit' AND user_id=? AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL ${excludeRefundHolds ? `AND id NOT IN (${digipayRefundHeldOrderIdsSql})` : ""}`,
     user,
     since,
     until,
   )!.n;
   const group = one(
-    `WITH RECURSIVE team(id) AS (SELECT id FROM p_users WHERE sponsor_id=? UNION SELECT u.id FROM p_users u JOIN team t ON u.sponsor_id=t.id) SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE payment_method!='company_credit' AND user_id IN (SELECT id FROM team WHERE id!=?) AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL`,
+    `WITH RECURSIVE team(id) AS (SELECT id FROM p_users WHERE sponsor_id=? UNION SELECT u.id FROM p_users u JOIN team t ON u.sponsor_id=t.id) SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE payment_method!='company_credit' AND user_id IN (SELECT id FROM team WHERE id!=?) AND paid_at>=? AND paid_at<=? AND refunded_at IS NULL ${excludeRefundHolds ? `AND id NOT IN (${digipayRefundHeldOrderIdsSql})` : ""}`,
     user,
     user,
     since,
@@ -157,8 +161,8 @@ export function sales(user: string, since = "0000", until = "9999") {
   )!.n;
   return { personal, group };
 }
-export function rankProgress(user: string) {
-  const s = sales(user);
+export function rankProgress(user: string, excludeRefundHolds = false) {
+  const s = sales(user, "0000", "9999", excludeRefundHolds);
   const ranks = all(
     "SELECT * FROM p_ranks ORDER BY personal_threshold+group_threshold, id",
   );
@@ -277,7 +281,8 @@ export function calculateCommissions(order: Row) {
         `sale:${order.id}:${sponsor}:${depth}`,
       );
       budget -= n;
-      const rank = rankProgress(sponsor).current;
+      // Pending refunds may keep a visible rank, but cannot qualify new income.
+      const rank = rankProgress(sponsor, true).current;
       if (rank) rankAwards.push({ user: sponsor, rate: rank.bonus_bps });
     }
     sponsor = ancestor.sponsor_id;
@@ -323,6 +328,9 @@ export function matchBinaryForOrder(
   maxMatches = Number.MAX_SAFE_INTEGER,
   cutoff = now(),
 ) {
+  return atomic(() => {
+  if (one(`SELECT id FROM p_orders WHERE id=? AND id IN (${digipayRefundHeldOrderIdsSql})`, order.id))
+    return { budget, matches: 0 };
   const p = JSON.parse(order.policy);
   const rules = p.binaryRules || legacyBinaryRules;
   let matches = 0;
@@ -412,10 +420,14 @@ export function matchBinaryForOrder(
     }
   }
   return { budget, matches };
+  });
 }
 export function mature() {
+  return atomic(() => {
   for (const c of all(
-    "SELECT * FROM p_commissions WHERE status='pending' AND available_at<=?",
+    `SELECT c.* FROM p_commissions c WHERE c.status='pending' AND c.available_at<=?
+     AND c.order_id NOT IN (${digipayRefundHeldOrderIdsSql})
+     AND c.id NOT IN (${digipayRefundHeldBinaryCommissionIdsSql})`,
     now(),
   )) {
     const debt = Math.min(wallet(c.user_id).debt, c.amount);
@@ -431,12 +443,20 @@ export function mature() {
     );
     run("UPDATE p_commissions SET status='available' WHERE id=?", c.id);
   }
+  });
 }
 export function settleOrder(orderId: string, reference: string) {
   return atomic(() => {
     const o = one("SELECT * FROM p_orders WHERE id=?", orderId);
     if (!o) throw new ApiError(404, "not_found");
     if (o.paid_at) return o;
+    if (o.payment_method === "digipay") {
+      const proof = one("SELECT p.tracking_code FROM p_digipay_payments p JOIN p_checkout_items i ON i.checkout_id=p.checkout_id WHERE i.order_id=? AND p.status IN ('verified','paid') AND p.verified_at IS NOT NULL", orderId);
+      if (!proof || reference !== "digipay:" + proof.tracking_code + ":" + orderId)
+        throw new ApiError(409, "payment_unverified");
+      // Credit proceeds must never be converted into withdrawable wallet cash.
+      if (o.status === "cancelled") throw new ApiError(409, "digipay_refund_required");
+    }
     if (o.status === "cancelled") {
       run(
         "UPDATE p_orders SET status='refunded',payment_ref=?,paid_at=?,refunded_at=? WHERE id=?",
@@ -652,6 +672,18 @@ export function refundOrder(
     if (!o || (!isAdmin && o.user_id !== actor))
       throw new ApiError(404, "not_found");
     if (["refunded", "cancelled"].includes(o.status)) return o;
+    if (o.payment_method === "digipay") {
+      if (o.paid_at) {
+        const refunded = one(`SELECT r.id FROM p_digipay_refunds r
+          JOIN p_digipay_payments p ON p.id=r.payment_id
+          JOIN p_checkout_items i ON i.checkout_id=p.checkout_id AND i.order_id=r.order_id
+          WHERE r.order_id=? AND r.status='succeeded' AND r.amount_rial=? AND p.status='paid' AND p.verified_at IS NOT NULL`, orderId, o.amount * 10);
+        if (!refunded) throw new ApiError(409, "digipay_refund_pending");
+      } else if (one(`SELECT p.id FROM p_digipay_payments p JOIN p_checkout_items i ON i.checkout_id=p.checkout_id
+        WHERE i.order_id=? AND p.status IN ('creating','pending','verified','review')`, orderId)) {
+        throw new ApiError(409, "payment_reconciliation_required");
+      }
+    }
     if (
       !isAdmin &&
       (o.status === "shipped" ||
@@ -713,7 +745,7 @@ export function refundOrder(
     reverseCardOrder(orderId);
     const voucherPart = restoreOrderVoucher(orderId);
     if(o.paid_at && o.payment_method==="company_credit") creditEntry(o.user_id,"refund:"+orderId,o.amount,orderId);
-    else if (o.paid_at && o.amount > voucherPart)
+    else if (o.paid_at && o.payment_method !== "digipay" && o.amount > voucherPart)
       credit(o.user_id, "refund:" + orderId, "refund", orderId, o.amount - voucherPart);
     run(
       "UPDATE p_products SET stock=stock+? WHERE id=?",
@@ -732,13 +764,13 @@ export function refundOrder(
       "order.refund",
       orderId,
       { status: o.status, amount: o.amount },
-      { status: o.paid_at ? "refunded" : "cancelled", destination: "wallet" },
+      { status: o.paid_at ? "refunded" : "cancelled", destination: o.payment_method === "digipay" ? "digipay" : "wallet" },
       reason,
     );
     notify(
       o.user_id,
       "وضعیت سفارش تغییر کرد",
-      o.paid_at ? "وجه به کیف پول شما بازگشت." : "سفارش لغو شد.",
+      o.paid_at ? (o.payment_method === "digipay" ? "برگشت خرید توسط دیجی‌پی تأیید شد؛ وضعیت اعتبار را در دیجی‌پی بررسی کنید." : "وجه به کیف پول شما بازگشت.") : "سفارش لغو شد.",
     );
     return one("SELECT * FROM p_orders WHERE id=?", orderId)!;
   });

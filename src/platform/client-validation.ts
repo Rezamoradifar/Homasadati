@@ -120,7 +120,10 @@ export function validateClient(path: string, method: string, data: unknown) {
     else {
       id.parse(p[1]);
       if (p[2] === "cancel")
-        schema = z.object({ walletRefundConsent: z.literal(true) });
+        schema = z.union([
+          z.object({ walletRefundConsent: z.literal(true) }).strict(),
+          z.object({ providerRefundConsent: z.literal(true) }).strict(),
+        ]);
     }
   }
   if (p[0] === "withdrawals")

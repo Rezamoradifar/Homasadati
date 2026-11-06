@@ -382,24 +382,29 @@ export function Orders({
           {["pending", "processing"].includes(selected.status) && (
             <div style={{ marginTop: 25 }}>
               <p className="portal-notice">
-                وجه سفارش پرداخت‌شده پس از لغو به کیف پول برمی‌گردد. برای انتقال
-                بانکی، درخواست برداشت ثبت کنید.
+                {selected.payment_method === "digipay"
+                  ? "برای سفارش پرداخت‌شده با دیجی‌پی، بازگشت اعتبار یا وجه از مسیر دیجی‌پی انجام می‌شود. لغو نهایی پس از تأیید بازگشت خرید ثبت می‌شود."
+                  : "وجه سفارش پرداخت‌شده پس از لغو به کیف پول برمی‌گردد. برای انتقال بانکی، درخواست برداشت ثبت کنید."}
               </p>
               <Form
+                key={selected.id + ":" + selected.payment_method}
                 fields={[
                   {
                     name: "consent",
-                    label: "با بازگشت وجه به کیف پول موافقم",
+                    label: selected.payment_method === "digipay"
+                      ? "با بازگشت خرید از طریق دیجی‌پی موافقم"
+                      : "با بازگشت وجه به کیف پول موافقم",
                     type: "checkbox",
                   },
                 ]}
-                submit="لغو سفارش"
+                submit={selected.payment_method === "digipay" ? "درخواست لغو از دیجی‌پی" : "لغو سفارش"}
                 onSubmit={async (d) => {
                   if (!d.consent)
                     throw new Error("موافقت با روش بازگشت وجه لازم است.");
-                  const o = await api(`orders/${selected.id}/cancel`, "POST", {
-                    walletRefundConsent: true,
-                  });
+                  const consent = selected.payment_method === "digipay"
+                    ? { providerRefundConsent: true }
+                    : { walletRefundConsent: true };
+                  const o = await api(`orders/${selected.id}/cancel`, "POST", consent);
                   setSelected(o);
                   onChange();
                 }}

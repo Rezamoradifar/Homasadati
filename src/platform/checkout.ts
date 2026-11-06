@@ -7,6 +7,7 @@ import { createOrder, ledger, settleOrder, wallet } from "./finance";
 import { spendVoucher, voucherBalance } from "./seven-card-engine";
 import { paymentRequest, paymentUrl } from "./providers";
 import {publicCatalogDetails} from './catalog-model';
+import { digipayItemsForCart } from "./digipay-basket";
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
@@ -61,9 +62,11 @@ export function createCheckout(
       return old;
     }
     if(input.method==="company_credit" && input.useVoucher) throw new ApiError(400,"invalid_input");
+    if (input.method === "digipay" && input.useVoucher) throw new ApiError(400, "digipay_voucher_unsupported");
     const quote = quoteCart(input.items);
     if (quote.total !== input.expectedTotal)
       throw new ApiError(409, "price_changed");
+    const digipayItems = input.method === "digipay" ? digipayItemsForCart(user, input.items) : null;
     const address = input.addressId
       ? one(
           "SELECT label,country,city,postal_code,address FROM p_addresses WHERE id=? AND user_id=?",
@@ -116,6 +119,7 @@ export function createCheckout(
         voucherLeft -= part;
       }
       const snapshot = JSON.parse(order.policy);
+      if (digipayItems) snapshot.orderTerms.digipayItem = digipayItems.get(item.productId);
       if (address) snapshot.orderTerms.shippingAddress = address;
       run(
         "UPDATE p_orders SET policy=? WHERE id=?",

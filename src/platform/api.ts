@@ -1137,11 +1137,14 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       .parse(data);
     if (d.action === "refund") {
       assertAccess(u, "refunds", true);
+      if (one("SELECT payment_method FROM p_orders WHERE id=?", d.id)?.payment_method === "digipay")
+        return json(await refundDigiPayOrder(d.id, u.id, true, d.reason));
       return json(refundOrder(d.id, u.id, true, d.reason));
     }
     atomic(() => {
       const o = one("SELECT * FROM p_orders WHERE id=?", d.id);
       if (!o) throw new ApiError(404, "not_found");
+      assertNoPendingDigiPayRefund(d.id);
       const transitions: Record<string, string[]> = {
         processing: ["shipped", "delivered"],
         shipped: ["delivered"],
@@ -1159,7 +1162,21 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
       );
       notify(o.user_id, "وضعیت سفارش تغییر کرد", d.action);
     });
+    if (d.action === "delivered") await queueDigiPayDelivery(d.id);
     return json({ ok: true });
+  }
+  if (resource === "digipay-payments") {
+    if (path.length !== 2) throw new ApiError(404, "not_found");
+    if (get) return json(paged(`SELECT p.id,p.checkout_id,p.status,p.amount,p.environment,p.tracking_code,p.payment_type,p.last_error,p.created_at,p.updated_at,u.name,
+      (SELECT COUNT(*) FROM p_digipay_refunds r WHERE r.payment_id=p.id AND r.completed_at IS NULL AND r.status!='failed') unresolved_refunds,
+      (SELECT d.status FROM p_digipay_deliveries d WHERE d.payment_id=p.id) delivery_status
+      FROM p_digipay_payments p JOIN p_users u ON u.id=p.user_id WHERE (?='' OR p.status=?) AND (?='' OR p.id=? OR p.tracking_code=? OR u.name LIKE ?) ORDER BY p.created_at DESC`,
+      [q.status, q.status, q.q, q.q, q.q, "%" + q.q + "%"], q.page));
+    if (req.method !== "POST") throw new ApiError(405, "method_not_allowed");
+    const input = z.object({ id, trackingCode: z.string().regex(/^[A-Za-z0-9_-]{1,160}$/),
+      type: z.union([z.literal(0), z.literal(5), z.literal(11), z.literal(13), z.literal(24)]), reason: text }).strict().parse(data);
+    limit("digipay-reconcile:" + u.id, 20, 300);
+    return json(await reconcileDigiPayPayment(input.id, u.id, input.trackingCode, input.type, input.reason));
   }
   if (resource === "gateway-transactions" && get)
     return json(
@@ -1457,6 +1474,9 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
 }
 import { balePaymentSummary, handleBaleCallback, startBalePayment, verifyBalePayment } from "./bale-payments";
 import { balePayEnabled } from "./bale-pay";
+import { digipayCheckoutEnabled } from "./digipay-basket";
+import { digipayPaymentSummary, handleDigiPayCallback, reconcileDigiPayPayment, startDigiPayPayment, verifyDigiPayPayment } from "./digipay-payments";
+import { assertNoPendingDigiPayRefund, queueDigiPayDelivery, refundDigiPayOrder } from "./digipay-fulfillment";
 import { effectiveCraft } from "../commerce/craft-taxonomy";
 
 /** Bale returns the customer here (GET) or calls back server-to-server
@@ -1491,6 +1511,60 @@ async function baleCallback(req: Request, url: URL) {
   );
 }
 
+/** DigiPay posts a browser form across origins. This narrow callback is exempt
+ * from the same-origin guard, but every field remains untrusted until verify. */
+async function digipayCallback(req: Request, url: URL) {
+  limit("digipay-callback:" + ipOf(req), 90, 60);
+  const pid = url.searchParams.get("pid") || "";
+  const fields = new URLSearchParams({ pid });
+  if (req.method === "POST") {
+    const contentType = req.headers.get("content-type") || "";
+    if (!contentType.includes("application/x-www-form-urlencoded") && !contentType.includes("application/json"))
+      throw new ApiError(415, "invalid_input");
+    const reader = req.body?.getReader(), chunks: Uint8Array[] = [];
+    let bytes = 0;
+    if (reader) {
+      try {
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          bytes += value.length;
+          if (bytes > 8192) { await reader.cancel(); throw new ApiError(413, "too_large"); }
+          chunks.push(value);
+        }
+      } finally { reader.releaseLock(); }
+    }
+    const raw = Buffer.concat(chunks).toString("utf8");
+    const allowed = ["providerId", "trackingCode", "amount", "type", "result"];
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      const form = new URLSearchParams(raw);
+      for (const key of allowed) {
+        if (form.getAll(key).length > 1) throw new ApiError(400, "invalid_input");
+        if (form.has(key)) fields.set(key, form.get(key)!);
+      }
+    } else {
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error();
+      } catch { throw new ApiError(400, "invalid_input"); }
+      for (const key of allowed) {
+        const value = parsed[key];
+        if (typeof value === "string" || (typeof value === "number" && Number.isSafeInteger(value))) fields.set(key, String(value));
+      }
+    }
+    await handleDigiPayCallback(fields);
+  }
+  const origin = process.env.APP_ORIGIN;
+  if (!origin || !origin.startsWith("https://")) throw new ApiError(503, "payment_not_configured");
+  const target = new URL("/payment/result", origin);
+  target.searchParams.set("provider", "digipay");
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pid)) target.searchParams.set("pid", pid);
+  // A 303 turns the provider's cross-site POST into a same-site result GET.
+  // The authenticated result endpoint then checks ownership and stored status.
+  return Response.redirect(target, 303);
+}
+
 export async function handle(req: Request, path: string[]) {
   try {
     const url = new URL(req.url),
@@ -1511,8 +1585,10 @@ export async function handle(req: Request, path: string[]) {
       });
     if (path.join("/") === "payment/bale/callback" && (get || method === "POST"))
       return await baleCallback(req, url);
+    if (path.join("/") === "payment/digipay/callback" && (get || method === "POST"))
+      return await digipayCallback(req, url);
     if (path.join("/") === "payment/methods" && get)
-      return json({ company_credit:true, wallet: true, zarinpal: !!setting("zarinpal_merchant"), zibal: !!setting("zibal_merchant"), bale: balePayEnabled() });
+      return json({ company_credit:true, wallet: true, zarinpal: !!setting("zarinpal_merchant"), zibal: !!setting("zibal_merchant"), bale: balePayEnabled(), digipay: digipayCheckoutEnabled() });
     if (!get) {
       sameOrigin(req);
       data = await body(req, 65536);
@@ -2002,6 +2078,17 @@ export async function handle(req: Request, path: string[]) {
       });
       return json({ ok: true, reauthenticate: true });
     }
+    if (path[0] === "payments" && path[1] === "digipay" && path[2]) {
+      const pid = id.parse(path[2]);
+      if (get && path.length === 3) return json(digipayPaymentSummary(pid, u.id));
+      if (path.length === 4 && path[3] === "verify" && method === "POST") {
+        digipayPaymentSummary(pid, u.id);
+        limit("digipay-verify:" + u.id, 20, 300);
+        await verifyDigiPayPayment(pid);
+        return json(digipayPaymentSummary(pid, u.id));
+      }
+      throw new ApiError(404, "not_found");
+    }
     if (path[0] === "payments" && path[1] === "bale" && path[2]) {
       const pid = id.parse(path[2]);
       if (get) return json(balePaymentSummary(pid, u.id));
@@ -2028,6 +2115,10 @@ export async function handle(req: Request, path: string[]) {
         const checkoutId = id.parse(path[1]);
         const target = one("SELECT method,status FROM p_checkouts WHERE id=? AND user_id=?", checkoutId, u.id);
         if(target?.status === "paid") return json({status:"paid",id:checkoutId});
+        if (target?.method === "digipay") {
+          limit("digipay-start:" + u.id, 10, 300);
+          return json(await startDigiPayPayment(checkoutId, u.id));
+        }
         if (target?.method === "bale") {
           limit("bale-start:" + u.id, 10, 300);
           return json(await startBalePayment(checkoutId, u.id));
@@ -2036,6 +2127,7 @@ export async function handle(req: Request, path: string[]) {
       }
       if (path.length !== 1) throw new ApiError(404, "not_found");
       const input = checkoutSchema.parse(data);
+      if (input.method === "digipay" && !digipayCheckoutEnabled()) throw new ApiError(503, "payment_not_configured");
       if (input.method === "bale" && !balePayEnabled()) throw new ApiError(503, "payment_not_configured");
       const c = createCheckout(u.id, input);
       return json(
@@ -2080,6 +2172,13 @@ export async function handle(req: Request, path: string[]) {
         );
       }
       if (path[2] === "cancel") {
+        const orderId = id.parse(path[1]);
+        const order = one("SELECT payment_method FROM p_orders WHERE id=? AND user_id=?", orderId, u.id);
+        if (!order) throw new ApiError(404, "not_found");
+        if (order.payment_method === "digipay") {
+          z.object({ providerRefundConsent: z.literal(true) }).strict().parse(data);
+          return json(await refundDigiPayOrder(orderId, u.id, false, "درخواست کاربر؛ برگشت از مسیر دیجی‌پی"));
+        }
         z.literal(true).parse(data.walletRefundConsent);
         return json(
           refundOrder(
@@ -2100,6 +2199,10 @@ export async function handle(req: Request, path: string[]) {
         );
         if (group) {
           const target = one("SELECT method FROM p_checkouts WHERE id=?", group.checkout_id);
+          if (target?.method === "digipay") {
+            limit("digipay-start:" + u.id, 10, 300);
+            return json(await startDigiPayPayment(group.checkout_id, u.id));
+          }
           if (target?.method === "bale") {
             limit("bale-start:" + u.id, 10, 300);
             return json(await startBalePayment(group.checkout_id, u.id));
