@@ -101,6 +101,17 @@ to the child process, disables new checkout in that process and writes no files.
 Never put credentials in command arguments. Both commands call only the OAuth
 endpoint and print an allowlisted result, never an access/refresh token or secret.
 
+To save newly issued production API credentials, run `python3 scripts/configure-digipay.py`
+as root in a private terminal. It asks for all four values with echo disabled,
+checks their exact Next environment-file encoding and authenticates before saving.
+It preserves unrelated settings in `.env.production.local`, creates a private
+backup, writes atomically with mode `0600` for the `homay` runtime user and keeps
+`DIGIPAY_ENABLED=0`. Authentication failure or an unsupported credential encoding
+stops before any configuration write. It never restarts services automatically.
+Restart the app and worker after a successful save, then run `digipay:check`.
+Seller/supplier IDs, approved categories and acceptance testing are still separate
+requirements before offering checkout.
+
 OAuth requests use URL-encoded form fields and the `Agent: WEB` and
 `Digipay-Version: 2022-02-02` headers, matching `DPGateway.php` in DigiPay's
 [official UPG WordPress plugin](https://www.mydigipay.com/api/website/proxy/get-file/public/2026/10/wp-digipay-V1.7.2.zip).
