@@ -1,5 +1,6 @@
 import type Database from "better-sqlite3";
 import {migrateCompanyCredit} from "./migrate-company-credit";
+import { migrateDigiPay } from "./migrate-digipay";
 import { migrateCardSchedule } from "./migrate-card-schedule";
 import { migrateZibal } from "./migrate-zibal";
 import { migrateCardDesks } from "./migrate-card-desks";
@@ -47,7 +48,7 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_archived_users(user_id TEXT PRIMARY KEY REFERENCES p_users(id),archived_at TEXT NOT NULL,actor_id TEXT NOT NULL REFERENCES p_users(id));
   CREATE TABLE IF NOT EXISTS p_categories(id TEXT PRIMARY KEY,name TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('category','tag')),vertical TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_products(id TEXT PRIMARY KEY,title TEXT NOT NULL,description TEXT NOT NULL,vertical TEXT NOT NULL CHECK(vertical IN ('tourism','beauty','craft','ai','leather')),subtype TEXT NOT NULL,price INTEGER NOT NULL CHECK(price>0),stock INTEGER NOT NULL CHECK(stock>=0),images TEXT NOT NULL DEFAULT '[]',taxonomy TEXT NOT NULL DEFAULT '[]',published INTEGER NOT NULL DEFAULT 0,duration_days INTEGER NOT NULL DEFAULT 30 CHECK(duration_days>0),cancel_hours INTEGER NOT NULL DEFAULT 24 CHECK(cancel_hours>=0),created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
-  CREATE TABLE IF NOT EXISTS p_orders(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),title TEXT NOT NULL,vertical TEXT NOT NULL,quantity INTEGER NOT NULL CHECK(quantity>0),unit_price INTEGER NOT NULL CHECK(unit_price>0),amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','processing','shipped','delivered','cancelled','refunded')),payment_method TEXT NOT NULL CHECK(payment_method IN ('wallet','zarinpal','zibal','bale','company_credit')),payment_ref TEXT UNIQUE,authority TEXT UNIQUE,checkout_claim TEXT,policy TEXT NOT NULL,cancel_until TEXT,expires_at TEXT NOT NULL,created_at TEXT NOT NULL,paid_at TEXT,refunded_at TEXT,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
+  CREATE TABLE IF NOT EXISTS p_orders(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),title TEXT NOT NULL,vertical TEXT NOT NULL,quantity INTEGER NOT NULL CHECK(quantity>0),unit_price INTEGER NOT NULL CHECK(unit_price>0),amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','processing','shipped','delivered','cancelled','refunded')),payment_method TEXT NOT NULL CHECK(payment_method IN ('wallet','zarinpal','zibal','bale','company_credit','digipay')),payment_ref TEXT UNIQUE,authority TEXT UNIQUE,checkout_claim TEXT,policy TEXT NOT NULL,cancel_until TEXT,expires_at TEXT NOT NULL,created_at TEXT NOT NULL,paid_at TEXT,refunded_at TEXT,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
   CREATE INDEX IF NOT EXISTS p_orders_user ON p_orders(user_id,created_at);
   CREATE TABLE IF NOT EXISTS p_ranks(id TEXT PRIMARY KEY,name TEXT NOT NULL,personal_threshold INTEGER NOT NULL CHECK(personal_threshold>=0),group_threshold INTEGER NOT NULL CHECK(group_threshold>=0),bonus_bps INTEGER NOT NULL CHECK(bonus_bps BETWEEN 0 AND 10000));
   CREATE TABLE IF NOT EXISTS p_commissions(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),order_id TEXT NOT NULL REFERENCES p_orders(id),kind TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','available','reversed')),available_at TEXT NOT NULL,created_at TEXT NOT NULL,event_key TEXT UNIQUE NOT NULL);
@@ -76,7 +77,7 @@ export function platformDb() {
   CREATE INDEX IF NOT EXISTS p_product_family ON p_product_details(family);
   INSERT OR IGNORE INTO p_migrations VALUES(1,datetime('now'));
   INSERT OR IGNORE INTO p_migrations VALUES(2,datetime('now'));
-  CREATE TABLE IF NOT EXISTS p_checkouts(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),method TEXT NOT NULL CHECK(method IN ('wallet','zarinpal','zibal','bale','company_credit')),status TEXT NOT NULL CHECK(status IN ('pending','paid')),authority TEXT UNIQUE,claim TEXT,payment_ref TEXT UNIQUE,payload TEXT NOT NULL,created_at TEXT NOT NULL,expires_at TEXT NOT NULL,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
+  CREATE TABLE IF NOT EXISTS p_checkouts(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),amount INTEGER NOT NULL CHECK(amount>0),method TEXT NOT NULL CHECK(method IN ('wallet','zarinpal','zibal','bale','company_credit','digipay')),status TEXT NOT NULL CHECK(status IN ('pending','paid')),authority TEXT UNIQUE,claim TEXT,payment_ref TEXT UNIQUE,payload TEXT NOT NULL,created_at TEXT NOT NULL,expires_at TEXT NOT NULL,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));
   CREATE TABLE IF NOT EXISTS p_checkout_items(checkout_id TEXT NOT NULL REFERENCES p_checkouts(id),order_id TEXT NOT NULL UNIQUE REFERENCES p_orders(id),PRIMARY KEY(checkout_id,order_id));
   INSERT OR IGNORE INTO p_migrations VALUES(3,datetime('now'));
   CREATE TABLE IF NOT EXISTS p_member_details(user_id TEXT PRIMARY KEY REFERENCES p_users(id),details TEXT NOT NULL,contact_verified_at TEXT NOT NULL,updated_at TEXT NOT NULL);
@@ -213,6 +214,34 @@ export function platformDb() {
   CREATE INDEX IF NOT EXISTS p_bale_payments_status ON p_bale_payments(status,updated_at);
   -- At most one attempt in flight per checkout.
   CREATE UNIQUE INDEX IF NOT EXISTS p_bale_payments_open ON p_bale_payments(checkout_id) WHERE status IN ('creating','pending');
+  -- Provider callbacks are hints. Only authenticated verification can populate
+  -- tracking_code/payment_type and advance a DigiPay attempt to verified/paid.
+  CREATE TABLE IF NOT EXISTS p_digipay_payments(
+    id TEXT PRIMARY KEY, checkout_id TEXT NOT NULL REFERENCES p_checkouts(id), user_id TEXT NOT NULL REFERENCES p_users(id),
+    environment TEXT NOT NULL CHECK(environment IN ('sandbox','production')),
+    amount INTEGER NOT NULL CHECK(amount>0), amount_rial INTEGER NOT NULL CHECK(amount_rial>0),
+    status TEXT NOT NULL CHECK(status IN ('creating','pending','verified','paid','failed','request_failed','review')),
+    ticket TEXT UNIQUE, redirect_url TEXT, basket TEXT NOT NULL,
+    callback_tracking TEXT, callback_type INTEGER, tracking_code TEXT UNIQUE, payment_type INTEGER,
+    verify_claim TEXT, claimed_at TEXT, verify_attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,
+    created_at TEXT NOT NULL, updated_at TEXT NOT NULL, verified_at TEXT);
+  CREATE INDEX IF NOT EXISTS p_digipay_payments_status ON p_digipay_payments(status,updated_at);
+  CREATE UNIQUE INDEX IF NOT EXISTS p_digipay_payments_open ON p_digipay_payments(checkout_id)
+    WHERE status IN ('creating','pending','verified','paid','review');
+  CREATE TABLE IF NOT EXISTS p_digipay_refunds(
+    id TEXT PRIMARY KEY, payment_id TEXT NOT NULL REFERENCES p_digipay_payments(id),
+    order_id TEXT NOT NULL REFERENCES p_orders(id), actor_id TEXT NOT NULL REFERENCES p_users(id), reason TEXT NOT NULL,
+    amount_rial INTEGER NOT NULL CHECK(amount_rial>0), tracking_code TEXT UNIQUE,
+    status TEXT NOT NULL CHECK(status IN ('requesting','pending','succeeded','failed','review')),
+    claim TEXT, claimed_at TEXT, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,
+    created_at TEXT NOT NULL, updated_at TEXT NOT NULL, completed_at TEXT);
+  CREATE INDEX IF NOT EXISTS p_digipay_refunds_status ON p_digipay_refunds(status,updated_at);
+  CREATE UNIQUE INDEX IF NOT EXISTS p_digipay_refunds_open_order ON p_digipay_refunds(order_id) WHERE status!='failed';
+  CREATE TABLE IF NOT EXISTS p_digipay_deliveries(
+    payment_id TEXT PRIMARY KEY REFERENCES p_digipay_payments(id),
+    status TEXT NOT NULL CHECK(status IN ('pending','sending','delivered','review','not_required')),
+    payload TEXT NOT NULL, claim TEXT, claimed_at TEXT, attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,
+    created_at TEXT NOT NULL, updated_at TEXT NOT NULL, delivered_at TEXT);
 
   `);
   migrateCardLevels(d);
@@ -221,6 +250,7 @@ export function platformDb() {
   migrateCardDesks(d);
   migrateCardSchedule(d);
   migrateCompanyCredit(d);
+  migrateDigiPay(d);
   ready = d;
   return d;
 }

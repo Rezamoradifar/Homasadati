@@ -1,0 +1,257 @@
+{
+  "fa": {
+    "navLabel": "خرید اقساطی",
+    "entryTitle": "با اعتبار دیجی‌پی از هما خرید کنید",
+    "entryDescription": "دریافت اعتبار، مراحل خرید و نحوهٔ ثبت حجم را یکجا ببینید.",
+    "entryAction": "راهنمای خرید اقساطی",
+    "helpRefundNote": "مهلت لغو را در جزئیات سفارش ببینید. برای سفارش واجد شرایط دیجی‌پی، برگشت از مسیر دیجی‌پی و پس از تأیید آن انجام می‌شود و به کیف پول نقدی هما منتقل نمی‌شود. در سایر روش‌های واجد شرایط، برگشت به کیف پول با تأیید شما انجام می‌شود؛ برای انتقال بانکی درخواست برداشت ثبت کنید.",
+    "metadata": {
+      "title": "راهنمای خرید با اعتبار دیجی‌پی | هما نت",
+      "description": "راهنمای دریافت اعتبار از دیجی‌پی، خرید اقساطی از هما، پیگیری سفارش و محاسبهٔ حجم خرید باشگاه."
+    },
+    "eyebrow": "راهنمای خرید اعتباری هما نت",
+    "title": "اعتبار شما،\nانتخاب شما در هما",
+    "description": "از دریافت اعتبار در دیجی‌پی تا ثبت سفارش در هما؛ مسیر خرید را قدم‌به‌قدم بشناسید.",
+    "heroNote": "تخصیص اعتبار، سقف، مدارک، هزینه‌ها و شرایط اقساط را دیجی‌پی و تأمین‌کنندهٔ مالی تعیین می‌کنند.",
+    "primaryLabel": "راهنمای دریافت اعتبار",
+    "secondaryLabel": "با اعتبارم خرید می‌کنم",
+    "heroFlowLabel": "مسیر اعتبار تا سفارش",
+    "heroFlow": [
+      { "title": "اعتبار در دیجی‌پی", "body": "درخواست و بررسی اعتبار مشتری" },
+      { "title": "انتخاب از هما", "body": "محصول، مبلغ و شرایط روشن" },
+      { "title": "سفارش تأییدشده", "body": "ثبت خرید پس از تأیید پرداخت" }
+    ],
+    "quickNavLabel": "دسترسی سریع راهنمای دیجی‌پی",
+    "quickNav": [
+      { "href": "#start", "label": "از کجا شروع کنم؟" },
+      { "href": "#purchase", "label": "مراحل خرید" },
+      { "href": "#volume", "label": "حجم باشگاه" },
+      { "href": "#faq", "label": "پرسش‌های متداول" }
+    ],
+    "startTitle": "مسیر مناسب خود را انتخاب کنید",
+    "startIntro": "فعال‌بودن روش پرداخت در هما، با داشتن اعتبار فعال در حساب دیجی‌پی مشتری متفاوت است.",
+    "newCreditBadge": "هنوز اعتبار ندارم",
+    "newCreditTitle": "اول، درخواست اعتبار در دیجی‌پی",
+    "newCreditBody": "در اپلیکیشن دیجی‌پی وارد «وام و اعتبار» یا «خرید اعتباری» شوید. تأیید درخواست به نتیجهٔ بررسی و اعتبارسنجی شما بستگی دارد.",
+    "newCreditSteps": [
+      "با شمارهٔ موبایل خود وارد حساب دیجی‌پی شوید.",
+      "طرح در دسترس، مبلغ درخواستی و شرایط آن را بررسی کنید.",
+      "احراز هویت و مدارک لازم را در دیجی‌پی تکمیل کنید.",
+      "پس از تخصیص اعتبار، برای انتخاب محصول به هما برگردید."
+    ],
+    "newCreditAction": "راهنمای اعتبار دیجی‌پی",
+    "bankLoanAction": "آشنایی با وام خرید اقساطی",
+    "hasCreditBadge": "اعتبار فعال دارم",
+    "hasCreditTitle": "مستقیم به خرید از هما بروید",
+    "hasCreditBody": "اگر در حساب دیجی‌پی اعتبار قابل‌استفاده دارید، هنگام پرداخت سفارش می‌توانید ابزارهای در دسترس همان حساب را انتخاب کنید.",
+    "hasCreditItems": [
+      "وارد حساب هما شوید و شمارهٔ موبایل ایرانی معتبر ثبت کنید.",
+      "مشخصات محصول، مبلغ نهایی و شرایط تحویل را پیش از پرداخت بررسی کنید.",
+      "در سبد خرید، «خرید با اعتبار دیجی‌پی» را انتخاب کنید."
+    ],
+    "hasCreditAction": "انتخاب محصول از فروشگاه",
+    "profileAction": "تکمیل حساب و شمارهٔ موبایل",
+    "purchaseTitle": "از انتخاب محصول تا ثبت سفارش",
+    "purchaseIntro": "پرداخت در صفحهٔ خود دیجی‌پی انجام می‌شود؛ وضعیت نهایی سفارش را در حساب هما دنبال کنید.",
+    "purchaseSteps": [
+      { "title": "انتخاب محصول", "body": "کالا یا خدمت موردنظر را از فروشگاه هما به سبد اضافه کنید و شرایط خرید و تحویل را بخوانید." },
+      { "title": "انتخاب روش پرداخت", "body": "وارد حساب شوید، اطلاعات سفارش را تکمیل کنید و «خرید با اعتبار دیجی‌پی» را انتخاب کنید." },
+      { "title": "تأیید در دیجی‌پی", "body": "در صفحهٔ دیجی‌پی وارد حساب خود شوید. اعتبار در دسترس و شرایط پرداخت را ببینید و بخش نقدی یا پیش‌پرداخت لازم را طبق طرح انتخاب‌شده پرداخت کنید." },
+      { "title": "بازگشت به هما", "body": "هما تأیید پرداخت را مستقیماً از دیجی‌پی بررسی می‌کند. پس از تأیید، سفارش ثبت می‌شود و وضعیت آن در بخش سفارش‌های شما نمایش داده می‌شود." }
+    ],
+    "volumeTitle": "این خرید چگونه در حجم باشگاه حساب می‌شود؟",
+    "volumeLead": "کل مبلغ خریدِ تأییدشده، فقط یک‌بار در حجم خرید مربوط به حساب شما لحاظ می‌شود.",
+    "volumeItems": [
+      { "title": "خرید واقعی و تأییدشده", "body": "فقط پس از تأیید سروری پرداخت، خرید در سوابق و حجم شخصی و گروهیِ واجد شرایط ثبت می‌شود. بازگشت از درگاه به‌تنهایی تأیید خرید نیست." },
+      { "title": "طبق قواعد فعلی باشگاه", "body": "صلاحیت جایگاه، مهلت لغو، زمان محاسبه و آزادسازی پورسانت همچنان تابع قواعد و زمان‌بندی فعال باشگاه است." },
+      { "title": "بدون ثبت حجم تکراری", "body": "پرداخت اقساط به دیجی‌پی خرید تازه‌ای در هما ایجاد نمی‌کند. برگشت تأییدشدهٔ سفارش، حجم مربوط را برمی‌گرداند؛ درخواست برگشتِ در انتظار می‌تواند محاسبات مربوط را موقتاً نگه دارد." }
+    ],
+    "trackingAction": "پیگیری سفارش و پرداخت",
+    "faqTitle": "پیش از خرید، این پاسخ‌ها را ببینید",
+    "faqs": [
+      { "question": "آیا با ثبت‌نام در هما، وام من فعال می‌شود؟", "answer": "ثبت‌نام هما حساب خرید شما را ایجاد می‌کند. درخواست اعتبار، اعتبارسنجی، تأیید و تخصیص آن در دیجی‌پی انجام می‌شود و برای همهٔ کاربران تضمین‌شده نیست." },
+      { "question": "سقف اعتبار، هزینه و تعداد اقساط چقدر است؟", "answer": "این موارد به طرح و نتیجهٔ بررسی دیجی‌پی وابسته‌اند. شرایط نمایش‌داده‌شده در دیجی‌پی و قرارداد همان طرح را پیش از تأیید نهایی بخوانید." },
+      { "question": "اگر مبلغ خرید بیشتر از اعتبارم باشد چه می‌شود؟", "answer": "امکان استفاده و مبلغ بخش نقدی را در صفحهٔ دیجی‌پی بررسی کنید. گزینه‌های پرداخت به اعتبار حساب، طرح و شرایط پذیرندگی بستگی دارند." },
+      { "question": "اقساط را از کجا پرداخت کنم؟", "answer": "مانده، سررسیدها و بازپرداخت اقساط را در حساب دیجی‌پی خود دنبال کنید. هما اقساط وام شما را دریافت یا مدیریت نمی‌کند." },
+      { "question": "اگر پرداخت نامشخص بود، دوباره پرداخت کنم؟", "answer": "ابتدا همان سفارش را در حساب هما و سوابق دیجی‌پی بررسی کنید. اگر مبلغ یا اعتبار کسر شده و نتیجه قطعی نیست، با شناسهٔ سفارش تیکت ثبت کنید تا از پرداخت تکراری جلوگیری شود." },
+      { "question": "برگشت خرید دیجی‌پی چگونه انجام می‌شود؟", "answer": "درخواست لغو را از جزئیات سفارش ثبت کنید. برای سفارش واجد شرایط، برگشت از مسیر دیجی‌پی پیگیری می‌شود و لغو نهایی پس از تأیید برگشت انجام می‌گیرد؛ وجه به کیف پول نقدی هما تبدیل نمی‌شود." },
+      { "question": "می‌توانم ووچر هما را با دیجی‌پی ترکیب کنم؟", "answer": "در حال حاضر ووچر هما با پرداخت دیجی‌پی قابل ترکیب نیست. هنگام انتخاب این روش، استفاده از ووچر غیرفعال می‌شود." }
+    ],
+    "supportTitle": "برای قدم بعدی آماده‌اید؟",
+    "supportBody": "محصولتان را انتخاب کنید یا سفارش فعلی را ادامه دهید. برای مشکل سفارش و نتیجهٔ پرداخت، از حساب هما تیکت ثبت کنید.",
+    "supportAction": "پشتیبانی سفارش در هما",
+    "cartAction": "ادامهٔ سبد خرید",
+    "sourceCaption": "اطلاعات طرح و اعتبار را از منابع رسمی دیجی‌پی بررسی کنید.",
+    "officialGuideLabel": "راهنمای رسمی دیجی‌پی"
+  },
+  "en": {
+    "navLabel": "Instalment shopping",
+    "entryTitle": "Shop at Homa with DigiPay credit",
+    "entryDescription": "Find credit application steps, the checkout guide and club purchase-volume information in one place.",
+    "entryAction": "Read the instalment guide",
+    "helpRefundNote": "Check the cancellation deadline in your order details. Eligible DigiPay orders are refunded through DigiPay after its confirmation, without transfer to Homa's cash wallet. For other eligible methods, refunds go to your wallet with your consent; submit a withdrawal request for a bank transfer.",
+    "metadata": {
+      "title": "Shopping with DigiPay credit | Homanet",
+      "description": "How to request DigiPay credit, shop at Homa, track an order and understand club purchase volume."
+    },
+    "eyebrow": "Homanet credit-shopping guide",
+    "title": "Your credit.\nYour choice at Homa.",
+    "description": "From requesting credit in DigiPay to placing a Homa order: follow the purchase journey step by step.",
+    "heroNote": "DigiPay and the finance provider determine credit approval, limits, documents, costs and instalment terms.",
+    "primaryLabel": "How to request credit",
+    "secondaryLabel": "Shop with my credit",
+    "heroFlowLabel": "From credit to order",
+    "heroFlow": [
+      { "title": "Credit in DigiPay", "body": "The customer's application and credit review" },
+      { "title": "Choose at Homa", "body": "Products, prices and clear purchase terms" },
+      { "title": "Confirmed order", "body": "An order recorded after payment verification" }
+    ],
+    "quickNavLabel": "DigiPay guide quick navigation",
+    "quickNav": [
+      { "href": "#start", "label": "Where do I start?" },
+      { "href": "#purchase", "label": "Purchase steps" },
+      { "href": "#volume", "label": "Club volume" },
+      { "href": "#faq", "label": "Common questions" }
+    ],
+    "startTitle": "Choose your starting point",
+    "startIntro": "A payment method being available at Homa is separate from a customer having active DigiPay credit.",
+    "newCreditBadge": "I do not have credit yet",
+    "newCreditTitle": "First, request credit from DigiPay",
+    "newCreditBody": "Open Loans and credit or Credit shopping in the DigiPay app. Approval depends on your application and credit assessment.",
+    "newCreditSteps": [
+      "Sign in to DigiPay with your own mobile number.",
+      "Review an available plan, the requested amount and its terms.",
+      "Complete the identity checks and documents requested by DigiPay.",
+      "Once credit is allocated, return to Homa to choose a product."
+    ],
+    "newCreditAction": "DigiPay credit guide",
+    "bankLoanAction": "Learn about purchase loans",
+    "hasCreditBadge": "I have active credit",
+    "hasCreditTitle": "Go straight to shopping at Homa",
+    "hasCreditBody": "If your DigiPay account has usable credit, you can choose the payment tools available to that account when paying for an order.",
+    "hasCreditItems": [
+      "Sign in to Homa and save a valid Iranian mobile number.",
+      "Review the product, final amount and delivery terms before paying.",
+      "Choose Pay with DigiPay credit in the cart."
+    ],
+    "hasCreditAction": "Browse the Homa shop",
+    "profileAction": "Complete my profile and mobile number",
+    "purchaseTitle": "From choosing a product to placing an order",
+    "purchaseIntro": "Payment takes place on DigiPay's own page. Track the final order status in your Homa account.",
+    "purchaseSteps": [
+      { "title": "Choose a product", "body": "Add the product or service you want from the Homa shop to your cart and read its purchase and delivery terms." },
+      { "title": "Choose the payment method", "body": "Sign in, complete the order information and choose Pay with DigiPay credit." },
+      { "title": "Confirm in DigiPay", "body": "Sign in on DigiPay's page. Review the usable credit and payment terms, then pay any cash share or upfront amount required by your selected plan." },
+      { "title": "Return to Homa", "body": "Homa verifies payment directly with DigiPay. After confirmation, the order is recorded and its status appears in your Orders section." }
+    ],
+    "volumeTitle": "How does this purchase count towards club volume?",
+    "volumeLead": "The full verified purchase amount is counted once towards the purchase volume associated with your account.",
+    "volumeItems": [
+      { "title": "A real, verified purchase", "body": "The purchase enters your records and eligible personal and group volume only after server-side payment verification. Returning from a payment page alone is not confirmation." },
+      { "title": "Under the current club rules", "body": "Position eligibility, the cancellation period, calculation dates and commission release continue to follow the club's active rules and schedule." },
+      { "title": "No duplicate volume", "body": "Paying instalments to DigiPay does not create another Homa purchase. A confirmed refund reverses the relevant volume; a pending refund request may temporarily hold related calculations." }
+    ],
+    "trackingAction": "Track my order and payment",
+    "faqTitle": "Before you buy, find your answer",
+    "faqs": [
+      { "question": "Does signing up at Homa activate a loan?", "answer": "Homa registration creates your shopping account. Credit applications, assessment, approval and allocation take place in DigiPay and are not guaranteed for every user." },
+      { "question": "What are the credit limit, costs and number of instalments?", "answer": "They depend on the plan and DigiPay's assessment. Read the terms shown in DigiPay and the relevant plan agreement before confirming." },
+      { "question": "What if my purchase costs more than my credit?", "answer": "Check availability and any cash share on DigiPay's payment page. Payment options depend on your account's credit, the plan and merchant terms." },
+      { "question": "Where do I repay instalments?", "answer": "Follow your balance, due dates and instalment repayments in your DigiPay account. Homa does not receive or manage your loan repayments." },
+      { "question": "Should I pay again if the result is unclear?", "answer": "First check the same order in Homa and your DigiPay records. If credit or funds were deducted and the result remains uncertain, open a ticket with the order ID to avoid a duplicate payment." },
+      { "question": "How is a DigiPay purchase refunded?", "answer": "Request cancellation from the order details. For an eligible order, the refund is handled through DigiPay and cancellation is finalized after confirmation. Funds are not converted into Homa cash-wallet balance." },
+      { "question": "Can I combine a Homa voucher with DigiPay?", "answer": "Homa vouchers cannot currently be combined with DigiPay. Voucher use is turned off when you choose this payment method." }
+    ],
+    "supportTitle": "Ready for your next step?",
+    "supportBody": "Choose a product or continue your current cart. For an order or payment-result issue, open a ticket from your Homa account.",
+    "supportAction": "Homa order support",
+    "cartAction": "Continue to my cart",
+    "sourceCaption": "Check plan and credit information in DigiPay's official resources.",
+    "officialGuideLabel": "Official DigiPay guide"
+  },
+  "ar": {
+    "navLabel": "الشراء بالتقسيط",
+    "entryTitle": "تسوّق من هما برصيد ديجي‌بي",
+    "entryDescription": "خطوات طلب الرصيد والشراء واحتساب حجم مشتريات النادي في مكان واحد.",
+    "entryAction": "دليل الشراء بالتقسيط",
+    "helpRefundNote": "راجع مهلة الإلغاء في تفاصيل الطلب. للطلبات المؤهّلة عبر ديجي‌بي، يتم الاسترداد عبر ديجي‌بي بعد تأكيده دون تحويل المبلغ إلى المحفظة النقدية في هما. ولطرق الدفع الأخرى المؤهّلة، يُعاد المبلغ إلى المحفظة بموافقتك؛ وللتحويل البنكي قدّم طلب سحب.",
+    "metadata": {
+      "title": "دليل الشراء برصيد ديجي‌بي | هما نت",
+      "description": "كيفية طلب رصيد ديجي‌بي والشراء من هما ومتابعة الطلب وفهم حجم مشتريات النادي."
+    },
+    "eyebrow": "دليل الشراء الائتماني من هما نت",
+    "title": "رصيدك،\nواختيارك لدى هما",
+    "description": "من طلب الرصيد في ديجي‌بي إلى تسجيل الطلب في هما؛ تعرّف إلى مسار الشراء خطوة بخطوة.",
+    "heroNote": "تحدّد ديجي‌بي والجهة المموّلة الموافقة على الرصيد وحدوده والمستندات والتكاليف وشروط الأقساط.",
+    "primaryLabel": "كيفية طلب الرصيد",
+    "secondaryLabel": "أتسوّق برصيدي",
+    "heroFlowLabel": "من الرصيد إلى الطلب",
+    "heroFlow": [
+      { "title": "الرصيد في ديجي‌بي", "body": "طلب العميل ومراجعة أهليته الائتمانية" },
+      { "title": "الاختيار من هما", "body": "منتج وسعر وشروط شراء واضحة" },
+      { "title": "طلب مؤكّد", "body": "تسجيل الطلب بعد تأكيد الدفع" }
+    ],
+    "quickNavLabel": "التنقّل السريع في دليل ديجي‌بي",
+    "quickNav": [
+      { "href": "#start", "label": "من أين أبدأ؟" },
+      { "href": "#purchase", "label": "خطوات الشراء" },
+      { "href": "#volume", "label": "حجم مشتريات النادي" },
+      { "href": "#faq", "label": "الأسئلة الشائعة" }
+    ],
+    "startTitle": "اختر نقطة البداية المناسبة لك",
+    "startIntro": "إتاحة طريقة الدفع لدى هما تختلف عن امتلاك العميل رصيدًا فعّالًا في حسابه لدى ديجي‌بي.",
+    "newCreditBadge": "ليس لديّ رصيد بعد",
+    "newCreditTitle": "اطلب الرصيد من ديجي‌بي أولًا",
+    "newCreditBody": "افتح قسم «القروض والرصيد» أو «الشراء الائتماني» في تطبيق ديجي‌بي. تعتمد الموافقة على مراجعة طلبك وتقييمك الائتماني.",
+    "newCreditSteps": [
+      "ادخل إلى حساب ديجي‌بي برقم هاتفك المحمول.",
+      "راجع الخطة المتاحة والمبلغ المطلوب وشروطه.",
+      "أكمل التحقّق من الهوية والمستندات التي تطلبها ديجي‌بي.",
+      "بعد تخصيص الرصيد، عُد إلى هما لاختيار المنتج."
+    ],
+    "newCreditAction": "دليل رصيد ديجي‌بي",
+    "bankLoanAction": "التعرّف إلى قروض الشراء",
+    "hasCreditBadge": "لديّ رصيد فعّال",
+    "hasCreditTitle": "انتقل مباشرةً إلى الشراء من هما",
+    "hasCreditBody": "إذا كان لديك رصيد متاح للاستخدام في حساب ديجي‌بي، يمكنك اختيار أدوات الدفع المتاحة لذلك الحساب عند دفع قيمة الطلب.",
+    "hasCreditItems": [
+      "ادخل إلى حساب هما وسجّل رقم هاتف محمول إيرانيًا صالحًا.",
+      "راجع المنتج والمبلغ النهائي وشروط التسليم قبل الدفع.",
+      "اختر «الشراء برصيد ديجي‌بي» في سلة التسوّق."
+    ],
+    "hasCreditAction": "اختيار منتج من متجر هما",
+    "profileAction": "إكمال الحساب ورقم الهاتف",
+    "purchaseTitle": "من اختيار المنتج إلى تسجيل الطلب",
+    "purchaseIntro": "يتم الدفع في صفحة ديجي‌بي نفسها. تابع الحالة النهائية للطلب في حسابك لدى هما.",
+    "purchaseSteps": [
+      { "title": "اختيار المنتج", "body": "أضف المنتج أو الخدمة المطلوبة من متجر هما إلى السلة واقرأ شروط الشراء والتسليم." },
+      { "title": "اختيار طريقة الدفع", "body": "ادخل إلى حسابك وأكمل معلومات الطلب ثم اختر «الشراء برصيد ديجي‌بي»." },
+      { "title": "التأكيد في ديجي‌بي", "body": "ادخل إلى حسابك في صفحة ديجي‌بي. راجع الرصيد المتاح وشروط الدفع، ثم ادفع أي جزء نقدي أو دفعة أولى مطلوبة وفق الخطة المختارة." },
+      { "title": "العودة إلى هما", "body": "تتحقّق هما من الدفع مباشرةً مع ديجي‌بي. بعد التأكيد يُسجّل الطلب وتظهر حالته في قسم طلباتك." }
+    ],
+    "volumeTitle": "كيف تُحتسب هذه المشتريات في حجم النادي؟",
+    "volumeLead": "يُحتسب كامل مبلغ الشراء المؤكّد مرة واحدة فقط ضمن حجم المشتريات المرتبط بحسابك.",
+    "volumeItems": [
+      { "title": "شراء حقيقي ومؤكّد", "body": "تُسجّل المشتريات في سجلك وحجم المشتريات الشخصي والجماعي المؤهّل بعد التحقّق من الدفع على الخادم. العودة من صفحة الدفع وحدها ليست تأكيدًا للشراء." },
+      { "title": "وفق قواعد النادي الحالية", "body": "تبقى أهلية المراكز وفترة الإلغاء ومواعيد الحساب وصرف العمولات خاضعة لقواعد النادي الفعّالة وجدوله الزمني." },
+      { "title": "دون احتساب مكرّر", "body": "دفع الأقساط إلى ديجي‌بي لا ينشئ عملية شراء جديدة في هما. الاسترداد المؤكّد يعكس الحجم المرتبط بالطلب؛ وقد يعلّق طلب الاسترداد قيد الانتظار الحسابات ذات الصلة مؤقتًا." }
+    ],
+    "trackingAction": "متابعة الطلب والدفع",
+    "faqTitle": "اطّلع على الإجابات قبل الشراء",
+    "faqs": [
+      { "question": "هل يفعّل التسجيل في هما قرضًا لي؟", "answer": "ينشئ التسجيل في هما حساب التسوّق. تقديم طلب الرصيد والتقييم والموافقة والتخصيص تتم في ديجي‌بي، ولا توجد موافقة مضمونة لجميع المستخدمين." },
+      { "question": "ما حدّ الرصيد والتكاليف وعدد الأقساط؟", "answer": "تعتمد هذه الأمور على الخطة وتقييم ديجي‌بي. اقرأ الشروط المعروضة في ديجي‌بي واتفاقية الخطة قبل التأكيد النهائي." },
+      { "question": "ماذا لو تجاوز مبلغ الشراء رصيدي؟", "answer": "تحقّق من إمكانية الدفع وأي جزء نقدي في صفحة ديجي‌بي. تعتمد خيارات الدفع على رصيد الحساب والخطة وشروط التاجر." },
+      { "question": "أين أسدّد الأقساط؟", "answer": "تابع الرصيد المتبقّي ومواعيد الاستحقاق وتسديد الأقساط في حساب ديجي‌بي. لا تستلم هما أقساط قرضك ولا تديرها." },
+      { "question": "هل أدفع مجددًا إذا كانت النتيجة غير واضحة؟", "answer": "تحقّق أولًا من الطلب نفسه في هما ومن سجل ديجي‌بي. إذا خُصم مبلغ أو رصيد وبقيت النتيجة غير مؤكّدة، افتح تذكرة برقم الطلب لتجنّب الدفع المكرّر." },
+      { "question": "كيف يُستردّ الشراء عبر ديجي‌بي؟", "answer": "قدّم طلب الإلغاء من تفاصيل الطلب. للطلبات المؤهّلة، يُتابَع الاسترداد عبر ديجي‌بي ويُنهى الإلغاء بعد تأكيده؛ ولا يتحوّل المبلغ إلى رصيد نقدي في محفظة هما." },
+      { "question": "هل يمكن الجمع بين قسيمة هما وديجي‌بي؟", "answer": "لا يمكن حاليًا الجمع بين قسائم هما والدفع عبر ديجي‌بي. يُعطّل استخدام القسيمة عند اختيار طريقة الدفع هذه." }
+    ],
+    "supportTitle": "هل أنت مستعد للخطوة التالية؟",
+    "supportBody": "اختر منتجك أو أكمل سلتك الحالية. لمشكلات الطلب أو نتيجة الدفع، افتح تذكرة من حسابك لدى هما.",
+    "supportAction": "دعم طلبات هما",
+    "cartAction": "متابعة سلة التسوّق",
+    "sourceCaption": "راجع معلومات الخطط والرصيد في مصادر ديجي‌بي الرسمية.",
+    "officialGuideLabel": "دليل ديجي‌بي الرسمي"
+  }
+}

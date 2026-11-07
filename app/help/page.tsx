@@ -1,6 +1,7 @@
 import { CommerceShell } from "../../src/commerce/Shell";
 import Localized from "../../src/i18n/Localized";
 import ContactDetails from "../../src/commerce/ContactDetails";
+import DigiPayEntry from "../../src/commerce/DigiPayEntry";
 export default function Help() {
   return (
     <Localized>
@@ -12,6 +13,7 @@ export default function Help() {
             <p>از انتخاب محصول تا دریافت سفارش، مسیر خود را اینجا پیدا کنید.</p>
           </header>
           <nav className="help-actions" aria-label="دسترسی سریع">
+            <DigiPayEntry variant="link" />
             <a href="/account?tab=tickets">ثبت تیکت پشتیبانی</a>
             <a href="/account?tab=orders">پیگیری سفارش</a>
             <a href="/account?tab=addresses">نشانی‌های ارسال</a>
@@ -47,11 +49,7 @@ export default function Help() {
             </details>
             <details>
               <summary>چگونه سفارش را لغو کنم؟</summary>
-              <p>
-                مهلت لغو در جزئیات سفارش مشخص است. برای سفارش واجد شرایط، بازگشت
-                وجه به کیف پول با تأیید شما انجام می‌شود؛ برای انتقال بانکی
-                درخواست برداشت ثبت کنید.
-              </p>
+              <DigiPayEntry variant="refund-note" />
               <a href="/legal/terms">قوانین و مقررات</a>
             </details>
             <details>

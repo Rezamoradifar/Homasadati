@@ -8,6 +8,7 @@ import {
   defaultBinarySchedule,
 } from "./operations-model";
 import { matchBinaryForOrder } from "./finance";
+import { digipayRefundHeldOrderIdsSql } from "./digipay-financial-holds";
 export function binarySchedule() {
   const raw = setting("binary_schedule");
   return raw
@@ -47,7 +48,7 @@ export function runBinaryCycles(batch = 100) {
     const cycle = binaryCycle(binaryScheduleSchema.parse(JSON.parse(raw)));
     if (!cycle) continue;
     const candidates = all(
-      "SELECT s.order_id FROM p_binary_scheduled_orders s JOIN p_orders o ON o.id=s.order_id WHERE s.schedule=? AND s.paid_at<=? AND o.refunded_at IS NULL AND (s.last_cycle IS NULL OR s.last_cycle!=?) ORDER BY s.paid_at,s.order_id LIMIT ?",
+      `SELECT s.order_id FROM p_binary_scheduled_orders s JOIN p_orders o ON o.id=s.order_id WHERE s.schedule=? AND s.paid_at<=? AND o.refunded_at IS NULL AND o.id NOT IN (${digipayRefundHeldOrderIdsSql}) AND (s.last_cycle IS NULL OR s.last_cycle!=?) ORDER BY s.paid_at,s.order_id LIMIT ?`,
       raw,
       cycle.cutoff,
       cycle.key,
@@ -56,7 +57,7 @@ export function runBinaryCycles(batch = 100) {
     for (const candidate of candidates) {
       const outcome = atomic(() => {
         const order = one(
-          "SELECT * FROM p_orders WHERE id=? AND paid_at<=? AND refunded_at IS NULL",
+          `SELECT * FROM p_orders WHERE id=? AND paid_at<=? AND refunded_at IS NULL AND id NOT IN (${digipayRefundHeldOrderIdsSql})`,
           candidate.order_id,
           cycle.cutoff,
         );

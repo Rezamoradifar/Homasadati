@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import {z} from "zod";
 import {all,one,run,now,atomic} from "./schema";
+import {digipayRefundHeldOrderIdsSql} from "./digipay-financial-holds";
 import {audit} from "./security";
 import {ApiError} from "../server/http";
 import {id,money,text} from "./validation";
@@ -14,7 +15,7 @@ export function creditEntry(user:string,key:string,delta:number,reference:string
     if(companyCredit(user)+delta<0)throw new ApiError(409,"insufficient_balance");
     run("INSERT INTO p_company_credit VALUES(?,?,?,?,?,?)",randomUUID(),user,key,delta,reference,now());});
 }
-export function companyPositionStatus(user:string,at=Date.now()){
+export function companyPositionStatus(user:string,at=Date.now(),excludeRefundHolds=false){
   const g=one("SELECT * FROM p_company_positions WHERE user_id=?",user);if(!g)return null;
   const account=one("SELECT role,blocked,sponsor_id FROM p_users WHERE id=?",user);
   const ownerId=one("SELECT value FROM p_settings WHERE key='company_position_permanent_owner'")?.value;
@@ -27,7 +28,7 @@ export function companyPositionStatus(user:string,at=Date.now()){
   if ((ownerId===user || brandId===user) && account?.blocked)
     return {...g,status:"suspended",exempt:true,deadline:null,realPurchaseToman:0,requiredToman:0,remainingDays:0,activeDesks:0};
   // A gift is not bank payment. Voucher-funded shares are excluded as well.
-  const total=one(`SELECT COALESCE(SUM(o.amount-COALESCE(v.amount,0)),0) n FROM p_orders o LEFT JOIN p_order_vouchers v ON v.order_id=o.id WHERE o.user_id=? AND o.payment_method IN ('zibal','zarinpal','bale','bank_transfer') AND o.paid_at>=? AND o.paid_at<=? AND o.paid_at<=? AND o.refunded_at IS NULL AND o.status NOT IN ('cancelled','refunded')`,user,g.granted_at,g.deadline,new Date(at).toISOString())!.n;
+  const total=one(`SELECT COALESCE(SUM(o.amount-COALESCE(v.amount,0)),0) n FROM p_orders o LEFT JOIN p_order_vouchers v ON v.order_id=o.id WHERE o.user_id=? AND o.payment_method IN ('zibal','zarinpal','bale','bank_transfer','digipay') AND o.paid_at>=? AND o.paid_at<=? AND o.paid_at<=? AND o.refunded_at IS NULL AND o.status NOT IN ('cancelled','refunded') ${excludeRefundHolds ? `AND o.id NOT IN (${digipayRefundHeldOrderIdsSql})` : ""}`,user,g.granted_at,g.deadline,new Date(at).toISOString())!.n;
   const status=at<Date.parse(g.granted_at)?"not_started":total>=20000000?"qualified":at<Date.parse(g.deadline)?"grace":"suspended";
   return {...g,deadline:g.deadline as string,status,realPurchaseToman:total,requiredToman:20000000,remainingDays:Math.max(0,Math.ceil((Date.parse(g.deadline)-at)/DAY)),activeDesks:["suspended","not_started"].includes(status)?0:g.desks};
 }

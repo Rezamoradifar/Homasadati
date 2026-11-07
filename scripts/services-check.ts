@@ -1,6 +1,7 @@
 import { loadEnvConfig } from "@next/env";
 import { setting } from "../src/platform/providers";
 import { all, platformDb } from "../src/platform/schema";
+import { digipayCheckoutEnabled } from "../src/platform/digipay-basket";
 loadEnvConfig(process.cwd());
 async function checkSms(): Promise<Record<string, unknown>> {
   const key = setting("kavenegar_key"),
@@ -72,6 +73,12 @@ async function main() {
           callbackUrl: process.env.APP_ORIGIN
             ? `${process.env.APP_ORIGIN}/api/platform/payment/callback?gateway=zibal`
             : null,
+          livePaymentTest: "not_run",
+        },
+        digipay: {
+          enabled: process.env.DIGIPAY_ENABLED === "1",
+          configured: digipayCheckoutEnabled(),
+          environment: ["sandbox", "production"].includes(process.env.DIGIPAY_ENVIRONMENT || "") ? process.env.DIGIPAY_ENVIRONMENT : null,
           livePaymentTest: "not_run",
         },
       },

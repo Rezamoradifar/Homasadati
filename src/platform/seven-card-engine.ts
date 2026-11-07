@@ -4,6 +4,7 @@ import { updatedCardSchedule, mondayStart, UPDATED_DESK_WEEKLY_CAP } from "./car
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
 import { all, one, run, atomic, now, Row } from "./schema";
+import { digipayRefundHeldOrderIdsSql, digipayRefundHeldCardMatchIdsSql } from "./digipay-financial-holds";
 import { setting, saveSetting } from "./providers";
 import { audit } from "./security";
 import { ledger, notify, notifyInApp, wallet } from "./finance";
@@ -84,10 +85,18 @@ function countOrders(cutoff: string) {
   const orders = all(
     `SELECT o.* FROM p_orders o WHERE o.payment_method!='company_credit' AND o.paid_at IS NOT NULL AND o.paid_at>=? AND o.refunded_at IS NULL
      AND o.status NOT IN ('refunded','cancelled') AND o.cancel_until IS NOT NULL AND o.cancel_until<=?
+     AND o.id NOT IN (${digipayRefundHeldOrderIdsSql})
      AND NOT EXISTS(SELECT 1 FROM p_card_orders c WHERE c.order_id=o.id)
+     AND NOT EXISTS(
+       SELECT 1 FROM p_orders h WHERE h.user_id=o.user_id AND h.id IN (${digipayRefundHeldOrderIdsSql})
+       AND h.paid_at>=? AND h.refunded_at IS NULL AND h.status NOT IN ('refunded','cancelled')
+       AND (h.cancel_until<o.cancel_until OR (h.cancel_until=o.cancel_until AND h.id<o.id))
+       AND NOT EXISTS(SELECT 1 FROM p_card_orders c WHERE c.order_id=h.id)
+     )
      ORDER BY o.cancel_until,o.id LIMIT 2000`,
     since,
     cutoff,
+    since,
   );
   let volume = 0;
   for (const o of orders) {
@@ -130,11 +139,39 @@ function countOrders(cutoff: string) {
   return volume;
 }
 
+/** Excludes held source lots consistently from both quoting and consumption. */
+function earningVolume(user: string, leg: string, desk?: number) {
+  const table = desk ? "p_card_position_lots" : "p_card_lots";
+  return one(
+    `SELECT COALESCE(SUM(remaining),0) n FROM ${table} WHERE user_id=? AND leg=? ${desk ? "AND desk=?" : ""} AND void=0 AND order_id NOT IN (${digipayRefundHeldOrderIdsSql})`,
+    user, leg, ...(desk ? [desk] : []),
+  )!.n as number;
+}
+
+/** Qualification holds affect earning capacity, never the saved placement tree. */
+function earningDesks(user: string, desks: number, at = Date.now()) {
+  if (positionMode()) return positionDesks(user, at, true);
+  const held = one(
+    `SELECT COALESCE(SUM(amount),0) n FROM p_card_orders WHERE user_id=? AND order_id IN (${digipayRefundHeldOrderIdsSql})`,
+    user,
+  )!.n;
+  if (!held) return desks;
+  const total = Math.max(0, (one("SELECT total FROM p_card_members WHERE user_id=?", user)?.total || 0) - held);
+  const card = sevenLevelMode() ? sevenLevelCardForPurchase(total) : cardForPurchase(total);
+  return Math.min(desks, card?.desks || 0);
+}
+
+/** A temporary qualification hold must not restart a member-wide sequence. */
+function heldDeskMatches(user: string, eligibleDesks: number, assignedDesks: number) {
+  if (eligibleDesks >= assignedDesks) return 0;
+  return one("SELECT COALESCE(SUM(matches),0) n FROM p_card_desks WHERE user_id=? AND desk>? AND desk<=?", user, eligibleDesks, assignedDesks)!.n as number;
+}
+
 function takeVolume(user: string, leg: string, amount: number, desk?: number) {
   const table = desk ? "p_card_position_lots" : "p_card_lots";
   const taken: { lot: string; volume: number }[] = [];
   for (const lot of all(
-    `SELECT id,remaining FROM ${table} WHERE user_id=? AND leg=? ${desk ? "AND desk=?" : ""} AND void=0 AND remaining>0 ORDER BY created_at,rowid`,
+    `SELECT id,remaining FROM ${table} WHERE user_id=? AND leg=? ${desk ? "AND desk=?" : ""} AND void=0 AND remaining>0 AND order_id NOT IN (${digipayRefundHeldOrderIdsSql}) ORDER BY created_at,rowid`,
     user, leg, ...(desk ? [desk] : []),
   )) {
     if (!amount) break;
@@ -161,8 +198,8 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
   const perMember = d.counterScope === "member";
   const members = all(
     `SELECT m.* FROM p_card_members m JOIN p_users u ON u.id=m.user_id WHERE m.level>=1 AND u.blocked=0
-     AND EXISTS(SELECT 1 FROM p_card_lots l WHERE l.user_id=m.user_id AND l.leg='left' AND l.void=0 AND l.remaining>0)
-     AND EXISTS(SELECT 1 FROM p_card_lots l WHERE l.user_id=m.user_id AND l.leg='right' AND l.void=0 AND l.remaining>0)
+     AND EXISTS(SELECT 1 FROM p_card_lots l WHERE l.user_id=m.user_id AND l.leg='left' AND l.void=0 AND l.remaining>0 AND l.order_id NOT IN (${digipayRefundHeldOrderIdsSql}))
+     AND EXISTS(SELECT 1 FROM p_card_lots l WHERE l.user_id=m.user_id AND l.leg='right' AND l.void=0 AND l.remaining>0 AND l.order_id NOT IN (${digipayRefundHeldOrderIdsSql}))
      ORDER BY m.user_id`,
   );
   const split = d.overflow === "split-reward";
@@ -181,8 +218,11 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
     }
   };
   for (const m of members.concat(split ? owedMembers(members) : [])) {
-    const pool = (leg: string) =>
-      one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0", m.user_id, leg)!.n;
+    const assignedDesks = positionMode() ? positionDesks(m.user_id) : m.desks;
+    m.desks = earningDesks(m.user_id, m.desks);
+    if (!m.desks) continue;
+    const heldMatches = heldDeskMatches(m.user_id, m.desks, assignedDesks);
+    const pool = (leg: string) => earningVolume(m.user_id, leg);
     let left = pool("left"), right = pool("right");
     const allowance = Array.from({ length: m.desks }, () => DESK_WEEKLY_CAP);
     const counters = Array.from({ length: m.desks }, (_, i) =>
@@ -191,7 +231,7 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
     if (split)
       for (const owed of all(
         `SELECT m.*,m.amount-COALESCE((SELECT SUM(p.amount) FROM p_card_payouts p WHERE p.match_id=m.id),0) due
-         FROM p_card_matches m WHERE m.user_id=? AND m.void=0 ORDER BY m.created_at,m.rowid`,
+         FROM p_card_matches m WHERE m.user_id=? AND m.void=0 AND m.id NOT IN (${digipayRefundHeldCardMatchIdsSql}) ORDER BY m.created_at,m.rowid`,
         m.user_id,
       )) {
         const slot = owed.desk - 1;
@@ -204,7 +244,7 @@ function settleWeekTx(startMs: number, d: CardDecisions) {
       }
     while (left >= MATCH_VOLUME && right >= MATCH_VOLUME && budget >= MATCH_REWARD) {
       let desk = -1, voucher = false;
-      const memberTotal = counters.reduce((a, b) => a + b, 0);
+      const memberTotal = counters.reduce((a, b) => a + b, heldMatches);
       for (let i = 0; i < m.desks; i++) {
         const isVoucher = ((perMember ? memberTotal : counters[i]) + 1) % 8 === 0;
         const cost = capCost(isVoucher, MATCH_REWARD);
@@ -259,9 +299,12 @@ function settleUpdatedWeek(startMs: number) {
   let budget = unlimited ? Number.MAX_SAFE_INTEGER : Math.floor(sales * fundingBps() / 10000) + Number(setting("seven_card_budget_carry") || 0);
   const result = { week:key,sales,budget:unlimited ? 0 : budget,matches:0,cash:0,voucher:0,flushed:0 };
   for (const m of all("SELECT u.id user_id,COALESCE(m.desks,0) desks FROM p_users u LEFT JOIN p_card_members m ON m.user_id=u.id WHERE u.blocked=0 AND (m.desks>0 OR EXISTS(SELECT 1 FROM p_company_positions g WHERE g.user_id=u.id)) ORDER BY u.id")) {
-    if(positionMode()) m.desks=positionDesks(m.user_id,Math.min(cutoffMs,Date.now()));
+    const qualificationAt = Math.min(cutoffMs,Date.now());
+    const assignedDesks = positionMode() ? positionDesks(m.user_id,qualificationAt) : m.desks;
+    m.desks=earningDesks(m.user_id,m.desks,qualificationAt);
     if(!m.desks) continue;
-    const volume = (leg: string) => one("SELECT COALESCE(SUM(remaining),0) n FROM p_card_lots WHERE user_id=? AND leg=? AND void=0",m.user_id,leg)!.n;
+    const heldMatches = heldDeskMatches(m.user_id,m.desks,assignedDesks);
+    const volume = (leg: string) => earningVolume(m.user_id,leg);
     let left = volume("left"), right = volume("right");
     const allowance = Array.from({length:m.desks},()=>sevenLevelMode() ? SEVEN_LEVEL_DESK_CAP : UPDATED_DESK_WEEKLY_CAP);
     const counters = Array.from({length:m.desks},(_,i)=>one("SELECT matches FROM p_card_desks WHERE user_id=? AND desk=?",m.user_id,i+1)?.matches || 0);
@@ -280,17 +323,20 @@ function settleUpdatedWeek(startMs: number) {
       left -= count * MATCH_VOLUME;right -= count * MATCH_VOLUME;
     };
     for(let pool=0;pool<(positionMode()?m.desks:1);pool++) {
-    if(positionMode()) {left=positionVolume(m.user_id,pool+1,"left");right=positionVolume(m.user_id,pool+1,"right");}
+    if(positionMode()) {left=earningVolume(m.user_id,"left",pool+1);right=earningVolume(m.user_id,"right",pool+1);}
     while (left>=MATCH_VOLUME && right>=MATCH_VOLUME) {
       const desk = positionMode() ? (allowance[pool]>0 ? pool : -1) : allowance.findIndex((v)=>v>0);
       if (desk<0) {
+        // A common pool still belongs to temporarily suspended desks. Retain
+        // that volume until the refund resolves, without changing normal caps.
+        if (!positionMode() && m.desks < assignedDesks) break;
         const n = Math.floor(Math.min(left,right)/MATCH_VOLUME);
         record(positionMode()?pool+1:1,0,"cash",n*MATCH_REWARD,0,n);
         break;
       }
       const pay=Math.min(MATCH_REWARD,allowance[desk]);
       if(budget<pay) break; // Funding shortage is never mislabeled as a cap flush.
-      const sequence=counters.reduce((a,b)=>a+b,0)+1;
+      const sequence=counters.reduce((a,b)=>a+b,heldMatches)+1;
       const kind=sequence%8===0 ? "voucher":"cash";
       counters[desk]++;
       record(desk+1,sequence,kind,MATCH_REWARD,pay,1);
@@ -307,7 +353,10 @@ export function releaseCardRewards(nowMs=Date.now()) {
   return atomic(()=>{
     let released=0;
     const notices=new Map<string,{cash:number;voucher:number}>();
-    for(const due of all("SELECT d.*,m.week FROM p_card_due d JOIN p_card_matches m ON m.id=d.match_id JOIN p_users u ON u.id=d.user_id WHERE d.status='pending' AND d.release_at<=? AND m.void=0 AND u.blocked=0",new Date(nowMs).toISOString())) {
+    for(const due of all(`SELECT d.*,m.week,m.desk FROM p_card_due d JOIN p_card_matches m ON m.id=d.match_id JOIN p_users u ON u.id=d.user_id WHERE d.status='pending' AND d.release_at<=? AND m.void=0 AND u.blocked=0 AND m.id NOT IN (${digipayRefundHeldCardMatchIdsSql})`,new Date(nowMs).toISOString())) {
+      const desks = positionMode() ? positionDesks(due.user_id,nowMs) : one("SELECT desks FROM p_card_members WHERE user_id=?",due.user_id)?.desks || 0;
+      const eligibleDesks = earningDesks(due.user_id,desks,nowMs);
+      if (eligibleDesks < desks && due.desk > eligibleDesks) continue;
       const id=randomUUID();
       run("INSERT INTO p_card_payouts VALUES(?,?,?,?,?,?,?)",id,due.match_id,due.user_id,due.week,due.kind,due.amount,now());
       if(due.kind==='voucher') voucherEntry(due.user_id,"card-payout:"+id,"earn",due.match_id,due.amount);
@@ -325,7 +374,7 @@ function owedMembers(listed: Row[]) {
   const seen = new Set(listed.map((m) => m.user_id));
   return all(
     `SELECT DISTINCT c.* FROM p_card_members c JOIN p_card_matches m ON m.user_id=c.user_id JOIN p_users u ON u.id=c.user_id
-     WHERE m.void=0 AND u.blocked=0 AND m.amount>COALESCE((SELECT SUM(p.amount) FROM p_card_payouts p WHERE p.match_id=m.id),0)`,
+     WHERE m.void=0 AND u.blocked=0 AND m.id NOT IN (${digipayRefundHeldCardMatchIdsSql}) AND m.amount>COALESCE((SELECT SUM(p.amount) FROM p_card_payouts p WHERE p.match_id=m.id),0)`,
   ).filter((m) => !seen.has(m.user_id));
 }
 

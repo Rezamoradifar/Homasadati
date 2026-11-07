@@ -4,6 +4,7 @@ import {CompanyMemberControls} from "./CompanyMemberControls";
 
 import { OfficeAccessEditor } from "./MarketerOffice";
 import { AdminPayoutProfiles } from "./AdminPayoutProfiles";
+import DigiPayOperations from "./DigiPayOperations";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import AdminOutbox from "./AdminOutbox";
 import ServiceHealth from "./ServiceHealth";
@@ -845,6 +846,7 @@ export function AdminWithdrawals({
     <Localized>
       <>
         <AdminPayoutProfiles refresh={refresh} onChange={onChange} />
+        <DigiPayOperations refresh={refresh} onChange={onChange} />
         <div className="portal-card">
           <h2>تراکنش‌های درگاه بانکی</h2>
           <p>

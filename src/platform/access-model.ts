@@ -24,6 +24,7 @@ export const resourceRoles: Record<string, string[]> = {
   "payout-profiles": ["finance"],
   newsletter: ["content"],
   "gateway-transactions": ["finance"],
+  "digipay-payments": ["finance"],
   users: ["support"],
   network: [],
   "network-tree": [],

@@ -11,10 +11,14 @@ import { refreshUsdRate } from "./fx";
 import { runCardSettlement } from "./seven-card-engine";
 import { processNewsletter } from "./newsletter";
 import { recheckPendingBalePayments } from "./bale-payments";
+import { recheckPendingDigiPayPayments } from "./digipay-payments";
+import { processDigiPayFollowups } from "./digipay-fulfillment";
 import { processOutbox } from "./outbox";
 import {observeFinancialCycle} from "./operations-health";
 export async function maintenance() {
   await refreshUsdRate();
+  await recheckPendingDigiPayPayments();
+  await processDigiPayFollowups();
   reviewCompanyPositions();
   observeFinancialCycle(() => runCardSettlement());
   runBinaryCycles();
@@ -34,7 +38,9 @@ export async function maintenance() {
       now(),
     );
     for (const order of all(
-      "SELECT * FROM p_orders WHERE status='pending' AND checkout_claim IS NULL AND expires_at<?",
+      `SELECT o.* FROM p_orders o WHERE o.status='pending' AND o.checkout_claim IS NULL AND o.expires_at<?
+       AND NOT EXISTS(SELECT 1 FROM p_checkout_items i JOIN p_digipay_payments p ON p.checkout_id=i.checkout_id
+         WHERE i.order_id=o.id AND p.status IN ('creating','pending','verified','review'))`,
       now(),
     ))
       refundOrder(order.id, order.user_id, false, "انقضای سفارش پرداخت‌نشده");

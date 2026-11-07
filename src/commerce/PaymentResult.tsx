@@ -1,128 +1,213 @@
 "use client";
 import { useEffect, useState } from "react";
 import Localized from "../i18n/Localized";
-import {PurchaseActivationReceipt} from "../platform/PurchaseActivationReceipt";
-import {RecordData} from "../platform/client";
-import { api } from "../platform/client";
+import { PurchaseActivationReceipt } from "../platform/PurchaseActivationReceipt";
+import { api, type RecordData } from "../platform/client";
 import { CheckCircle, XCircle, Clock } from "@phosphor-icons/react";
 import { Money } from "./currency";
 
-type Summary = { status: string; amount: number; reference: string | null; orders: string[]; checkoutPaid: boolean; activationReceipt?:RecordData|null; paidPurchaseVolume?:number };
+type Summary = {
+  status: string;
+  amount: number;
+  reference: string | null;
+  orders: string[];
+  checkoutPaid: boolean;
+  activationReceipt?: RecordData | null;
+  paidPurchaseVolume?: number;
+};
+type PaymentTarget = {
+  checkoutId: string;
+  pid: string;
+  provider: "bale" | "digipay";
+};
+const paymentId = /^[0-9a-f-]{36}$/i;
 
-/** Result of a checkout or Bale payment. The state shown always comes from the server's
- * own verification of the transaction, never from the return URL. */
+async function readSummary(target: PaymentTarget, verify: boolean): Promise<Summary> {
+  if (target.checkoutId) {
+    const group = await api(`checkouts/${target.checkoutId}`);
+    return {
+      status: group.status === "paid" && group.orders.length && group.orders.every((order: { status: string }) => order.status === "refunded")
+        ? "refunded"
+        : group.status,
+      amount: group.amount,
+      reference: group.payment_ref,
+      orders: group.orders.map((order: { id: string }) => order.id),
+      checkoutPaid: group.status === "paid",
+      activationReceipt: group.activationReceipt,
+      paidPurchaseVolume: group.paidPurchaseVolume,
+    };
+  }
+  const path = `payments/${target.provider}/${target.pid}`;
+  return (verify ? await api(`${path}/verify`, "POST", {}) : await api(path)) as unknown as Summary;
+}
+
+/** Only the authenticated server's verified transaction and checkout state can
+ * show success. Provider names in the return URL select an endpoint, not a result. */
 export default function PaymentResult() {
-  const [checkoutId,setCheckoutId]=useState("");
-  const [pid, setPid] = useState("");
-  const [s, setS] = useState<Summary | null>(null);
+  const [target, setTarget] = useState<PaymentTarget | null>(null);
+  const [summary, setSummary] = useState<Summary | null>(null);
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(false);
+
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("pid") || "";
-    setPid(/^[0-9a-f-]{36}$/i.test(id) ? id : "");
-    const checkout=new URLSearchParams(window.location.search).get("checkout")||"";
-    setCheckoutId(/^[0-9a-f-]{36}$/i.test(checkout)?checkout:"");
-    if (!/^[0-9a-f-]{36}$/i.test(id)&&!/^[0-9a-f-]{36}$/i.test(checkout)) setError("شناسهٔ پرداخت در نشانی نیست.");
+    const params = new URLSearchParams(window.location.search);
+    const checkoutId = params.get("checkout") || "";
+    const pid = params.get("pid") || "";
+    const provider = params.get("provider") || "bale";
+    if (paymentId.test(checkoutId)) {
+      setTarget({ checkoutId, pid: "", provider: "bale" });
+    } else if (paymentId.test(pid) && (provider === "bale" || provider === "digipay")) {
+      setTarget({ checkoutId: "", pid, provider });
+    } else {
+      setError("شناسهٔ پرداخت در نشانی معتبر نیست.");
+    }
   }, []);
+
   useEffect(() => {
-    if (!pid&&!checkoutId) return;
-    let tries = 0,
-      stop = false;
+    if (!target) return;
+    let tries = 0;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const load = async () => {
+      if (stopped) return;
       try {
-        // Still pending on arrival: ask the server to verify with Bale again.
-        const group=checkoutId?await api(`checkouts/${checkoutId}`):null;
-        const r = group ? {status:group.status==="paid"&&group.orders.length&&group.orders.every((o:{status:string})=>o.status==="refunded")?"refunded":group.status,amount:group.amount,reference:group.payment_ref,orders:group.orders.map((o:{id:string})=>o.id),checkoutPaid:group.status==="paid",activationReceipt:group.activationReceipt,paidPurchaseVolume:group.paidPurchaseVolume} : (tries === 0 ? await api(`payments/bale/${pid}`) : await api(`payments/bale/${pid}/verify`, "POST", {})) as unknown as Summary;
-        if (stop) return;
-        setS(r);
+        const result = await readSummary(target, tries > 0);
+        if (stopped) return;
+        setSummary(result);
+        setError("");
         tries++;
-        if (["pending", "creating"].includes(r.status) && tries < 6) setTimeout(load, tries === 1 ? 1500 : 5000);
+        const awaitingSettlement = result.status === "paid" && !result.checkoutPaid;
+        if ((["pending", "creating"].includes(result.status) || awaitingSettlement) && tries < 6) {
+          timer = setTimeout(load, tries === 1 ? 1500 : 5000);
+        }
       } catch (e) {
-        if (!stop) setError((e as Error).message);
+        if (!stopped) setError((e as Error).message);
       }
     };
-    load();
+    void load();
     return () => {
-      stop = true;
+      stopped = true;
+      if (timer) clearTimeout(timer);
     };
-  }, [pid,checkoutId]);
+  }, [target]);
+
   const recheck = async () => {
+    if (!target || checking) return;
     setChecking(true);
     setError("");
     try {
-      if(checkoutId){const group=await api(`checkouts/${checkoutId}`);setS({status:group.status==="paid"&&group.orders.length&&group.orders.every((o:{status:string})=>o.status==="refunded")?"refunded":group.status,amount:group.amount,reference:group.payment_ref,orders:group.orders.map((o:{id:string})=>o.id),checkoutPaid:group.status==="paid",activationReceipt:group.activationReceipt,paidPurchaseVolume:group.paidPurchaseVolume});}
-      else setS((await api(`payments/bale/${pid}/verify`, "POST", {})) as unknown as Summary);
+      setSummary(await readSummary(target, true));
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setChecking(false);
     }
   };
+  const isCheckout = !!target?.checkoutId;
+  const isDigiPay = target?.provider === "digipay";
+  const confirmedPaid = summary?.status === "paid" && summary.checkoutPaid;
+  const needsReview = summary?.status === "review";
   const view =
-    !s ? { tone: "pending", title: "در حال بررسی تراکنش", text: checkoutId?"نتیجهٔ تأیید پرداخت و سفارش شما را از سامانه بررسی می‌کنیم.":"وضعیت پرداخت را مستقیماً از بله استعلام می‌کنیم؛ لطفاً صفحه را نبندید." }
-    : s.status === "paid" ? { tone: "ok", title: "پرداخت موفق", text: "پرداخت شما تأیید شد و سفارش ثبت شد." }
-    : s.status === "refunded" ? {tone:"bad",title:"وجه سفارش بازگشت",text:"وضعیت بازگشت وجه را در کیف پول و سفارش‌های حساب بررسی کنید."}
-    : s.status === "cancelled" ? { tone: "bad", title: "پرداخت لغو شد", text: "پرداخت انجام نشد و مبلغی از حساب شما برداشت نشده است. می‌توانید دوباره از سبد خرید پرداخت کنید." }
-    : s.status === "failed" || s.status === "request_failed" ? { tone: "bad", title: "پرداخت ناموفق", text: "تراکنش تأیید نشد. اگر مبلغی از حساب شما کم شده، طبق قوانین بانکی حداکثر ظرف ۷۲ ساعت برمی‌گردد؛ در غیر این صورت با پشتیبانی تماس بگیرید." }
-    : { tone: "pending", title: "در حال بررسی تراکنش", text: checkoutId?"پرداخت هنوز تأیید نشده است. نتیجه را دوباره بررسی کنید یا از سبد خرید ادامه دهید.":"نتیجهٔ تراکنش هنوز از بله دریافت نشده است. سفارش شما محفوظ است و به‌محض تأیید، ثبت می‌شود." };
+    !summary
+      ? {
+          tone: "pending",
+          title: "در حال بررسی تراکنش",
+          text: isDigiPay
+            ? "تأیید پرداخت دیجی‌پی و وضعیت سفارش را از سامانه بررسی می‌کنیم."
+            : isCheckout || !target
+              ? "نتیجهٔ تأیید پرداخت و سفارش شما را از سامانه بررسی می‌کنیم."
+              : "وضعیت پرداخت را مستقیماً از بله استعلام می‌کنیم؛ لطفاً صفحه را نبندید.",
+        }
+      : confirmedPaid
+        ? { tone: "ok", title: "پرداخت موفق", text: "پرداخت شما تأیید شد و سفارش ثبت شد." }
+        : summary.status === "refunded"
+          ? {
+              tone: "bad",
+              title: "وجه سفارش بازگشت",
+              text: isDigiPay
+                ? "وضعیت بازگشت اعتبار یا وجه را در دیجی‌پی و جزئیات سفارش پیگیری کنید."
+                : "وضعیت بازگشت وجه را در کیف پول و سفارش‌های حساب بررسی کنید.",
+            }
+          : summary.status === "cancelled"
+            ? {
+                tone: "bad",
+                title: "پرداخت لغو شد",
+                text: isDigiPay
+                  ? "پرداخت دیجی‌پی لغو شده است. پیش از تلاش دوباره، وضعیت اعتبار و سفارش خود را بررسی کنید."
+                  : "پرداخت انجام نشد و مبلغی از حساب شما برداشت نشده است. می‌توانید دوباره از سبد خرید پرداخت کنید.",
+              }
+            : summary.status === "failed" || summary.status === "request_failed"
+              ? {
+                  tone: "bad",
+                  title: "پرداخت ناموفق",
+                  text: isDigiPay
+                    ? "پرداخت دیجی‌پی تأیید نشد. اگر از اعتبار یا موجودی شما کسر شده، وضعیت را در دیجی‌پی و سفارش‌های هما بررسی کنید و با پشتیبانی تماس بگیرید."
+                    : "تراکنش تأیید نشد. اگر مبلغی از حساب شما کم شده، طبق قوانین بانکی حداکثر ظرف ۷۲ ساعت برمی‌گردد؛ در غیر این صورت با پشتیبانی تماس بگیرید.",
+                }
+              : needsReview
+                ? {
+                    tone: "pending",
+                    title: "پرداخت نیاز به بررسی دارد",
+                    text: "تطبیق این پرداخت نیاز به بررسی پشتیبانی دارد. دوباره پرداخت نکنید و شناسهٔ سفارش را برای پیگیری نگه دارید.",
+                  }
+                : {
+                    tone: "pending",
+                    title: "در حال بررسی تراکنش",
+                    text: isDigiPay
+                      ? "پرداخت دیجی‌پی هنوز تأیید نشده است. برای جلوگیری از پرداخت تکراری، نتیجهٔ همین سفارش را دوباره بررسی کنید."
+                      : isCheckout
+                        ? "پرداخت هنوز تأیید نشده است. نتیجه را دوباره بررسی کنید یا از سبد خرید ادامه دهید."
+                        : "نتیجهٔ تراکنش هنوز از بله دریافت نشده است. سفارش شما محفوظ است و به‌محض تأیید، ثبت می‌شود.",
+                  };
   return (
     <Localized>
       <div className="shop-wrap payment-result">
-        <section className={"payment-result-card " + view.tone} aria-live="polite" aria-busy={view.tone === "pending"}>
+        <section className={"payment-result-card " + view.tone} aria-live="polite" aria-busy={(!summary && !error) || checking}>
           <span className="payment-result-icon" aria-hidden="true">
-            {view.tone === "ok" ? <CheckCircle size={42}/> : view.tone === "bad" ? <XCircle size={42}/> : <Clock size={42}/>}
+            {view.tone === "ok" ? <CheckCircle size={42} /> : view.tone === "bad" ? <XCircle size={42} /> : <Clock size={42} />}
           </span>
-          <span className="commerce-eyebrow">{checkoutId?"نتیجهٔ پرداخت سفارش":"پرداخت با بله"}</span>
+          <span className="commerce-eyebrow">{isDigiPay ? "خرید با اعتبار دیجی‌پی" : isCheckout || !target ? "نتیجهٔ پرداخت سفارش" : "پرداخت با بله"}</span>
           <h1>{view.title}</h1>
           <p>{view.text}</p>
-          {s && (
+          {summary && (
             <dl>
               <div>
                 <dt>مبلغ</dt>
-                <dd>
-                  <Money toman={s.amount} />
-                </dd>
+                <dd><Money toman={summary.amount} /></dd>
               </div>
-              {s.orders.length > 0 && (
+              {summary.orders.length > 0 && (
                 <div>
                   <dt>شمارهٔ سفارش</dt>
-                  <dd dir="ltr">{s.orders.join("، ")}</dd>
+                  <dd dir="ltr" translate="no">{summary.orders.join("، ")}</dd>
                 </div>
               )}
-              {s.reference && (
+              {summary.reference && (
                 <div>
                   <dt>شناسهٔ تراکنش</dt>
-                  <dd dir="ltr" translate="no">
-                    {s.reference}
-                  </dd>
+                  <dd dir="ltr" translate="no">{summary.reference}</dd>
                 </div>
               )}
             </dl>
           )}
-          {s?.status==="paid"&&s.paidPurchaseVolume!==undefined&&<p className="payment-volume">حجم خرید پرداخت‌شده: <Money toman={s.paidPurchaseVolume}/><br/>خرید واجد شرایط طبق زمان‌بندی و قوانین باشگاه محاسبه می‌شود.</p>}
-          {s?.status==="paid"&&<PurchaseActivationReceipt receipt={s.activationReceipt}/>}
+          {confirmedPaid && summary.paidPurchaseVolume !== undefined && (
+            <p className="payment-volume">حجم خرید پرداخت‌شده: <Money toman={summary.paidPurchaseVolume} /><br />خرید واجد شرایط طبق زمان‌بندی و قوانین باشگاه محاسبه می‌شود.</p>
+          )}
+          {confirmedPaid && <PurchaseActivationReceipt receipt={summary.activationReceipt} />}
           {error && <p role="alert">{error}</p>}
           <div className="payment-result-actions">
-            {view.tone === "ok" && (
-              <a className="commerce-button" href="/account?tab=orders">
-                مشاهدهٔ سفارش‌ها
-              </a>
-            )}
-            {view.tone === "pending" && s && (
+            {view.tone === "ok" && <a className="commerce-button" href="/account?tab=orders">مشاهدهٔ سفارش‌ها</a>}
+            {view.tone === "pending" && target && (
               <button className="commerce-button" disabled={checking} onClick={recheck}>
                 {checking ? "در حال بررسی…" : "بررسی دوباره"}
               </button>
             )}
-            {view.tone === "bad" && (
-              <a className="commerce-button" href="/cart">
-                بازگشت به سبد خرید
-              </a>
+            {(needsReview || (isDigiPay && view.tone === "bad")) && (
+              <a className="commerce-button outline" href="/account?tab=tickets">پیگیری از پشتیبانی</a>
             )}
-            {view.tone==="pending"&&checkoutId&&<a className="commerce-button outline" href="/cart">ادامه پرداخت از سبد خرید</a>}
-            {error&&<a className="commerce-button outline" href="/account">ورود به حساب</a>}
-            <a className="commerce-button outline" href="/shop">
-              ادامهٔ خرید
-            </a>
+            {view.tone === "bad" && <a className="commerce-button" href="/cart">بازگشت به سبد خرید</a>}
+            {view.tone === "pending" && isCheckout && <a className="commerce-button outline" href="/cart">ادامه پرداخت از سبد خرید</a>}
+            {error && <a className="commerce-button outline" href="/account">ورود به حساب</a>}
+            <a className="commerce-button outline" href="/shop">ادامهٔ خرید</a>
           </div>
         </section>
       </div>

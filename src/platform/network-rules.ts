@@ -1,4 +1,5 @@
 import { all, one, run, now, Row, atomic, platformDb } from "./schema";
+import { digipayRefundHeldOrderIdsSql } from "./digipay-financial-holds";
 import { setting, saveSetting } from "./providers";
 import { audit } from "./security";
 import { z } from "zod";
@@ -50,12 +51,12 @@ export function binaryEligible(user: string, rules: BinaryRules) {
     Date.now() - rules.activityDays * 86400000,
   ).toISOString();
   const personal = one(
-    "SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at>=? AND refunded_at IS NULL",
+    `SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at>=? AND refunded_at IS NULL AND id NOT IN (${digipayRefundHeldOrderIdsSql})`,
     user,
     since,
   )!.n;
   const directs = one(
-    "SELECT COUNT(*) n FROM p_users u WHERE sponsor_id=? AND blocked=0 AND EXISTS(SELECT 1 FROM p_orders o WHERE o.user_id=u.id AND paid_at>=? AND refunded_at IS NULL)",
+    `SELECT COUNT(*) n FROM p_users u WHERE sponsor_id=? AND blocked=0 AND EXISTS(SELECT 1 FROM p_orders o WHERE o.user_id=u.id AND paid_at>=? AND refunded_at IS NULL AND o.id NOT IN (${digipayRefundHeldOrderIdsSql}))`,
     user,
     since,
   )!.n;
@@ -81,7 +82,7 @@ export function nextBinaryLots(
   // Collect a FIFO prefix, including fragments smaller than a matching ratio.
   for (const value of platformDb()
     .prepare(
-      `SELECT l.* FROM p_binary_lots l LEFT JOIN p_binary_lot_terms t ON t.lot_id=l.id WHERE l.user_id=? AND l.leg=? AND l.remaining>0 AND l.void=0 AND l.created_at<=? AND (t.expires_at IS NULL OR t.expires_at>?) ORDER BY l.created_at,l.id`,
+      `SELECT l.* FROM p_binary_lots l LEFT JOIN p_binary_lot_terms t ON t.lot_id=l.id WHERE l.user_id=? AND l.leg=? AND l.remaining>0 AND l.void=0 AND l.created_at<=? AND (t.expires_at IS NULL OR t.expires_at>?) AND l.order_id NOT IN (${digipayRefundHeldOrderIdsSql}) ORDER BY l.created_at,l.id`,
     )
     .iterate(user, leg, cutoff, now())) {
     const lot = value as Row;

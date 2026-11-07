@@ -2,6 +2,7 @@ import {companyPositionStatus,managerActivated} from "./company-members";
 import { mondayStart, updatedCardSchedule } from "./card-schedule";
 import { ApiError } from "../server/http";
 import { all, one, run, now, atomic } from "./schema";
+import { digipayRefundHeldOrderIdsSql } from "./digipay-financial-holds";
 import { setting, saveSetting } from "./providers";
 import { desksForPurchase, SEVEN_LEVEL_VERSION } from "./card-levels";
 import { POSITION_PATHS, DIRECT_PATHS, directCapacity, directRoutes, FOUR_DIRECT_PATHS, FOUR_REFERRAL_VERSION, fourDirectCapacity, fourDirectRoutes } from "./card-position-model";
@@ -11,11 +12,11 @@ export const fourReferralMode = () => setting("seven_card_position_version") ===
 export const positionMode = () => sevenLevelMode() || fourReferralMode() || setting("seven_card_position_version") === "aa-2026-10-06";
 export const positionDirectCapacity = (desks: number) => fourReferralMode() ? fourDirectCapacity(desks) : directCapacity(desks);
 /** Confirmed purchases light positions immediately; income waits for maturity. */
-export function positionPurchaseTotal(user: string, at=Date.now()) {
-  return one("SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND paid_at>=? AND refunded_at IS NULL AND status NOT IN ('cancelled','refunded') AND payment_method!='company_credit' AND paid_at<=?",user,new Date(Number(setting("seven_card_live_since") || 0)).toISOString(),new Date(at).toISOString())!.n as number;
+export function positionPurchaseTotal(user: string, at=Date.now(), excludeRefundHolds=false) {
+  return one(`SELECT COALESCE(SUM(amount),0) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL AND paid_at>=? AND refunded_at IS NULL AND status NOT IN ('cancelled','refunded') AND payment_method!='company_credit' AND paid_at<=? ${excludeRefundHolds ? `AND id NOT IN (${digipayRefundHeldOrderIdsSql})` : ""}`,user,new Date(Number(setting("seven_card_live_since") || 0)).toISOString(),new Date(at).toISOString())!.n as number;
 }
-export function positionDesks(user: string, at=Date.now()) {
-  return Math.max(companyPositionStatus(user,at)?.activeDesks || 0,desksForPurchase(positionPurchaseTotal(user,at)));
+export function positionDesks(user: string, at=Date.now(), excludeRefundHolds=false) {
+  return Math.max(companyPositionStatus(user,at,excludeRefundHolds)?.activeDesks || 0,desksForPurchase(positionPurchaseTotal(user,at,excludeRefundHolds)));
 }
 
 export function assertDirectCapacity(sponsor: string, excluding?: string) {

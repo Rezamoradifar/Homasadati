@@ -7,6 +7,7 @@ import {focusRing} from './FooterLink';
 import {defaultColumns, defaultCurrencies, defaultLanguages, localeDirection, localizedHref} from './config';
 import type {FooterBadge, FooterProps} from './types';
 import styles from './footer.module.css';
+import DigiPayEntry from '../../commerce/DigiPayEntry';
 
 function BadgeRow({items, titleKey}: {items: readonly FooterBadge[]; titleKey: string}) {
   const t = useTranslations('Footer');
@@ -104,6 +105,7 @@ export function Footer({variant = 'default', compactColumns = false, introductio
             <span aria-hidden="true">{logo ?? <svg width="52" height="42" viewBox="0 0 52 42" fill="none"><path d="M26 32C17 18 8 26 3 7c11 10 16 3 23 15C33 10 38 17 49 7c-5 19-14 11-23 25Z" stroke="currentColor" strokeWidth="1.6"/><path d="m19 32 7 7 7-7M26 22V8m-4 4 4-8 4 8" stroke="currentColor" strokeWidth="1.6"/></svg>}</span>
           </a>
           <p className="mt-4 max-w-xs text-sm leading-7 text-[#b9cad5]">{t('brand.tagline')}</p>
+          <DigiPayEntry variant="link" locale={locale} className="digipay-entry-footer-link" />
           {socials.length > 0 && <ul aria-label={t('aria.socials')} className="mt-5 flex flex-wrap gap-2">{socials.map(social => <li key={social.id}>
             <a href={social.href} aria-label={t(social.labelKey)} className={`flex size-11 items-center justify-center rounded-full border border-white/20 text-[#d5e1e5] transition-colors hover:border-[#ceb798] hover:text-[#ceb798] ${focusRing}`}><span aria-hidden="true">{social.icon}</span></a>
           </li>)}</ul>}
