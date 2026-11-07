@@ -5,6 +5,7 @@ import {CompanyMemberControls} from "./CompanyMemberControls";
 import { OfficeAccessEditor } from "./MarketerOffice";
 import { AdminPayoutProfiles } from "./AdminPayoutProfiles";
 import DigiPayOperations from "./DigiPayOperations";
+import AdminOrderDetails from "./AdminOrderDetails";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import AdminOutbox from "./AdminOutbox";
 import ServiceHealth from "./ServiceHealth";
@@ -794,8 +795,7 @@ export function AdminOrders({
         />
         {selected && (
           <Modal title={selected.title} onClose={() => setSelected(null)}>
-            <p>شناسه: {selected.id}</p>
-            <p>مرجع پرداخت: {selected.payment_ref || "پرداخت تأیید نشده"}</p>
+            <AdminOrderDetails key={String(selected.id)} orderId={String(selected.id)} />
             <Form
               fields={[
                 {

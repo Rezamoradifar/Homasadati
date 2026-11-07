@@ -593,6 +593,7 @@ export function createOrder(
     )
       throw new ApiError(409, "insufficient_balance");
     const id = randomUUID();
+    const customer = one("SELECT name,phone FROM p_users WHERE id=?", user);
     run(
       "UPDATE p_products SET stock=stock-? WHERE id=? AND stock>=?",
       quantity,
@@ -617,6 +618,7 @@ export function createOrder(
         loyaltyPolicy: loyaltyPolicy(),
         merchantTerms: merchant,
         orderTerms: {
+          customer: { name: customer?.name || "", phone: customer?.phone ?? null },
           catalogDetails: publicCatalogDetails(
             one(
               "SELECT details FROM p_product_details WHERE product_id=?",

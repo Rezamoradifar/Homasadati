@@ -55,6 +55,14 @@ const nextConfig = {
         // never account paths or query parameters (including referral tokens).
         headers: [{ key: "Referrer-Policy", value: "strict-origin" }],
       },
+      {
+        source: "/admin/orders/:id/print",
+        headers: [
+          { key: "Cache-Control", value: "private, no-store, max-age=0" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+        ],
+      },
     ];
   },
 };

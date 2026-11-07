@@ -1,4 +1,5 @@
 import { outboxFailures, retryOutbox } from "./outbox-admin";
+import { orderDocument } from "./order-document";
 import {purchaseActivationReceipt} from "./purchase-activation-receipt";
 import {launchDashboard} from "./launch-dashboard";
 import { memberStartGuide } from "./start-guide";
@@ -1109,6 +1110,9 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     return json({ id: key });
   }
   if (resource === "orders") {
+    if (get && (path.length < 2 || path.length > 3))
+      throw new ApiError(404, "not_found");
+    if (get && entity) return json(orderDocument(entity));
     if (get)
       return json(
         paged(

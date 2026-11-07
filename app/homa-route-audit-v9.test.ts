@@ -12,6 +12,7 @@ const routeFiles = [
   "app/account/page.tsx",
   "app/admin/page.tsx",
   "app/admin/legacy/page.tsx",
+  "app/admin/orders/[id]/print/page.tsx",
   "app/cart/page.tsx",
   "app/club/page.tsx",
   "app/club/ranks/page.tsx",
@@ -47,7 +48,7 @@ describe("route-by-route HOMA V9 page shell audit", () => {
   it("accounts for every route in the application, not just the homepage", () => {
     const found = pages("app").sort();
     expect(found).toEqual([...routeFiles].sort());
-    expect(found).toHaveLength(25);
+    expect(found).toHaveLength(26);
   });
 
   it.each(routeFiles)("%s uses a shared site experience", path => {
@@ -55,7 +56,9 @@ describe("route-by-route HOMA V9 page shell audit", () => {
     expect(
       code.includes("<CommerceShell") ||
       code.includes("<Portal") ||
-      code.includes("<HomeLanding"),
+      code.includes("<HomeLanding") ||
+      // An authenticated print preview intentionally omits the site chrome.
+      (path === "app/admin/orders/[id]/print/page.tsx" && code.includes("<AdminOrderPrint")),
       path + " must not be left with unthemed stand-alone chrome",
     ).toBe(true);
   });
