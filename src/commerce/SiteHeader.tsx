@@ -15,6 +15,7 @@ import { LanguagePicker, useSiteLocale } from "../i18n/SiteLocale";
 import { useSiteSettings } from "../platform/SiteSettings";
 import { menuName } from "./brands";
 import ThemeToggle from "./ThemeToggle";
+import DigiPayEntry from "./DigiPayEntry";
 import tourismCopy from "../../app/tourism-experience-copy.json";
 
 const services = [
@@ -122,6 +123,7 @@ export default function SiteHeader({
               <>
                 <a href="/worlds/tourism" aria-current="page">{travel.nav.home}</a>
                 <a href="/shop?vertical=tourism">{travel.nav.domestic}</a>
+                <DigiPayEntry variant="link" className="digipay-nav-link" />
                 <a href="#tourism-destinations">{travel.nav.destinations}</a>
                 <a href="#tourism-experiences">{travel.nav.experiences}</a>
                 <a href="/account?tab=travel-cards">{travel.nav.travelCard}</a>
@@ -132,6 +134,7 @@ export default function SiteHeader({
               <>
                 <a href="/">خانه</a>
                 <a href="/shop">فروشگاه</a>
+                <DigiPayEntry variant="link" className="digipay-nav-link" />
                 <a href={home ? "#hex-products" : "/#hex-products"}>خدمات هما</a>
                 <a href="/club">باشگاه مشتریان</a>
                 <a href="/income-plan">طرح درآمد</a>
@@ -257,6 +260,7 @@ export default function SiteHeader({
               مشاهده فروشگاه
               <ShoppingBag size={22} aria-hidden="true" />
             </a>
+            <DigiPayEntry variant="compact" />
             <div className="discovery-menu-links">
               <a href="/account">حساب کاربری</a>
               <a href="/cart">سبد خرید</a>

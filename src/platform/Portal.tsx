@@ -10,6 +10,7 @@ import "./member-luxury.css";
 import { useSiteSettings } from "./SiteSettings";
 import { LanguagePicker } from "../i18n/SiteLocale";
 import ThemeToggle from "../commerce/ThemeToggle";
+import DigiPayEntry from "../commerce/DigiPayEntry";
 import AuthPanel from "./AuthPanel";
 import { visibleAdminTabs, searchAdminGroups } from "./admin-navigation";
 import { memberNavigation } from "./member-navigation";
@@ -409,6 +410,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   تازه‌سازی
                 </button>
               </div>
+              {!admin && tab === "dashboard" && <DigiPayEntry variant="compact" />}
               <Notice error={error} />
               <Notice error={connectionError} />
               {!current ? (

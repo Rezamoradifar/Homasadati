@@ -20,6 +20,7 @@ export const PUBLIC_ROUTES = Object.freeze([
   "/club",
   "/club/ranks",
   "/contact",
+  "/digipay",
   "/help",
   "/heritage",
   "/income-plan",

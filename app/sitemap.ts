@@ -16,6 +16,7 @@ const staticPaths: [string, number, MetadataRoute.Sitemap[number]["changeFrequen
   ["/about", 0.6, "yearly"],
   ["/contact", 0.6, "yearly"],
   ["/help", 0.5, "monthly"],
+  ["/digipay", 0.6, "monthly"],
   ["/legal/terms", 0.3, "yearly"],
   ["/legal/privacy", 0.3, "yearly"],
 ];

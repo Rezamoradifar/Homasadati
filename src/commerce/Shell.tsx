@@ -2,6 +2,7 @@ import ContactDetails from "./ContactDetails";
 import FooterBrandLogo from "./FooterBrandLogo";
 import SiteHeader from "./SiteHeader";
 import ThemeToggle from "./ThemeToggle";
+import DigiPayEntry from "./DigiPayEntry";
 import Localized from "../i18n/Localized";
 import type { ReactNode } from "react";
 import { menuLine, menuSectors } from "./brands";
@@ -42,6 +43,7 @@ export function CommerceShell({ children, tourism = false }: { children: ReactNo
             <nav aria-label="پیوندهای اصلی">
               <a href="/shop">فروشگاه</a>
               <a href="/cart">سبد خرید و پرداخت</a>
+              <DigiPayEntry variant="link" />
               <a href="/account?tab=orders">پیگیری سفارش‌ها</a>
               <a href="/club">باشگاه مشتریان</a>
               <a href="/support">پشتیبانی و تیکت</a>

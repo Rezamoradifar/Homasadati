@@ -16,6 +16,7 @@ const routeFiles = [
   "app/club/page.tsx",
   "app/club/ranks/page.tsx",
   "app/contact/page.tsx",
+  "app/digipay/page.tsx",
   "app/help/page.tsx",
   "app/heritage/page.tsx",
   "app/income-plan/page.tsx",
@@ -46,7 +47,7 @@ describe("route-by-route HOMA V9 page shell audit", () => {
   it("accounts for every route in the application, not just the homepage", () => {
     const found = pages("app").sort();
     expect(found).toEqual([...routeFiles].sort());
-    expect(found).toHaveLength(24);
+    expect(found).toHaveLength(25);
   });
 
   it.each(routeFiles)("%s uses a shared site experience", path => {
