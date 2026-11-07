@@ -1514,7 +1514,6 @@ async function baleCallback(req: Request, url: URL) {
 /** DigiPay posts a browser form across origins. This narrow callback is exempt
  * from the same-origin guard, but every field remains untrusted until verify. */
 async function digipayCallback(req: Request, url: URL) {
-  limit("digipay-callback:" + ipOf(req), 90, 60);
   const pid = url.searchParams.get("pid") || "";
   const fields = new URLSearchParams({ pid });
   if (req.method === "POST") {

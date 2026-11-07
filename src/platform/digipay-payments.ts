@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { ApiError } from "../server/http";
+import { ApiError, limit } from "../server/http";
 import { assertPurchasesOpen } from "./card-schedule";
 import { settleCheckout } from "./checkout";
 import { createDigiPayTicket, digipayConfig, verifyDigiPayPurchase, type DigiPayBasketItem, type DigiPayPurchaseType } from "./digipay";
@@ -176,6 +176,11 @@ export async function handleDigiPayCallback(fields: URLSearchParams): Promise<{ 
     !/^\d+$/.test(type) || !TYPES.includes(Number(type)) || !TRACKING.test(tracking) ||
     !["SUCCESS", "FAILURE"].includes(fields.get("result") || ""))
     return { outcome: "unknown_payment" };
+  // The callback is intentionally cross-origin. Limit only a recognised,
+  // fully bound attempt, not all visitors behind an untrusted reverse proxy:
+  // a burst of malformed callbacks must not block unrelated real payments.
+  // The provider's normal retry behavior remains comfortably below this cap.
+  limit("digipay-callback:" + p.id, 12, 60);
   if (p.status === "pending" || (p.status === "review" && !p.verified_at && ["callback_missing", "verification_stalled"].includes(p.last_error))) {
     // These remain untrusted candidate identifiers, separate from the UNIQUE
     // authenticated tracking_code. Forged callbacks cannot reserve another sale.

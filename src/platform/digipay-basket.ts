@@ -46,7 +46,7 @@ export function digipayItemsForCart(userId: string, lines: { productId: string; 
   const result = new Map<string, DigiPayBasketItem>();
   for (const line of lines) {
     const product = one(
-      "SELECT p.id,p.vertical,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.id=? AND p.published=1",
+      "SELECT p.id,p.vertical,d.sku,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.id=? AND p.published=1",
       line.productId,
     );
     let details: Record<string, unknown> = {};
@@ -57,7 +57,9 @@ export function digipayItemsForCart(userId: string, lines: { productId: string; 
     result.set(line.productId, {
       sellerId: value(process.env.DIGIPAY_SELLER_ID),
       supplierId: value(process.env.DIGIPAY_SUPPLIER_ID),
-      productCode: value(details?.sku) || line.productId,
+      // `sku` is the canonical catalog column. Older rows may only have it
+      // there, while newer editor saves also mirror it into the JSON details.
+      productCode: value(product.sku) || value(details?.sku) || line.productId,
       brand,
       productType: category.productType,
       count: line.quantity,

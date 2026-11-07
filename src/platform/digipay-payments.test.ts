@@ -138,6 +138,18 @@ describe("checkout preparation", () => {
     expect(wallet(buyer).available).toBe(0);
   });
 
+  it("uses a legacy saved catalog SKU in the provider basket", async () => {
+    const productId = product();
+    run("INSERT INTO p_product_details(product_id,sku,details,updated_at) VALUES(?,?,?,?)",
+      productId, "HOMA-LEGACY-001", "{}", now());
+    const input = checkoutSchema.parse({ items: [{ productId, quantity: 1 }], method: "digipay", idempotencyKey: randomUUID(), expectedTotal: 250_000 });
+    const c = createCheckout(buyer, input);
+
+    await startDigiPayPayment(c.id, buyer);
+
+    expect(createMock.mock.calls[0][0].items[0]).toMatchObject({ productCode: "HOMA-LEGACY-001" });
+  });
+
   it("reuses an unexpired ticket without reserving inventory or charging again", async () => {
     const { c, p, productId, redirect } = await started();
     expect(await startDigiPayPayment(c.id, buyer)).toEqual(redirect);
@@ -366,6 +378,18 @@ describe("HTTP callback and ownership", () => {
     }), ["payment", "digipay", "callback"]);
     expect(res.status).toBe(400);
     expect(verifyMock).not.toHaveBeenCalled();
+  });
+
+  it("limits a recognised callback per payment without sharing a proxy-wide bucket", async () => {
+    vi.stubEnv("TRUST_PROXY", "0");
+    const first = await started(), second = await started();
+    const post = (p: Row) => handle(new Request(`https://homanets.test/api/platform/payment/digipay/callback?pid=${p.id}`, {
+      method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: callbackFields(p).toString(),
+    }), ["payment", "digipay", "callback"]);
+    for (let i = 0; i < 12; i++) expect((await post(first.p)).status).toBe(303);
+    expect((await post(first.p)).status).toBe(429);
+    expect((await post(second.p)).status).toBe(303);
+    expect(one("SELECT status FROM p_checkouts WHERE id=?", second.c.id)!.status).toBe("paid");
   });
 
   it("requires login and ownership for viewing and re-verifying a payment", async () => {

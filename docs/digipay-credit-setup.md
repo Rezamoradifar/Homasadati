@@ -51,7 +51,7 @@ Category mapping shape, with a placeholder that must be replaced:
 ```
 
 Only map verticals approved by the merchant's agreement. A product uses its saved
-brand and SKU (or internal product ID); the seller, supplier and category values
+catalog SKU (including legacy SKU-only records) or internal product ID; the seller, supplier and category values
 are snapshotted with the order. An unmapped or unbranded product is rejected before
 inventory is reserved. The buyer must have an Iranian mobile number on the account.
 Vouchers cannot be combined with this payment method in this release.
@@ -71,6 +71,9 @@ https://homanets.com/api/platform/payment/digipay/callback
 The application adds a unique `pid` query parameter for each attempt. The proxy
 must pass query parameters and POST bodies through unchanged. This endpoint must
 not be redirected to a maintenance page or protected with browser-only challenges.
+Callbacks are rate-limited per recognised payment attempt rather than by a shared
+proxy address, so a burst against an unrelated attempt cannot exhaust the callback
+budget for other customers.
 
 Read-only configuration check (no provider call, no credential values printed):
 
