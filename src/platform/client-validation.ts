@@ -1,4 +1,5 @@
 import { outboxRetrySchema } from "./outbox-model";
+import { adminMemberProfilePatchSchema } from "./admin-member-profile-model";
 import {
   ticketCreateSchema,
   ticketReplySchema,
@@ -61,6 +62,10 @@ const reason = z.object({ reason: text });
 // database-dependent limits are always rechecked on the server.
 export function validateClient(path: string, method: string, data: unknown) {
   const p = path.split("?")[0].split("/");
+  if (method === "PATCH" && p.length === 4 && p[0] === "admin" && p[1] === "users" && p[3] === "profile") {
+    id.parse(p[2]);
+    return adminMemberProfilePatchSchema.parse(data);
+  }
   let schema: z.ZodTypeAny | undefined;
   if (p.join("/") === "admin/outbox") schema = outboxRetrySchema;
   if (p.join("/") === "cart/quote")
@@ -200,7 +205,11 @@ export function validateClient(path: string, method: string, data: unknown) {
       })
       .refine((v) => v.action !== "password" || !!v.newPassword);
   if (p[0] === "admin") {
-    if (method === "DELETE") {
+    if (p[1] === "member-access" && p.length === 2) {
+      schema = method === "DELETE"
+        ? z.object({ userId: id }).strict()
+        : z.object({ userId: id, reason: z.string().trim().max(500).optional() }).strict();
+    } else if (method === "DELETE") {
       id.parse(p[2]);
       schema = reason;
     } else

@@ -1,6 +1,34 @@
 import { validateClient } from "./client-validation";
 import { formatDate } from "../i18n/core";
+import companyCopy from "./company-member-copy.json";
 export type RecordData = Record<string, any>;
+const companyMemberEndpoints = new Set([
+  "me", "dashboard", "member-details", "travel-cards", "binary", "loyalty", "profile", "contact", "security",
+  "payments", "checkouts", "orders", "wallet", "withdrawals", "payout-profile", "referral", "marketer-office",
+  "network-tree", "activity-chart", "network-search", "network", "commissions", "missions", "wishlist",
+  "addresses", "subscriptions", "notifications", "tickets", "merchant", "seven-card-plan",
+]);
+export function companyMemberTarget(): string | null {
+  if (typeof window === "undefined" || window.location.pathname.replace(/\/$/, "") !== "/account") return null;
+  const targets = new URLSearchParams(window.location.search).getAll("companyMember");
+  return targets.length === 1 && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targets[0])
+    ? targets[0] : null;
+}
+function companyMemberHeader(path: string): Record<string, string> {
+  const target = companyMemberTarget();
+  if (!target) return {};
+  const parts = path.split("?")[0].split("/");
+  try {
+    if (parts.some(part => { const decoded = decodeURIComponent(part); return decoded === "." || decoded === ".." || /[\\/]/.test(decoded); })) return {};
+  } catch { return {}; }
+  return companyMemberEndpoints.has(parts[0]) ? { "x-homa-company-member": target } : {};
+}
+function companyAccessMessage(code: string): string | undefined {
+  const language = typeof document === "undefined" ? "fa" : document.documentElement.lang;
+  const copy = companyCopy[language === "en" || language === "ar" ? language : "fa"];
+  return ({ company_access_denied: copy.denied, company_access_expired: copy.expired,
+    company_access_target_inactive: copy.inactive, company_access_operation_forbidden: copy.operationBlocked } as Record<string, string>)[code];
+}
 export const errors: Record<string, string> = {
   self_payment_review: "نمی‌توانید پرداخت مربوط به حساب خودتان را بررسی کنید.",
   direct_capacity_reached: "ظرفیت معرفی مستقیم شما تکمیل است. با خرید و فعال‌شدن جایگاه بعدی، ظرفیت افزایش می‌یابد.",
@@ -129,11 +157,13 @@ export class PlatformApiError extends Error {
     public code: string,
     public status: number,
   ) {
-    super(errors[code] || "عملیات انجام نشد؛ دوباره تلاش کنید.");
+    super(companyAccessMessage(code) || errors[code] || "عملیات انجام نشد؛ دوباره تلاش کنید.");
     this.name = "PlatformApiError";
   }
 }
 export async function api(path: string, method = "GET", data?: unknown) {
+  if (companyMemberTarget() && path.split("/")[0] === "auth" && method !== "GET")
+    throw new PlatformApiError("company_access_operation_forbidden", 403);
   if (method !== "GET") {
     try {
       data = validateClient(path, method, data || {});
@@ -157,7 +187,7 @@ export async function api(path: string, method = "GET", data?: unknown) {
         method,
         credentials: "same-origin",
         cache: "no-store",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...companyMemberHeader(path) },
         ...(controller ? {signal:controller.signal} : {}),
         ...(method === "GET" ? {} : { body: JSON.stringify(data || {}) }),
       });
@@ -176,6 +206,8 @@ export async function api(path: string, method = "GET", data?: unknown) {
       if (response.status >= 500) diagnostic("api_server");
       if (result.error === "unauthorized" && typeof window !== "undefined")
         window.dispatchEvent(new Event("platform-session-expired"));
+      if (companyMemberTarget() && ["company_access_denied", "company_access_expired", "company_access_target_inactive"].includes(String(result.error)))
+        window.dispatchEvent(new CustomEvent("company-member-access-failed", { detail: { code: result.error } }));
       throw new PlatformApiError(String(result.error || "server_error"),response.status);
     }
     if (Date.now()-started>4000) diagnostic("api_slow");

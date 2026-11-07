@@ -16,7 +16,9 @@ import { visibleAdminTabs, searchAdminGroups } from "./admin-navigation";
 import { memberNavigation } from "./member-navigation";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import { translateText } from "../i18n/core";
-import { api, labels, PlatformApiError, RecordData } from "./client";
+import { api, companyMemberTarget, labels, PlatformApiError, RecordData } from "./client";
+import { CompanyMemberAccessBanner, CompanyMemberAccessUnavailable, CompanyMemberRestrictedAction, endCompanyMemberAccess, type CompanyMemberContext } from "./CompanyMemberAccess";
+import companyCopy from "./company-member-copy.json";
 import { Notice, Listing } from "./Widgets";
 import {
   Addresses,
@@ -69,16 +71,39 @@ const MemberKit = dynamic(() => import("./MemberKit"), { loading: PanelLoading }
 export default function Portal({ admin = false }: { admin?: boolean }) {
   const site = useSiteSettings();
   const { locale, dictionary } = useSiteLocale();
+  const companyText = companyCopy[locale];
+  const companyRequested = !admin && typeof window !== "undefined" && new URLSearchParams(window.location.search).has("companyMember");
+  const companyTarget = !admin ? companyMemberTarget() : null;
+  const contextKey = companyRequested ? companyTarget || "invalid-company" : "owner";
+  const [companyError, setCompanyError] = useState("");
+  const [userContext, setUserContext] = useState<string | null>(null);
   const [navQuery, setNavQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [connectionAttempt, setConnectionAttempt] = useState(0);
   const [connectionError, setConnectionError] = useState("");
-  const [user, setUser] = useState<RecordData | null>(null),
+  const [loadedUser, setUser] = useState<RecordData | null>(null),
     [loading, setLoading] = useState(true),
     [tab, setTab] = useState("dashboard"),
     [refresh, setRefresh] = useState(0),
     [error, setError] = useState("");
   const update = () => setRefresh((n) => n + 1);
+  const user = userContext === contextKey ? loadedUser : null;
+  const companyAccess = user?.companyAccess as CompanyMemberContext | undefined;
+  const companyContextValid = Boolean(companyTarget && user?.id === companyTarget && companyAccess?.targetId === companyTarget && companyAccess.actorId);
+  const acceptUser = (next: RecordData) => {
+    if (companyRequested && (!companyTarget || next?.id !== companyTarget || next.companyAccess?.targetId !== companyTarget || !next.companyAccess?.actorId)) {
+      setUser(null);
+      setCompanyError(companyTarget ? companyText.denied : companyText.invalidTarget);
+      return;
+    }
+    setUser(next);
+    setUserContext(contextKey);
+    setCompanyError("");
+  };
+  const exitCompanyView = async () => {
+    await endCompanyMemberAccess(companyTarget);
+    window.location.assign("/admin?tab=users");
+  };
   useEffect(() => {
     let live = true;
     setLoading(true);
@@ -86,13 +111,14 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
     api("me")
       .then((r) => {
         if (live) {
-          setUser(r.user);
+          acceptUser(r.user);
           const t = new URLSearchParams(location.search).get("tab");
           if (t) setTab(t);
           else if (admin) setTab("home");
         }
       })
       .catch((e) => {
+        if (live && companyRequested) setCompanyError(e instanceof PlatformApiError && e.code === "unauthorized" ? companyText.signIn : e.message);
         if (
           live &&
           !(e instanceof PlatformApiError && e.code === "unauthorized")
@@ -105,19 +131,31 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
     return () => {
       live = false;
     };
-  }, [admin, connectionAttempt]);
+  }, [admin, connectionAttempt, companyTarget, companyRequested]);
+  useEffect(() => {
+    if (!companyRequested) return;
+    const failed = (event: Event) => {
+      const code = (event as CustomEvent<{ code: string }>).detail?.code || "company_access_denied";
+      setUser(null);
+      setCompanyError(new PlatformApiError(code, 403).message);
+      setConnectionError("");
+    };
+    window.addEventListener("company-member-access-failed", failed);
+    return () => window.removeEventListener("company-member-access-failed", failed);
+  }, [companyRequested, companyTarget]);
   useEffect(() => {
     const expired = () => {
       if (!user) return;
       setUser(null);
       setMenuOpen(false);
       setConnectionError("");
+      if (companyRequested) setCompanyError(companyText.signIn);
       setError("نشست شما پایان یافته است؛ دوباره وارد حساب شوید.");
     };
     window.addEventListener("platform-session-expired", expired);
     return () =>
       window.removeEventListener("platform-session-expired", expired);
-  }, [user?.id]);
+  }, [user?.id, companyRequested]);
   useEffect(() => {
     if (!user) return;
     let live = true,
@@ -128,7 +166,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
       try {
         const r = await api("me");
         if (live) {
-          setUser(r.user);
+          acceptUser(r.user);
           setConnectionError("");
           update();
         }
@@ -146,7 +184,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
       live = false;
       clearInterval(id);
     };
-  }, [user?.id]);
+  }, [user?.id, companyRequested, companyTarget]);
   const userGroups = memberNavigation(Boolean(user?.merchant), Boolean(user?.marketerOffice?.enabled));
   const tabs = admin
     ? visibleAdminTabs(user?.role || "", user?.permissions)
@@ -154,6 +192,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
   const current = tabs.find((t) => t[0] === tab);
   const logged = (u: RecordData) => {
     setUser(u);
+    setUserContext(contextKey);
     setError("");
     setConnectionError("");
     const requested = new URLSearchParams(location.search).get("tab");
@@ -169,6 +208,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
   };
   useEffect(() => {
     const restoreTab = () => {
+      setConnectionAttempt((value) => value + 1);
       setTab(
         new URLSearchParams(location.search).get("tab") ||
           (admin ? "home" : "dashboard"),
@@ -200,7 +240,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
     .filter((group) => group.tabs.length > 0);
   const refreshUser = async () => {
     const r = await api("me");
-    setUser(r.user);
+    acceptUser(r.user);
     setConnectionError("");
     update();
   };
@@ -223,7 +263,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
             <LanguagePicker />
             <ThemeToggle />
             <a href="/">وب‌سایت</a>
-            {(admin ||
+            {!companyRequested && (admin ||
               (user &&
                 visibleAdminTabs(user.role, user.permissions).length > 0)) && (
               <a href={admin ? "/account" : "/admin"}>
@@ -235,6 +275,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                 className="portal-button gold"
                 onClick={async () => {
                   try {
+                    if (companyRequested) { await exitCompanyView(); return; }
                     await api("auth/logout", "POST");
                     setUser(null);
                     setError("");
@@ -244,15 +285,18 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   }
                 }}
               >
-                خروج
+                {companyRequested ? companyText.exit : "خروج"}
               </button>
             )}
           </div>
         </header>
+        {companyRequested && companyContextValid && companyAccess && <CompanyMemberAccessBanner access={companyAccess} onExit={exitCompanyView} />}
         {loading ? (
           <p role="status" className="portal-loading">
             در حال بررسی حساب…
           </p>
+        ) : companyRequested && (!user || !companyContextValid) ? (
+          <CompanyMemberAccessUnavailable message={companyError || (companyTarget ? companyText.denied : companyText.invalidTarget)} onExit={exitCompanyView} />
         ) : !user && connectionError ? (
           <main className="portal-card portal-auth">
             <h1>اتصال به حساب برقرار نشد</h1>
@@ -415,6 +459,8 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
               <Notice error={connectionError} />
               {!current ? (
                 <Notice error="بخش انتخاب‌شده در دسترس نیست." />
+              ) : companyRequested && tab === "security" ? (
+                <CompanyMemberRestrictedAction />
               ) : tab === "security" ? (
                 <Security onReauth={() => setUser(null)} />
               ) : admin ? (

@@ -1,5 +1,8 @@
 import { outboxFailures, retryOutbox } from "./outbox-admin";
+import { runCompanyAuditContext, companyAuditContext } from "./company-audit-context";
+import { beginCompanyMemberAccess, endCompanyMemberAccess, resolveCompanyMemberAccess, companyAccessMetadata, auditCompanyMemberRequest } from "./company-member-access";
 import { orderDocument } from "./order-document";
+import { adminMemberProfile, updateAdminMemberProfile } from "./admin-member-profile";
 import {purchaseActivationReceipt} from "./purchase-activation-receipt";
 import {launchDashboard} from "./launch-dashboard";
 import { memberStartGuide } from "./start-guide";
@@ -823,6 +826,13 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     if (req.method !== "PATCH") throw new ApiError(405,"method_not_allowed");
     return json(grantOffice(owner.id,data));
   }
+  if (resource === "member-access") {
+    const owner = userOf(req, ["superadmin"]);
+    if (path.length !== 2) throw new ApiError(404, "not_found");
+    if (req.method === "POST") return json(beginCompanyMemberAccess(owner, req, data));
+    if (req.method === "DELETE") return json(endCompanyMemberAccess(owner, req, data));
+    throw new ApiError(405, "method_not_allowed");
+  }
   const allowed = permissions[resource];
   if (resource === "access") {
     const owner = userOf(req, ["superadmin"]);
@@ -1233,6 +1243,12 @@ async function admin(req: Request, path: string[], data: Row, url: URL) {
     return json(reviewWithdrawal(d.id, u.id, d.status, d.reason, d.reference));
   }
   if (resource === "users") {
+    if (path[3] === "profile") {
+      if (!entity || path.length !== 4) throw new ApiError(404, "not_found");
+      if (get) return json(adminMemberProfile(u, entity));
+      if (req.method !== "PATCH") throw new ApiError(405, "method_not_allowed");
+      return json(updateAdminMemberProfile(u, entity, data));
+    }
     if (get && entity) {
       const member = one("SELECT * FROM p_users WHERE id=?", entity);
       if (!member) throw new ApiError(404, "not_found");
@@ -1569,10 +1585,20 @@ async function digipayCallback(req: Request, url: URL) {
 }
 
 export async function handle(req: Request, path: string[]) {
+  return runCompanyAuditContext(async () => {
+    const response = await handleRequest(req, path);
+    const context = companyAuditContext();
+    if (context) auditCompanyMemberRequest(context, path, req.method, response.status);
+    return response;
+  });
+}
+async function handleRequest(req: Request, path: string[]) {
   try {
     const url = new URL(req.url),
       method = req.method,
       get = method === "GET";
+    if (!get && path[0] === "auth" && req.headers.has("x-homa-company-member"))
+      throw new ApiError(403, "company_access_operation_forbidden");
     if (path[0] === "media") return await media(req, path);
     let data: Row = {};
     if (path.join("/") === "auth/config" && get)
@@ -1794,7 +1820,9 @@ export async function handle(req: Request, path: string[]) {
       throw new ApiError(404, "not_found");
     }
     if (path[0] === "admin") return await admin(req, path, data, url);
-    const u = userOf(req),
+    const actor = userOf(req);
+    const companyAccess = resolveCompanyMemberAccess(req, actor, path, method);
+    const u = companyAccess?.user || actor,
       q = query(url);
     if (!get) limit("member-write:" + u.id, 80, 300);
     const operation = operationsApi(req, path, data, u);
@@ -1862,7 +1890,7 @@ export async function handle(req: Request, path: string[]) {
         return json(redeemReward(u.id, data), 201);
       throw new ApiError(405, "method_not_allowed");
     }
-    if (path[0] === "me" && get) return json({ user: { ...publicUser(u), managerActivated:managerActivated(u.id),companyCreditToman:companyCredit(u.id),companyPositions:companyPositionStatus(u.id),marketerOffice: officeAccess(u.id) } });
+    if (path[0] === "me" && get) return json({ user: { ...publicUser(u), managerActivated:managerActivated(u.id),companyCreditToman:companyCredit(u.id),companyPositions:companyPositionStatus(u.id),marketerOffice: officeAccess(u.id),companyAccess:companyAccess ? companyAccessMetadata(companyAccess.context) : null } });
     if (path[0] === "dashboard" && get) {
       const start = persianMonthStart();
       const club=memberCardStatus(u.id),invitation=referralStatus(u);

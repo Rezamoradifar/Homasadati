@@ -1,0 +1,23 @@
+.company-member-entry,.company-member-banner,.company-member-unavailable{color:var(--hu-ink,#22251f);background:var(--hu-surface,#fffdf8);border:1px solid var(--hu-border,#e3d7c4);border-radius:14px;padding:18px;line-height:1.8}
+.company-member-entry{margin:20px 0}
+.company-member-entry h3{font-size:17px;margin:0 0 8px}
+.company-member-entry p,.company-member-banner p,.company-member-unavailable p{margin:8px 0;font-size:14px}
+.company-member-entry>p{color:var(--hu-muted,#5c5c52)}
+.company-member-banner{position:sticky;top:8px;z-index:40;margin:12px 20px 0;border-inline-start:5px solid var(--hu-accent,#a87625);box-shadow:var(--hu-shade,0 8px 25px #0001)}
+.company-member-banner-heading{display:flex;align-items:center;flex-wrap:wrap;gap:8px 22px}
+.company-member-banner-heading>strong{color:var(--hu-accent,#a87625);font-size:15px}
+.company-member-banner-heading>span{font-size:15px;font-weight:700}
+.company-member-banner>p{color:var(--hu-muted,#5c5c52);font-size:13px}
+.company-member-actions{display:flex;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-top:13px}
+.company-member-actions .portal-button,.company-member-entry .portal-button{min-height:44px;display:inline-flex;justify-content:center;align-items:center;white-space:normal;text-align:center}
+.company-member-exit{display:flex;flex-direction:column;gap:8px}
+.company-member-exit>p,.company-member-entry>[role=alert]{color:var(--hu-ink,#22251f);margin:0;font-size:13px}
+.company-member-button:disabled{opacity:.65;cursor:wait}
+.company-member-ready{margin-top:12px}
+.company-member-ready a{display:inline-flex;min-height:44px;align-items:center;text-decoration:underline;text-underline-offset:4px;font-weight:700}
+.company-member-unavailable{max-width:720px;margin:28px auto;width:calc(100% - 32px)}
+.company-member-unavailable h1{font-size:23px;margin:0 0 10px}
+.company-member-restricted{line-height:1.9}
+.company-member-restricted p{margin-top:0}
+@media(max-width:640px){.company-member-banner{margin:10px 12px 0;padding:14px;top:0}.company-member-banner-heading{gap:4px}.company-member-actions{flex-direction:column;align-items:stretch}.company-member-actions .portal-button,.company-member-exit{width:100%}.company-member-banner>p{font-size:12px}}
+@media print{.company-member-banner{position:static;box-shadow:none}}

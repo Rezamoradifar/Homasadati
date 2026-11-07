@@ -46,6 +46,19 @@ export function platformDb() {
   CREATE TABLE IF NOT EXISTS p_company_positions(user_id TEXT PRIMARY KEY REFERENCES p_users(id),desks INTEGER NOT NULL CHECK(desks BETWEEN 1 AND 7),granted_at TEXT NOT NULL,deadline TEXT NOT NULL,actor_id TEXT NOT NULL REFERENCES p_users(id),last_status TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_company_actions(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),actor_id TEXT NOT NULL REFERENCES p_users(id),payload TEXT NOT NULL,created_at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_archived_users(user_id TEXT PRIMARY KEY REFERENCES p_users(id),archived_at TEXT NOT NULL,actor_id TEXT NOT NULL REFERENCES p_users(id));
+  CREATE TABLE IF NOT EXISTS p_company_member_access(
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL REFERENCES p_users(id),
+    owner_session_hash TEXT NOT NULL,
+    target_id TEXT NOT NULL REFERENCES p_users(id),
+    reason TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    expires_at INTEGER NOT NULL,
+    revoked_at TEXT,
+    revoked_by TEXT REFERENCES p_users(id),
+    CHECK(owner_id!=target_id));
+  CREATE INDEX IF NOT EXISTS p_company_member_access_session ON p_company_member_access(owner_session_hash,target_id);
+  CREATE UNIQUE INDEX IF NOT EXISTS p_company_member_access_active_session_target ON p_company_member_access(owner_session_hash,target_id) WHERE revoked_at IS NULL;
   CREATE TABLE IF NOT EXISTS p_categories(id TEXT PRIMARY KEY,name TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('category','tag')),vertical TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_products(id TEXT PRIMARY KEY,title TEXT NOT NULL,description TEXT NOT NULL,vertical TEXT NOT NULL CHECK(vertical IN ('tourism','beauty','craft','ai','leather')),subtype TEXT NOT NULL,price INTEGER NOT NULL CHECK(price>0),stock INTEGER NOT NULL CHECK(stock>=0),images TEXT NOT NULL DEFAULT '[]',taxonomy TEXT NOT NULL DEFAULT '[]',published INTEGER NOT NULL DEFAULT 0,duration_days INTEGER NOT NULL DEFAULT 30 CHECK(duration_days>0),cancel_hours INTEGER NOT NULL DEFAULT 24 CHECK(cancel_hours>=0),created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS p_orders(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES p_users(id),product_id TEXT NOT NULL REFERENCES p_products(id),title TEXT NOT NULL,vertical TEXT NOT NULL,quantity INTEGER NOT NULL CHECK(quantity>0),unit_price INTEGER NOT NULL CHECK(unit_price>0),amount INTEGER NOT NULL CHECK(amount>0),status TEXT NOT NULL CHECK(status IN ('pending','processing','shipped','delivered','cancelled','refunded')),payment_method TEXT NOT NULL CHECK(payment_method IN ('wallet','zarinpal','zibal','bale','company_credit','digipay')),payment_ref TEXT UNIQUE,authority TEXT UNIQUE,checkout_claim TEXT,policy TEXT NOT NULL,cancel_until TEXT,expires_at TEXT NOT NULL,created_at TEXT NOT NULL,paid_at TEXT,refunded_at TEXT,idem_key TEXT NOT NULL,UNIQUE(user_id,idem_key));

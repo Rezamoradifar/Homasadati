@@ -1,0 +1,38 @@
+.admin-member-profile { min-width: 0; margin-block: 20px 28px; padding: 20px; border: 1px solid var(--hn-border, #d5dce0); border-radius: 12px; background: var(--hn-surface, #fff); color: var(--hn-text, #1b2233); }
+.admin-member-profile > header h3 { margin: 0 0 8px; font-size: 19px; }
+.admin-member-profile > header p, .admin-member-hint, .admin-member-metadata > p { font-size: 12px; line-height: 1.9; color: var(--hn-text-muted, #59696c); }
+.admin-member-profile fieldset { min-width: 0; }
+.admin-member-fields { margin: 20px 0 0; border: 0; padding: 0; }
+.admin-member-fields > legend { font-weight: 700; margin-bottom: 14px; padding: 0; }
+.admin-member-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px 18px; }
+.admin-member-grid label, .admin-member-reason { display: flex; flex-direction: column; gap: 7px; font-size: 13px; font-weight: 600; min-width: 0; }
+.admin-member-profile :is(input:not([type=checkbox]), select, textarea) { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--hn-border-strong, #acb9bd); border-radius: 7px; background: var(--hn-surface-raised, #fff); color: var(--hn-text, #1b2233); font: inherit; font-size: 14px; padding: 10px 12px; box-sizing: border-box; }
+.admin-member-profile textarea { resize: vertical; line-height: 1.9; }
+.admin-member-profile input[type=checkbox] { flex: 0 0 auto; width: 18px; height: 18px; accent-color: var(--hn-turquoise, #0f6e72); }
+.admin-member-profile button { min-height: 44px; padding: 9px 15px; border: 1px solid var(--hn-border-strong, #acb9bd); border-radius: 7px; background: var(--hn-surface, #fff); color: var(--hn-text, #1b2233); font: inherit; font-size: 13px; cursor: pointer; }
+.admin-member-profile :is(input, select, textarea, button, summary):focus-visible { outline: 3px solid var(--hn-focus, #0f6e72); outline-offset: 3px; }
+.admin-member-profile :disabled { opacity: .65; cursor: wait; }
+.admin-member-options { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 0; margin: 12px 0; border: 0; border-block-start: 1px solid var(--hn-border, #d5dce0); }
+.admin-member-options legend { font-size: 13px; font-weight: 700; padding-inline: 0 8px; }
+.admin-member-options label { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; font-size: 13px; }
+.admin-member-metadata { margin-top: 20px; border-block: 1px solid var(--hn-border, #d5dce0); }
+.admin-member-metadata summary { padding-block: 12px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.admin-member-metadata dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px 18px; margin: 12px 0; }
+.admin-member-metadata dt { font-size: 11px; color: var(--hn-text-muted, #59696c); }
+.admin-member-metadata dd { margin: 4px 0 0; font-size: 13px; overflow-wrap: anywhere; }
+.admin-member-addresses { border-block-start: 1px solid var(--hn-border, #d5dce0); padding-top: 16px; margin-top: 12px; }
+.admin-member-addresses h4 { margin: 0; font-size: 15px; }
+.admin-member-address { border: 1px solid var(--hn-border, #d5dce0); border-radius: 9px; padding: 14px; margin: 15px 0; }
+.admin-member-address legend { padding: 0 8px; font-size: 13px; font-weight: 700; }
+.admin-member-full { grid-column: 1 / -1; }
+.admin-member-address .admin-member-remove { margin-top: 12px; }
+.admin-member-reason { margin-top: 24px; }
+.admin-member-alert { border-inline-start: 4px solid var(--hn-terracotta, #b15a34); padding: 8px 12px; margin: 16px 0; background: var(--hn-bg, #f5f5f5); font-size: 13px; line-height: 1.9; }
+.admin-member-success { padding: 12px; border: 1px solid var(--hn-turquoise, #0f6e72); border-radius: 7px; font-size: 13px; }
+.admin-member-profile .admin-member-save { background: var(--hn-turquoise, #0f6e72); color: #fff; border-color: transparent; font-weight: 700; }
+@media (max-width: 600px) {
+  .admin-member-profile { padding: 15px; }
+  .admin-member-grid, .admin-member-metadata dl { grid-template-columns: minmax(0, 1fr); }
+  .admin-member-address { padding: 12px; }
+  .admin-member-profile .admin-member-save { width: 100%; }
+}

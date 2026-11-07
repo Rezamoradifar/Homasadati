@@ -6,6 +6,8 @@ import { OfficeAccessEditor } from "./MarketerOffice";
 import { AdminPayoutProfiles } from "./AdminPayoutProfiles";
 import DigiPayOperations from "./DigiPayOperations";
 import AdminOrderDetails from "./AdminOrderDetails";
+import AdminMemberProfile from "./AdminMemberProfile";
+import { CompanyMemberAccessButton } from "./CompanyMemberAccess";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import AdminOutbox from "./AdminOutbox";
 import ServiceHealth from "./ServiceHealth";
@@ -963,6 +965,9 @@ export function AdminUsers({
     selected?.id ? "admin/users/" + selected.id : "",
     refresh,
   );
+  const selectedDetail = selected && detail.data && detail.data.user?.id !== selected.id
+    ? { ...detail, data: null, loading: true }
+    : detail;
   return (
     <Localized>
       <>
@@ -989,9 +994,14 @@ export function AdminUsers({
         />
         {selected && (
           <Modal title={selected.name} onClose={() => setSelected(null)}>
+            {role === "superadmin" && <CompanyMemberAccessButton userId={String(selected.id)} name={String(selected.name || "")} />}
+            <AdminMemberProfile key={"profile-"+selected.id} userId={String(selected.id)} onChange={profile => {
+              setSelected(previous => previous?.id === profile.id ? { ...previous, name: profile.personal.name, email: profile.personal.email, phone: profile.personal.phone } : previous);
+              onChange();
+            }} />
             {role === "superadmin" && <CompanyMemberControls key={"company-"+selected.id} userId={selected.id} onChange={onChange}/> }
             {role === "superadmin" && <OfficeAccessEditor key={selected.id} userId={selected.id} onChange={onChange} />}
-            <DataState state={detail}>
+            <DataState state={selectedDetail}>
               {(d) => (
                 <Localized>
                   <>

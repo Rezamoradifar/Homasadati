@@ -10,6 +10,7 @@ import {
 } from "node:crypto";
 import { ApiError, hash, limit } from "../server/http";
 import { one, run, now, atomic, Row } from "./schema";
+import { companyAuditContext } from "./company-audit-context";
 export const SESSION_COOKIE = "homay_account";
 export function encrypt(value: string) {
   const key = process.env.PLATFORM_MASTER_KEY;
@@ -121,14 +122,22 @@ export function audit(
   after: unknown,
   reason = "",
 ) {
+  const context = companyAuditContext();
+  const delegated = context && actor === context.targetId;
+  const auditedActor = delegated ? context.actorId : actor;
+  const auditedAfter = delegated
+    ? after && typeof after === "object" && !Array.isArray(after)
+      ? { ...(after as Record<string, unknown>), companyAccess: { targetId: context.targetId } }
+      : { value: after ?? null, companyAccess: { targetId: context.targetId } }
+    : after ?? null;
   run(
     "INSERT INTO p_audit VALUES(?,?,?,?,?,?,?,?)",
     randomUUID(),
-    actor,
+    auditedActor,
     action,
     entity,
     JSON.stringify(before ?? null),
-    JSON.stringify(after ?? null),
+    JSON.stringify(auditedAfter),
     reason,
     now(),
   );
