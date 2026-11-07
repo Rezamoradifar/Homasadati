@@ -7,6 +7,9 @@ the retrievable approved revision `4e4145c830fe68c74b93405d398c8d4c4356a437`.
 Production reported a different installed revision (`b61e772f…`), so deployment
 must stage a merge with the installed source and run its gates before activation.
 Do not replace the installed checkout with another branch's entire source tree.
+The installer recognises the reviewed card-engine conflict by exact Git blob
+identities. It retains the installed engine isolation and immutable first-purchase
+flag together with DigiPay refund holds. Any different conflict still stops staging.
 
 The existing payment methods remain available. The DigiPay option is hidden
 until explicitly enabled and configured. No merchant credential, live payment,

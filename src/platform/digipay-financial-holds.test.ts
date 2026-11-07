@@ -39,6 +39,12 @@ function paidOrder(user = buyer, amount = 100_000, snapshot: object = policy) {
   return one("SELECT * FROM p_orders WHERE id=?", id)!;
 }
 
+/** Model the immutable card-engine snapshot recorded during real settlement. */
+function paidCardOrder(user: string, amount: number) {
+  const earlier = one("SELECT COUNT(*) n FROM p_orders WHERE user_id=? AND paid_at IS NOT NULL", user)!.n;
+  return paidOrder(user, amount, { ...policy, binaryEngine: "cards-v1", initialPaidPurchase: earlier === 0 });
+}
+
 function hold(order: Row, status = "pending") {
   const checkout = randomUUID(), payment = randomUUID(), refund = randomUUID();
   run("INSERT INTO p_checkouts(id,user_id,amount,method,status,payload,created_at,expires_at,idem_key) VALUES(?,?,?,'digipay','paid','{}',?,?,?)", checkout, order.user_id, order.amount, PAST, now(), checkout);
@@ -183,7 +189,7 @@ describe("refund financial holds", () => {
   });
 
   it("defers new card volume and Simurgh cashback until the refund is rejected", () => {
-    enroll(); const order = paidOrder(buyer, 70 * M), refund = hold(order);
+    enroll(); const order = paidCardOrder(buyer, 70 * M), refund = hold(order);
     settleWeek();
     expect(one("SELECT order_id FROM p_card_orders WHERE order_id=?", order.id)).toBeUndefined();
     expect(wallet(buyer).available).toBe(0);
@@ -194,7 +200,7 @@ describe("refund financial holds", () => {
   });
 
   it("does not make a later purchase the first purchase while an earlier refund is unresolved", () => {
-    enroll(); const first = paidOrder(buyer, 10 * M), later = paidOrder(buyer, 70 * M);
+    enroll(); const first = paidCardOrder(buyer, 10 * M), later = paidCardOrder(buyer, 70 * M);
     run("UPDATE p_orders SET cancel_until=? WHERE id=?", new Date(CLOCK - DAY).toISOString(), later.id);
     const refund = hold(first); settleWeek();
     expect(one("SELECT COUNT(*) n FROM p_card_orders WHERE user_id=?", buyer)!.n).toBe(0);
