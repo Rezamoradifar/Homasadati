@@ -41,12 +41,12 @@ def dotenv_value(value):
     return quote + value.replace("$", "\\$") + quote
 
 
-def render_config(original, values):
-    if original.count(BEGIN) > 1 or original.count(END) > 1 or original.count(BEGIN) != original.count(END):
+def render_config(original, values, begin=BEGIN, end=END):
+    if original.count(begin) > 1 or original.count(end) > 1 or original.count(begin) != original.count(end):
         raise SetupError("The existing DigiPay configuration block needs review; nothing was saved.")
-    block = BEGIN + "\n" + "\n".join(f"{key}={dotenv_value(value)}" for key, value in values.items()) + "\n" + END
-    if BEGIN in original:
-        pattern = re.compile(r"(?m)^" + re.escape(BEGIN) + r"\r?\n[\s\S]*?^" + re.escape(END) + r"(?=\r?$)")
+    block = begin + "\n" + "\n".join(f"{key}={dotenv_value(value)}" for key, value in values.items()) + "\n" + end
+    if begin in original:
+        pattern = re.compile(r"(?m)^" + re.escape(begin) + r"\r?\n[\s\S]*?^" + re.escape(end) + r"(?=\r?$)")
         result, count = pattern.subn(lambda _: block, original)
         if count != 1:
             raise SetupError("The existing DigiPay configuration block needs review; nothing was saved.")

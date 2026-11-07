@@ -6,9 +6,11 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
 import { all, now, one, platformDb, run, type Row } from "./schema";
+import * as schema from "./schema";
 import { createCheckout, settleCheckout } from "./checkout";
 import { checkoutSchema } from "./cart-validation";
 import { saveSetting } from "./providers";
+import { digipayItemsForCart } from "./digipay-basket";
 import { refundOrder, sales, wallet } from "./finance";
 import { session, SESSION_COOKIE } from "./security";
 import { handle } from "./api";
@@ -150,6 +152,69 @@ describe("checkout preparation", () => {
     expect(createMock.mock.calls[0][0].items[0]).toMatchObject({ productCode: "HOMA-LEGACY-001" });
   });
 
+  it.each([undefined, "", "{}"])("uses official single-store defaults when category configuration is %s", async (raw) => {
+    vi.stubEnv("DIGIPAY_SELLER_ID", "");
+    vi.stubEnv("DIGIPAY_SUPPLIER_ID", "");
+    vi.stubEnv("DIGIPAY_DEFAULT_BRAND", "");
+    vi.stubEnv("DIGIPAY_CATEGORY_MAP_JSON", raw);
+    const { c, productId } = checkout();
+    await startDigiPayPayment(c.id, buyer);
+    expect(createMock.mock.calls[0][0].items).toEqual([{
+      sellerId: "1", supplierId: "1", productCode: productId,
+      brand: "", productType: 3, count: 1, categoryId: "ai",
+    }]);
+  });
+
+  it.each([
+    ["tourism", 3], ["beauty", 2], ["craft", 1], ["ai", 3], ["leather", 1],
+  ])("uses the real %s catalog root with product type %s", (vertical, productType) => {
+    vi.stubEnv("DIGIPAY_CATEGORY_MAP_JSON", "{}");
+    const productId = product();
+    run("UPDATE p_products SET vertical=? WHERE id=?", vertical, productId);
+    expect(digipayItemsForCart(buyer, [{ productId, quantity: 2 }]).get(productId))
+      .toMatchObject({ categoryId: vertical, productType, count: 2 });
+    expect(one("SELECT stock FROM p_products WHERE id=?", productId)!.stock).toBe(10);
+  });
+
+  it("accepts an empty brand while preserving explicit merchant identifiers and category settings", async () => {
+    vi.stubEnv("DIGIPAY_DEFAULT_BRAND", "");
+    const { c } = checkout();
+    await startDigiPayPayment(c.id, buyer);
+    expect(createMock.mock.calls[0][0].items[0]).toMatchObject({
+      sellerId: "approved-seller", supplierId: "approved-supplier", categoryId: "approved-ai", productType: 3, brand: "",
+    });
+  });
+
+  it.each([
+    "not-json", "[]", "null", '{"ai":{"categoryId":"","productType":3}}',
+    '{"ai":{"categoryId":"ai","productType":9}}', '{"unknown":{"categoryId":"unknown","productType":1}}',
+  ])("rejects an invalid explicit category map before reserving inventory: %s", (raw) => {
+    vi.stubEnv("DIGIPAY_CATEGORY_MAP_JSON", raw);
+    const productId = product();
+    const input = checkoutSchema.parse({ items: [{ productId, quantity: 1 }], method: "digipay", idempotencyKey: randomUUID(), expectedTotal: 250_000 });
+    expect(() => createCheckout(buyer, input)).toThrow("payment_not_configured");
+    expect(one("SELECT stock FROM p_products WHERE id=?", productId)!.stock).toBe(10);
+    expect(one("SELECT COUNT(*) n FROM p_checkouts WHERE user_id=?", buyer)!.n).toBe(0);
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it.each(["unknown", "constructor"])("rejects unknown catalog root %s before reserving inventory", (vertical) => {
+    vi.stubEnv("DIGIPAY_CATEGORY_MAP_JSON", "{}");
+    const productId = product();
+    // The current DB CHECK already refuses these roots. Model a corrupt legacy
+    // read without disabling that invariant in the real integration database.
+    const realOne = schema.one;
+    vi.spyOn(schema, "one").mockImplementation((sql: string, ...params: unknown[]) => {
+      const row = realOne(sql, ...params);
+      return sql.startsWith("SELECT p.id,p.vertical,d.sku,d.details") && row ? { ...row, vertical } : row;
+    });
+    const input = checkoutSchema.parse({ items: [{ productId, quantity: 1 }], method: "digipay", idempotencyKey: randomUUID(), expectedTotal: 250_000 });
+    expect(() => createCheckout(buyer, input)).toThrow("digipay_basket_not_configured");
+    expect(one("SELECT stock FROM p_products WHERE id=?", productId)!.stock).toBe(10);
+    expect(one("SELECT COUNT(*) n FROM p_orders WHERE user_id=?", buyer)!.n).toBe(0);
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
   it("reuses an unexpired ticket without reserving inventory or charging again", async () => {
     const { c, p, productId, redirect } = await started();
     expect(await startDigiPayPayment(c.id, buyer)).toEqual(redirect);
@@ -170,14 +235,13 @@ describe("checkout preparation", () => {
     expect(createMock).toHaveBeenCalledTimes(1);
   });
 
-  it.each(["voucher", "phone", "category", "brand", "disabled"])("rejects %s problems before inventory, checkout or order changes", (problem) => {
+  it.each(["voucher", "phone", "category", "disabled"])("rejects %s problems before inventory, checkout or order changes", (problem) => {
     const productId = product();
     const input = checkoutSchema.parse({ items: [{ productId, quantity: 2 }], method: "digipay", idempotencyKey: randomUUID(), expectedTotal: 500_000,
       ...(problem === "voucher" ? { useVoucher: true } : {}) });
-    const expected = { voucher: "digipay_voucher_unsupported", phone: "digipay_phone_required", category: "digipay_basket_not_configured", brand: "digipay_basket_not_configured", disabled: "payment_not_configured" }[problem]!;
+    const expected = { voucher: "digipay_voucher_unsupported", phone: "digipay_phone_required", category: "digipay_basket_not_configured", disabled: "payment_not_configured" }[problem]!;
     if (problem === "phone") run("UPDATE p_users SET phone=NULL WHERE id=?", buyer);
     if (problem === "category") vi.stubEnv("DIGIPAY_CATEGORY_MAP_JSON", JSON.stringify({ tourism: { categoryId: "approved-travel", productType: 3 } }));
-    if (problem === "brand") vi.stubEnv("DIGIPAY_DEFAULT_BRAND", "");
     if (problem === "disabled") vi.stubEnv("DIGIPAY_ENABLED", "0");
     expect(() => createCheckout(buyer, input)).toThrow(expected);
     expect(one("SELECT stock FROM p_products WHERE id=?", productId)!.stock).toBe(10);

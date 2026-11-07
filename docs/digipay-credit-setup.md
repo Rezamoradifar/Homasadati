@@ -43,21 +43,31 @@ The template is in [`.env.example`](../.env.example).
 | `DIGIPAY_ENVIRONMENT` | `production` for live merchant credentials; `sandbox` for isolated tests |
 | `DIGIPAY_USERNAME`, `DIGIPAY_PASSWORD` | Merchant integration login |
 | `DIGIPAY_CLIENT_ID`, `DIGIPAY_CLIENT_SECRET` | Merchant OAuth client credentials |
-| `DIGIPAY_SELLER_ID`, `DIGIPAY_SUPPLIER_ID` | Merchant-approved basket identifiers |
-| `DIGIPAY_CATEGORY_MAP_JSON` | Approved category ID and product type for each eligible Homa vertical |
+| `DIGIPAY_SELLER_ID`, `DIGIPAY_SUPPLIER_ID` | Optional overrides; otherwise each uses the official single-store plugin default `1` |
+| `DIGIPAY_CATEGORY_MAP_JSON` | Optional explicit catalogue mapping; otherwise use the existing Homa catalogue roots and product types |
 | `DIGIPAY_DEFAULT_BRAND` | Optional, truthful fallback for products without their own Brand field |
 
-Category mapping shape, with a placeholder that must be replaced:
+Optional category mapping shape, using the store's actual category identifier:
 
 ```json
-{"craft":{"categoryId":"REPLACE_WITH_APPROVED_CATEGORY","productType":1}}
+{"craft":{"categoryId":"craft","productType":1}}
 ```
 
-Only map verticals approved by the merchant's agreement. A product uses its saved
-catalog SKU (including legacy SKU-only records) or internal product ID; the seller, supplier and category values
-are snapshotted with the order. An unmapped or unbranded product is rejected before
-inventory is reserved. The buyer must have an Iranian mobile number on the account.
+Only sell products covered by the merchant's agreement. A product uses its saved
+catalog SKU (including legacy SKU-only records) or internal product ID; the seller,
+supplier and category values are snapshotted with the order. Unknown or explicitly
+unmapped catalogue roots are rejected before inventory is reserved. The buyer must have an Iranian mobile number on the account.
 Vouchers cannot be combined with this payment method in this release.
+
+These basket identifiers are not additional API credentials issued to every
+merchant. In DigiPay's official WordPress plugin 1.7.2, `WCDigiPay.php` sends
+seller/supplier `1`, an empty brand, and a category from the store's own catalogue.
+The Homa adapter follows that single-store convention, keeps any explicit
+overrides, and sends a missing brand as an empty string rather than inventing one.
+Homa maps craft/leather to durable goods, beauty to consumables and tourism/AI to
+services; an explicit mapping can narrow eligibility or override a product type.
+The official ZIP is linked from the UPG documentation; its reviewed SHA-256 is
+`3feab29378fdad97dc45da7689373a34512a6c7e4e7e52d93d85fca8348a546b`.
 
 Production processes refuse sandbox payments. Use a separate test database and
 non-production process for UAT; never point sandbox tests at the production DB.
@@ -109,8 +119,16 @@ backup, writes atomically with mode `0600` for the `homay` runtime user and keep
 `DIGIPAY_ENABLED=0`. Authentication failure or an unsupported credential encoding
 stops before any configuration write. It never restarts services automatically.
 Restart the app and worker after a successful save, then run `digipay:check`.
-Seller/supplier IDs, approved categories and acceptance testing are still separate
-requirements before offering checkout.
+Merchant-specific overrides remain available when required by an agreement.
+Acceptance testing is separate from API authentication.
+
+After installing the compatible adapter, `python3 scripts/activate-digipay.py`
+enables checkout using the saved credentials without asking for them again.
+It checks production authentication and configuration, saves an isolated checkout
+override without rewriting the API block, restarts both services and checks that
+the live site's payment-method response contains `digipay:true`. If activation
+verification fails, it restores the previous configuration and restarts again.
+This verifies visibility and service health; it does not execute a customer payment.
 
 OAuth requests use URL-encoded form fields and the `Agent: WEB` and
 `Digipay-Version: 2022-02-02` headers, matching `DPGateway.php` in DigiPay's

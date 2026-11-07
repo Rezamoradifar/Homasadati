@@ -6,14 +6,28 @@ type Mapping = { categoryId: string; productType: 1 | 2 | 3 | 4 };
 const value = (input: unknown) =>
   typeof input === "string" && input.trim().length <= 200 ? input.trim() : "";
 
-/** Category identifiers come from the merchant's DigiPay agreement. Internal
- * category names must never be passed off as provider-issued identifiers. */
+const STANDARD_CATEGORIES: Record<string, Mapping> = {
+  tourism: { categoryId: "tourism", productType: 3 },
+  beauty: { categoryId: "beauty", productType: 2 },
+  craft: { categoryId: "craft", productType: 1 },
+  ai: { categoryId: "ai", productType: 3 },
+  leather: { categoryId: "leather", productType: 1 },
+};
+const standardCategories = (): Record<string, Mapping> =>
+  Object.fromEntries(Object.entries(STANDARD_CATEGORIES).map(([key, entry]) => [key, { ...entry }]));
+
+/** The official UPG plugin uses single-store IDs and the store's own category
+ * identifiers. Explicit merchant mappings remain authoritative when supplied. */
 export function digipayCategoryMap(): Record<string, Mapping> {
+  const raw = process.env.DIGIPAY_CATEGORY_MAP_JSON?.trim();
+  if (!raw) return standardCategories();
   try {
-    const parsed: unknown = JSON.parse(process.env.DIGIPAY_CATEGORY_MAP_JSON || "{}");
+    const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    if (!Object.keys(parsed).length) return standardCategories();
     const result: Record<string, Mapping> = {};
     for (const [key, entry] of Object.entries(parsed)) {
+      if (!Object.hasOwn(STANDARD_CATEGORIES, key)) return {};
       if (!entry || typeof entry !== "object" || Array.isArray(entry)) return {};
       const row = entry as Record<string, unknown>;
       if (!value(row.categoryId) || ![1, 2, 3, 4].includes(Number(row.productType))) return {};
@@ -25,9 +39,15 @@ export function digipayCategoryMap(): Record<string, Mapping> {
   }
 }
 
+// Preserve explicit identifiers; only an absent/blank value gets the same
+// single-store default as DigiPay's official WooCommerce UPG plugin.
+function merchantId(input: string | undefined) {
+  return input?.trim() ? value(input) : "1";
+}
+
 export function digipayCheckoutEnabled() {
-  return digipayEnabled() && !!value(process.env.DIGIPAY_SELLER_ID) &&
-    !!value(process.env.DIGIPAY_SUPPLIER_ID) && Object.keys(digipayCategoryMap()).length > 0;
+  return digipayEnabled() && !!merchantId(process.env.DIGIPAY_SELLER_ID) &&
+    !!merchantId(process.env.DIGIPAY_SUPPLIER_ID) && Object.keys(digipayCategoryMap()).length > 0;
 }
 
 export function digipayPhone(userId: string) {
@@ -51,12 +71,12 @@ export function digipayItemsForCart(userId: string, lines: { productId: string; 
     );
     let details: Record<string, unknown> = {};
     try { details = JSON.parse(product?.details || "{}"); } catch { /* validated below */ }
-    const category = product ? mapping[product.vertical] : undefined;
+    const category = product && Object.hasOwn(STANDARD_CATEGORIES, product.vertical) ? mapping[product.vertical] : undefined;
     const brand = value(details?.brand) || value(process.env.DIGIPAY_DEFAULT_BRAND);
-    if (!product || !category || !brand) throw new ApiError(409, "digipay_basket_not_configured");
+    if (!product || !category) throw new ApiError(409, "digipay_basket_not_configured");
     result.set(line.productId, {
-      sellerId: value(process.env.DIGIPAY_SELLER_ID),
-      supplierId: value(process.env.DIGIPAY_SUPPLIER_ID),
+      sellerId: merchantId(process.env.DIGIPAY_SELLER_ID),
+      supplierId: merchantId(process.env.DIGIPAY_SUPPLIER_ID),
       // `sku` is the canonical catalog column. Older rows may only have it
       // there, while newer editor saves also mirror it into the JSON details.
       productCode: value(product.sku) || value(details?.sku) || line.productId,
