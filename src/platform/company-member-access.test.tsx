@@ -42,6 +42,13 @@ afterEach(() => {
 });
 
 describe("company entry into a real member account", () => {
+  it("explains the owner requirement to other administrators without offering access", () => {
+    render(<CompanyMemberAccessButton userId={memberId} name="Member" canOpen={false} />);
+    expect(screen.getByText(/فقط با حساب مدیر اصلی شرکت/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "باز کردن حساب عضو" })).toBeNull();
+    expect(request).not.toHaveBeenCalled();
+  });
+
   it("opens a blank isolated tab synchronously and navigates only after the server grants access", async () => {
     const pending = deferred<unknown>();
     request.mockReturnValue(pending.promise);

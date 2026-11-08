@@ -59,6 +59,20 @@ beforeEach(() => {
 });
 afterAll(() => { platformDb().close(); rmSync(directory, { recursive: true, force: true }); });
 
+it("edits legacy accounts without requiring missing registration fields or changing the saved name", () => {
+  target = member("user", false).id;
+  const input = patch();
+  expect(input.personal.firstName).toBe("");
+  expect(input.personal.city).toBe("");
+  input.personal.occupation = "هنرمند";
+  const result = updateAdminMemberProfile(actor, target, input);
+  expect(result.personal.name).toBe("نام اصلی");
+  expect(result.personal.occupation).toBe("هنرمند");
+  expect(result.personal.country).toBe("");
+  expect(result.personal.city).toBe("");
+  expect(one("SELECT name FROM p_users WHERE id=?", target)?.name).toBe("نام اصلی");
+});
+
 it("keeps historical order/contact/delivery snapshots while correcting the live profile and records the real actor", () => {
   const product = randomUUID();
   run(`INSERT INTO p_products(id,title,description,vertical,subtype,price,stock,published,created_at,updated_at)

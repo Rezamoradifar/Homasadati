@@ -60,13 +60,13 @@ describe("HOMA V12 no-woman architecture-first hero", () => {
     expect(existsSync("public/assets/backdrop/persepolis.webp")).toBe(true);
   });
 
-  it("keeps the logo, authentic customer catalog and purchase controls", () => {
+  it("keeps the logo and places purchase controls in the store", () => {
     const home = read("app/PremiumHomeExact.tsx");
     const sharedHeader = read("src/commerce/SiteHeader.tsx");
     expect(home).toContain('src={site_logo || \'/assets/brand-mark.png\'}');
     expect(sharedHeader).toContain('settings.site_logo || "/assets/brand-mark.png"');
-    expect(home).toContain('<AddToCart id={p.id} stock={p.stock}/>');
-    expect(home).toContain('<Money toman={p.price}/>');
+    expect(home).not.toContain('<AddToCart');
+    expect(home).toContain("href:'/shop'");
     expect(read("app/TourismExperienceLanding.tsx")).toContain('fetch("/api/requests"');
   });
 

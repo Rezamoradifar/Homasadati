@@ -18,6 +18,7 @@ import { isLocale } from "../i18n/core";
 import { temporaryAdminPasswordLogin } from "./admin-login-window";
 import { loyaltyPolicy } from "./loyalty-engine";
 import { assertAccess } from "./access";
+import { homeDesign, saveHomeDesign } from "./home-design";
 import { resourceRoles } from "./access-model";
 import { extensionAdmin, extensionMember } from "./extension-api";
 import { binaryReport } from "./binary-report";
@@ -796,6 +797,14 @@ export function reports(from: string, to: string) {
 }
 async function admin(req: Request, path: string[], data: Row, url: URL) {
   const resource = path[1];
+  if (resource === "homepage-design") {
+    if (path.length !== 2) throw new ApiError(404, "not_found");
+    const actor = userOf(req);
+    assertAccess(actor, "content", req.method !== "GET");
+    if (req.method === "GET") return json({ values: homeDesign() });
+    if (req.method === "PATCH") return json(saveHomeDesign(actor.id, data));
+    throw new ApiError(405, "method_not_allowed");
+  }
   if (resource === "outbox") {
     const owner = userOf(req, ["superadmin"]);
     if (path.length !== 2) throw new ApiError(404, "not_found");
@@ -1618,6 +1627,8 @@ async function handleRequest(req: Request, path: string[]) {
       return await digipayCallback(req, url);
     if (path.join("/") === "payment/methods" && get)
       return json({ company_credit:true, wallet: true, zarinpal: !!setting("zarinpal_merchant"), zibal: !!setting("zibal_merchant"), bale: balePayEnabled(), digipay: digipayCheckoutEnabled() });
+    if (path.join("/") === "homepage-design" && get)
+      return json({ values: homeDesign() });
     if (!get) {
       sameOrigin(req);
       data = await body(req, 65536);

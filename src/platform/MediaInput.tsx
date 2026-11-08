@@ -7,9 +7,11 @@ import { safeMediaSrc } from "../components/media/retired-image-aliases";
 export function MediaInput({
   name,
   initial,
+  single = false,
 }: {
   name: string;
   initial: string;
+  single?: boolean;
 }) {
   const [value, setValue] = useState(initial),
     [busy, setBusy] = useState(false),
@@ -23,13 +25,13 @@ export function MediaInput({
         name={name}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        maxLength={12000}
+        maxLength={single ? 1000 : 12000}
       />
       <span className="portal-upload-action">
         بارگذاری تصویر از دستگاه (JPEG، PNG، WebP؛ حداکثر ۸ مگابایت)
       </span>
       <input
-        aria-label="بارگذاری تصویر محصول"
+        aria-label={single ? "بارگذاری تصویر محتوا" : "بارگذاری تصویر محصول"}
         type="file"
         accept="image/jpeg,image/png,image/webp"
         disabled={busy}
@@ -43,7 +45,7 @@ export function MediaInput({
             input.value = "";
             return;
           }
-          if (value.split("\n").filter((v) => v.trim()).length >= 12) {
+          if (!single && value.split("\n").filter((v) => v.trim()).length >= 12) {
             setError("حداکثر ۱۲ تصویر برای محصول مجاز است.");
             input.value = "";
             return;
@@ -61,7 +63,7 @@ export function MediaInput({
               throw new Error(
                 errors[result.error] || "بارگذاری تصویر انجام نشد.",
               );
-            setValue((v) => [v.trim(), result.url].filter(Boolean).join("\n"));
+            setValue((v) => single ? result.url : [v.trim(), result.url].filter(Boolean).join("\n"));
           } catch (err) {
             setError(
               err instanceof TypeError
@@ -92,11 +94,11 @@ export function MediaInput({
           )
           .slice(0, 12)
           .map((src, i) => (
-            <Localized key={src+i}><span className="media-edit-thumb"><img src={safeMediaSrc(src)} alt={`تصویر ${i + 1}`} loading="lazy" /><span><button type="button" disabled={busy||i===0} onClick={()=>move(src)}>{i===0?"تصویر اصلی":"اصلی شود"}</button><button type="button" disabled={busy} onClick={()=>remove(src)}>حذف تصویر</button></span></span></Localized>
+            <Localized key={src+i}><span className="media-edit-thumb"><img src={safeMediaSrc(src)} alt={`تصویر ${i + 1}`} loading="lazy" /><span>{!single && <button type="button" disabled={busy||i===0} onClick={()=>move(src)}>{i===0?"تصویر اصلی":"اصلی شود"}</button>}<button type="button" disabled={busy} onClick={()=>remove(src)}>حذف تصویر</button></span></span></Localized>
           ))}
       </span>
       <small>
-        تصویر اصلی را با دکمه انتخاب کنید؛ حذف تصویر از این فرم، فایل ذخیره‌شده را پاک نمی‌کند.
+        {single ? "بارگذاری تصویر جدید، تصویر انتخاب‌شده را جایگزین می‌کند؛ حذف از فرم فایل ذخیره‌شده را پاک نمی‌کند." : "تصویر اصلی را با دکمه انتخاب کنید؛ حذف تصویر از این فرم، فایل ذخیره‌شده را پاک نمی‌کند."}
       </small>
     </span></Localized>
   );

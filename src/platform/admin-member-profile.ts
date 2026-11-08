@@ -103,7 +103,7 @@ export function updateAdminMemberProfile(actor: Row, userId: string, input: unkn
       ...data.addresses.upsert.flatMap(address => address.id ? [address.id] : [])])
       if (!ownedAddresses.has(addressId)) throw new ApiError(404, "address_not_found");
 
-    const fullName = personal.firstName + " " + personal.lastName;
+    const fullName = [personal.firstName, personal.lastName].filter(Boolean).join(" ") || personal.name;
     const contactChanged = personal.email !== (state.user.email ?? null) || personal.phone !== (state.user.phone ?? null);
     const identityChanged = nationalHash !== (state.identity?.national_hash ?? null);
     const legalNameChanged = fullName !== state.user.name;

@@ -7,6 +7,7 @@ import { AdminPayoutProfiles } from "./AdminPayoutProfiles";
 import DigiPayOperations from "./DigiPayOperations";
 import AdminOrderDetails from "./AdminOrderDetails";
 import AdminMemberProfile from "./AdminMemberProfile";
+import HomeDesignEditor from "./HomeDesignEditor";
 import { CompanyMemberAccessButton } from "./CompanyMemberAccess";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import AdminOutbox from "./AdminOutbox";
@@ -205,7 +206,7 @@ const definitions: Record<
         hint: "فقط حروف کوچک، عدد و خط تیره",
       },
       { name: "title", label: "عنوان" },
-      { name: "image", label: "نشانی تصویر HTTPS", required: false },
+      { name: "image", label: "تصویر محتوا", type: "media-single", required: false, hint: "تصویر را بارگذاری کنید یا نشانی HTTPS وارد کنید." },
       {
         name: "body",
         label: "متن محتوا",
@@ -260,6 +261,7 @@ export function AdminCrud({
   return (
     <Localized>
       <>
+        {resource === "content" && <HomeDesignEditor />}
         <button
           className="portal-button primary"
           onClick={() => setEdit({})}
@@ -994,7 +996,7 @@ export function AdminUsers({
         />
         {selected && (
           <Modal title={selected.name} onClose={() => setSelected(null)}>
-            {role === "superadmin" && <CompanyMemberAccessButton userId={String(selected.id)} name={String(selected.name || "")} />}
+            <CompanyMemberAccessButton userId={String(selected.id)} name={String(selected.name || "")} canOpen={role === "superadmin"} />
             <AdminMemberProfile key={"profile-"+selected.id} userId={String(selected.id)} onChange={profile => {
               setSelected(previous => previous?.id === profile.id ? { ...previous, name: profile.personal.name, email: profile.personal.email, phone: profile.personal.phone } : previous);
               onChange();

@@ -18,13 +18,15 @@ vi.mock('../src/components/media/useHeroPerformance', () => ({
 vi.mock('../src/platform/SiteSettings', () => ({
   useSiteSettings: () => ({site_logo: '/assets/brand-mark.png'}),
 }));
+const homepageValues = vi.hoisted(() => ({current: {} as Record<string, string>}));
 vi.mock('../src/platform/Widgets', () => ({
-  useData: () => ({data: {rows: [{id:'real-product', title:'Real product', images:'[]', price:1200, stock:3}]}, loading:false}),
+  useData: () => ({data: {values: homepageValues.current}, loading:false}),
 }));
+vi.mock('../src/platform/PublicContent', () => ({default: () => <div data-testid="published-content"/>}));
 vi.mock('../src/commerce/currency', () => ({Money: ({toman}: {toman:number}) => <span>{toman}</span>}));
 vi.mock('../src/commerce/AddToCart', () => ({default: ({id}: {id:string}) => <button data-product-id={id}>Add to cart</button>}));
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); homepageValues.current = {}; });
 
 describe('restored eNamad-era public landing hero', () => {
   it.each(['fa','en','ar'] as Locale[])('uses the original brand copy and existing local gallery in %s', locale => {
@@ -32,7 +34,7 @@ describe('restored eNamad-era public landing hero', () => {
     expect(screen.getByRole('heading', {level:1}).textContent).toBe(copy[locale].hero);
     expect(container.querySelector('section')?.getAttribute('dir')).toBe(locale==='en'?'ltr':'rtl');
     expect(screen.getByTestId('original-gallery').getAttribute('src')).toBe('/assets/backdrop/persepolis.webp');
-    expect(screen.getByRole('link', {name:copy[locale].explore}).getAttribute('href')).toBe('#hex-products');
+    expect(screen.getByRole('link', {name:copy[locale].explore}).getAttribute('href')).toBe('/shop');
     expect(screen.getByRole('link', {name:copy[locale].story}).getAttribute('href')).toBe('/about');
   });
 
@@ -41,9 +43,10 @@ describe('restored eNamad-era public landing hero', () => {
     expect(container.querySelector('.homa-exact > section')?.getAttribute('data-hero-version')).toBe('enamad-era-2026-09-29');
     expect(container.querySelector('.hex-hero')).toBeNull();
     expect(container.querySelectorAll('h1')).toHaveLength(1);
-    expect(container.querySelector('#hex-products')).toBeTruthy();
-    expect(container.querySelector('a[href="/shop/real-product"]')).toBeTruthy();
-    expect(container.querySelector('button[data-product-id="real-product"]')).toBeTruthy();
+    expect(screen.getByTestId('published-content')).toBeTruthy();
+    expect(container.querySelector('#hex-products')).toBeNull();
+    expect(container.querySelector('a[href="/shop/real-product"]')).toBeNull();
+    expect(container.querySelector('button[data-product-id="real-product"]')).toBeNull();
     for(const route of ['/shop','/account','/club','/income-plan']) {
       expect(container.querySelector(`a[href="${route}"]`),route).toBeTruthy();
     }
@@ -53,7 +56,22 @@ describe('restored eNamad-era public landing hero', () => {
     const {container} = render(<PremiumHomeExact locale="en" heroVariant="premium"/>);
     expect(container.querySelector('.hex-hero')).toBeTruthy();
     expect(container.querySelector('[data-hero-version]')).toBeNull();
-    expect(container.querySelector('button[data-product-id="real-product"]')).toBeTruthy();
+    expect(container.querySelector('button[data-product-id="real-product"]')).toBeNull();
+  });
+
+  it('uses the manager’s headline and image when provided', () => {
+    render(<OriginalLandingHero locale="fa" values={{'fa.hero.hero':'عنوان تازه', 'image.hero':'/assets/example.webp'}}/>);
+    expect(screen.getByRole('heading', {level: 1}).textContent).toBe('عنوان تازه');
+    expect(document.querySelector('.hero-photo')?.getAttribute('src')).toBe('/assets/example.webp');
+    expect(screen.queryByTestId('original-gallery')).toBeNull();
+  });
+
+  it('applies the saved homepage text and story image to the main page', () => {
+    homepageValues.current = {'fa.hero.hero':'عنوان مدیر', 'fa.premium.bright':'متن مدیر', 'image.story':'/assets/story.webp'};
+    const {container} = render(<PremiumHomeExact locale="fa"/>);
+    expect(screen.getByRole('heading', {level: 1}).textContent).toBe('عنوان مدیر');
+    expect(screen.getByText('متن مدیر')).toBeTruthy();
+    expect(container.querySelector('.hex-story img')?.getAttribute('src')).toBe('/assets/story.webp');
   });
 
   it('uses the historical six local images and does not replace the real trust seal', () => {

@@ -21,7 +21,7 @@ export async function endCompanyMemberAccess(userId: string | null) {
   window.history.replaceState(null, "", url.pathname + url.search + url.hash);
 }
 
-export function CompanyMemberAccessButton({ userId, name }: { userId: string; name: string }) {
+export function CompanyMemberAccessButton({ userId, name, canOpen = true }: { userId: string; name: string; canOpen?: boolean }) {
   const { locale } = useSiteLocale();
   const copy = companyCopy[locale];
   const [busy, setBusy] = useState(false);
@@ -62,7 +62,7 @@ export function CompanyMemberAccessButton({ userId, name }: { userId: string; na
     <h3>{copy.startTitle}</h3>
     <p>{copy.startDescription}</p>
     <p><bdi translate="no">{name}</bdi></p>
-    <button className="portal-button company-member-button" type="button" disabled={busy} onClick={begin}>{busy ? copy.starting : copy.startButton}</button>
+    {canOpen ? <button className="portal-button company-member-button" type="button" disabled={busy} onClick={begin}>{busy ? copy.starting : copy.startButton}</button> : <p>{copy.ownerRequired}</p>}
     {error?.id === userId && <p role="alert">{error.text}</p>}
     {ready?.id === userId && <div className="company-member-ready"><p>{copy.readyNote}</p><a href={ready.url} target="_blank" rel="noopener noreferrer">{copy.readyLink}</a></div>}
   </section>;

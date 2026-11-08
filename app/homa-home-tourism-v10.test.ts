@@ -21,12 +21,11 @@ describe("HOMA V10 homepage travel-first hero", () => {
     expect(hero).toContain("slides.map((_,i)");
   });
 
-  it("keeps catalog photos, fallback shopping items and all purchase routes unchanged", () => {
-    expect(hero).toContain("const liveProducts = useMemo");
-    expect(hero).toContain("const img=firstImage(p)");
-    expect(hero).toContain("<Money toman={p.price}/>");
-    expect(hero).toContain("<AddToCart id={p.id} stock={p.stock}/>");
-    expect(hero).toContain("href:'/shop?vertical=beauty'");
+  it("keeps shopping accessible while homepage content is editorial", () => {
+    expect(hero).not.toContain("const liveProducts = useMemo");
+    expect(hero).not.toContain("<AddToCart");
+    expect(hero).toContain("<PublicContent />");
+    expect(hero).toContain("href:'/shop'");
     expect(hero).toContain("src={site_logo || '/assets/brand-mark.png'}");
   });
 

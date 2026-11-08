@@ -8,6 +8,12 @@ const nullableInput = <T extends z.ZodTypeAny>(schema: T) => z.preprocess(
 );
 const preferencesSchema = z.object({ email: z.boolean(), sms: z.boolean(), inApp: z.boolean() }).strict();
 const personalSchema = memberDetailsSchema.extend({
+  // Older accounts may not have completed the newer registration fields.
+  // Allow administrators to edit an existing field without inventing missing data.
+  firstName: z.string().trim().max(200),
+  lastName: z.string().trim().max(200),
+  country: z.string().trim().max(200),
+  city: z.string().trim().max(200),
   // The stored display name is derived from the two existing 200-character fields.
   name: z.string().trim().min(1).max(401),
   email: nullableInput(registrationEmail),

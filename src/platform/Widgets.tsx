@@ -99,8 +99,8 @@ export function Form({
                 }
               >
                 {f.label}{f.currencyFor && (f.currency === "toman" ? " (ریال)" : " (تعداد)")}
-                {f.type === "media" ? (
-                  <MediaInput name={f.name} initial={initial[f.name] || ""} />
+                {f.type === "media" || f.type === "media-single" ? (
+                  <MediaInput name={f.name} initial={initial[f.name] || ""} single={f.type === "media-single"} />
                 ) : f.type === "textarea" ? (
                   <textarea
                     name={f.name}
