@@ -63,6 +63,11 @@ export default function AdminMemberProfile({ userId, onChange }: { userId: strin
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!active.data || !active.draft || saving || saveLock.current === generation.current) return;
+    const legacyName = !active.data.personal.firstName.trim() && !active.data.personal.lastName.trim();
+    if (legacyName && Boolean(active.draft.personal.firstName.trim()) !== Boolean(active.draft.personal.lastName.trim())) {
+      setSaveState({ id: userId, busy: false, error: "legacy_name_incomplete", saved: false });
+      return;
+    }
     const currentGeneration = generation.current;
     const targetId = userId;
     const draft = active.draft;
@@ -112,6 +117,7 @@ export default function AdminMemberProfile({ userId, onChange }: { userId: strin
       <form onSubmit={save} aria-label={copy.title}>
         <fieldset disabled={saving} className="admin-member-fields">
           <legend>{copy.personal}</legend>
+          {!active.data.personal.firstName.trim() && !active.data.personal.lastName.trim() && <p className="admin-member-hint">{copy.legacyNameHint} <bdi translate="no">{active.data.personal.name}</bdi></p>}
           <div className="admin-member-grid">
             <label>{copy.firstName}<input value={active.draft.personal.firstName} onChange={event => personal("firstName", event.target.value)} maxLength={200} autoComplete="off" /></label>
             <label>{copy.lastName}<input value={active.draft.personal.lastName} onChange={event => personal("lastName", event.target.value)} maxLength={200} autoComplete="off" /></label>

@@ -2,6 +2,7 @@ import { outboxFailures, retryOutbox } from "./outbox-admin";
 import { runCompanyAuditContext, companyAuditContext } from "./company-audit-context";
 import { beginCompanyMemberAccess, endCompanyMemberAccess, resolveCompanyMemberAccess, companyAccessMetadata, auditCompanyMemberRequest } from "./company-member-access";
 import { orderDocument } from "./order-document";
+import { createDirectOrder } from "./direct-order";
 import { adminMemberProfile, updateAdminMemberProfile } from "./admin-member-profile";
 import {purchaseActivationReceipt} from "./purchase-activation-receipt";
 import {launchDashboard} from "./launch-dashboard";
@@ -133,7 +134,6 @@ import {
   logGatewayCancel,
 } from "./providers";
 import {
-  createOrder,
   settleOrder,
   refundOrder,
   requestWithdrawal,
@@ -2305,10 +2305,11 @@ async function handleRequest(req: Request, path: string[]) {
           quantity: z.number().int().min(1).max(100),
           method: z.enum(["wallet", "zarinpal", "zibal", "company_credit"]),
           idempotencyKey: id,
+          addressId: id.optional(),
         })
         .parse(data);
       return json(
-        createOrder(u.id, d.productId, d.quantity, d.method, d.idempotencyKey),
+        createDirectOrder(u.id, d),
         201,
       );
     }

@@ -18,18 +18,21 @@ import { refundOrder, wallet } from "./finance";
 import { migrateLeather } from "./migrate-leather";
 import { handle } from "./api";
 import { session, SESSION_COOKIE } from "./security";
+import { orderDocument } from "./order-document";
 const dir = mkdtempSync(join(tmpdir(), "homa-checkout-"));
 let buyer: string,
   sponsor: string,
   address: string,
   first: string,
   second: string;
+let fixturePhone = 0;
 function member(sponsorId: string | null = null) {
   const id = randomUUID();
   run(
-    "INSERT INTO p_users(id,name,password,referral_code,sponsor_id,created_at,last_seen,signup_ip) VALUES(?,?,?,?,?,?,?,?)",
+    "INSERT INTO p_users(id,name,phone,password,referral_code,sponsor_id,created_at,last_seen,signup_ip) VALUES(?,?,?,?,?,?,?,?,?)",
     id,
     "Fixture",
+    "+98912" + String(++fixturePhone).padStart(7, "0"),
     "unused",
     id,
     sponsorId,
@@ -109,6 +112,44 @@ beforeEach(() => {
   );
   first = product("leather", 200000);
   second = product("craft", 100000);
+});
+it("requires a contact phone for physical deliveries before reserving stock, but not for services", () => {
+  run("UPDATE p_users SET phone=NULL WHERE id=?", buyer);
+  const before = one("SELECT stock FROM p_products WHERE id=?", first)!.stock;
+  expect(() => createCheckout(buyer, payload("zibal"))).toThrowError("delivery_phone_required");
+  expect(one("SELECT stock FROM p_products WHERE id=?", first)!.stock).toBe(before);
+  expect(one("SELECT COUNT(*) AS n FROM p_checkouts WHERE user_id=?", buyer)!.n).toBe(0);
+  const service = product("tourism", 80000);
+  const checkout = createCheckout(buyer, checkoutSchema.parse({
+    items: [{ productId: service, quantity: 1 }], method: "zibal",
+    idempotencyKey: randomUUID(), expectedTotal: 80000,
+  }));
+  expect(checkout.status).toBe("pending");
+});
+it("requires owned delivery details for direct physical orders and keeps their snapshot on retry", async () => {
+  const cookie = SESSION_COOKIE + "=" + session(buyer, "test");
+  const key = randomUUID();
+  const send = (data: Record<string, unknown>) => handle(new Request("https://cart.test/api/platform/orders", {
+    method: "POST", headers: { cookie, origin: "https://cart.test", host: "cart.test", "content-type": "application/json" }, body: JSON.stringify(data),
+  }), ["orders"]);
+  const base = { productId: first, quantity: 1, method: "zibal", idempotencyKey: key };
+  expect((await send(base)).status).toBe(400);
+  expect((await send({ ...base, addressId: randomUUID() })).status).toBe(400);
+  expect(one("SELECT stock FROM p_products WHERE id=?", first)!.stock).toBe(10);
+  const created = await send({ ...base, addressId: address });
+  expect(created.status).toBe(201);
+  const order = await created.json();
+  expect(orderDocument(order.id).shipping?.address).toBe("نشانی آزمون");
+  run("UPDATE p_addresses SET address='نشانی تازه' WHERE id=?", address);
+  expect((await send({ ...base, addressId: address })).status).toBe(201);
+  expect(orderDocument(order.id).shipping?.address).toBe("نشانی آزمون");
+  expect(one("SELECT stock FROM p_products WHERE id=?", first)!.stock).toBe(9);
+  expect((await send({ ...base, addressId: randomUUID() })).status).toBe(409);
+  run("UPDATE p_users SET phone=NULL WHERE id=?", buyer);
+  const newKey = randomUUID();
+  expect((await send({ ...base, idempotencyKey: newKey, addressId: address })).status).toBe(400);
+  const service = product("tourism", 80000);
+  expect((await send({ productId: service, quantity: 1, method: "zibal", idempotencyKey: randomUUID() })).status).toBe(201);
 });
 it("atomically buys multiple SKUs with one wallet debit total and snapshots the delivery address", () => {
   const p = payload();

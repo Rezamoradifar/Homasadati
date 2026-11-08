@@ -73,7 +73,8 @@ async function signUp(email: string, referral?: string) {
 }
 /** Buy through the payment gateway, as a member would. */
 async function buy(cookie: string, quantity: number) {
-  const order = await ok(request("orders", "POST", { productId, quantity, method: "zarinpal", idempotencyKey: randomUUID() }, cookie), 201);
+  const address = await ok(request("addresses", "POST", { label: "خانه", country: "ایران", city: "تهران", postal_code: "1234567890", address: "خیابان نمونه پلاک ۱۲" }, cookie));
+  const order = await ok(request("orders", "POST", { productId, quantity, method: "zarinpal", idempotencyKey: randomUUID(), addressId: address.id }, cookie), 201);
   await ok(request("orders/" + order.id + "/payment", "POST", {}, cookie));
   const back = await request("payment/callback?Authority=" + authority + "&Status=OK");
   expect(back.status).toBe(303);

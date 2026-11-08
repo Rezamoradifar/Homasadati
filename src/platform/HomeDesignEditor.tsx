@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Localized from '../i18n/Localized';
 import { api } from './client';
 import { MediaInput } from './MediaInput';
 import { homeDefaults, homeLocales } from './home-design-model';
@@ -19,7 +20,7 @@ export default function HomeDesignEditor() {
       .catch(() => { if(active) setMessage('دریافت تنظیمات صفحهٔ اول ممکن نشد.'); });
     return () => { active = false; };
   }, []);
-  return <section className="portal-card" aria-labelledby="home-design-title">
+  return <Localized><section className="portal-card" aria-labelledby="home-design-title">
     <h2 id="home-design-title">طراحی صفحهٔ اول</h2>
     <p>تصویر و متن بخش‌های صفحهٔ اول را تغییر دهید. برای بازگرداندن متن پیش‌فرض، کادر را خالی بگذارید.</p>
     {message && <p role="status">{message}</p>}
@@ -52,5 +53,5 @@ export default function HomeDesignEditor() {
         <a href="/" target="_blank" rel="noopener noreferrer">دیدن صفحهٔ اول</a>
       </fieldset>
     </form>}
-  </section>;
+  </section></Localized>;
 }

@@ -76,6 +76,8 @@ export function createCheckout(
       : null;
     if (quote.requiresAddress && !address)
       throw new ApiError(400, "address_required");
+    if (quote.requiresAddress && !String(one("SELECT phone FROM p_users WHERE id=?", user)?.phone || "").trim())
+      throw new ApiError(400, "delivery_phone_required");
     // Voucher credit covers part or all of the basket; the rest is paid by the chosen method.
     const voucherUse = input.useVoucher
       ? Math.max(0, Math.min(voucherBalance(user), quote.total))

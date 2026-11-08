@@ -197,6 +197,9 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
     productId = (await r.json()).id;
   });
   it("purchases, verifies payment server-side, calculates commission and downloads PDF", async () => {
+    const address = await request("addresses", "POST", {label:"خانه", country:"ایران", city:"تهران", postal_code:"1234567890", address:"خیابان نمونه، پلاک ۱۲"}, buyer);
+    expect(address.status).toBe(200);
+    const addressId = (await address.json()).id;
     const order = await request(
       "orders",
       "POST",
@@ -205,6 +208,7 @@ describe("User/admin API end-to-end with real isolated SQLite", () => {
         quantity: 1,
         method: "zarinpal",
         idempotencyKey: randomUUID(),
+        addressId,
       },
       buyer,
     );

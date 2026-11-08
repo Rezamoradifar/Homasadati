@@ -90,6 +90,11 @@ export function updateAdminMemberProfile(actor: Row, userId: string, input: unkn
     if (state.version !== data.expectedVersion) throw new ApiError(409, "profile_changed");
     const before = profileData(state);
     const personal = data.personal;
+    // A legacy display name cannot be reliably split into given and family names.
+    // Require both fields before replacing it; unrelated edits preserve it verbatim.
+    const legacyName = !before.personal.firstName.trim() && !before.personal.lastName.trim();
+    if (legacyName && Boolean(personal.firstName) !== Boolean(personal.lastName))
+      throw new ApiError(400, "legacy_name_incomplete");
     if (personal.email && one("SELECT id FROM p_users WHERE lower(email)=? AND id!=?", personal.email, target))
       throw new ApiError(409, "email_in_use");
     if (personal.phone && one("SELECT id FROM p_users WHERE phone=? AND id!=?", personal.phone, target))
@@ -103,7 +108,7 @@ export function updateAdminMemberProfile(actor: Row, userId: string, input: unkn
       ...data.addresses.upsert.flatMap(address => address.id ? [address.id] : [])])
       if (!ownedAddresses.has(addressId)) throw new ApiError(404, "address_not_found");
 
-    const fullName = [personal.firstName, personal.lastName].filter(Boolean).join(" ") || personal.name;
+    const fullName = [personal.firstName, personal.lastName].filter(Boolean).join(" ") || state.user.name;
     const contactChanged = personal.email !== (state.user.email ?? null) || personal.phone !== (state.user.phone ?? null);
     const identityChanged = nationalHash !== (state.identity?.national_hash ?? null);
     const legalNameChanged = fullName !== state.user.name;

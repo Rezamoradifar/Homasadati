@@ -31,6 +31,25 @@ beforeEach(() => request.mockReset());
 afterEach(cleanup);
 
 describe("administrator member profile", () => {
+  it("shows the legacy full name and requires both name fields before replacing it", async () => {
+    const user = userEvent.setup();
+    const legacy = fixture();
+    legacy.personal.firstName = "";
+    legacy.personal.lastName = "";
+    request.mockResolvedValue(legacy);
+    render(<AdminMemberProfile userId={memberId} />);
+    const firstName = await screen.findByLabelText(copy.firstName, { exact: true });
+    expect(screen.getByText("Maryam Sample")).toBeTruthy();
+    await user.type(firstName, "Maryam");
+    await user.type(screen.getByLabelText(copy.reason), "Correct name");
+    await user.click(screen.getByRole("button", { name: copy.save }));
+    expect(screen.getByRole("alert").textContent).toContain(copy.errors.legacy_name_incomplete);
+    expect(request.mock.calls.filter(([, method]) => method === "PATCH")).toHaveLength(0);
+    await user.type(screen.getByLabelText(copy.lastName, { exact: true }), "Sample");
+    await user.click(screen.getByRole("button", { name: copy.save }));
+    await waitFor(() => expect(request.mock.calls.filter(([, method]) => method === "PATCH")).toHaveLength(1));
+  });
+
   it("loads every personal/contact field, preferences, address and readonly membership metadata", async () => {
     request.mockResolvedValue(fixture());
     render(<AdminMemberProfile userId={memberId} />);

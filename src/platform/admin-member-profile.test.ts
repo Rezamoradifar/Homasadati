@@ -165,6 +165,25 @@ it("handles a legacy member without inventing identity or verification and creat
   expect(after.personal.nationalId).toBeNull();
 });
 
+it.each(["firstName", "lastName"] as const)("preserves a legacy full name when only %s is supplied", field => {
+  target = member("user", false).id;
+  const before = adminMemberProfile(actor, target);
+  const input = patch();
+  input.personal[field] = "بخش نام";
+  expect(() => updateAdminMemberProfile(actor, target, input)).toThrow("legacy_name_incomplete");
+  expect(adminMemberProfile(actor, target)).toEqual(before);
+});
+
+it("does not replace a legacy full name through the fallback field", () => {
+  target = member("user", false).id;
+  const input = patch();
+  input.personal.name = "نام جایگزین";
+  input.personal.occupation = "تغییر شغل";
+  const after = updateAdminMemberProfile(actor, target, input);
+  expect(after.personal.name).toBe("نام اصلی");
+  expect(after.personal.occupation).toBe("تغییر شغل");
+});
+
 it("rolls back earlier personal/address writes if identity encryption fails inside the transaction", () => {
   target = member("user", false).id;
   const before = adminMemberProfile(actor, target), input = patch();

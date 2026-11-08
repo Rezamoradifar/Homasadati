@@ -595,6 +595,7 @@ describe("Panels use actual APIs and SQLite", () => {
     localStorage.clear();
     sessionStorage.clear();
     const buyer = one("SELECT id FROM p_users WHERE role='user'")!.id;
+    run("UPDATE p_users SET phone=? WHERE id=?", "+989198888881", buyer);
     run("UPDATE p_wallets SET available=1000000 WHERE user_id=?", buyer);
     const checkoutCount=one("SELECT COUNT(*) n FROM p_checkouts WHERE user_id=?",buyer)!.n;
     const addressId=randomUUID();
