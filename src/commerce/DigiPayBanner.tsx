@@ -1,44 +1,37 @@
 "use client";
 
+import { useId } from "react";
+import { ArrowUpRight, CreditCard, ShoppingBag } from "lucide-react";
 import { useSiteLocale } from "../i18n/SiteLocale";
+import copy from "./digipay-banner-copy.json";
 import "./digipay-banner.css";
 
-const copy = {
-  fa: {
-    shop: "خرید قسطی با اعتبار دیجی‌پی؛ راهنمای دریافت اعتبار و خرید",
-    guide: "خرید قسطی با دیجی‌پی در هما نت؛ ورود به فروشگاه",
-    condition: "مدت و شرایط بازپرداخت به طرح و اعتبار تأییدشده توسط دیجی‌پی بستگی دارد.",
-    shopAction: "راهنمای خرید با دیجی‌پی",
-    guideAction: "مشاهده محصولات فروشگاه",
-  },
-  en: {
-    shop: "Installment shopping with DigiPay credit: credit and purchase guide",
-    guide: "Shop in installments with DigiPay at Homanet: visit the store",
-    condition: "Repayment terms depend on the plan and credit approved by DigiPay.",
-    shopAction: "DigiPay purchase guide",
-    guideAction: "Explore the store",
-  },
-  ar: {
-    shop: "التسوق بالتقسيط باستخدام رصيد ديجي‌بي: دليل الرصيد والشراء",
-    guide: "التسوق بالتقسيط عبر ديجي‌بي في هما نت: زيارة المتجر",
-    condition: "تعتمد مدة السداد وشروطه على الخطة والائتمان المعتمد من ديجي‌بي.",
-    shopAction: "دليل الشراء عبر ديجي‌بي",
-    guideAction: "تصفح المتجر",
-  },
-} as const;
-
-/** Images retain their full framing; text actions remain readable on small screens. */
 export default function DigiPayBanner({ variant }: { variant: "shop" | "guide" }) {
   const { locale } = useSiteLocale();
+  const headingId = useId();
   const text = copy[locale];
   const isShop = variant === "shop";
+  if (!isShop) return <aside className="digipay-art-banner digipay-art-banner--guide" dir={locale === "en" ? "ltr" : "rtl"} aria-labelledby={headingId}>
+    <div className="digipay-credit-card">
+      <div className="digipay-credit-card-content">
+        <div className="digipay-credit-card-brand"><span className="digipay-credit-card-icon"><CreditCard size={22} aria-hidden="true" /></span><span>DIGIPAY <span aria-hidden="true">×</span> HOMANET</span></div>
+        <h2 id={headingId}>{text.cardTitle}</h2>
+        <p className="digipay-credit-card-description">{text.cardDescription}</p>
+        <div className="digipay-credit-card-actions">
+          <a className="digipay-credit-card-button digipay-credit-card-button--primary" href="/shop"><ShoppingBag size={18} aria-hidden="true" />{text.guideAction}</a>
+          <a className="digipay-credit-card-button digipay-credit-card-button--secondary" href="https://www.mydigipay.com/bnpl/c-bnpl/" target="_blank" rel="noopener noreferrer">{text.creditAction}<ArrowUpRight size={17} aria-hidden="true" /></a>
+        </div>
+        <p className="digipay-credit-card-condition">{text.condition}</p>
+      </div>
+    </div>
+  </aside>;
   return <aside className={`digipay-art-banner digipay-art-banner--${variant}`} dir={locale === "en" ? "ltr" : "rtl"}>
-    <a href={isShop ? "/digipay" : "/shop"} className="digipay-art-banner-image" aria-label={isShop ? text.shop : text.guide}>
-      <img src={isShop ? "/assets/digipay-installments.webp" : "/assets/digipay-homanet.webp"} width="1672" height="941" alt="" loading="lazy" />
+    <a href="/digipay" className="digipay-art-banner-image" aria-label={text.shop}>
+      <img src="/assets/digipay-installments.webp" width="1672" height="941" alt="" loading="lazy" />
     </a>
     <div className="digipay-art-banner-caption">
       <p>{text.condition}</p>
-      <a href={isShop ? "/digipay" : "/shop"}>{isShop ? text.shopAction : text.guideAction} <span aria-hidden="true">{locale === "en" ? "→" : "←"}</span></a>
+      <a href="/digipay">{text.shopAction} <span aria-hidden="true">{locale === "en" ? "→" : "←"}</span></a>
     </div>
   </aside>;
 }

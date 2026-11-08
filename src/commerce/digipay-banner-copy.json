@@ -1,0 +1,29 @@
+{
+  "fa": {
+    "shop": "خرید قسطی با اعتبار دیجی‌پی؛ راهنمای دریافت اعتبار و خرید",
+    "condition": "مدت و شرایط بازپرداخت به طرح و اعتبار تأییدشده توسط دیجی‌پی بستگی دارد.",
+    "shopAction": "راهنمای خرید با دیجی‌پی",
+    "guideAction": "مشاهده محصولات فروشگاه",
+    "cardTitle": "خرید قسطی با اعتبار دیجی‌پی",
+    "cardDescription": "محصول دلخواهتان را انتخاب کنید و با اعتبار تأییدشدهٔ دیجی‌پی پرداخت کنید.",
+    "creditAction": "دریافت اعتبار"
+  },
+  "en": {
+    "shop": "Installment shopping with DigiPay credit: credit and purchase guide",
+    "condition": "Repayment terms depend on the plan and credit approved by DigiPay.",
+    "shopAction": "DigiPay purchase guide",
+    "guideAction": "Explore the store",
+    "cardTitle": "Shop in installments with DigiPay credit",
+    "cardDescription": "Choose a product and pay using your approved DigiPay credit.",
+    "creditAction": "Get credit"
+  },
+  "ar": {
+    "shop": "التسوق بالتقسيط باستخدام رصيد ديجي‌بي: دليل الرصيد والشراء",
+    "condition": "تعتمد مدة السداد وشروطه على الخطة والائتمان المعتمد من ديجي‌بي.",
+    "shopAction": "دليل الشراء عبر ديجي‌بي",
+    "guideAction": "تصفح المتجر",
+    "cardTitle": "تسوق بالتقسيط برصيد ديجي‌بي",
+    "cardDescription": "اختر المنتج الذي تريده وادفع باستخدام رصيد ديجي‌بي المعتمد.",
+    "creditAction": "الحصول على الائتمان"
+  }
+}

@@ -1,13 +1,29 @@
 .digipay-art-banner { width: min(1240px, calc(100% - 40px)); margin: 24px auto; }
 .digipay-art-banner--guide { width: 100%; margin: clamp(36px, 5vw, 64px) auto 24px; }
+.digipay-credit-card { position: relative; overflow: hidden; border: 1px solid #648e9180; border-radius: 24px; background: #102c30; color: #f9f5ed; box-shadow: 0 16px 40px #0015162b; }
+.digipay-credit-card::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: url('/assets/digipay-homanet.webp') center top / cover no-repeat; opacity: .16; mask-image: linear-gradient(to bottom, #000 0%, #000 30%, transparent 65%); }
+.digipay-credit-card-content { position: relative; max-width: 760px; padding: clamp(26px, 4vw, 48px); }
+.digipay-credit-card-brand { display: flex; align-items: center; gap: 11px; color: #d9c19a; font-size: 12px; letter-spacing: .09em; font-weight: 700; direction: ltr; justify-content: flex-end; }
+[dir="ltr"] .digipay-credit-card-brand { justify-content: flex-start; }
+.digipay-credit-card-icon { width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; color: #d8c191; background: #ffffff14; border: 1px solid #e8d7b54a; border-radius: 13px; }
+.digipay-guide .digipay-credit-card h2 { margin: 20px 0 8px; color: #fff; font-size: clamp(22px, 2.6vw, 32px); line-height: 1.5; }
+.digipay-credit-card-description { margin: 0; color: #e0e9e6; font-size: 16px; line-height: 2; }
+.digipay-credit-card-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.digipay-credit-card-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 10px 18px; border-radius: 12px; font-weight: 700; text-decoration: none; line-height: 1.5; box-sizing: border-box; }
+.digipay-credit-card-button--primary { background: #d4b477; color: #10282a; border: 1px solid #d4b477; }
+.digipay-credit-card-button--secondary { background: #102c30; color: #fff; border: 1px solid #a8c2bd; }
+.digipay-guide .digipay-credit-card-condition { margin: 19px 0 0; color: #c5d5d1; font-size: 13px; line-height: 1.9; }
 .digipay-art-banner-image { display: block; overflow: hidden; border-radius: 16px; background: #263a85; }
 .digipay-art-banner-image img { display: block; width: 100%; height: auto; }
 .digipay-art-banner-caption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 20px; margin-top: 12px; font-size: 13px; line-height: 1.9; }
 .digipay-art-banner-caption p { margin: 0; color: var(--hn-text-muted, var(--hu-muted, #59696c)); }
 .digipay-art-banner-caption a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--hn-turquoise, #0f6e72); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
 .digipay-art-banner :is(a):focus-visible { outline: 3px solid var(--hn-turquoise, #0f6e72); outline-offset: 4px; }
+.digipay-credit-card a:focus-visible { outline-color: #fff; }
 @media (max-width: 640px) {
   .digipay-art-banner--shop { width: calc(100% - 32px); margin-block: 18px; }
   .digipay-art-banner-image { border-radius: 11px; }
   .digipay-art-banner-caption { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .digipay-credit-card { border-radius: 18px; }
+  .digipay-credit-card-actions { flex-direction: column; align-items: stretch; }
 }
