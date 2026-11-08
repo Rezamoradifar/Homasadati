@@ -1,0 +1,140 @@
+{
+  "fa": {
+    "eyebrow": "خرید اعتباری از هما",
+    "title": "اعتبار دیجی‌پی",
+    "description": "از درخواست و فعال‌سازی اعتبار تا خرید و پرداخت اقساط؛ مسیر خود را از اینجا ادامه دهید.",
+    "accountTitle": "اعتبار و اقساط من در دیجی‌پی",
+    "accountDescription": "مانده واقعی اعتبار، سقف قابل‌استفاده، طرح فعال و سررسید اقساط را در حساب خود دیجی‌پی ببینید.",
+    "balanceNote": "ماندهٔ قطعی اعتبار و سررسیدها را در حساب دیجی‌پی خود بررسی کنید.",
+    "openApp": "مشاهده حساب و اقساط دیجی‌پی",
+    "requestCredit": "درخواست و فعال‌سازی اعتبار خرید",
+    "purchaseLoan": "بررسی طرح وام خرید کالا",
+    "externalNote": "این پیوندها سایت رسمی دیجی‌پی را در زبانه‌ای تازه باز می‌کنند. درخواست اعتبار و مدارک را همان‌جا تکمیل کنید.",
+    "statusTitle": "پرداخت با دیجی‌پی در هما",
+    "statusDescription": "این وضعیت فقط دسترسی به روش پرداخت هما را نشان می‌دهد؛ تأیید اعتبار و مبلغ قابل‌استفادهٔ شما در دیجی‌پی مشخص می‌شود.",
+    "status": {
+      "loading": "در حال بررسی دسترسی به روش پرداخت…",
+      "available": "روش پرداخت دیجی‌پی در هما فعال است.",
+      "unavailable": "روش پرداخت دیجی‌پی فعلاً در هما در دسترس نیست.",
+      "error": "وضعیت روش پرداخت دریافت نشد. دوباره بررسی کنید."
+    },
+    "retry": "بررسی دوباره",
+    "stepsTitle": "از درخواست اعتبار تا خرید",
+    "steps": [
+      { "title": "درخواست با موبایل خودتان", "body": "در دیجی‌پی با شمارهٔ موبایل خود وارد شوید و طرح در دسترس را انتخاب کنید." },
+      { "title": "اعتبارسنجی و فعال‌سازی", "body": "شرایط، هزینه‌ها و مدارک همان طرح را بررسی کنید. نتیجهٔ بررسی و تخصیص اعتبار را در دیجی‌پی پیگیری کنید." },
+      { "title": "خرید از هما", "body": "محصول را به سبد اضافه کنید و، در صورت دسترسی، «خرید با اعتبار دیجی‌پی» را در مرحلهٔ روش پرداخت انتخاب کنید." },
+      { "title": "پیگیری و پرداخت اقساط", "body": "نتیجهٔ سفارش را در هما و سررسید و پرداخت اقساط را در حساب دیجی‌پی دنبال کنید." }
+    ],
+    "renewalTitle": "اعتبار قابل‌استفاده چگونه برمی‌گردد؟",
+    "renewalDescription": "در طرح‌های اعتباری قابل‌استفادهٔ مجدد، پرداخت قسط می‌تواند طبق شرایط همان طرح، معادل مبلغ بازپرداخت‌شده را دوباره آزاد کند. زمان و مبلغ قابل‌استفاده را در حساب دیجی‌پی ببینید؛ وام خرید کالا الزاماً با هر قسط دوباره شارژ نمی‌شود.",
+    "renewalAction": "ملاک خرید بعدی، اعتبار قابل‌استفاده‌ای است که دیجی‌پی در حساب شما نشان می‌دهد.",
+    "walletTitle": "اعتبار اقساطی و کیف پول نقدی",
+    "walletDescription": "شارژ کیف پول نقدی، پول خودتان را به موجودی اضافه می‌کند و وام یا سقف اعتباری نمی‌سازد. پرداخت قسط را از مسیر بازپرداخت همان طرح در دیجی‌پی انجام دهید.",
+    "linksTitle": "ادامه مسیر در هما",
+    "guide": "راهنمای کامل دیجی‌پی",
+    "shop": "انتخاب محصول از فروشگاه",
+    "cart": "سبد خرید و روش پرداخت",
+    "orders": "پیگیری سفارش‌های من",
+    "faqTitle": "پرسش‌های کاربردی",
+    "faqs": [
+      { "question": "آیا از همین بخش وام من فعال می‌شود؟", "answer": "درخواست و فعال‌سازی اعتبار در دیجی‌پی انجام می‌شود. هما شما را به مسیر رسمی راهنمایی می‌کند؛ نمایش این بخش یا ثبت‌نام در هما، تأیید وام نیست." },
+      { "question": "برای خرید بعدی، اعتبارم را چطور شارژ کنم؟", "answer": "اقساط را در دیجی‌پی پرداخت کنید و ماندهٔ قابل‌استفاده را همان‌جا بررسی کنید. بازگشت یا افزایش اعتبار به نوع طرح، خوش‌حسابی و شرایط دیجی‌پی بستگی دارد؛ برای وام خرید، شارژ مجدد را از قرارداد همان طرح بررسی کنید." },
+      { "question": "اگر کیف پول نقدی را شارژ کنم، اعتبار اقساطی می‌گیرم؟", "answer": "خیر. موجودی نقدی و اعتبار خرید جدا هستند. واریز پول به کیف پول هما یا کیف پول نقدی دیجی‌پی به‌تنهایی اعتبار اقساطی ایجاد نمی‌کند." },
+      { "question": "با کدام شماره موبایل ادامه بدهم؟", "answer": "از شمارهٔ موبایل متعلق به خودتان و حساب دیجی‌پی خود استفاده کنید. برای پرداخت در هما هم شمارهٔ موبایل معتبر خودتان را در مشخصات حساب ثبت کنید." },
+      { "question": "سقف، اقساط و هزینه‌های من کجا مشخص است؟", "answer": "شرایط شخصی شما در دیجی‌پی و قرارداد طرح انتخاب‌شده نمایش داده می‌شود. پیش از تأیید، مبلغ قابل‌استفاده، پیش‌پرداخت احتمالی، هزینه‌ها و سررسیدها را همان‌جا بخوانید." }
+    ]
+  },
+  "en": {
+    "eyebrow": "Credit purchases at Homa",
+    "title": "DigiPay credit",
+    "description": "Continue from requesting and activating credit to shopping and paying installments.",
+    "accountTitle": "My DigiPay credit and installments",
+    "accountDescription": "See your actual available credit, limit, active plan and installment due dates in your own DigiPay account.",
+    "balanceNote": "Check your confirmed credit balance and due dates in your own DigiPay account.",
+    "openApp": "View DigiPay account and installments",
+    "requestCredit": "Request and activate purchase credit",
+    "purchaseLoan": "Explore purchase-loan plans",
+    "externalNote": "These links open the official DigiPay site in a new tab. Complete credit applications and documents there.",
+    "statusTitle": "DigiPay payment at Homa",
+    "statusDescription": "This status only describes Homa's payment method. DigiPay determines your credit approval and available amount.",
+    "status": {
+      "loading": "Checking payment-method availability…",
+      "available": "DigiPay payment is enabled at Homa.",
+      "unavailable": "DigiPay payment is currently unavailable at Homa.",
+      "error": "Payment-method status could not be loaded. Please check again."
+    },
+    "retry": "Check again",
+    "stepsTitle": "From credit request to purchase",
+    "steps": [
+      { "title": "Apply with your own mobile number", "body": "Sign in to DigiPay with your own mobile number and choose an available plan." },
+      { "title": "Credit assessment and activation", "body": "Review the plan's terms, costs and required documents. Follow your application and credit allocation in DigiPay." },
+      { "title": "Shop at Homa", "body": "Add a product to your cart and, when available, choose DigiPay credit in the payment-method step." },
+      { "title": "Track orders and pay installments", "body": "Track your order in Homa. Check due dates and pay installments through your DigiPay account." }
+    ],
+    "renewalTitle": "How does available credit return?",
+    "renewalDescription": "For reusable credit plans, installment payments may release an equivalent amount of credit under that plan's terms. Check the timing and available amount in your DigiPay account. A purchase loan does not necessarily replenish after every installment.",
+    "renewalAction": "For your next purchase, use the available credit shown in your DigiPay account.",
+    "walletTitle": "Installment credit and cash wallet",
+    "walletDescription": "Topping up a cash wallet adds your own money. It does not create a loan or credit limit. Pay installments through the repayment flow for your DigiPay plan.",
+    "linksTitle": "Continue in Homa",
+    "guide": "Complete DigiPay guide",
+    "shop": "Choose a product",
+    "cart": "Cart and payment methods",
+    "orders": "Track my orders",
+    "faqTitle": "Practical questions",
+    "faqs": [
+      { "question": "Does this section activate a loan for me?", "answer": "Credit applications and activation take place in DigiPay. Homa links you to the official process. Seeing this section or registering with Homa does not approve a loan." },
+      { "question": "How do I restore credit for my next purchase?", "answer": "Pay installments in DigiPay and check your available balance there. Credit release or increases depend on your plan, repayment record and DigiPay's terms. For purchase loans, check the specific contract for any reuse conditions." },
+      { "question": "Does topping up a cash wallet give me installment credit?", "answer": "No. Cash funds and purchase credit are separate. Adding money to the Homa wallet or DigiPay cash wallet does not itself grant installment credit." },
+      { "question": "Which mobile number should I use?", "answer": "Use your own mobile number and DigiPay account. Also register your own valid mobile number in your Homa account profile for payment." },
+      { "question": "Where can I see my limit, installments and costs?", "answer": "Your personal terms appear in DigiPay and the contract for your chosen plan. Before confirming, review the available amount, any upfront payment, costs and due dates there." }
+    ]
+  },
+  "ar": {
+    "eyebrow": "الشراء الائتماني من هما",
+    "title": "ائتمان ديجي‌بي",
+    "description": "تابع من طلب الائتمان وتفعيله إلى التسوق وسداد الأقساط.",
+    "accountTitle": "ائتماني وأقساطي في ديجي‌بي",
+    "accountDescription": "اطّلع على رصيدك الائتماني الفعلي والحد المتاح والخطة النشطة ومواعيد الأقساط في حسابك لدى ديجي‌بي.",
+    "balanceNote": "تحقّق من رصيدك الائتماني المؤكد ومواعيد الاستحقاق في حسابك لدى ديجي‌بي.",
+    "openApp": "عرض حساب ديجي‌بي والأقساط",
+    "requestCredit": "طلب ائتمان الشراء وتفعيله",
+    "purchaseLoan": "استكشاف خطط قرض الشراء",
+    "externalNote": "تفتح هذه الروابط موقع ديجي‌بي الرسمي في علامة تبويب جديدة. أكمل طلب الائتمان والمستندات هناك.",
+    "statusTitle": "الدفع عبر ديجي‌بي في هما",
+    "statusDescription": "تعرض هذه الحالة إتاحة طريقة الدفع في هما فقط. يحدّد ديجي‌بي الموافقة الائتمانية والمبلغ المتاح لك.",
+    "status": {
+      "loading": "جارٍ التحقق من إتاحة طريقة الدفع…",
+      "available": "الدفع عبر ديجي‌بي مفعّل في هما.",
+      "unavailable": "الدفع عبر ديجي‌بي غير متاح حاليًا في هما.",
+      "error": "تعذّر تحميل حالة طريقة الدفع. تحقّق مجددًا."
+    },
+    "retry": "التحقق مجددًا",
+    "stepsTitle": "من طلب الائتمان إلى الشراء",
+    "steps": [
+      { "title": "اطلب برقم جوالك الشخصي", "body": "ادخل إلى ديجي‌بي برقم جوالك الشخصي واختر خطة متاحة." },
+      { "title": "التقييم الائتماني والتفعيل", "body": "راجع شروط الخطة وتكاليفها والمستندات المطلوبة. تابع نتيجة طلبك وتخصيص الائتمان لدى ديجي‌بي." },
+      { "title": "تسوّق من هما", "body": "أضف منتجًا إلى السلة واختر ائتمان ديجي‌بي في خطوة طريقة الدفع عند إتاحته." },
+      { "title": "تابع الطلب وسدّد الأقساط", "body": "تابع طلبك في هما، واطّلع على المواعيد وسدّد الأقساط عبر حسابك لدى ديجي‌بي." }
+    ],
+    "renewalTitle": "كيف يعود الائتمان المتاح؟",
+    "renewalDescription": "في الخطط القابلة لإعادة الاستخدام، قد يحرّر سداد القسط مبلغًا مماثلًا من الائتمان وفق شروط الخطة. تحقّق من الموعد والمبلغ المتاح في حساب ديجي‌بي. قرض الشراء لا يتجدّد بالضرورة بعد كل قسط.",
+    "renewalAction": "للشراء التالي، اعتمد الائتمان المتاح المعروض في حساب ديجي‌بي.",
+    "walletTitle": "ائتمان التقسيط والمحفظة النقدية",
+    "walletDescription": "شحن المحفظة يضيف أموالك الخاصة ولا ينشئ قرضًا أو حدًا ائتمانيًا. سدّد الأقساط من مسار السداد الخاص بخطتك لدى ديجي‌بي.",
+    "linksTitle": "تابع في هما",
+    "guide": "دليل ديجي‌بي الكامل",
+    "shop": "اختيار منتج من المتجر",
+    "cart": "السلة وطرق الدفع",
+    "orders": "متابعة طلباتي",
+    "faqTitle": "أسئلة عملية",
+    "faqs": [
+      { "question": "هل يتفعّل القرض من هذا القسم؟", "answer": "يُقدَّم طلب الائتمان ويُفعَّل لدى ديجي‌بي. يوجّهك هما إلى المسار الرسمي، وظهور هذا القسم أو التسجيل في هما لا يعني الموافقة على القرض." },
+      { "question": "كيف أستعيد الائتمان للشراء التالي؟", "answer": "سدّد الأقساط في ديجي‌بي وافحص الرصيد المتاح هناك. تحرير الائتمان أو زيادته يتوقف على خطتك وسجل السداد وشروط ديجي‌بي. راجع عقد قرض الشراء لمعرفة شروط إعادة الاستخدام." },
+      { "question": "هل يمنحني شحن المحفظة النقدية ائتمان التقسيط؟", "answer": "لا. الرصيد النقدي وائتمان الشراء منفصلان. إضافة المال إلى محفظة هما أو المحفظة النقدية لديجي‌بي لا تمنح ائتمان التقسيط بحد ذاتها." },
+      { "question": "أي رقم جوال أستخدم؟", "answer": "استخدم رقم جوالك وحسابك الشخصي لدى ديجي‌بي. وسجّل رقم جوالك الصحيح أيضًا في ملف حساب هما للدفع." },
+      { "question": "أين أرى الحد والأقساط والتكاليف؟", "answer": "تظهر شروطك الشخصية في ديجي‌بي وعقد الخطة المختارة. قبل التأكيد، راجع المبلغ المتاح وأي دفعة أولى والتكاليف والمواعيد هناك." }
+    ]
+  }
+}

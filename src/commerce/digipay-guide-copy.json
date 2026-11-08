@@ -4,6 +4,7 @@
     "entryTitle": "با اعتبار دیجی‌پی از هما خرید کنید",
     "entryDescription": "دریافت اعتبار، مراحل خرید و نحوهٔ ثبت حجم را یکجا ببینید.",
     "entryAction": "راهنمای خرید اقساطی",
+    "accountAction": "دریافت و مدیریت اعتبار دیجی‌پی",
     "helpRefundNote": "مهلت لغو را در جزئیات سفارش ببینید. برای سفارش واجد شرایط دیجی‌پی، برگشت از مسیر دیجی‌پی و پس از تأیید آن انجام می‌شود و به کیف پول نقدی هما منتقل نمی‌شود. در سایر روش‌های واجد شرایط، برگشت به کیف پول با تأیید شما انجام می‌شود؛ برای انتقال بانکی درخواست برداشت ثبت کنید.",
     "metadata": {
       "title": "راهنمای خرید با اعتبار دیجی‌پی | هما نت",
@@ -89,6 +90,7 @@
     "entryTitle": "Shop at Homa with DigiPay credit",
     "entryDescription": "Find credit application steps, the checkout guide and club purchase-volume information in one place.",
     "entryAction": "Read the instalment guide",
+    "accountAction": "Request and manage DigiPay credit",
     "helpRefundNote": "Check the cancellation deadline in your order details. Eligible DigiPay orders are refunded through DigiPay after its confirmation, without transfer to Homa's cash wallet. For other eligible methods, refunds go to your wallet with your consent; submit a withdrawal request for a bank transfer.",
     "metadata": {
       "title": "Shopping with DigiPay credit | Homanet",
@@ -174,6 +176,7 @@
     "entryTitle": "تسوّق من هما برصيد ديجي‌بي",
     "entryDescription": "خطوات طلب الرصيد والشراء واحتساب حجم مشتريات النادي في مكان واحد.",
     "entryAction": "دليل الشراء بالتقسيط",
+    "accountAction": "طلب رصيد ديجي‌بي وإدارته",
     "helpRefundNote": "راجع مهلة الإلغاء في تفاصيل الطلب. للطلبات المؤهّلة عبر ديجي‌بي، يتم الاسترداد عبر ديجي‌بي بعد تأكيده دون تحويل المبلغ إلى المحفظة النقدية في هما. ولطرق الدفع الأخرى المؤهّلة، يُعاد المبلغ إلى المحفظة بموافقتك؛ وللتحويل البنكي قدّم طلب سحب.",
     "metadata": {
       "title": "دليل الشراء برصيد ديجي‌بي | هما نت",

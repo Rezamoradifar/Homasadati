@@ -1,0 +1,55 @@
+.digipay-credit-panel { min-width: 0; color: var(--hn-text, #1b2233); }
+.digipay-credit-panel :is(section, article, aside, div) { min-width: 0; }
+.digipay-credit-panel h2, .digipay-credit-panel h3, .digipay-credit-panel h4 { color: var(--hn-text, #1b2233); }
+.digipay-credit-heading { margin-block-end: 24px; }
+.digipay-credit-heading .digipay-credit-eyebrow { margin: 0 0 6px; color: var(--hn-turquoise, #0f6e72); font-size: 12px; font-weight: 600; }
+.digipay-credit-heading h2 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 32px); line-height: 1.5; }
+.digipay-credit-panel p { line-height: 1.9; overflow-wrap: anywhere; }
+.digipay-credit-heading > p:last-child { margin: 0; font-size: 14px; color: var(--hn-text-muted, #59696c); }
+.digipay-credit-overview { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 20px; }
+.digipay-credit-account, .digipay-credit-availability, .digipay-credit-steps, .digipay-credit-explain > section, .digipay-credit-faq { padding: 24px; border: 1px solid var(--hn-border, #d5dce0); border-radius: 14px; background: var(--hn-surface, #fff); box-sizing: border-box; }
+.digipay-credit-account { border-block-start: 4px solid var(--hn-turquoise, #0f6e72); }
+.digipay-credit-brand { display: inline-flex; margin-bottom: 10px; padding: 5px 10px; border-radius: 6px; background: var(--hn-turquoise-soft, #d6e9e7); color: var(--hn-text, #1b2233); font: 700 16px/1.5 var(--hn-font-latin, sans-serif); direction: ltr; }
+.digipay-credit-panel :is(h3, h4) { line-height: 1.7; }
+.digipay-credit-panel h3 { margin: 0 0 10px; font-size: 18px; }
+.digipay-credit-panel h4 { margin: 0 0 4px; font-size: 14px; }
+.digipay-credit-account > p, .digipay-credit-availability > p, .digipay-credit-explain p { margin: 0 0 16px; font-size: 13px; color: var(--hn-text-muted, #59696c); }
+.digipay-credit-actions { display: flex; align-items: stretch; flex-direction: column; gap: 10px; margin-block: 20px; }
+.digipay-credit-panel .digipay-credit-button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; padding: 10px 15px; border: 1px solid var(--hn-border-strong, #aab8bb); border-radius: 8px; background: var(--hn-surface, #fff); color: var(--hn-text, #1b2233); font: inherit; font-size: 13px; line-height: 1.7; text-align: center; text-decoration: none; cursor: pointer; box-sizing: border-box; overflow-wrap: anywhere; }
+.digipay-credit-panel .digipay-credit-button--primary { border-color: transparent; background: var(--hn-turquoise, #0f6e72); color: #fff; font-weight: 600; }
+.digipay-credit-button > span, .digipay-credit-text-link > span { flex: 0 0 auto; }
+.digipay-credit-panel .digipay-credit-text-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; color: var(--hn-text, #1b2233); font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+.digipay-credit-panel .digipay-credit-balance-note { padding-inline-start: 12px; border-inline-start: 3px solid var(--hn-turquoise, #0f6e72); color: var(--hn-text, #1b2233); }
+.digipay-credit-panel .digipay-credit-external-note { margin-bottom: 0; font-size: 11px; }
+.digipay-credit-availability { align-self: start; }
+.digipay-credit-status { display: flex; align-items: baseline; gap: 9px; margin-block: 16px; padding: 12px; border: 1px solid var(--hn-border, #d5dce0); border-radius: 8px; background: var(--hn-bg, #f4f6f6); }
+.digipay-credit-status p { margin: 0; font-size: 13px; font-weight: 600; }
+.digipay-credit-status-dot { flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%; background: var(--hn-text-muted, #59696c); }
+.digipay-credit-status--available .digipay-credit-status-dot { background: var(--hn-turquoise, #0f6e72); }
+.digipay-credit-status--error .digipay-credit-status-dot { background: var(--hn-terracotta, #b15a34); }
+.digipay-credit-steps { margin-block: 24px; }
+.digipay-credit-steps ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; list-style: none; padding: 0; margin: 20px 0 0; }
+.digipay-credit-steps li { display: flex; gap: 12px; align-items: flex-start; }
+.digipay-credit-step-number { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 32px; min-height: 32px; border-radius: 50%; background: var(--hn-turquoise-soft, #d6e9e7); color: var(--hn-text, #1b2233); font-size: 13px; font-weight: 700; }
+.digipay-credit-steps li p { margin: 0; color: var(--hn-text-muted, #59696c); font-size: 12px; }
+.digipay-credit-explain { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.digipay-credit-explain p:last-child { margin-bottom: 0; }
+.digipay-credit-explain .digipay-credit-renewal-note { color: var(--hn-text, #1b2233); font-weight: 600; }
+.digipay-credit-links { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 24px; }
+.digipay-credit-links > a { flex: 1 1 180px; }
+.digipay-credit-faq details { border-block-start: 1px solid var(--hn-border, #d5dce0); }
+.digipay-credit-faq summary { display: list-item; padding: 15px 0; min-height: 44px; font-size: 13px; font-weight: 600; line-height: 1.8; cursor: pointer; box-sizing: border-box; }
+.digipay-credit-faq details p { margin: 0 0 18px; color: var(--hn-text-muted, #59696c); font-size: 13px; }
+.digipay-credit-panel :is(a, button, summary):focus-visible { outline: 3px solid var(--hn-focus, #0f6e72); outline-offset: 4px; }
+.digipay-credit-panel .digipay-credit-button:hover { border-color: var(--hn-turquoise, #0f6e72); }
+.digipay-credit-panel .digipay-credit-button--primary:hover { background: var(--hn-turquoise-deep, #0a5357); }
+html[data-theme="dark"] .digipay-credit-panel .digipay-credit-button--primary { color: var(--hn-indigo-deep, #09191b); }
+@media (max-width: 950px) {
+  .digipay-credit-overview { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .digipay-credit-account, .digipay-credit-availability, .digipay-credit-steps, .digipay-credit-explain > section, .digipay-credit-faq { padding: 18px; }
+  .digipay-credit-explain, .digipay-credit-steps ol { grid-template-columns: minmax(0, 1fr); }
+  .digipay-credit-panel h3 { font-size: 16px; }
+  .digipay-credit-links > a { flex-basis: 100%; }
+}

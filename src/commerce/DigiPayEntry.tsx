@@ -9,6 +9,7 @@ type DigiPayEntryProps = {
   variant?: "banner" | "compact" | "link" | "refund-note";
   className?: string;
   locale?: string;
+  accountHref?: string;
 };
 
 /** The guide is always reachable; available payment methods remain server controlled. */
@@ -16,6 +17,7 @@ export default function DigiPayEntry({
   variant = "compact",
   className = "",
   locale: localeOverride,
+  accountHref,
 }: DigiPayEntryProps) {
   const { locale: siteLocale } = useSiteLocale();
   const locale = localeOverride === "en" || localeOverride === "ar" || localeOverride === "fa"
@@ -23,6 +25,8 @@ export default function DigiPayEntry({
     : siteLocale;
   const copy = guideCopy[locale];
   const Arrow = locale === "en" ? ArrowRight : ArrowLeft;
+  const target = accountHref || "/digipay";
+  const action = accountHref ? copy.accountAction : copy.entryAction;
 
   if (variant === "link") {
     return <a href="/digipay" className={`digipay-entry-link ${className}`}>{copy.navLabel}</a>;
@@ -41,8 +45,8 @@ export default function DigiPayEntry({
       <strong>{copy.entryTitle}</strong>
       <p>{copy.entryDescription}</p>
     </div>
-    <a className="digipay-entry-action" href="/digipay">
-      {copy.entryAction}<Arrow size={18} aria-hidden="true" />
+    <a className="digipay-entry-action" href={target}>
+      {action}<Arrow size={18} aria-hidden="true" />
     </a>
   </aside>;
 }

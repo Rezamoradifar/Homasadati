@@ -37,6 +37,7 @@ export const memberTabIcons: Record<string, LucideIcon> = {
   loyalty: Gift,
   missions: Target,
   wallet: Wallet,
+  "digipay-credit": CreditCard,
   commissions: CreditCard,
   profile: UserRound,
   addresses: MapPin,

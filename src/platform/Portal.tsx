@@ -68,6 +68,7 @@ const AdminHome = dynamic(() => import("./AdminHome"), { loading: PanelLoading }
 const BinaryPanel = dynamic(() => import("./BinaryPanel"), { loading: PanelLoading });
 const SevenCardPanel = dynamic(() => import("./SevenCardPanel"), { loading: PanelLoading });
 const MemberKit = dynamic(() => import("./MemberKit"), { loading: PanelLoading });
+const DigiPayCreditPanel = dynamic(() => import("./DigiPayCreditPanel"), { loading: PanelLoading });
 export default function Portal({ admin = false }: { admin?: boolean }) {
   const site = useSiteSettings();
   const { locale, dictionary } = useSiteLocale();
@@ -454,7 +455,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   تازه‌سازی
                 </button>
               </div>
-              {!admin && tab === "dashboard" && <DigiPayEntry variant="compact" />}
+              {!admin && tab === "dashboard" && <DigiPayEntry variant="compact" accountHref={"/account?tab=digipay-credit" + (companyTarget ? "&companyMember=" + encodeURIComponent(companyTarget) : "")} />}
               <Notice error={error} />
               <Notice error={connectionError} />
               {!current ? (
@@ -657,6 +658,7 @@ export default function Portal({ admin = false }: { admin?: boolean }) {
                   {tab === "wallet" && (
                     <Wallet refresh={refresh} onChange={update} user={user} />
                   )}{" "}
+                  {tab === "digipay-credit" && <DigiPayCreditPanel ordersHref={"/account?tab=orders" + (companyTarget ? "&companyMember=" + encodeURIComponent(companyTarget) : "")} />}
                   {tab === "network" && (
                     <>
                       <NetworkTree user={user} refresh={refresh} />

@@ -63,6 +63,12 @@ describe("company view of the real member portal", () => {
     expect(new URLSearchParams(location.search).get("companyMember")).toBe(targetId);
     expect(new URLSearchParams(location.search).get("tab")).toBe("orders");
     expect(screen.getByRole("region", { name: copy.bannerTitle })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "اعتبار دیجی‌پی" }));
+    expect(new URLSearchParams(location.search).get("companyMember")).toBe(targetId);
+    expect(new URLSearchParams(location.search).get("tab")).toBe("digipay-credit");
+    expect(screen.getByRole("heading", { level: 1, name: "اعتبار دیجی‌پی" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: copy.bannerTitle })).toBeTruthy();
   });
 
   it("does not show the owner's account when a spoofed or unapproved company query receives an ordinary me response", async () => {

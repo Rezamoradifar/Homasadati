@@ -32,6 +32,7 @@ export const memberGroups = [
     title: "امور مالی",
     tabs: [
       ["wallet", "کیف پول و برداشت"],
+      ["digipay-credit", "اعتبار دیجی‌پی"],
       ["commissions", "پورسانت‌ها"],
     ],
   },
