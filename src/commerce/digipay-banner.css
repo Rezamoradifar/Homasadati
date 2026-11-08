@@ -1,0 +1,13 @@
+.digipay-art-banner { width: min(1240px, calc(100% - 40px)); margin: 24px auto; }
+.digipay-art-banner--guide { width: 100%; margin: clamp(36px, 5vw, 64px) auto 24px; }
+.digipay-art-banner-image { display: block; overflow: hidden; border-radius: 16px; background: #263a85; }
+.digipay-art-banner-image img { display: block; width: 100%; height: auto; }
+.digipay-art-banner-caption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 20px; margin-top: 12px; font-size: 13px; line-height: 1.9; }
+.digipay-art-banner-caption p { margin: 0; color: var(--hn-text-muted, var(--hu-muted, #59696c)); }
+.digipay-art-banner-caption a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--hn-turquoise, #0f6e72); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+.digipay-art-banner :is(a):focus-visible { outline: 3px solid var(--hn-turquoise, #0f6e72); outline-offset: 4px; }
+@media (max-width: 640px) {
+  .digipay-art-banner--shop { width: calc(100% - 32px); margin-block: 18px; }
+  .digipay-art-banner-image { border-radius: 11px; }
+  .digipay-art-banner-caption { align-items: flex-start; flex-direction: column; gap: 2px; }
+}

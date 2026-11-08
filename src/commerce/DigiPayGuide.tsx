@@ -15,6 +15,7 @@ import {
 import { direction } from "../i18n/core";
 import { useSiteLocale } from "../i18n/SiteLocale";
 import guideCopy from "./digipay-guide-copy.json";
+import DigiPayBanner from "./DigiPayBanner";
 
 const CREDIT_GUIDE = "https://www.mydigipay.com/bnpl/c-bnpl/";
 const PURCHASE_LOAN_GUIDE = "https://www.mydigipay.com/credit/c-credit/";
@@ -58,6 +59,8 @@ export default function DigiPayGuide() {
           </ol>
         </aside>
       </header>
+
+      <DigiPayBanner variant="guide" />
 
       <nav className="digipay-guide-nav" aria-label={copy.quickNavLabel}>
         {copy.quickNav.map(item => <a key={item.href} href={item.href}>{item.label}</a>)}

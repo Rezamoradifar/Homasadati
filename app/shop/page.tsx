@@ -4,6 +4,7 @@ import Localized from "../../src/i18n/Localized";
 import { CommerceShell } from "../../src/commerce/Shell";
 import Storefront from "../../src/commerce/Storefront";
 import DigiPayEntry from "../../src/commerce/DigiPayEntry";
+import DigiPayBanner from "../../src/commerce/DigiPayBanner";
 import { isSector } from "../../src/commerce/brands";
 import { validCraftPath } from "../../src/commerce/craft-taxonomy";
 export async function generateMetadata() { return translatedMetadata({
@@ -27,6 +28,7 @@ export default async function Shop({
   return (
     <Localized><CommerceShell>
       <main id="commerce-main">
+        <DigiPayBanner variant="shop" />
         <DigiPayEntry variant="banner" />
         <Storefront initialVertical={isSector(v) ? v : ""} initialQuery={(searchParams.q || "").slice(0, 200)} {...craft} />
       </main>
