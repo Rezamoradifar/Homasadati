@@ -9,6 +9,7 @@ import {useData} from '../src/platform/Widgets';
 import PublicContent from '../src/platform/PublicContent';
 import copy from './premium-home-copy.json';
 import OriginalLandingHero from './OriginalLandingHero';
+import DigiPayBanner from '../src/commerce/DigiPayBanner';
 
 type Locale = 'fa' | 'en' | 'ar';
 
@@ -70,6 +71,8 @@ export default function PremiumHomeExact({locale, heroVariant = 'original'}: {lo
           onClick={()=>setSlide(i)}/>)}
       </div>
     </section>}
+
+    <DigiPayBanner variant="home" />
 
     <section className="hex-portals" aria-label="HOMA">
       {[

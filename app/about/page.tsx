@@ -1,7 +1,7 @@
 import {siteLocale} from "../../src/i18n/server";
 import {loadDictionary,translateText} from "../../src/i18n/core";
 import { CommerceShell } from "../../src/commerce/Shell";
-import ResponsiveImage from "../../src/components/media/ResponsiveImage";
+import CompanyLicense from "../../src/commerce/CompanyLicense";
 import Localized from "../../src/i18n/Localized";
 import { all } from "../../src/platform/schema";
 import { DEFAULT_ENAMAD } from "../../src/platform/site-defaults";
@@ -9,6 +9,8 @@ import EnamadSeal from "../../src/commerce/EnamadSeal";
 const documents = [
   {
     file: "trade-license",
+    width: 1080,
+    height: 763,
     title: "پروانه کسب صنایع‌دستی",
     holder: "پیشگامان میراث جاویدان",
     issuer: "اتحادیه فروشندگان اشیای قدیمی و صنایع‌دستی شهرستان تهران",
@@ -16,6 +18,8 @@ const documents = [
   },
   {
     file: "craft-house-permit",
+    width: 1280,
+    height: 853,
     title: "مجوز تأسیس و بهره‌برداری خانه صنایع‌دستی",
     holder: "میراث جاویدان و ماندگار ایرانیان",
     issuer: "اداره کل میراث فرهنگی، گردشگری و صنایع‌دستی استان سمنان",
@@ -99,26 +103,25 @@ export default async function About() {
             <div className="license-grid">
               {documents.map((d, i) => (
                 <Localized key={d.file}>
-                  <article className="license-card">
-                    <a className="license-preview" href={`/assets/licenses/${d.file}.jpg`} target="_blank" rel="noopener noreferrer" aria-label={t(`مشاهده تصویر کامل ${t(d.title)}`)}>
-                      <ResponsiveImage src={`/assets/licenses/${d.file}.jpg`} alt={t(d.title)} sizes="(max-width: 700px) 90vw, 44vw" quality={95}/>
-                    </a>
-                    <div className="license-copy">
-                      <span className="license-number" aria-hidden="true">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <h3>{t(d.title)}</h3>
-                      <dl>
-                        <dt>{t("عنوان دارنده در سند")}</dt>
-                        <dd>{t(d.holder)}</dd>
-                        <dt>{t("مرجع صادرکننده")}</dt>
-                        <dd>{t(d.issuer)}</dd>
-                        <dt>{t("موضوع فعالیت")}</dt>
-                        <dd>{t(d.activity)}</dd>
-                      </dl>
-                      <a className="license-open" href={`/assets/licenses/${d.file}.jpg`} target="_blank" rel="noopener noreferrer">{t("مشاهده سند در اندازه کامل")}</a>
-                    </div>
-                  </article>
+                  <CompanyLicense
+                    file={d.file}
+                    title={t(d.title)}
+                    width={d.width}
+                    height={d.height}
+                  >
+                    <span className="license-number" aria-hidden="true">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3>{t(d.title)}</h3>
+                    <dl>
+                      <dt>{t("عنوان دارنده در سند")}</dt>
+                      <dd>{t(d.holder)}</dd>
+                      <dt>{t("مرجع صادرکننده")}</dt>
+                      <dd>{t(d.issuer)}</dd>
+                      <dt>{t("موضوع فعالیت")}</dt>
+                      <dd>{t(d.activity)}</dd>
+                    </dl>
+                  </CompanyLicense>
                 </Localized>
               ))}
               <article className="license-card enamad-card">

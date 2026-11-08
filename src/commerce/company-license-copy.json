@@ -1,0 +1,35 @@
+{
+  "fa": {
+    "enlarge": "بزرگ‌نمایی سند",
+    "download": "دانلود اصل تصویر",
+    "close": "بستن",
+    "zoomIn": "بزرگ‌تر",
+    "zoomOut": "کوچک‌تر",
+    "fit": "نمایش کامل",
+    "zoom": "بزرگ‌نمایی",
+    "imageRegion": "تصویر قابل جابه‌جایی سند",
+    "hint": "پس از بزرگ‌نمایی، تصویر را با لمس یا ماوس جابه‌جا کنید. با کلیدهای جهت‌نما هم می‌توانید در تصویر حرکت کنید."
+  },
+  "en": {
+    "enlarge": "Enlarge document",
+    "download": "Download original image",
+    "close": "Close",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Fit image",
+    "zoom": "Zoom",
+    "imageRegion": "Scrollable document image",
+    "hint": "After zooming in, drag or swipe to move around the image. You can also focus the image and use the arrow keys."
+  },
+  "ar": {
+    "enlarge": "تكبير المستند",
+    "download": "تنزيل الصورة الأصلية",
+    "close": "إغلاق",
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير",
+    "fit": "عرض الصورة كاملة",
+    "zoom": "التكبير",
+    "imageRegion": "صورة المستند القابلة للتمرير",
+    "hint": "بعد التكبير، اسحب الصورة باللمس أو الماوس للتنقل فيها. يمكنك أيضاً تحديد الصورة واستخدام مفاتيح الأسهم."
+  }
+}

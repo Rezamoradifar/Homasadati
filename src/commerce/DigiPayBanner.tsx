@@ -6,12 +6,11 @@ import { useSiteLocale } from "../i18n/SiteLocale";
 import copy from "./digipay-banner-copy.json";
 import "./digipay-banner.css";
 
-export default function DigiPayBanner({ variant }: { variant: "shop" | "guide" }) {
+export default function DigiPayBanner({ variant }: { variant: "home" | "shop" | "guide" }) {
   const { locale } = useSiteLocale();
   const headingId = useId();
   const text = copy[locale];
-  const isShop = variant === "shop";
-  if (!isShop) return <aside className="digipay-art-banner digipay-art-banner--guide" dir={locale === "en" ? "ltr" : "rtl"} aria-labelledby={headingId}>
+  if (variant === "guide") return <aside className="digipay-art-banner digipay-art-banner--guide" dir={locale === "en" ? "ltr" : "rtl"} aria-labelledby={headingId}>
     <div className="digipay-credit-card">
       <div className="digipay-credit-card-content">
         <div className="digipay-credit-card-brand"><span className="digipay-credit-card-icon"><CreditCard size={22} aria-hidden="true" /></span><span>DIGIPAY <span aria-hidden="true">×</span> HOMANET</span></div>
@@ -25,9 +24,9 @@ export default function DigiPayBanner({ variant }: { variant: "shop" | "guide" }
       </div>
     </div>
   </aside>;
-  return <aside className={`digipay-art-banner digipay-art-banner--${variant}`} dir={locale === "en" ? "ltr" : "rtl"}>
+  return <aside className={`digipay-art-banner digipay-art-banner--${variant}`} dir={locale === "en" ? "ltr" : "rtl"} aria-label={text.cardTitle}>
     <a href="/digipay" className="digipay-art-banner-image" aria-label={text.shop}>
-      <img src="/assets/digipay-installments.webp" width="1672" height="941" alt="" loading="lazy" />
+      <img src={variant === "home" ? "/assets/digipay-homanet.webp" : "/assets/digipay-installments.webp"} width="1672" height="941" alt="" loading="lazy" decoding="async" />
     </a>
     <div className="digipay-art-banner-caption">
       <p>{text.condition}</p>

@@ -21,7 +21,8 @@
 .digipay-art-banner :is(a):focus-visible { outline: 3px solid var(--hn-turquoise, #0f6e72); outline-offset: 4px; }
 .digipay-credit-card a:focus-visible { outline-color: #fff; }
 @media (max-width: 640px) {
-  .digipay-art-banner--shop { width: calc(100% - 32px); margin-block: 18px; }
+  .digipay-art-banner--shop,
+  .digipay-art-banner--home { width: calc(100% - 32px); margin-block: 18px; }
   .digipay-art-banner-image { border-radius: 11px; }
   .digipay-art-banner-caption { align-items: flex-start; flex-direction: column; gap: 2px; }
   .digipay-credit-card { border-radius: 18px; }
