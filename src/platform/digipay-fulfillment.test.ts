@@ -96,6 +96,7 @@ beforeEach(() => {
   vi.stubEnv("NODE_ENV", "test");
   vi.stubEnv("APP_ORIGIN", "https://homanets.test");
   vi.stubEnv("DIGIPAY_ENABLED", "1");
+  vi.stubEnv("HOMA_DIGIPAY_VAT_ENABLED", "0");
   vi.stubEnv("DIGIPAY_ENVIRONMENT", "sandbox");
   vi.stubEnv("DIGIPAY_USERNAME", "fixture-merchant");
   vi.stubEnv("DIGIPAY_PASSWORD", "fixture-password");
@@ -130,6 +131,25 @@ afterAll(() => {
 });
 
 describe("refund reconciliation", () => {
+  it("refunds merchandise plus snapshotted VAT through DigiPay, never to Homa cash", async () => {
+    vi.stubEnv("HOMA_DIGIPAY_VAT_ENABLED", "1");
+    const productId=product(250_000);
+    run("INSERT INTO p_product_details(product_id,details,updated_at) VALUES(?,?,?)",productId,JSON.stringify({vatStatus:"taxable"}),now());
+    const c=createCheckout(buyer,checkoutSchema.parse({items:[{productId,quantity:1}],method:"digipay",expectedTotal:250_000,expectedVatToman:25_000,idempotencyKey:randomUUID()}));
+    await startDigiPayPayment(c.id,buyer);
+    const p=one("SELECT * FROM p_digipay_payments WHERE checkout_id=?",c.id)!;
+    expect(p.amount_rial).toBe(2_750_000);
+    expect((await handleDigiPayCallback(new URLSearchParams({pid:p.id,providerId:p.id,amount:String(p.amount_rial),type:"5",trackingCode:"sale-"+p.id,result:"SUCCESS"}))).outcome).toBe("paid");
+    const order=one("SELECT * FROM p_orders WHERE product_id=? AND user_id=?",productId,buyer)!;
+    expect(sales(buyer).personal).toBe(250_000);
+    inquiryOutcome("succeeded");
+    await expect(refundDigiPayOrder(order.id,buyer)).resolves.toMatchObject({status:"refunded"});
+    expect(refundRow(order.id).amount_rial).toBe(2_750_000);
+    expect(refundMock.mock.calls[0][0].amountRial).toBe(2_750_000);
+    expect(wallet(buyer).available).toBe(0);
+    expect(sales(buyer).personal).toBe(0);
+  });
+
   it("blocks ordinary wallet refunds until the provider has confirmed a matching refund", async () => {
     const { orders, products } = await started();
     expect(() => refundOrder(orders[0].id, buyer)).toThrow("digipay_refund_pending");

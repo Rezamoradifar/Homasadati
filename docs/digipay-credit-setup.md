@@ -226,3 +226,43 @@ buyer return, duplicate return, declined payment, provider timeout, actual
 delivery and full/partial refund. Confirm the same transaction in Homa and the
 DigiPay merchant panel. The automated tests mock the provider boundary; they do
 not establish real merchant readiness or execute a real credit purchase.
+
+### Optional 10% VAT for loan-funded checkout (Iran, 1405)
+
+The general VAT rate is 10% in 1405. VAT is a real tax on taxable
+goods/services; it is **not** a special DigiPay loan surcharge. Some
+products are exempt (including qualifying domestic handicrafts) and
+certain prices may already include VAT. The store accountant must
+review both taxability and the price basis before this feature is
+enabled.
+
+- Keep `HOMA_DIGIPAY_VAT_ENABLED=0` in the server's private environment
+  during review. This is the default and leaves existing purchases unchanged.
+- In the product editor, set **VAT status** on each item to `taxable`
+  (listed price excludes VAT) or `exempt` (actually exempt).
+  Old and undecided products default to `review` and prevent a
+  VAT-enabled credit checkout until reviewed.
+- After classification and finance approval, set
+  `HOMA_DIGIPAY_VAT_ENABLED=1` in the **private** server configuration,
+  then restart the app. Do not commit this setting as a production secret.
+- Checkout shows the merchandise subtotal, tax on taxable items (10%),
+  and a single payable total financed through DigiPay. The client sends
+  `expectedVatToman` and the server recalculates the amount from the
+  stored product record, rejecting stale/mismatched amounts.
+- The original tax per order is snapshotted; callbacks verify the
+  tax-inclusive total in rials, while commissions/club volume use only
+  merchandise amounts. DigiPay refunds return both the merchandise
+  and that order's tax via DigiPay, never as withdrawable Homa cash.
+  The order sheet and PDF invoice show the same breakdown.
+
+**Accounting requirement:** VAT liability depends on the product and
+seller's tax registration, not the method of payment. This particular
+integration implements the DigiPay credit-payment path. Before real
+activation, accounting must ensure legally consistent tax treatment
+for purchases made with other payment methods as well. If the 10%
+is actually a loan service fee, it must not be called VAT.
+
+Acceptance tests: taxable, exempt, mixed and undecided baskets; amount
+in toman/rials; duplicate callbacks; settlement/commission isolation;
+tax-inclusive refund and invoice. No live customer charge is enabled
+by the mere presence of this code.
