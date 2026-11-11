@@ -32,7 +32,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function cartApi(digipay: boolean) {
+function cartApi(digipay: boolean, vatToman: number | null = null) {
   let paid = false;
   localStorage.setItem("homa-basket-v1", JSON.stringify([{ productId, quantity: 1 }]));
   call.mockImplementation(async (path) => {
@@ -42,6 +42,9 @@ function cartApi(digipay: boolean) {
     if (path === "seven-card-plan") return { member: { voucherBalance: 25_000 }, liveSettlement: true };
     if (path === "cart/quote") return {
       total: 100_000,
+      creditVatEnabled: vatToman !== null,
+      creditVatToman: vatToman ?? 0,
+      creditVatReady: true,
       shippingFeeToman: 0,
       requiresAddress: false,
       rows: [{ id: productId, title: "محصول آزمون", images: "[]", details: "{}", price: 100_000, lineTotal: 100_000, stock: 5, quantity: 1 }],
@@ -78,7 +81,7 @@ it("clears a selected Homa voucher before submitting a DigiPay credit checkout",
   expect((voucher as HTMLInputElement).checked).toBe(true);
   await user.selectOptions(screen.getByLabelText("روش پرداخت"), "digipay");
   expect(screen.queryByRole("checkbox", { name: /استفاده از موجودی ووچر خرید/ })).toBeNull();
-  expect(screen.getByText("پرداخت با اعتبار یا کیف پول اقساطی دیجی‌پی؛ تأیید و شرایط اعتبار در دیجی‌پی مشخص می‌شود.")).toBeTruthy();
+  expect(screen.getByText(/پرداخت با اعتبار یا کیف پول اقساطی دیجی‌پی؛ تأیید و شرایط اعتبار در دیجی‌پی مشخص می‌شود/)).toBeTruthy();
   // The removed voucher must not silently reappear if the shopper switches back.
   await user.selectOptions(screen.getByLabelText("روش پرداخت"), "wallet");
   expect((screen.getByRole("checkbox", { name: /استفاده از موجودی ووچر خرید/ }) as HTMLInputElement).checked).toBe(false);
@@ -89,6 +92,18 @@ it("clears a selected Homa voucher before submitting a DigiPay credit checkout",
   const payload = call.mock.calls.find(([path]) => path === "checkouts")?.[2];
   expect(payload).toMatchObject({ method: "digipay", expectedTotal: 100_000, items: [{ productId, quantity: 1 }] });
   expect(payload).not.toHaveProperty("useVoucher");
+});
+
+it("shows 10% VAT separately and sends the tax quoted by the server", async () => {
+  cartApi(true,10_000);
+  const user=await openPaymentStep();
+  await user.selectOptions(screen.getByLabelText("روش پرداخت"),"digipay");
+  expect(screen.getByText(/مالیات بر ارزش افزوده اقلام مشمول/)).toBeTruthy();
+  await user.click(screen.getByRole("button",{name:"بررسی نهایی سفارش"}));
+  await user.click(screen.getByRole("button",{name:"ثبت سفارش و پرداخت"}));
+  await screen.findByRole("heading",{name:"پرداخت ثبت شد"});
+  const payload=call.mock.calls.find(([path])=>path==="checkouts")?.[2];
+  expect(payload).toMatchObject({method:"digipay",expectedTotal:100_000,expectedVatToman:10_000});
 });
 
 it("ignores a successful return URL until DigiPay and the checkout are verified by the server", async () => {

@@ -20,6 +20,7 @@ export const checkoutSchema = z
     method: z.enum(["wallet", "zarinpal", "zibal", "bale", "company_credit", "digipay"]),
     idempotencyKey: z.string().uuid(),
     expectedTotal: z.number().int().min(1).max(1e12),
+    expectedVatToman: z.number().int().min(0).max(1e11).optional(),
     addressId: z.string().uuid().optional(),
     useVoucher: z.boolean().optional(),
   })

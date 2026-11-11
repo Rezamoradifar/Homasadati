@@ -7,7 +7,7 @@ import { randomUUID } from "node:crypto";
 import { ApiError } from "../server/http";
 import { all, now, one, platformDb, run, type Row } from "./schema";
 import * as schema from "./schema";
-import { createCheckout, settleCheckout } from "./checkout";
+import { createCheckout, quoteCart, settleCheckout } from "./checkout";
 import { checkoutSchema } from "./cart-validation";
 import { saveSetting } from "./providers";
 import { digipayItemsForCart } from "./digipay-basket";
@@ -93,6 +93,7 @@ beforeEach(() => {
   vi.stubEnv("NODE_ENV", "test");
   vi.stubEnv("APP_ORIGIN", "https://homanets.test");
   vi.stubEnv("DIGIPAY_ENABLED", "1");
+  vi.stubEnv("HOMA_DIGIPAY_VAT_ENABLED", "0");
   vi.stubEnv("DIGIPAY_ENVIRONMENT", "sandbox");
   vi.stubEnv("DIGIPAY_USERNAME", "fixture-merchant");
   vi.stubEnv("DIGIPAY_PASSWORD", "fixture-password");
@@ -126,6 +127,42 @@ afterAll(() => {
 });
 
 describe("checkout preparation", () => {
+  it("finances classified 10% VAT but excludes it from reward volume", async () => {
+    vi.stubEnv("HOMA_DIGIPAY_VAT_ENABLED", "1");
+    const taxableId = product(250_000), exemptId = product(50_000);
+    run("INSERT INTO p_product_details(product_id,details,updated_at) VALUES(?,?,?)", taxableId, JSON.stringify({vatStatus:"taxable"}), now());
+    run("INSERT INTO p_product_details(product_id,details,updated_at) VALUES(?,?,?)", exemptId, JSON.stringify({vatStatus:"exempt"}), now());
+    const items = [{productId:taxableId,quantity:1}, {productId:exemptId,quantity:1}];
+    const quote = quoteCart(items);
+    expect(quote).toMatchObject({total:300_000,creditVatToman:25_000,creditVatReady:true,creditVatEnabled:true});
+    const c = createCheckout(buyer, checkoutSchema.parse({items,method:"digipay",expectedTotal:quote.total,expectedVatToman:quote.creditVatToman,idempotencyKey:randomUUID()}));
+    expect(c.amount).toBe(325_000);
+    await startDigiPayPayment(c.id,buyer);
+    const p = one("SELECT * FROM p_digipay_payments WHERE checkout_id=?",c.id)!;
+    expect(createMock.mock.calls[0][0].amountRial).toBe(3_250_000);
+    expect((await callback(p)).outcome).toBe("paid");
+    expect(verifyMock.mock.calls[0][0].amountRial).toBe(3_250_000);
+    expect(sales(buyer).personal).toBe(300_000);
+    expect(sales(sponsor).group).toBe(300_000);
+    expect(wallet(sponsor).pending).toBe(30_000);
+    expect(wallet(buyer).available).toBe(0);
+    expect(JSON.parse(one("SELECT policy FROM p_orders WHERE product_id=? AND user_id=?",taxableId,buyer)!.policy).orderTerms.digipayVatToman).toBe(25_000);
+    expect(JSON.parse(one("SELECT policy FROM p_orders WHERE product_id=? AND user_id=?",exemptId,buyer)!.policy).orderTerms.digipayVatToman).toBe(0);
+  });
+
+  it("stops unclassified or stale-tax credit checkouts before stock is reserved", () => {
+    vi.stubEnv("HOMA_DIGIPAY_VAT_ENABLED", "1");
+    const productId = product(100_000), items=[{productId,quantity:1}];
+    expect(quoteCart(items).creditVatReady).toBe(false);
+    const draft={items,method:"digipay" as const,expectedTotal:100_000,expectedVatToman:0,idempotencyKey:randomUUID()};
+    expect(() => createCheckout(buyer, checkoutSchema.parse(draft))).toThrow("vat_status_required");
+    run("INSERT INTO p_product_details(product_id,details,updated_at) VALUES(?,?,?)",productId,JSON.stringify({vatStatus:"taxable"}),now());
+    expect(quoteCart(items).creditVatToman).toBe(10_000);
+    expect(() => createCheckout(buyer, checkoutSchema.parse(draft))).toThrow("price_changed");
+    expect(one("SELECT stock FROM p_products WHERE id=?",productId)!.stock).toBe(10);
+    expect(one("SELECT COUNT(*) n FROM p_checkouts WHERE user_id=?",buyer)!.n).toBe(0);
+  });
+
   it("sends server prices in rials and the order's immutable basket snapshot", async () => {
     const { c, productId } = checkout();
     vi.stubEnv("DIGIPAY_CATEGORY_MAP_JSON", JSON.stringify({ ai: { categoryId: "changed-later", productType: 1 } }));

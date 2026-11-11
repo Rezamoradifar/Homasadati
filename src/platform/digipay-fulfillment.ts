@@ -4,6 +4,7 @@ import { deliverDigiPayPurchase, refundDigiPayPurchase, inquireDigiPayRefund, ty
 import { assertDigiPayEnvironment, digipayErrorCode } from "./digipay-payments";
 import { digipayRefundHeldOrderIdsSql } from "./digipay-financial-holds";
 import { refundOrder } from "./finance";
+import { digipayVatFromOrder } from "./checkout-vat";
 import { all, atomic, now, one, run } from "./schema";
 import { audit } from "./security";
 
@@ -28,7 +29,7 @@ export async function refundDigiPayOrder(orderId: string, actor: string, isAdmin
     if (one("SELECT payment_id FROM p_digipay_deliveries WHERE payment_id=? AND status='sending'", p.id))
       throw new ApiError(409, "digipay_refund_pending");
     const reserved = one("SELECT COALESCE(SUM(amount_rial),0) total FROM p_digipay_refunds WHERE payment_id=? AND status!='failed'", p.id)!.total;
-    const amountRial = o.amount * 10;
+    const amountRial = (o.amount + digipayVatFromOrder(o)) * 10;
     if (!Number.isSafeInteger(amountRial) || amountRial <= 0 || reserved + amountRial > p.amount_rial)
       throw new ApiError(409, "invalid_state");
     const id = randomUUID(), at = now();

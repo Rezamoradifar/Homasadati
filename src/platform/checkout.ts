@@ -8,6 +8,7 @@ import { spendVoucher, voucherBalance } from "./seven-card-engine";
 import { paymentRequest, paymentUrl } from "./providers";
 import {publicCatalogDetails} from './catalog-model';
 import { digipayItemsForCart } from "./digipay-basket";
+import { digipayVatEnabled, digipayVatForLine } from "./checkout-vat";
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
@@ -20,11 +21,14 @@ export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
     if (p.stock < item.quantity) throw new ApiError(409, "out_of_stock");
     const {details,...product}=p;
     const copy=publicCatalogDetails(details);
+    const creditVat = digipayVatForLine(p.price * item.quantity, details);
     return {
       ...product,
       details:{titleEn:copy.titleEn,titleAr:copy.titleAr},
       quantity: item.quantity,
       lineTotal: p.price * item.quantity,
+      creditVatToman: creditVat.vatToman,
+      creditVatStatus: creditVat.status,
     };
   });
   const total = rows.reduce((sum, p) => sum + p.lineTotal, 0);
@@ -33,6 +37,9 @@ export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
   return {
     rows,
     total,
+    creditVatEnabled: digipayVatEnabled(),
+    creditVatToman: rows.reduce((sum, p) => sum + p.creditVatToman, 0),
+    creditVatReady: rows.every((p) => p.creditVatStatus !== "review"),
     shippingFeeToman: 0,
     requiresAddress: rows.some((p) =>
       ["beauty", "craft", "leather"].includes(p.vertical),
@@ -66,6 +73,11 @@ export function createCheckout(
     const quote = quoteCart(input.items);
     if (quote.total !== input.expectedTotal)
       throw new ApiError(409, "price_changed");
+    const creditVat = input.method === "digipay" && digipayVatEnabled() ? quote.creditVatToman : 0;
+    if (input.method === "digipay" && digipayVatEnabled()) {
+      if (!quote.creditVatReady) throw new ApiError(409, "vat_status_required");
+      if (input.expectedVatToman !== creditVat) throw new ApiError(409, "price_changed");
+    }
     const digipayItems = input.method === "digipay" ? digipayItemsForCart(user, input.items) : null;
     const address = input.addressId
       ? one(
@@ -82,7 +94,8 @@ export function createCheckout(
     const voucherUse = input.useVoucher
       ? Math.max(0, Math.min(voucherBalance(user), quote.total))
       : 0;
-    const cashDue = quote.total - voucherUse;
+    const cashDue = quote.total - voucherUse + creditVat;
+    if (!Number.isSafeInteger(cashDue) || cashDue > 1e12) throw new ApiError(400, "invalid_input");
     if (
       voucherUse &&
       input.method === "wallet" &&
@@ -121,7 +134,11 @@ export function createCheckout(
         voucherLeft -= part;
       }
       const snapshot = JSON.parse(order.policy);
-      if (digipayItems) snapshot.orderTerms.digipayItem = digipayItems.get(item.productId);
+      if (digipayItems) {
+        snapshot.orderTerms.digipayItem = digipayItems.get(item.productId);
+        snapshot.orderTerms.digipayVatToman = creditVat ? quote.rows.find((p) => p.id === item.productId)!.creditVatToman : 0;
+        snapshot.orderTerms.digipayVatRateBps = creditVat ? 1000 : 0;
+      }
       if (address) snapshot.orderTerms.shippingAddress = address;
       run(
         "UPDATE p_orders SET policy=? WHERE id=?",

@@ -1,3 +1,4 @@
+import { digipayVatFromOrder } from "./checkout-vat";
 import {messagePresentation} from "./message-presentation";
 import {creditEntry} from "./company-members";
 import { positionMode } from "./card-positions";
@@ -679,7 +680,7 @@ export function refundOrder(
         const refunded = one(`SELECT r.id FROM p_digipay_refunds r
           JOIN p_digipay_payments p ON p.id=r.payment_id
           JOIN p_checkout_items i ON i.checkout_id=p.checkout_id AND i.order_id=r.order_id
-          WHERE r.order_id=? AND r.status='succeeded' AND r.amount_rial=? AND p.status='paid' AND p.verified_at IS NOT NULL`, orderId, o.amount * 10);
+          WHERE r.order_id=? AND r.status='succeeded' AND r.amount_rial=? AND p.status='paid' AND p.verified_at IS NOT NULL`, orderId, (o.amount + digipayVatFromOrder(o)) * 10);
         if (!refunded) throw new ApiError(409, "digipay_refund_pending");
       } else if (one(`SELECT p.id FROM p_digipay_payments p JOIN p_checkout_items i ON i.checkout_id=p.checkout_id
         WHERE i.order_id=? AND p.status IN ('creating','pending','verified','review')`, orderId)) {

@@ -6,6 +6,8 @@ export type OrderDocumentData = {
     quantity: number;
     unitPrice: number;
     amount: number;
+    vatToman?: number;
+    payableToman?: number;
     status: string;
     paymentMethod: string;
     paymentRef: string | null;

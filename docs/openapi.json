@@ -3641,6 +3641,15 @@
                 "maximum": 1000000000000,
                 "default": 0
               },
+              "vatStatus": {
+                "type": "string",
+                "enum": [
+                  "review",
+                  "taxable",
+                  "exempt"
+                ],
+                "default": "review"
+              },
               "lowStock": {
                 "type": "integer",
                 "minimum": 0,

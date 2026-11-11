@@ -47,9 +47,33 @@
     "notFound": "سفارش پیدا نشد یا دیگر در دسترس نیست.",
     "login": "ورود به مدیریت",
     "retry": "تلاش دوباره",
-    "statuses": { "pending": "در انتظار پرداخت", "processing": "در حال پردازش", "paid": "پرداخت‌شده", "shipped": "ارسال‌شده", "delivered": "تحویل‌شده", "cancelled": "لغوشده", "refunded": "برگشت‌داده‌شده", "refund_pending": "در انتظار تأیید بازگشت خرید" },
-    "methods": { "zibal": "درگاه زیبال", "zarinpal": "درگاه زرین‌پال", "bale": "پرداخت با بله", "digipay": "اعتبار دیجی‌پی", "wallet": "کیف پول هما", "company_credit": "اعتبار خرید شرکت" },
-    "verticals": { "tourism": "گردشگری", "beauty": "زیبایی", "craft": "صنایع‌دستی", "ai": "هوش مصنوعی", "leather": "چرم" }
+    "statuses": {
+      "pending": "در انتظار پرداخت",
+      "processing": "در حال پردازش",
+      "paid": "پرداخت‌شده",
+      "shipped": "ارسال‌شده",
+      "delivered": "تحویل‌شده",
+      "cancelled": "لغوشده",
+      "refunded": "برگشت‌داده‌شده",
+      "refund_pending": "در انتظار تأیید بازگشت خرید"
+    },
+    "methods": {
+      "zibal": "درگاه زیبال",
+      "zarinpal": "درگاه زرین‌پال",
+      "bale": "پرداخت با بله",
+      "digipay": "اعتبار دیجی‌پی",
+      "wallet": "کیف پول هما",
+      "company_credit": "اعتبار خرید شرکت"
+    },
+    "verticals": {
+      "tourism": "گردشگری",
+      "beauty": "زیبایی",
+      "craft": "صنایع‌دستی",
+      "ai": "هوش مصنوعی",
+      "leather": "چرم"
+    },
+    "vatAmount": "مالیات بر ارزش افزوده (ریال)",
+    "payableAmount": "مبلغ کل با مالیات (ریال)"
   },
   "en": {
     "title": "Order and shipping sheet",
@@ -99,9 +123,33 @@
     "notFound": "The order was not found or is no longer available.",
     "login": "Administrator sign-in",
     "retry": "Try again",
-    "statuses": { "pending": "Awaiting payment", "processing": "Processing", "paid": "Paid", "shipped": "Shipped", "delivered": "Delivered", "cancelled": "Cancelled", "refunded": "Refunded", "refund_pending": "Awaiting refund confirmation" },
-    "methods": { "zibal": "Zibal gateway", "zarinpal": "Zarinpal gateway", "bale": "Bale payment", "digipay": "DigiPay credit", "wallet": "Homa wallet", "company_credit": "Company purchase credit" },
-    "verticals": { "tourism": "Tourism", "beauty": "Beauty", "craft": "Handicrafts", "ai": "Artificial intelligence", "leather": "Leather" }
+    "statuses": {
+      "pending": "Awaiting payment",
+      "processing": "Processing",
+      "paid": "Paid",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded",
+      "refund_pending": "Awaiting refund confirmation"
+    },
+    "methods": {
+      "zibal": "Zibal gateway",
+      "zarinpal": "Zarinpal gateway",
+      "bale": "Bale payment",
+      "digipay": "DigiPay credit",
+      "wallet": "Homa wallet",
+      "company_credit": "Company purchase credit"
+    },
+    "verticals": {
+      "tourism": "Tourism",
+      "beauty": "Beauty",
+      "craft": "Handicrafts",
+      "ai": "Artificial intelligence",
+      "leather": "Leather"
+    },
+    "vatAmount": "Value-added tax (IRR)",
+    "payableAmount": "Total including tax (IRR)"
   },
   "ar": {
     "title": "ورقة الطلب والشحن",
@@ -151,8 +199,32 @@
     "notFound": "لم يُعثر على الطلب أو لم يعد متاحًا.",
     "login": "تسجيل دخول الإدارة",
     "retry": "المحاولة مجددًا",
-    "statuses": { "pending": "بانتظار الدفع", "processing": "قيد المعالجة", "paid": "مدفوع", "shipped": "تم الشحن", "delivered": "تم التسليم", "cancelled": "ملغى", "refunded": "تم الرد", "refund_pending": "بانتظار تأكيد الرد" },
-    "methods": { "zibal": "بوابة زيبال", "zarinpal": "بوابة زرين بال", "bale": "الدفع عبر بله", "digipay": "ائتمان ديجي‌بي", "wallet": "محفظة هما", "company_credit": "ائتمان الشراء من الشركة" },
-    "verticals": { "tourism": "السياحة", "beauty": "الجمال", "craft": "الحرف اليدوية", "ai": "الذكاء الاصطناعي", "leather": "الجلود" }
+    "statuses": {
+      "pending": "بانتظار الدفع",
+      "processing": "قيد المعالجة",
+      "paid": "مدفوع",
+      "shipped": "تم الشحن",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغى",
+      "refunded": "تم الرد",
+      "refund_pending": "بانتظار تأكيد الرد"
+    },
+    "methods": {
+      "zibal": "بوابة زيبال",
+      "zarinpal": "بوابة زرين بال",
+      "bale": "الدفع عبر بله",
+      "digipay": "ائتمان ديجي‌بي",
+      "wallet": "محفظة هما",
+      "company_credit": "ائتمان الشراء من الشركة"
+    },
+    "verticals": {
+      "tourism": "السياحة",
+      "beauty": "الجمال",
+      "craft": "الحرف اليدوية",
+      "ai": "الذكاء الاصطناعي",
+      "leather": "الجلود"
+    },
+    "vatAmount": "ضريبة القيمة المضافة (ريال)",
+    "payableAmount": "الإجمالي شامل الضريبة (ريال)"
   }
 }

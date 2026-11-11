@@ -4073,5 +4073,12 @@
   "التسوق بالتقسيط عبر ديجي‌بي في هما نت: زيارة المتجر": "Shop in installments with DigiPay at Homanet: visit the store",
   "تعتمد مدة السداد وشروطه على الخطة والائتمان المعتمد من ديجي‌بي.": "Repayment terms depend on the plan and credit approved by DigiPay.",
   "دليل الشراء عبر ديجي‌بي": "DigiPay purchase guide",
-  "تصفح المتجر": "Explore the store"
+  "تصفح المتجر": "Explore the store",
+  "وضعیت مالیات ارزش افزوده (توسط حسابداری تعیین شود)": "VAT status (to be determined by accounting)",
+  "مشمول ۱۰٪ (قیمت بدون مالیات)": "Taxable at 10% (price excludes VAT)",
+  "معاف از مالیات": "Tax exempt",
+  "پرداخت با اعتبار یا کیف پول اقساطی دیجی‌پی؛ تأیید و شرایط اعتبار در دیجی‌پی مشخص می‌شود. مالیات کالاهای مشمول، جداگانه در مبلغ پرداخت نمایش داده می‌شود.": "Pay using DigiPay credit or your instalment wallet. DigiPay determines eligibility and terms. VAT for taxable products is itemized in the amount payable.",
+  "وضعیت مالیاتی یکی از محصولات هنوز توسط حسابداری تعیین نشده است؛ برای خرید اعتباری این سبد ابتدا باید بررسی شود.": "Accounting must classify one or more products for VAT before this basket can be purchased with credit.",
+  "مالیات بر ارزش افزوده اقلام مشمول (۱۰٪)": "Value-added tax on taxable items (10%)",
+  "نیازمند تأیید": "Needs confirmation"
 }

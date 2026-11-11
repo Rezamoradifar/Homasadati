@@ -4,6 +4,7 @@ import { assertPurchasesOpen } from "./card-schedule";
 import { settleCheckout } from "./checkout";
 import { createDigiPayTicket, digipayConfig, verifyDigiPayPurchase, type DigiPayBasketItem, type DigiPayPurchaseType } from "./digipay";
 import { digipayCheckoutEnabled, digipayPhone } from "./digipay-basket";
+import { digipayVatFromOrder } from "./checkout-vat";
 import { purchaseActivationReceipt } from "./purchase-activation-receipt";
 import { all, atomic, now, one, run, type Row } from "./schema";
 import { audit } from "./security";
@@ -36,7 +37,7 @@ function gateway(p: Row, status: "requested" | "request_failed" | "paid", code: 
 function storedBasket(checkout: Row): DigiPayBasketItem[] {
   const orders = all("SELECT o.* FROM p_orders o JOIN p_checkout_items i ON i.order_id=o.id WHERE i.checkout_id=?", checkout.id);
   if (!orders.length || orders.some(o => o.status !== "pending" || o.payment_method !== "digipay") ||
-    orders.reduce((total, o) => total + o.amount, 0) !== checkout.amount)
+    orders.reduce((total, o) => total + o.amount + digipayVatFromOrder(o), 0) !== checkout.amount)
     throw new ApiError(409, "invalid_state");
   return orders.map(o => {
     const item = JSON.parse(o.policy)?.orderTerms?.digipayItem as DigiPayBasketItem | undefined;

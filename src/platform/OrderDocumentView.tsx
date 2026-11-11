@@ -78,6 +78,10 @@ export default function OrderDocumentView({ document, variant = "detail" }: {
           <td><Value value={money(order.amount)} missing={copy.missing} /></td>
         </tr></tbody>
       </table>
+      {order.paymentMethod === "digipay" && <dl className="order-document-meta">
+        <div><dt>{copy.vatAmount}</dt><dd>{money(order.vatToman ?? 0)}</dd></div>
+        <div><dt>{copy.payableAmount}</dt><dd>{money(order.payableToman ?? order.amount)}</dd></div>
+      </dl>}
     </section>
   </article>;
 }

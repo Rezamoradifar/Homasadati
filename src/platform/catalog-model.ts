@@ -37,6 +37,7 @@ export const catalogDetailsSchema = z
     material: short,
     cost: z.number().int().min(0).max(1e12).default(0),
     comparePrice: z.number().int().min(0).max(1e12).default(0),
+    vatStatus: z.preprocess(v => v === "" || v === null ? "review" : v, z.enum(["review", "taxable", "exempt"]).default("review")),
     lowStock: count,
     weightGrams: count,
     dimensions: short,
