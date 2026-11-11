@@ -28,10 +28,14 @@ export function digipayVatForLine(lineTotal: number, detailsRaw: unknown): { sta
 
 /** Tax belongs to a specific immutable order, not its commission volume.
  * Old verified DigiPay orders with no tax snapshot remain tax-free. */
-export function digipayVatFromOrder(order: { policy: string; amount: number }): number {
+export function digipayVatFromOrder(order: Record<string, unknown>): number {
+  const base = order.amount;
+  const rawPolicy = order.policy;
+  if (typeof base !== "number" || !Number.isSafeInteger(base) || base <= 0 ||
+      typeof rawPolicy !== "string") throw new ApiError(409, "invalid_order_tax_snapshot");
   let terms: Record<string, unknown> | undefined;
   try {
-    const policy: unknown = JSON.parse(order.policy);
+    const policy: unknown = JSON.parse(rawPolicy);
     const outer = policy && typeof policy === "object" && !Array.isArray(policy)
       ? policy as Record<string, unknown> : {};
     const nested = outer.orderTerms;
@@ -43,7 +47,7 @@ export function digipayVatFromOrder(order: { policy: string; amount: number }): 
   if (!terms || !Object.hasOwn(terms, "digipayVatToman")) return 0;
   const tax = terms.digipayVatToman;
   if (typeof tax !== "number" || !Number.isSafeInteger(tax) || tax < 0 ||
-      !Number.isSafeInteger(order.amount + tax) || tax > Math.ceil(order.amount / 10))
+      !Number.isSafeInteger(base + tax) || tax > Math.ceil(base / 10))
     throw new ApiError(409, "invalid_order_tax_snapshot");
   return tax;
 }
