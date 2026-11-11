@@ -38,6 +38,10 @@ export const extendedCatalogFields: Field[] = [
   section("commercial", "قیمت‌گذاری و انبار"),
   field("cost", "بهای خرید (ریال؛ فقط مدیریت)", "number", undefined, 1e12),
   field("comparePrice", "قیمت قبل از تخفیف (ریال)", "number", undefined, 1e12),
+  {
+    ...field("vatStatus", "وضعیت مالیات ارزش افزوده (توسط حسابداری تعیین شود)", "select"),
+    options: [["review", "نیازمند بررسی"], ["taxable", "مشمول ۱۰٪ (قیمت بدون مالیات)"], ["exempt", "معاف یا مالیات در قیمت لحاظ شده"]],
+  },
   field("lowStock", "آستانه هشدار کمبود", "number"),
   section("logistics", "ارسال و خدمات پس از فروش", ["beauty", "craft", "leather"]),
   field("weightGrams", "وزن بسته (گرم)", "number", ["beauty", "craft", "leather"]),

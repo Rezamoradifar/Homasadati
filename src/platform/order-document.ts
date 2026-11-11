@@ -1,6 +1,7 @@
 import { ApiError } from "../server/http";
 import { one } from "./schema";
 import type { OrderDocumentData } from "./order-document-types";
+import { digipayVatFromOrder } from "./checkout-vat";
 
 function record(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === "object" && !Array.isArray(value)
@@ -31,6 +32,7 @@ export function orderDocument(orderId: string): OrderDocumentData {
   const hasCustomerSnapshot = typeof customer?.name === "string" &&
     (typeof customer.phone === "string" || customer.phone === null);
   const shipping = record(terms?.shippingAddress);
+  const vatToman = row.payment_method === "digipay" ? digipayVatFromOrder(row) : 0;
   return {
     order: {
       id: row.id,
@@ -39,6 +41,8 @@ export function orderDocument(orderId: string): OrderDocumentData {
       quantity: row.quantity,
       unitPrice: row.unit_price,
       amount: row.amount,
+      vatToman,
+      payableToman: row.amount + vatToman,
       status: row.status,
       paymentMethod: row.payment_method,
       paymentRef: row.payment_ref ?? null,

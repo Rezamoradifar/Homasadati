@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { existsSync } from "node:fs";
 import { ApiError } from "../server/http";
 import type { Row } from "./schema";
+import { digipayVatFromOrder } from "./checkout-vat";
 export async function invoice(order: Row, user: Row) {
   const doc = new PDFDocument({ size: "A4", margin: 45 });
   const buffers: Buffer[] = [];
@@ -12,6 +13,7 @@ export async function invoice(order: Row, user: Row) {
     doc.on("end", () => res(Buffer.concat(buffers)));
     doc.on("error", rej);
   });
+  const vatToman = order.payment_method === "digipay" ? digipayVatFromOrder(order) : 0;
   doc.fontSize(22).text("HOMANET");
   doc.fontSize(12).text("Invoice / TOMAN", 45, 90);
   doc.moveDown();
@@ -23,7 +25,11 @@ export async function invoice(order: Row, user: Row) {
     Status: order.status,
     Quantity: order.quantity,
     "Unit price (Toman)": order.unit_price,
-    "Total (Toman)": order.amount,
+    "Subtotal (Toman)": order.amount,
+    ...(order.payment_method === "digipay" ? {
+      "VAT (Toman)": vatToman,
+      "Total including VAT (Toman)": order.amount + vatToman,
+    } : {}),
     "Payment method": order.payment_method,
     "Payment reference": order.payment_ref,
   }))
