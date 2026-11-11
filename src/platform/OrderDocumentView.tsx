@@ -79,8 +79,8 @@ export default function OrderDocumentView({ document, variant = "detail" }: {
         </tr></tbody>
       </table>
       {order.paymentMethod === "digipay" && <dl className="order-document-meta">
-        <div><dt>{copy.vatAmount}</dt><dd>{money(order.vatToman)}</dd></div>
-        <div><dt>{copy.payableAmount}</dt><dd>{money(order.payableToman)}</dd></div>
+        <div><dt>{copy.vatAmount}</dt><dd>{money(order.vatToman ?? 0)}</dd></div>
+        <div><dt>{copy.payableAmount}</dt><dd>{money(order.payableToman ?? order.amount)}</dd></div>
       </dl>}
     </section>
   </article>;
