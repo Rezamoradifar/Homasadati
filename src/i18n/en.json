@@ -4080,5 +4080,18 @@
   "پرداخت با اعتبار یا کیف پول اقساطی دیجی‌پی؛ تأیید و شرایط اعتبار در دیجی‌پی مشخص می‌شود. مالیات کالاهای مشمول، جداگانه در مبلغ پرداخت نمایش داده می‌شود.": "Pay using DigiPay credit or your instalment wallet. DigiPay determines eligibility and terms. VAT for taxable products is itemized in the amount payable.",
   "وضعیت مالیاتی یکی از محصولات هنوز توسط حسابداری تعیین نشده است؛ برای خرید اعتباری این سبد ابتدا باید بررسی شود.": "Accounting must classify one or more products for VAT before this basket can be purchased with credit.",
   "مالیات بر ارزش افزوده اقلام مشمول (۱۰٪)": "Value-added tax on taxable items (10%)",
-  "نیازمند تأیید": "Needs confirmation"
+  "نیازمند تأیید": "Needs confirmation",
+  "کارت پس از پرداخت صادر و ارسال می‌شود؛ مقصد و زمان سفر را بعداً انتخاب می‌کنید.": "Your travel card is issued and shipped after payment. Choose your destination and travel date later.",
+  "کارت سفارشی؛ صدور پس از تأیید پرداخت": "Made-to-order card; issued after verified payment",
+  "کارت قابل سفارش؛ نیاز به انتخاب سفر در زمان خرید نیست": "Card available to order; no travel selection required today",
+  "پس از تأیید پرداخت، کارت به نام خریدار صادر و با نشانی ثبت‌شده ارسال می‌شود. مقصد، زمان و خدمات سفر بعداً با هماهنگی مجموعه تعیین می‌شوند. خرید کارت، رزرو تور نیست.": "After payment is verified, a personalized card is issued and shipped to your saved address. Travel arrangements are agreed later. Buying this card is not a tour booking.",
+  "صدور کارت پس از پرداخت؛ انتخاب سفر بعداً": "Card issued after payment; travel selected later",
+  "کارت گردشگری پس از تأیید پرداخت صادر و به نشانی ثبت‌شده ارسال می‌شود؛ تعیین سفر و تاریخ آن بعداً انجام می‌شود.": "A travel card is issued and shipped to your saved address after payment is confirmed. You choose the trip and date later.",
+  "کارت‌های گردشگری خریداری‌شده": "Purchased travel cards",
+  "کارت پس از پرداخت صادر می‌شود؛ مقصد و تاریخ سفر را بعداً با مجموعه هماهنگ کنید. صدور کارت، رزرو تور نیست.": "Your card is issued after payment. Arrange your destination and dates with us later; issuing a card does not book a tour.",
+  "شماره کارت:": "Card number:",
+  "ارزش کارت:": "Card value:",
+  "صادرشده؛ در انتظار ارسال": "Issued; awaiting dispatch",
+  "درخواست هماهنگی سفر": "Request travel planning",
+  "کارت‌های گردشگری خریداری‌شده": "Purchased tourism cards"
 }
