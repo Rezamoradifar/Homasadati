@@ -13,7 +13,8 @@ export async function invoice(order: Row, user: Row) {
     doc.on("end", () => res(Buffer.concat(buffers)));
     doc.on("error", rej);
   });
-  const vatToman = order.payment_method === "digipay" ? digipayVatFromOrder(order) : 0;
+  const vatToman = digipayVatFromOrder(order);
+  const taxApplied = JSON.parse(order.policy||"{}")?.orderTerms?.checkoutVatToman!==undefined || order.payment_method==="digipay";
   doc.fontSize(22).text("HOMANET");
   doc.fontSize(12).text("Invoice / TOMAN", 45, 90);
   doc.moveDown();
@@ -26,7 +27,7 @@ export async function invoice(order: Row, user: Row) {
     Quantity: order.quantity,
     "Unit price (Toman)": order.unit_price,
     "Subtotal (Toman)": order.amount,
-    ...(order.payment_method === "digipay" ? {
+    ...(taxApplied ? {
       "VAT (Toman)": vatToman,
       "Total including VAT (Toman)": order.amount + vatToman,
     } : {}),

@@ -70,6 +70,16 @@ export function TravelCards({
       <DataState state={state}>
         {(d) => (
           <Localized><>
+            {Array.isArray(d.purchasedCards) && d.purchasedCards.length > 0 && <section aria-label="کارت‌های گردشگری خریداری‌شده" className="portal-card">
+              <h2>کارت‌های گردشگری خریداری‌شده</h2>
+              <p>کارت پس از پرداخت صادر می‌شود؛ مقصد و تاریخ سفر را بعداً با مجموعه هماهنگ کنید. صدور کارت، رزرو تور نیست.</p>
+              <div className="travel-card-grid">{d.purchasedCards.map((c:RecordData)=><article className="travel-credit-card" key={c.card_number}>
+                <h3>{c.title}</h3><p>شماره کارت: <code dir="ltr">{c.card_number}</code></p>
+                <p>ارزش کارت: {amount(tomanToRial(Number(c.face_value_toman)))} ریال</p>
+                <p>{c.voided_at?"باطل‌شده":c.order_status==="delivered"?"تحویل‌شده":c.order_status==="shipped"?"ارسال‌شده":"صادرشده؛ در انتظار ارسال"}</p>
+                {!c.voided_at && <a className="portal-button gold" href="/support">درخواست هماهنگی سفر</a>}
+              </article>)}</div>
+            </section>}
             {!d.cards.length ? (
               <p>
                 هنوز کارت واجدشرایطی صادر نشده است؛ مبلغ اعتبار هر رتبه باید

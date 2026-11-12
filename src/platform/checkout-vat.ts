@@ -3,7 +3,10 @@ import { ApiError } from "../server/http";
 /** Optional opt-in VAT for actual taxable products; keep disabled until the
  * merchant has reviewed product tax classifications and prices. */
 export const DIGIPAY_VAT_BPS = 1000;
-export const digipayVatEnabled = () => process.env.HOMA_DIGIPAY_VAT_ENABLED === "1";
+/** Apply the same legally reviewed VAT regardless of the payment method. */
+export const checkoutVatAllMethodsEnabled = () => process.env.HOMA_CHECKOUT_VAT_ENABLED === "1";
+export const digipayVatEnabled = () => checkoutVatAllMethodsEnabled() || process.env.HOMA_DIGIPAY_VAT_ENABLED === "1";
+export const vatForPaymentMethod = (method:string) => checkoutVatAllMethodsEnabled() || (method==="digipay" && process.env.HOMA_DIGIPAY_VAT_ENABLED === "1");
 
 export type VatStatus = "taxable" | "exempt" | "review" | "disabled";
 
@@ -44,8 +47,8 @@ export function digipayVatFromOrder(order: Record<string, unknown>): number {
   } catch {
     throw new ApiError(409, "invalid_order_tax_snapshot");
   }
-  if (!terms || !Object.hasOwn(terms, "digipayVatToman")) return 0;
-  const tax = terms.digipayVatToman;
+  if (!terms || (!Object.hasOwn(terms,"checkoutVatToman")&&!Object.hasOwn(terms, "digipayVatToman"))) return 0;
+  const tax = Object.hasOwn(terms,"checkoutVatToman") ? terms.checkoutVatToman : terms.digipayVatToman;
   if (typeof tax !== "number" || !Number.isSafeInteger(tax) || tax < 0 ||
       !Number.isSafeInteger(base + tax) || tax > Math.ceil(base / 10))
     throw new ApiError(409, "invalid_order_tax_snapshot");

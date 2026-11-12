@@ -32,7 +32,8 @@ export function orderDocument(orderId: string): OrderDocumentData {
   const hasCustomerSnapshot = typeof customer?.name === "string" &&
     (typeof customer.phone === "string" || customer.phone === null);
   const shipping = record(terms?.shippingAddress);
-  const vatToman = row.payment_method === "digipay" ? digipayVatFromOrder(row) : 0;
+  const vatToman = digipayVatFromOrder(row);
+  const taxApplied = (terms && Object.hasOwn(terms,"checkoutVatToman")) || row.payment_method==="digipay";
   return {
     order: {
       id: row.id,
@@ -41,7 +42,7 @@ export function orderDocument(orderId: string): OrderDocumentData {
       quantity: row.quantity,
       unitPrice: row.unit_price,
       amount: row.amount,
-      ...(row.payment_method === "digipay" ? { vatToman, payableToman: row.amount + vatToman } : {}),
+      ...(taxApplied ? { vatToman, payableToman: row.amount + vatToman } : {}),
       status: row.status,
       paymentMethod: row.payment_method,
       paymentRef: row.payment_ref ?? null,

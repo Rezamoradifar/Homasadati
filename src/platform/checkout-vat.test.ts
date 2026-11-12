@@ -21,3 +21,9 @@ it("keeps the original tax snapshot for refunds, including legacy orders", () =>
   expect(digipayVatFromOrder({amount:100_000,policy:'{"orderTerms":{}}'})).toBe(0);
   expect(() => digipayVatFromOrder({amount:100_000,policy:'{"orderTerms":{"digipayVatToman":20000}}'})).toThrow("invalid_order_tax_snapshot");
 });
+
+it("applies VAT to taxable goods across all checkout payment methods",()=>{
+  vi.stubEnv("HOMA_CHECKOUT_VAT_ENABLED","1");
+  expect(digipayVatEnabled()).toBe(true);
+  expect(digipayVatForLine(100_000,'{"vatStatus":"taxable"}').vatToman).toBe(10_000);
+});

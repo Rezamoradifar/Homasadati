@@ -11,6 +11,7 @@ import { DataState, useData } from "../platform/Widgets";
 import { amount, RecordData } from "../platform/client";
 import { brands, menuLine, menuName, menuSectors, isSector } from "./brands";
 import AddToCart from "./AddToCart";
+import {isTravelCardProduct} from "../platform/travel-card-product";
 import CraftNav from "./CraftNav";
 import { craftCategories, craftCategory, craftShopHref } from "./craft-taxonomy";
 
@@ -70,7 +71,8 @@ export default function Storefront({
                       </p>
                       <strong><Money toman={p.price}/></strong>
                       <a href={`/shop/${p.id}`}>مشخصات کامل و شرایط خرید ←</a>
-                      <AddToCart id={p.id} stock={p.stock} />
+                      {isTravelCardProduct(p)&&<p className="shop-notice">کارت پس از پرداخت صادر و ارسال می‌شود؛ مقصد و زمان سفر را بعداً انتخاب می‌کنید.</p>}
+                      <AddToCart id={p.id} stock={p.stock} onDemand={isTravelCardProduct(p)} />
                     </article></Localized>
                   );
   };

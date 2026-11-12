@@ -469,13 +469,13 @@ export function settleOrder(orderId: string, reference: string) {
       // Only the cash share was paid late; any voucher share went back on cancellation.
       const voucherShare =
         one("SELECT amount FROM p_order_vouchers WHERE order_id=?", o.id)?.amount || 0;
-      if (o.amount > voucherShare)
+      if (o.amount + digipayVatFromOrder(o) > voucherShare)
         credit(
           o.user_id,
           "late-payment:" + o.id,
           "late_payment_refund",
           o.id,
-          o.amount - voucherShare,
+          o.amount + digipayVatFromOrder(o) - voucherShare,
         );
       notify(
         o.user_id,
@@ -747,9 +747,10 @@ export function refundOrder(
     reverseMerchantSale(orderId);
     reverseCardOrder(orderId);
     const voucherPart = restoreOrderVoucher(orderId);
-    if(o.paid_at && o.payment_method==="company_credit") creditEntry(o.user_id,"refund:"+orderId,o.amount,orderId);
-    else if (o.paid_at && o.payment_method !== "digipay" && o.amount > voucherPart)
-      credit(o.user_id, "refund:" + orderId, "refund", orderId, o.amount - voucherPart);
+    const taxRefund = digipayVatFromOrder(o);
+    if(o.paid_at && o.payment_method==="company_credit") creditEntry(o.user_id,"refund:"+orderId,o.amount+taxRefund,orderId);
+    else if (o.paid_at && o.payment_method !== "digipay" && o.amount + taxRefund > voucherPart)
+      credit(o.user_id, "refund:" + orderId, "refund", orderId, o.amount + taxRefund - voucherPart);
     run(
       "UPDATE p_products SET stock=stock+? WHERE id=?",
       o.quantity,

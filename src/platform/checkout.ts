@@ -8,7 +8,8 @@ import { spendVoucher, voucherBalance } from "./seven-card-engine";
 import { paymentRequest, paymentUrl } from "./providers";
 import {publicCatalogDetails} from './catalog-model';
 import { digipayItemsForCart } from "./digipay-basket";
-import { digipayVatEnabled, digipayVatForLine } from "./checkout-vat";
+import { digipayVatEnabled, digipayVatForLine, checkoutVatAllMethodsEnabled, vatForPaymentMethod } from "./checkout-vat";
+import { creditEntry } from "./company-members";
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
@@ -38,6 +39,7 @@ export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
     rows,
     total,
     creditVatEnabled: digipayVatEnabled(),
+    checkoutVatAllMethods: checkoutVatAllMethodsEnabled(),
     creditVatToman: rows.reduce((sum, p) => sum + p.creditVatToman, 0),
     creditVatReady: rows.every((p) => p.creditVatStatus !== "review"),
     shippingFeeToman: 0,
@@ -73,8 +75,8 @@ export function createCheckout(
     const quote = quoteCart(input.items);
     if (quote.total !== input.expectedTotal)
       throw new ApiError(409, "price_changed");
-    const creditVat = input.method === "digipay" && digipayVatEnabled() ? quote.creditVatToman : 0;
-    if (input.method === "digipay" && digipayVatEnabled()) {
+    const creditVat = vatForPaymentMethod(input.method) ? quote.creditVatToman : 0;
+    if (vatForPaymentMethod(input.method)) {
       if (!quote.creditVatReady) throw new ApiError(409, "vat_status_required");
       if (input.expectedVatToman !== creditVat) throw new ApiError(409, "price_changed");
     }
@@ -134,6 +136,10 @@ export function createCheckout(
         voucherLeft -= part;
       }
       const snapshot = JSON.parse(order.policy);
+      if (vatForPaymentMethod(input.method)) {
+        snapshot.orderTerms.checkoutVatToman = quote.rows.find((p) => p.id === item.productId)!.creditVatToman;
+        snapshot.orderTerms.checkoutVatRateBps = 1000;
+      }
       if (digipayItems) {
         snapshot.orderTerms.digipayItem = digipayItems.get(item.productId);
         snapshot.orderTerms.digipayVatToman = creditVat ? quote.rows.find((p) => p.id === item.productId)!.creditVatToman : 0;
@@ -147,6 +153,10 @@ export function createCheckout(
       );
       run("INSERT INTO p_checkout_items VALUES(?,?)", id, order.id);
     }
+    if (creditVat && !voucherUse && input.method === "wallet")
+      ledger(user,"checkout-vat:"+id,"purchase",id,-creditVat);
+    if (creditVat && !voucherUse && input.method === "company_credit")
+      creditEntry(user,"checkout-vat:"+id,-creditVat,id);
     if (voucherUse && cashDue === 0) return settleCheckout(id, "voucher:" + id);
     if (voucherUse && input.method === "wallet") {
       ledger(user, "checkout-wallet:" + id, "purchase", id, -cashDue);
