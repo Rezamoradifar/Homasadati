@@ -4093,5 +4093,9 @@
   "ارزش کارت:": "Card value:",
   "صادرشده؛ در انتظار ارسال": "Issued; awaiting dispatch",
   "درخواست هماهنگی سفر": "Request travel planning",
-  "کارت‌های گردشگری خریداری‌شده": "Purchased tourism cards"
+  "کارت‌های گردشگری خریداری‌شده": "Purchased tourism cards",
+  "موجودی / ظرفیت: {0}": "Inventory / capacity: {0}",
+  "کارت سفر": "Travel card",
+  "کارت گردشگری": "Tourism card",
+  "کارت مسافرتی": "Travel pass"
 }
