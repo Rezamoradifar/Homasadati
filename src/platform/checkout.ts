@@ -10,21 +10,26 @@ import {publicCatalogDetails} from './catalog-model';
 import { digipayItemsForCart } from "./digipay-basket";
 import { digipayVatEnabled, digipayVatForLine, checkoutVatAllMethodsEnabled, vatForPaymentMethod } from "./checkout-vat";
 import { creditEntry } from "./company-members";
+import { isTravelCardProduct, TRAVEL_CARD_MAX_QUANTITY } from "./travel-card-product";
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
   const rows: Row[] = items.map((item) => {
     const p = one(
-      "SELECT p.id,p.title,p.price,p.stock,p.published,p.vertical,p.images,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.id=?",
+      "SELECT p.id,p.title,p.price,p.stock,p.published,p.vertical,p.subtype,p.images,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.id=?",
       item.productId,
     );
     if (!p || !p.published) throw new ApiError(409, "product_unavailable");
-    if (p.stock < item.quantity) throw new ApiError(409, "out_of_stock");
+    const travelCard = isTravelCardProduct(p);
+    if (travelCard && item.quantity > TRAVEL_CARD_MAX_QUANTITY) throw new ApiError(409, "invalid_card_quantity");
+    if (!travelCard && p.stock < item.quantity) throw new ApiError(409, "out_of_stock");
     const {details,...product}=p;
     const copy=publicCatalogDetails(details);
     const creditVat = digipayVatForLine(p.price * item.quantity, details);
     return {
       ...product,
+      stock: travelCard ? TRAVEL_CARD_MAX_QUANTITY : product.stock,
+      travelCard,
       details:{titleEn:copy.titleEn,titleAr:copy.titleAr},
       quantity: item.quantity,
       lineTotal: p.price * item.quantity,
@@ -44,7 +49,7 @@ export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
     creditVatReady: rows.every((p) => p.creditVatStatus !== "review"),
     shippingFeeToman: 0,
     requiresAddress: rows.some((p) =>
-      ["beauty", "craft", "leather"].includes(p.vertical),
+      ["beauty", "craft", "leather"].includes(p.vertical) || p.travelCard,
     ),
   };
 }

@@ -72,7 +72,7 @@ export default function Storefront({
                       <strong><Money toman={p.price}/></strong>
                       <a href={`/shop/${p.id}`}>مشخصات کامل و شرایط خرید ←</a>
                       {isTravelCardProduct(p)&&<p className="shop-notice">کارت پس از پرداخت صادر و ارسال می‌شود؛ مقصد و زمان سفر را بعداً انتخاب می‌کنید.</p>}
-                      <AddToCart id={p.id} stock={p.stock} onDemand={isTravelCardProduct(p)} />
+                      {isTravelCardProduct(p) ? <AddToCart id={p.id} stock={p.stock} onDemand /> : <AddToCart id={p.id} stock={p.stock} />}
                     </article></Localized>
                   );
   };

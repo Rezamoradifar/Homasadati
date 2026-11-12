@@ -32,8 +32,8 @@ export function orderDocument(orderId: string): OrderDocumentData {
   const hasCustomerSnapshot = typeof customer?.name === "string" &&
     (typeof customer.phone === "string" || customer.phone === null);
   const shipping = record(terms?.shippingAddress);
-  const vatToman = digipayVatFromOrder(row);
   const taxApplied = (terms && Object.hasOwn(terms,"checkoutVatToman")) || row.payment_method==="digipay";
+  const vatToman = taxApplied ? digipayVatFromOrder(row) : 0;
   return {
     order: {
       id: row.id,

@@ -1,4 +1,6 @@
 import { digipayVatFromOrder } from "./checkout-vat";
+import { isTravelCardProduct, TRAVEL_CARD_MAX_QUANTITY } from "./travel-card-product";
+import { issuePurchasedTravelCards, revokePurchasedTravelCards } from "./purchased-travel-cards";
 import {messagePresentation} from "./message-presentation";
 import {creditEntry} from "./company-members";
 import { positionMode } from "./card-positions";
@@ -498,6 +500,7 @@ export function settleOrder(orderId: string, reference: string) {
       o.id,
     );
     const saved = one("SELECT * FROM p_orders WHERE id=?", o.id)!;
+    issuePurchasedTravelCards(saved);
     if(saved.payment_method!=="company_credit") calculateCommissions(saved);
     const schedule = JSON.parse(saved.policy).binarySchedule;
     if (saved.payment_method!=="company_credit" && schedule && schedule.mode !== "immediate")
@@ -579,7 +582,9 @@ export function createOrder(
       productId,
     );
     if (!product) throw new ApiError(404, "not_found");
-    if (product.stock < quantity) throw new ApiError(409, "out_of_stock");
+    const travelCard = isTravelCardProduct(product);
+    if (travelCard && quantity > TRAVEL_CARD_MAX_QUANTITY) throw new ApiError(409, "invalid_card_quantity");
+    if (!travelCard && product.stock < quantity) throw new ApiError(409, "out_of_stock");
     const merchant = merchantTerms(productId);
     if (merchant && merchant.shareBps + p.maxPayoutBps > 10000)
       throw new ApiError(409, "merchant_terms_invalid");
@@ -595,12 +600,12 @@ export function createOrder(
       throw new ApiError(409, "insufficient_balance");
     const id = randomUUID();
     const customer = one("SELECT name,phone FROM p_users WHERE id=?", user);
-    run(
+    if (!travelCard && !run(
       "UPDATE p_products SET stock=stock-? WHERE id=? AND stock>=?",
       quantity,
       productId,
       quantity,
-    );
+    ).changes) throw new ApiError(409,"out_of_stock");
     run(
       `INSERT INTO p_orders(id,user_id,product_id,title,vertical,quantity,unit_price,amount,status,payment_method,policy,expires_at,created_at,idem_key) VALUES(?,?,?,?,?,?,?,?,'pending',?,?,?,?,?)`,
       id,
@@ -628,6 +633,7 @@ export function createOrder(
           ),
           cancelHours: product.cancel_hours,
           durationDays: product.duration_days,
+          ...(travelCard ? { cardKind: "travel_card", travelSelection: "later", cardFulfillment: "physical" } : {}),
         },
       }),
       new Date(Date.now() + 3600000).toISOString(),
@@ -751,7 +757,10 @@ export function refundOrder(
     if(o.paid_at && o.payment_method==="company_credit") creditEntry(o.user_id,"refund:"+orderId,o.amount+taxRefund,orderId);
     else if (o.paid_at && o.payment_method !== "digipay" && o.amount + taxRefund > voucherPart)
       credit(o.user_id, "refund:" + orderId, "refund", orderId, o.amount + taxRefund - voucherPart);
-    run(
+    let cardKind: string | undefined;
+    try { cardKind = JSON.parse(o.policy).orderTerms?.cardKind; } catch { /* Legacy order */ }
+    if (cardKind === "travel_card") revokePurchasedTravelCards(orderId);
+    else run(
       "UPDATE p_products SET stock=stock+? WHERE id=?",
       o.quantity,
       o.product_id,
