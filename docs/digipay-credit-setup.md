@@ -266,3 +266,11 @@ Acceptance tests: taxable, exempt, mixed and undecided baskets; amount
 in toman/rials; duplicate callbacks; settlement/commission isolation;
 tax-inclusive refund and invoice. No live customer charge is enabled
 by the mere presence of this code.
+
+### Tourism card checkout and VAT across payment methods
+
+The **purchased tourism card** is a physical, made-to-order product, not a tour or reserved seat. A catalog product designated as `travel_card`, `کارت گردشگری`, or a recognized tourism card title can be bought even with zero numeric tour capacity. Actual tour products continue enforcing stock. Card purchase requires customer delivery address and phone. On verified payment, a unique card number per unit is created; the order must be shipped by the fulfillment team. The customer selects a tour/destination on a later support request. Paid purchased cards are separate from rank-awarded travel benefits.
+
+To apply a **10% VAT on taxable lines across checkout methods**, after legal/accounting review and product classification, enable the private server setting `HOMA_CHECKOUT_VAT_ENABLED=1`. This applies the same tax-inclusive total to bank gateways, DigiPay, Bale and internal wallet/credit. Older DigiPay-only VAT flag remains supported. Tax is snapshotted separately and excluded from commission, personal/team volume and purchased card face value. A refund returns the recorded VAT with the base charge using the original payment method. The existing direct-order endpoint rejects taxable items to ensure their purchase uses the fully quoted cart.
+
+VAT is not a loan surcharge. The tax status of vouchers and mixed tourism services must be confirmed by accounting; some services may be exempt. Keep the new feature switch disabled until reviewed, and do not advertise a mandatory 10% as VAT unless legally due.

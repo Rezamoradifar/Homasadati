@@ -106,6 +106,29 @@ it("shows 10% VAT separately and sends the tax quoted by the server", async () =
   expect(payload).toMatchObject({method:"digipay",expectedTotal:100_000,expectedVatToman:10_000});
 });
 
+
+it("charges VAT separately for bank payment when merchant enables checkout VAT",async()=>{
+  cartApi(true,10_000);
+  call.mockImplementation(async(path)=>{
+    if(path==="payment/methods")return {wallet:true,zibal:true,digipay:true};
+    if(path==="me")return {user:{id:"member"}};
+    if(path==="addresses")return {rows:[]};
+    if(path==="seven-card-plan")return {member:{voucherBalance:0},liveSettlement:true};
+    if(path==="cart/quote")return {total:100_000,creditVatEnabled:true,checkoutVatAllMethods:true,creditVatToman:10_000,creditVatReady:true,requiresAddress:false,shippingFeeToman:0,
+      rows:[{id:productId,title:"محصول آزمون",price:100_000,lineTotal:100_000,stock:5,images:"[]",quantity:1,details:"{}"}]};
+    if(path==="checkouts")return {id:checkoutId};
+    if(path==="checkouts/"+checkoutId)return {status:"paid",amount:110_000};
+    if(path==="checkouts/"+checkoutId+"/payment")return {status:"paid"};
+    throw Error("unexpected "+path);
+  });
+  const user=await openPaymentStep();
+  expect(screen.getByText(/مالیات بر ارزش افزوده اقلام مشمول/)).toBeTruthy();
+  await user.click(screen.getByRole("button",{name:"بررسی نهایی سفارش"}));
+  await user.click(screen.getByRole("button",{name:"ثبت سفارش و پرداخت"}));
+  await screen.findByRole("heading",{name:"پرداخت ثبت شد"});
+  expect(call.mock.calls.find(([path])=>path==="checkouts")?.[2]).toMatchObject({method:"zibal",expectedVatToman:10_000});
+});
+
 it("ignores a successful return URL until DigiPay and the checkout are verified by the server", async () => {
   window.history.replaceState({}, "", `/payment/result?provider=digipay&pid=${pid}&status=paid&result=SUCCESS`);
   call.mockResolvedValue(paymentSummary);

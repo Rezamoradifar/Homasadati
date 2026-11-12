@@ -1,6 +1,8 @@
 import { ApiError } from "../server/http";
 import { createOrder } from "./finance";
 import { atomic, one, run } from "./schema";
+import {isTravelCardProduct} from "./travel-card-product";
+import {digipayVatForLine,vatForPaymentMethod} from "./checkout-vat";
 
 type DirectOrderInput = { productId: string; quantity: number; method: string; idempotencyKey: string; addressId?: string };
 
@@ -17,8 +19,9 @@ export function createDirectOrder(userId: string, input: DirectOrderInput) {
       }
       return createOrder(userId, input.productId, input.quantity, input.method, input.idempotencyKey);
     }
-    const product = one("SELECT vertical FROM p_products WHERE id=? AND published=1", input.productId);
-    const physical = product && ["beauty", "craft", "leather"].includes(product.vertical);
+    const product = one("SELECT p.vertical,p.subtype,p.title,p.price,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.id=? AND p.published=1", input.productId);
+    if(product && vatForPaymentMethod(input.method) && digipayVatForLine(product.price*input.quantity,product.details).vatToman>0) throw new ApiError(409,"use_cart_checkout");
+    const physical = product && (["beauty", "craft", "leather"].includes(product.vertical)||isTravelCardProduct(product));
     const address = physical && input.addressId ? one(
       "SELECT label,country,city,postal_code,address FROM p_addresses WHERE id=? AND user_id=?", input.addressId, userId,
     ) : null;

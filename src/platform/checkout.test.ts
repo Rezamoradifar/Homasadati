@@ -344,3 +344,53 @@ it("ignores a forged Zibal success flag when verification amount differs", async
   expect(one("SELECT status FROM p_checkouts WHERE id=?",c.id)!.status).toBe("pending");
   expect(wallet(sponsor).pending).toBe(0);
 });
+
+
+it("issues a tourism card with zero inventory, without selecting or booking a tour",()=>{
+  const productId=product("tourism",100_000);
+  run("UPDATE p_products SET subtype='کارت گردشگری',title='کارت سفر جوانه',stock=0 WHERE id=?",productId);
+  const items=[{productId,quantity:1}],quote=quoteCart(items);
+  expect(quote).toMatchObject({total:100_000,requiresAddress:true});
+  expect(quote.rows[0]).toMatchObject({travelCard:true,stock:10});
+  const input=checkoutSchema.parse({items,method:"wallet",expectedTotal:100_000,addressId:address,idempotencyKey:randomUUID()});
+  const c=createCheckout(buyer,input);
+  expect(c.status).toBe("paid");
+  expect(one("SELECT stock FROM p_products WHERE id=?",productId)!.stock).toBe(0);
+  expect(one("SELECT COUNT(*) n FROM p_travel_requests WHERE user_id=?",buyer)!.n).toBe(0);
+  const order=one("SELECT * FROM p_orders WHERE product_id=? AND user_id=?",productId,buyer)!;
+  expect(JSON.parse(order.policy).orderTerms).toMatchObject({cardKind:"travel_card",travelSelection:"later",shippingAddress:{city:"تهران"}});
+  const issued=all("SELECT * FROM p_purchased_travel_cards WHERE order_id=?",order.id);
+  expect(issued).toHaveLength(1);
+  expect(issued[0].card_number).toMatch(/^HNT-[A-Z0-9]{32}$/);
+  expect(issued[0].face_value_toman).toBe(100_000);
+  expect(createCheckout(buyer,input).id).toBe(c.id);
+  expect(all("SELECT * FROM p_purchased_travel_cards WHERE order_id=?",order.id)).toHaveLength(1);
+  expect(refundOrder(order.id,buyer).status).toBe("refunded");
+  expect(one("SELECT voided_at FROM p_purchased_travel_cards WHERE order_id=?",order.id)!.voided_at).toBeTruthy();
+  expect(one("SELECT stock FROM p_products WHERE id=?",productId)!.stock).toBe(0);
+});
+it("keeps tour capacity checks and requires delivery address for physical travel cards",()=>{
+  const tour=product("tourism",100_000),card=product("tourism",100_000);
+  run("UPDATE p_products SET subtype='تور',stock=0 WHERE id=?",tour);
+  run("UPDATE p_products SET subtype='travel_card',stock=0 WHERE id=?",card);
+  expect(()=>quoteCart([{productId:tour,quantity:1}])).toThrow("out_of_stock");
+  expect(()=>createCheckout(buyer,checkoutSchema.parse({items:[{productId:card,quantity:1}],method:"wallet",expectedTotal:100_000,idempotencyKey:randomUUID()}))).toThrow("address_required");
+});
+it("adds 10% VAT at final checkout to wallet payment without inflating commissions",()=>{
+  vi.stubEnv("HOMA_CHECKOUT_VAT_ENABLED","1");
+  try{
+    run("INSERT INTO p_product_details(product_id,details,updated_at) VALUES(?,?,?)",first,JSON.stringify({vatStatus:"taxable"}),now());
+    run("INSERT INTO p_product_details(product_id,details,updated_at) VALUES(?,?,?)",second,JSON.stringify({vatStatus:"exempt"}),now());
+    expect(quoteCart(payload().items)).toMatchObject({total:400_000,creditVatToman:20_000,creditVatReady:true,checkoutVatAllMethods:true});
+    const data=checkoutSchema.parse({...payload(),method:"wallet",expectedVatToman:20_000});
+    expect(()=>createCheckout(buyer,{...data,expectedVatToman:0})).toThrow("price_changed");
+    const checkout=createCheckout(buyer,data);
+    expect(checkout).toMatchObject({status:"paid",amount:420_000});
+    expect(wallet(buyer).available).toBe(80_000);
+    expect(wallet(sponsor).pending).toBe(40_000);
+    const o=one("SELECT * FROM p_orders WHERE product_id=? AND user_id=?",first,buyer)!;
+    expect(JSON.parse(o.policy).orderTerms.checkoutVatToman).toBe(20_000);
+    expect(refundOrder(o.id,buyer).status).toBe("refunded");
+    expect(wallet(buyer).available).toBe(300_000);
+  }finally{vi.unstubAllEnvs();}
+});

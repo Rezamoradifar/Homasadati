@@ -13,6 +13,7 @@ import { extendedCatalogFields } from "../../../src/platform/catalog-fields";
 import { brands, isSector } from "../../../src/commerce/brands";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import AddToCart from "../../../src/commerce/AddToCart";
+import {isTravelCardProduct} from "../../../src/platform/travel-card-product";
 import { breadcrumbJsonLd, JsonLd, productJsonLd } from "../../../src/platform/seo";
 function get(id: string) {
   return one(
@@ -47,6 +48,7 @@ export default async function ProductPage({
   const p = get(params.id);
   if (!p) notFound();
   const d = publicCatalogDetails(p.details),
+    travelCard = isTravelCardProduct(p),
     images = (JSON.parse(p.images) as string[]).map(safeMediaSrc),
     brand = isSector(p.vertical) ? brands[p.vertical] : null;
   const copy=catalogCopy({...p,details:d} as {title:string;description:string;details:Record<string,unknown>},await siteLocale());
@@ -54,7 +56,7 @@ export default async function ProductPage({
     <Localized><CommerceShell>
       <JsonLd
         data={[
-          productJsonLd({ id: p.id, title: copy.title, description: copy.description, price: p.price, stock: p.stock, images, sku: d.sku, brand: brand?.name }),
+          productJsonLd({ id: p.id, title: copy.title, description: copy.description, price: p.price, stock: travelCard ? 10 : p.stock, images, sku: d.sku, brand: brand?.name }),
           breadcrumbJsonLd([
             { name: "فروشگاه", path: "/shop" },
             ...(brand ? [{ name: brand.name, path: "/worlds/" + p.vertical }] : []),
@@ -80,12 +82,13 @@ export default async function ProductPage({
               <del><Money toman={Number(d.comparePrice)}/></del>
             )}
             <p>
-              موجودی / ظرفیت: {p.stock.toLocaleString("fa-IR")} · مهلت لغو پس از
+              {travelCard ? "کارت سفارشی؛ صدور پس از تأیید پرداخت" : `موجودی / ظرفیت: ${p.stock.toLocaleString("fa-IR")}`} · مهلت لغو پس از
               پرداخت: {p.cancel_hours.toLocaleString("fa-IR")} ساعت
             </p>
             <div className="product-purchase-panel" id="purchase">
-              <p className={p.stock>0?"stock-status available":"stock-status"}>{p.stock>0?"موجود و قابل سفارش":"فعلاً ناموجود"}</p>
-              <AddToCart id={p.id} stock={p.stock} />
+              <p className={travelCard||p.stock>0?"stock-status available":"stock-status"}>{travelCard?"کارت قابل سفارش؛ نیاز به انتخاب سفر در زمان خرید نیست":p.stock>0?"موجود و قابل سفارش":"فعلاً ناموجود"}</p>
+              <AddToCart id={p.id} stock={p.stock} onDemand={travelCard} />
+              {travelCard&&<p className="shop-notice">پس از تأیید پرداخت، کارت به نام خریدار صادر و با نشانی ثبت‌شده ارسال می‌شود. مقصد، زمان و خدمات سفر بعداً با هماهنگی مجموعه تعیین می‌شوند. خرید کارت، رزرو تور نیست.</p>}
               <dl className="purchase-facts"><dt>ارسال و تحویل</dt><dd>{d.shippingNote||d.delivery||"زمان و روش تحویل را پیش از پرداخت با پشتیبانی هماهنگ کنید."}</dd><dt>ضمانت و مرجوعی</dt><dd>{d.warranty||"شرایط لغو این محصول و قوانین خرید را پیش از پرداخت بخوانید."}</dd></dl>
               <a href="/help">راهنمای خرید و پشتیبانی</a>
             </div>

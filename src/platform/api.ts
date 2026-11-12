@@ -1,3 +1,4 @@
+import {purchasedTravelCards} from "./purchased-travel-cards";
 import { outboxFailures, retryOutbox } from "./outbox-admin";
 import { runCompanyAuditContext, companyAuditContext } from "./company-audit-context";
 import { beginCompanyMemberAccess, endCompanyMemberAccess, resolveCompanyMemberAccess, companyAccessMetadata, auditCompanyMemberRequest } from "./company-member-access";
@@ -1879,6 +1880,7 @@ async function handleRequest(req: Request, path: string[]) {
       if (get)
         return json({
           cards: cardsFor(u.id),
+           purchasedCards: purchasedTravelCards(u.id),
           rows: all(
             "SELECT * FROM p_travel_requests WHERE user_id=? ORDER BY created_at DESC LIMIT 100",
             u.id,

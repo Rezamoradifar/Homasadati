@@ -8,22 +8,28 @@ import { spendVoucher, voucherBalance } from "./seven-card-engine";
 import { paymentRequest, paymentUrl } from "./providers";
 import {publicCatalogDetails} from './catalog-model';
 import { digipayItemsForCart } from "./digipay-basket";
-import { digipayVatEnabled, digipayVatForLine } from "./checkout-vat";
+import { digipayVatEnabled, digipayVatForLine, checkoutVatAllMethodsEnabled, vatForPaymentMethod } from "./checkout-vat";
+import { creditEntry } from "./company-members";
+import { isTravelCardProduct, TRAVEL_CARD_MAX_QUANTITY } from "./travel-card-product";
 export { cartItemsSchema, checkoutSchema } from "./cart-validation";
 import { cartItemsSchema, checkoutSchema } from "./cart-validation";
 export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
   const rows: Row[] = items.map((item) => {
     const p = one(
-      "SELECT p.id,p.title,p.price,p.stock,p.published,p.vertical,p.images,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.id=?",
+      "SELECT p.id,p.title,p.price,p.stock,p.published,p.vertical,p.subtype,p.images,d.details FROM p_products p LEFT JOIN p_product_details d ON d.product_id=p.id WHERE p.id=?",
       item.productId,
     );
     if (!p || !p.published) throw new ApiError(409, "product_unavailable");
-    if (p.stock < item.quantity) throw new ApiError(409, "out_of_stock");
+    const travelCard = isTravelCardProduct(p);
+    if (travelCard && item.quantity > TRAVEL_CARD_MAX_QUANTITY) throw new ApiError(409, "invalid_card_quantity");
+    if (!travelCard && p.stock < item.quantity) throw new ApiError(409, "out_of_stock");
     const {details,...product}=p;
     const copy=publicCatalogDetails(details);
     const creditVat = digipayVatForLine(p.price * item.quantity, details);
     return {
       ...product,
+      stock: travelCard ? TRAVEL_CARD_MAX_QUANTITY : product.stock,
+      travelCard,
       details:{titleEn:copy.titleEn,titleAr:copy.titleAr},
       quantity: item.quantity,
       lineTotal: p.price * item.quantity,
@@ -38,11 +44,12 @@ export function quoteCart(items: z.infer<typeof cartItemsSchema>) {
     rows,
     total,
     creditVatEnabled: digipayVatEnabled(),
+    checkoutVatAllMethods: checkoutVatAllMethodsEnabled(),
     creditVatToman: rows.reduce((sum, p) => sum + p.creditVatToman, 0),
     creditVatReady: rows.every((p) => p.creditVatStatus !== "review"),
     shippingFeeToman: 0,
     requiresAddress: rows.some((p) =>
-      ["beauty", "craft", "leather"].includes(p.vertical),
+      ["beauty", "craft", "leather"].includes(p.vertical) || p.travelCard,
     ),
   };
 }
@@ -73,8 +80,8 @@ export function createCheckout(
     const quote = quoteCart(input.items);
     if (quote.total !== input.expectedTotal)
       throw new ApiError(409, "price_changed");
-    const creditVat = input.method === "digipay" && digipayVatEnabled() ? quote.creditVatToman : 0;
-    if (input.method === "digipay" && digipayVatEnabled()) {
+    const creditVat = vatForPaymentMethod(input.method) ? quote.creditVatToman : 0;
+    if (vatForPaymentMethod(input.method)) {
       if (!quote.creditVatReady) throw new ApiError(409, "vat_status_required");
       if (input.expectedVatToman !== creditVat) throw new ApiError(409, "price_changed");
     }
@@ -134,6 +141,10 @@ export function createCheckout(
         voucherLeft -= part;
       }
       const snapshot = JSON.parse(order.policy);
+      if (vatForPaymentMethod(input.method)) {
+        snapshot.orderTerms.checkoutVatToman = quote.rows.find((p) => p.id === item.productId)!.creditVatToman;
+        snapshot.orderTerms.checkoutVatRateBps = 1000;
+      }
       if (digipayItems) {
         snapshot.orderTerms.digipayItem = digipayItems.get(item.productId);
         snapshot.orderTerms.digipayVatToman = creditVat ? quote.rows.find((p) => p.id === item.productId)!.creditVatToman : 0;
@@ -147,6 +158,10 @@ export function createCheckout(
       );
       run("INSERT INTO p_checkout_items VALUES(?,?)", id, order.id);
     }
+    if (creditVat && !voucherUse && input.method === "wallet")
+      ledger(user,"checkout-vat:"+id,"purchase",id,-creditVat);
+    if (creditVat && !voucherUse && input.method === "company_credit")
+      creditEntry(user,"checkout-vat:"+id,-creditVat,id);
     if (voucherUse && cashDue === 0) return settleCheckout(id, "voucher:" + id);
     if (voucherUse && input.method === "wallet") {
       ledger(user, "checkout-wallet:" + id, "purchase", id, -cashDue);
