@@ -13,6 +13,7 @@ import { brands, menuLine, menuName, menuSectors, isSector } from "./brands";
 import AddToCart from "./AddToCart";
 import {isTravelCardProduct} from "../platform/travel-card-product";
 import CraftNav from "./CraftNav";
+import "./travel-card-storefront.css";
 import { craftCategories, craftCategory, craftShopHref } from "./craft-taxonomy";
 
 /** The material shown on a handicraft card, e.g. "مس · خاتم‌کاری". */
@@ -48,36 +49,42 @@ export default function Storefront({
   );
   const card = (p: RecordData) => {
                   const images = JSON.parse(p.images), copy=catalogCopy({title:p.title,description:p.description,details:p.details},locale);
+                  const travelCard = isTravelCardProduct(p);
                   return (
-                    <Localized key={p.id}><article className="shop-card">
-                      <a href={`/shop/${p.id}`}>
+                    <Localized key={p.id}><article className={travelCard ? "shop-card shop-card-travel" : "shop-card"}>
+                      <a href={`/shop/${p.id}`} className={travelCard ? "shop-card-travel-image" : undefined}>
                         {images[0] ? (
-                          <ResponsiveImage src={images[0]} sizes="(max-width: 767px) 42vw, (max-width: 999px) 32vw, (max-width: 1599px) 23vw, 18vw" alt={copy.title} loading="lazy" quality={68} />
+                          <ResponsiveImage src={images[0]} sizes={travelCard ? "(max-width: 767px) 100vw, (max-width: 1100px) 50vw, 33vw" : "(max-width: 767px) 42vw, (max-width: 999px) 32vw, (max-width: 1599px) 23vw, 18vw"} alt={copy.title} loading="lazy" quality={68} />
                         ) : (
                           <div className="no-image">
                             <img src="/assets/brand/homanet-horizontal-orange.png" alt="هما نت" loading="lazy" />
                           </div>
                         )}
                       </a>
-                      <small>
-                        {craftLabel(p) || (isSector(p.vertical) ? menuName(p.vertical) : p.vertical)}
-                      </small>
-                      <h2>
-                        <a href={`/shop/${p.id}`}>{copy.title}</a>
-                      </h2>
-                      <p>
-                        {copy.description.slice(0, 180)}
-                        {copy.description.length > 180 ? "…" : ""}
-                      </p>
-                      <strong><Money toman={p.price}/></strong>
-                      <a href={`/shop/${p.id}`}>مشخصات کامل و شرایط خرید ←</a>
-                      {isTravelCardProduct(p)&&<p className="shop-notice">کارت پس از پرداخت صادر و ارسال می‌شود؛ مقصد و زمان سفر را بعداً انتخاب می‌کنید.</p>}
-                      {isTravelCardProduct(p) ? <AddToCart id={p.id} stock={p.stock} onDemand /> : <AddToCart id={p.id} stock={p.stock} />}
+                      {travelCard ? (
+                        <div className="shop-card-travel-body">
+                          <small>کارت گردشگری</small>
+                          <h2><a href={`/shop/${p.id}`}>{copy.title}</a></h2>
+                          <p>صدور پس از پرداخت · انتخاب مقصد بعداً</p>
+                          <div className="shop-card-travel-price"><span>قیمت کارت</span><strong><Money toman={p.price}/></strong></div>
+                          <AddToCart id={p.id} stock={p.stock} onDemand />
+                          <a className="shop-card-travel-details" href={`/shop/${p.id}`}>مشاهده مشخصات کارت ←</a>
+                        </div>
+                      ) : (
+                        <>
+                          <small>{craftLabel(p) || (isSector(p.vertical) ? menuName(p.vertical) : p.vertical)}</small>
+                          <h2><a href={`/shop/${p.id}`}>{copy.title}</a></h2>
+                          <p>{copy.description.slice(0, 180)}{copy.description.length > 180 ? "…" : ""}</p>
+                          <strong><Money toman={p.price}/></strong>
+                          <a href={`/shop/${p.id}`}>مشخصات کامل و شرایط خرید ←</a>
+                          <AddToCart id={p.id} stock={p.stock} />
+                        </>
+                      )}
                     </article></Localized>
                   );
   };
   return (
-    <Localized><div className="shop-wrap">
+    <Localized><div className={vertical === "tourism" ? "shop-wrap shop-wrap-tourism" : "shop-wrap"}>
       <div className="shop-heading">
         <span className="commerce-eyebrow">انتخاب از خانواده همای</span>
         <h1>
