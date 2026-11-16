@@ -7,6 +7,7 @@ import { BrandCollection } from "../../VisualCollections";
 import TourismMedia from "../../TourismMedia";
 import TourismExperienceLanding from "../../TourismExperienceLanding";
 import ClubCards from "../../ClubCards";
+import TourismCardShop from "../../TourismCardShop";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { brands, isSector, menuLabel, menuName, menuSectors } from "../../../src/commerce/brands";
@@ -93,6 +94,7 @@ export default async function BrandPage({
             </a>
           </div>
         )}
+        {k === "tourism" && <TourismCardShop />}
         {k === "tourism" && <ClubCards />}
         <section id={k === "tourism" ? "tourism-info" : "story"} className="brand-intro">
           <span className="commerce-eyebrow">هویت، کیفیت و ارزش اقتصادی</span>

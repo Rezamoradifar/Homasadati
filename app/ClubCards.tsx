@@ -31,7 +31,7 @@ export default function ClubCards({ locale = "fa" }: { locale?: string }) {
       <div className="club-preview-grid">
         {ranks.map(([name, en, tone], i) => (
           <Localized key={tone}><a
-            href="/income-plan"
+            href={"/worlds/tourism#travel-card-" + (i+1)}
             className={"rank-card rank-" + tone}
             aria-label={fa ? "کارت " + name : en + " card"}
           >
