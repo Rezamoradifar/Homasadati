@@ -3,6 +3,7 @@ import { sevenLevelCards } from "./card-levels";
 import { productSchema } from "./validation";
 import { atomic, now, one, run } from "./schema";
 import { audit } from "./security";
+import { travelCardArtwork } from "./travel-card-art";
 
 /** The displayed seven-card minimums are initial sale prices.
  * Made-to-order physical cards do not consume future tour seats.
@@ -14,8 +15,30 @@ export function seedTravelCardProducts(actor: string) {
     const stats = { added: 0, existing: 0 };
     for (const tier of sevenLevelCards) {
       const sku = travelCardSku(tier.level);
-      if (one("SELECT product_id FROM p_product_details WHERE sku=?", sku)) {
+      const existing = one(
+        "SELECT p.id,p.images,p.vertical,p.subtype FROM p_product_details d JOIN p_products p ON p.id=d.product_id WHERE d.sku=?", sku
+      );
+      if (existing) {
         stats.existing++;
+        // Older seeded cards had no images. Add artwork only to untouched,
+        // image-less official card SKUs; never overwrite staff selections.
+        const seedReason = "ثبت اولیه کارت‌های قابل خرید طبق مبالغ هفت سطح؛ قیمت و وضعیت دستی مدیریت حفظ می‌شود";
+        const edited = one(
+          "SELECT id FROM p_audit WHERE entity_id=? AND action='product.save' AND reason<>? LIMIT 1",
+          existing.id, seedReason
+        );
+        if (existing.vertical === "tourism" && existing.subtype === "travel_card" &&
+            existing.images === "[]" && !edited) {
+          const at = now();
+          if (run(
+            "UPDATE p_products SET images=?,updated_at=? WHERE id=? AND images='[]'",
+            JSON.stringify([travelCardArtwork[tier.level]]), at, existing.id
+          ).changes) {
+            audit(actor,"product.artwork.seed",existing.id,{images:[]},
+              {images:[travelCardArtwork[tier.level]]},
+              "افزودن عکس به کارت موجود بدون تغییر قیمت، موجودی یا وضعیت انتشار");
+          }
+        }
         continue;
       }
       const product = productSchema.parse({
@@ -25,7 +48,7 @@ export function seedTravelCardProducts(actor: string) {
         subtype: "travel_card",
         price: tier.minToman,
         stock: 0,
-        images: [],
+        images: [travelCardArtwork[tier.level]],
         taxonomy: [],
         published: true,
         duration_days: 365,

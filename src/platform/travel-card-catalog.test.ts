@@ -8,6 +8,7 @@ import {platformDb,run,one,all,now} from "./schema";
 import {quoteCart} from "./checkout";
 import {seedTravelCardProducts,travelCardSku} from "./travel-card-catalog";
 import {sevenLevelCards} from "./card-levels";
+import {travelCardArtwork} from "./travel-card-art";
 
 const dir=mkdtempSync(join(tmpdir(),"homa-travel-card-products-"));
 let admin:string;
@@ -34,7 +35,7 @@ it("creates seven published, correctly priced tourism card products, without tri
     const sku=travelCardSku(tier.level);
     const product=one("SELECT p.* FROM p_products p JOIN p_product_details d ON d.product_id=p.id WHERE d.sku=?",sku)!;
     expect(product).toMatchObject({vertical:"tourism",subtype:"travel_card",title:"کارت گردشگری "+tier.name,
-      price:tier.minToman,stock:0,published:1});
+      price:tier.minToman,stock:0,published:1,images:JSON.stringify([travelCardArtwork[tier.level]])});
     const quote=quoteCart([{productId:product.id,quantity:1}]);
     expect(quote).toMatchObject({total:tier.minToman,requiresAddress:true});
     expect(quote.rows[0]).toMatchObject({travelCard:true,stock:10});
@@ -58,4 +59,19 @@ it("never marks taxability as approved merely because the product is a travel ca
   seedTravelCardProducts(admin);
   const row=one("SELECT details FROM p_product_details WHERE sku=?",travelCardSku(2))!;
   expect(JSON.parse(row.details).vatStatus).toBe("review");
+});
+
+it("adds the seven original site images to older seeded cards only when no staff edits exist",()=>{
+  seedTravelCardProducts(admin);
+  const first=one("SELECT p.id FROM p_products p JOIN p_product_details d ON d.product_id=p.id WHERE d.sku=?",travelCardSku(1))!;
+  const second=one("SELECT p.id FROM p_products p JOIN p_product_details d ON d.product_id=p.id WHERE d.sku=?",travelCardSku(2))!;
+  run("UPDATE p_products SET images='[]' WHERE id IN (?,?)",first.id,second.id);
+  run("INSERT INTO p_audit(id,actor_id,action,entity_id,before_json,after_json,reason,created_at) VALUES(?,?,?,?,?,?,?,?)",
+    randomUUID(),admin,"product.save",second.id,"{}","{}","ویرایش دستی مدیر",now());
+  expect(seedTravelCardProducts(admin)).toEqual({added:0,existing:7});
+  expect(JSON.parse(one("SELECT images FROM p_products WHERE id=?",first.id)!.images)).toEqual([travelCardArtwork[1]]);
+  expect(one("SELECT images FROM p_products WHERE id=?",second.id)!.images).toBe("[]");
+  expect(one("SELECT COUNT(*) n FROM p_audit WHERE entity_id=? AND action='product.artwork.seed'",first.id)!.n).toBe(1);
+  expect(seedTravelCardProducts(admin)).toEqual({added:0,existing:7});
+  expect(one("SELECT COUNT(*) n FROM p_audit WHERE entity_id=? AND action='product.artwork.seed'",first.id)!.n).toBe(1);
 });
