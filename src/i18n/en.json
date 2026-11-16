@@ -4097,5 +4097,20 @@
   "موجودی / ظرفیت: {0}": "Inventory / capacity: {0}",
   "کارت سفر": "Travel card",
   "کارت گردشگری": "Tourism card",
-  "کارت مسافرتی": "Travel pass"
+  "کارت مسافرتی": "Travel pass",
+  "خرید کارت گردشگری هما نت": "Buy a Homanet Travel Card",
+  "خودِ کارت یک محصول قابل خرید است. قیمت هر کارت در همین بخش مشخص است؛ پس از پرداخت و ثبت نشانی ارسال، کارت اختصاصی صادر و برای خریدار ارسال می‌شود. مقصد و تاریخ سفر بعداً تعیین می‌شود و خرید کارت به معنی رزرو تور نیست.": "The card itself is a purchasable product. Prices are shown here. After payment and shipping details are confirmed, a personalized card is issued and sent. The destination and dates are arranged later; buying a card is not a tour booking.",
+  "مبلغ کارت": "Card price",
+  "صدور کارت پس از تأیید پرداخت؛ انتخاب سفر بعداً": "Card issued after payment confirmation; choose the trip later",
+  "مشخصات و شرایط کارت": "Card details and terms",
+  "برای فروش کارت‌ها، ثبت محصولات در کاتالوگ لازم است. پس از فعال‌سازی کاتالوگ، قیمت و خرید کارت در همین بخش نمایش داده می‌شود.": "The cards must be registered in the product catalog before sales begin. Once available, prices and purchase options will appear here.",
+  "مشاهده سبد خرید و تسویه کارت": "View cart and pay for your card",
+  "کارت گردشگری {0}": "Tourism card {0}",
+  "کارت فیزیکی گردشگری هما نت. قیمت درج‌شده مربوط به خود کارت است؛ پس از تأیید پرداخت کارت به نام خریدار صادر و به نشانی ثبت‌شده ارسال می‌شود. مقصد، زمان، ظرفیت و جزئیات سفر بعداً با مجموعه هماهنگ می‌شود. خرید کارت به‌معنی رزرو تور نیست.": "Homanet physical travel card. The listed price is for the card itself. After payment verification it is issued in the buyer's name and sent to the registered address. The destination, timing, capacity and other travel details are arranged later. Buying a card does not book a tour.",
+  "صدور کارت پس از تأیید پرداخت؛ ارسال به نشانی ثبت‌شده. برنامه سفر بعداً انتخاب می‌شود.": "Card issued after verified payment and sent to your saved address. Travel is selected later.",
+  "کارت فیزیکی با شناسه اختصاصی پیگیری سفارش و ارسال انتخاب سفر پس از دریافت کارت": "Physical card with unique ID; order/shipping tracking; travel selection after delivery",
+  "ثبت اولیه کارت‌های قابل خرید طبق مبالغ هفت سطح؛ قیمت و وضعیت دستی مدیریت حفظ می‌شود": "Initial registration of sellable cards at the seven displayed levels; staff prices and publication status are preserved",
+  "اگر کارت قبلی دیگر در فهرست محصولات معتبر نیست، سبد را خالی و کارت گردشگری را دوباره انتخاب کنید. سبد فقط با انتخاب شما پاک می‌شود.": "If a previously selected card is no longer available, clear the cart and select the travel card again. Your cart is cleared only if you choose to.",
+  "پاک کردن سبد نامعتبر": "Clear invalid cart",
+  "انتخاب کارت گردشگری": "Choose a tourism card"
 }
