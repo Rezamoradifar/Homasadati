@@ -1,0 +1,402 @@
+/* Homanet live tourism catalog: compact, responsive REAL-product cards.
+   Fixes the user-reported giant black cards, letterboxed thumbnails,
+   excessive copy and the audio widget covering checkout controls.
+   Scoped by shop-wrap-tourism / product-page-travel; unrelated products unchanged. */
+html[data-theme] body .commerce .shop-wrap-tourism {
+  width:min(100% - 24px,1370px);
+  padding:24px 0 65px;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-heading {
+  border:1px solid #e8d6ad!important;
+  border-radius:20px!important;
+  padding:20px clamp(16px,3vw,30px)!important;
+  color:#0e433a!important;
+  background:
+    linear-gradient(92deg,rgba(255,252,246,.94),rgba(239,248,240,.88)),
+    url("/assets/redesign/tourism.webp") center / cover!important;
+  box-shadow:0 8px 24px rgba(33,73,62,.08)!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-heading h1 {
+  color:#0a453d!important;
+  line-height:1.5;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-heading p {
+  color:#375b51!important;
+  line-height:1.85;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-grid {
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:clamp(12px,1.5vw,20px)!important;
+  align-items:stretch!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel {
+  display:flex!important;
+  flex-direction:column!important;
+  gap:0!important;
+  padding:0!important;
+  margin:0!important;
+  min-width:0;
+  max-width:none;
+  width:100%;
+  overflow:hidden;
+  align-items:stretch!important;
+  border-radius:19px!important;
+  border:1px solid #e1c99e!important;
+  background:#fffaf0!important;
+  color:#113d36!important;
+  box-shadow:0 7px 23px rgba(20,53,47,.13)!important;
+  transition:box-shadow .2s ease,transform .2s ease;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel:hover {
+  box-shadow:0 14px 30px rgba(19,53,46,.18)!important;
+  transform:translateY(-2px);
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel > .shop-card-travel-image {
+  display:block!important;
+  position:relative;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:16/9!important;
+  border-radius:0!important;
+  overflow:hidden;
+  grid-column:auto!important;
+  grid-row:auto!important;
+  background:#dfeae1!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel > .shop-card-travel-image > img,
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel > .shop-card-travel-image > .no-image,
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel > .shop-card-travel-image > .no-image img {
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  position:absolute;
+  inset:0;
+  aspect-ratio:auto!important;
+  max-height:none!important;
+  min-height:0!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  border:0!important;
+  border-radius:0!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel > .shop-card-travel-image::after {
+  content:"";
+  position:absolute;
+  inset:auto 0 0;
+  height:17%;
+  background:linear-gradient(transparent,rgba(31,74,61,.25));
+  border-bottom:3px solid #d8b778;
+  pointer-events:none;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-body {
+  display:flex;
+  flex:1;
+  min-width:0;
+  flex-direction:column;
+  align-items:stretch;
+  gap:8px;
+  padding:clamp(13px,1.7vw,19px)!important;
+  background:linear-gradient(180deg,#fffefa,#fff8ec)!important;
+  color:#17443b!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-body > small {
+  font-size:11px;
+  font-weight:750;
+  color:#92713d!important;
+  line-height:1.7;
+  min-height:0!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-body h2 {
+  display:block;
+  max-height:none!important;
+  min-height:0!important;
+  overflow:visible;
+  margin:0!important;
+  font-size:clamp(16px,1.55vw,22px)!important;
+  line-height:1.65!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-body h2 a {
+  color:#07483f!important;
+  text-decoration:none;
+  font-weight:850;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-body > p {
+  margin:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  display:block!important;
+  font-size:12px!important;
+  line-height:1.85;
+  color:#4c6f63!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-price {
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px 14px;
+  justify-content:space-between;
+  align-items:baseline;
+  margin:4px 0 0;
+  padding:10px 0 8px;
+  border-top:1px solid #e5d6bc;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-price span {
+  color:#6f613f!important;
+  font-size:12px;
+  font-weight:650;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-price strong {
+  font-size:clamp(16px,1.65vw,23px)!important;
+  line-height:1.55!important;
+  color:#126251!important;
+  font-weight:850;
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .add-cart-form {
+  width:100%;
+  margin:3px 0 0!important;
+  padding:0!important;
+  min-width:0;
+  margin-top:auto!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .store-cta {
+  display:grid!important;
+  grid-template-columns:minmax(100px,132px) minmax(0,1fr);
+  align-items:stretch;
+  gap:8px;
+  min-width:0;
+  max-width:100%;
+  flex-wrap:nowrap!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .quantity-selector {
+  display:flex!important;
+  justify-content:space-between;
+  min-width:0;
+  width:100%!important;
+  max-width:100%!important;
+  height:46px!important;
+  margin:0!important;
+  border:1px solid #c6d6c6!important;
+  border-radius:11px!important;
+  background:#edf5ed!important;
+  color:#164b42!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .quantity-selector button {
+  width:35px!important;
+  height:44px!important;
+  min-height:44px!important;
+  min-width:32px!important;
+  padding:0!important;
+  color:#13483d!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .quantity-selector input {
+  width:35px!important;
+  min-width:30px!important;
+  max-width:55px!important;
+  min-height:44px!important;
+  padding:0!important;
+  font-size:14px!important;
+  background:transparent!important;
+  color:#123f35!important;
+  border:0!important;
+  text-align:center;
+  appearance:textfield;
+  -moz-appearance:textfield;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .store-cta .commerce-button {
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  width:100%!important;
+  min-height:46px!important;
+  padding:8px!important;
+  margin:0!important;
+  white-space:normal;
+  border:2px solid #cead6a!important;
+  border-radius:11px!important;
+  color:#fffaf1!important;
+  background:linear-gradient(180deg,#118673,#075649)!important;
+  font-size:clamp(11px,1vw,14px)!important;
+  font-weight:800!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .store-cta .commerce-button:focus-visible {
+  outline:3px solid #d6ad69!important;
+  outline-offset:2px;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-details {
+  display:block;
+  margin:1px auto 0!important;
+  padding:5px 0!important;
+  min-height:0!important;
+  font-size:12px!important;
+  font-weight:650;
+  text-align:center;
+  color:#327268!important;
+}
+html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .add-cart-feedback {
+  white-space:normal;
+  overflow-wrap:anywhere;
+  font-size:12px;
+  margin-top:8px;
+}
+@media(max-width:1150px) {
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:720px) {
+  html[data-theme] body .commerce .shop-wrap-tourism {
+    width:calc(100% - 20px)!important;
+    padding:14px 0 80px!important;
+  }
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-heading {
+    padding:15px!important;
+    margin-bottom:12px;
+  }
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-grid {
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:14px!important;
+  }
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel {
+    width:100%!important;
+    border-radius:17px!important;
+    min-height:0!important;
+  }
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel > .shop-card-travel-image {
+    aspect-ratio:16/8.5!important;
+    min-height:155px!important;
+  }
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-body {
+    padding:14px 15px!important;
+    gap:7px!important;
+  }
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel-price {
+    padding:6px 0!important;
+  }
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .store-cta {
+    grid-template-columns:minmax(105px,128px) minmax(0,1fr)!important;
+  }
+  /* The fixed music widget must not obscure the shopping button on mobile. */
+  html body:has(.shop-wrap-tourism) .homa-ambient-control,
+  html body:has(.product-page-travel) .homa-ambient-control {
+    width:46px!important;
+    min-width:46px!important;
+    max-width:46px!important;
+    height:46px!important;
+    min-height:46px!important;
+    border-radius:50%!important;
+    padding:4px!important;
+    gap:0!important;
+    inset-inline-end:12px!important;
+    inset-inline-start:auto!important;
+    bottom:calc(14px + env(safe-area-inset-bottom,0px))!important;
+  }
+  html body:has(.shop-wrap-tourism) .homa-ambient-label,
+  html body:has(.shop-wrap-tourism) .homa-ambient-bars,
+  html body:has(.product-page-travel) .homa-ambient-label,
+  html body:has(.product-page-travel) .homa-ambient-bars {
+    display:none!important;
+  }
+  html body:has(.shop-wrap-tourism) .homa-ambient-icon,
+  html body:has(.product-page-travel) .homa-ambient-icon {
+    width:36px!important;
+    height:36px!important;
+    flex:0 0 36px!important;
+  }
+}
+@media(max-width:355px) {
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel .store-cta {
+    grid-template-columns:1fr!important;
+  }
+}
+/* A tourist's actual product details should be legible, not a 640px
+   letterboxed square with a paragraph of tiny copy. */
+html[data-theme] body .commerce .product-page-travel {
+  width:min(100% - 24px,1140px);
+  padding:20px 0 65px;
+  color:#143f36;
+}
+html[data-theme] body .commerce .product-page-travel .shop-product {
+  align-items:start;
+  gap:clamp(15px,3vw,35px)!important;
+}
+html[data-theme] body .commerce .product-page-travel .product-gallery-main {
+  aspect-ratio:16/10!important;
+  height:auto!important;
+  min-height:200px!important;
+  max-height:450px!important;
+  overflow:hidden;
+  border:2px solid #dbbf8c!important;
+  border-radius:18px!important;
+  background:#e0ece4!important;
+}
+html[data-theme] body .commerce .product-page-travel .product-gallery-main img {
+  width:100%!important;
+  height:100%!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+}
+html[data-theme] body .commerce .product-page-travel .product-detail {
+  border:1px solid #ddc699!important;
+  border-radius:20px;
+  padding:clamp(15px,2vw,25px)!important;
+  color:#163f38!important;
+  background:linear-gradient(180deg,#fffcf6,#f7f2e7)!important;
+}
+html[data-theme] body .commerce .product-page-travel .product-detail h1,
+html[data-theme] body .commerce .product-page-travel .product-detail h2 {
+  color:#0b4d40!important;
+}
+html[data-theme] body .commerce .product-page-travel .travel-product-lead {
+  color:#355e52!important;
+  font-size:14px!important;
+  line-height:1.9!important;
+  margin:10px 0!important;
+}
+html[data-theme] body .commerce .product-page-travel .travel-product-more {
+  margin:10px 0;
+  border:1px solid #e3d6bb!important;
+  border-radius:13px;
+  padding:9px 13px;
+  background:#f8f3e9;
+  color:#31594b;
+}
+html[data-theme] body .commerce .product-page-travel .travel-product-more summary {
+  cursor:pointer;
+  font-size:13px;
+  font-weight:750;
+}
+html[data-theme] body .commerce .product-page-travel .travel-product-more p {
+  font-size:12px;
+  line-height:1.9;
+  margin-top:10px;
+  color:#47695b!important;
+}
+html[data-theme] body .commerce .product-page-travel .product-purchase-panel {
+  margin-block:15px!important;
+  border:1px solid #d8c396!important;
+  border-radius:14px;
+  background:#fffefa!important;
+}
+html[data-theme] body .commerce .product-page-travel .product-purchase-panel .shop-notice {
+  margin:10px 0!important;
+  padding:12px!important;
+  font-size:12px!important;
+  line-height:1.8;
+  color:#305b4e!important;
+  background:#f0f6ed!important;
+  border-color:#cfe0d2!important;
+}
+@media(prefers-reduced-motion:reduce) {
+  html[data-theme] body .commerce .shop-wrap-tourism .shop-card-travel {transition:none!important;transform:none!important;}
+}

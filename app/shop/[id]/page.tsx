@@ -14,6 +14,7 @@ import { brands, isSector } from "../../../src/commerce/brands";
 import { CommerceShell } from "../../../src/commerce/Shell";
 import AddToCart from "../../../src/commerce/AddToCart";
 import {isTravelCardProduct} from "../../../src/platform/travel-card-product";
+import "../../../src/commerce/travel-card-storefront.css";
 import { breadcrumbJsonLd, JsonLd, productJsonLd } from "../../../src/platform/seo";
 function get(id: string) {
   return one(
@@ -64,7 +65,7 @@ export default async function ProductPage({
           ]),
         ]}
       />
-      <main id="commerce-main" className="shop-wrap product-page">
+      <main id="commerce-main" className={travelCard ? "shop-wrap product-page product-page-travel" : "shop-wrap product-page"}>
         <p className="product-breadcrumb">
           <a href="/shop">فروشگاه</a> / {brand?.name} / {copy.title}
         </p>
@@ -75,7 +76,12 @@ export default async function ProductPage({
               {brand?.latin} / {d.sku || p.subtype}
             </span>
             <h1>{copy.title}</h1>
-            <p>{copy.description}</p>
+            {travelCard ? (
+              <>
+                <p className="travel-product-lead">کارت پس از پرداخت صادر و ارسال می‌شود؛ مقصد و زمان سفر را بعداً انتخاب می‌کنید.</p>
+                <details className="travel-product-more"><summary>مشخصات و شرایط کارت</summary><p>{copy.description}</p></details>
+              </>
+            ) : <p>{copy.description}</p>}
             <h2><Money toman={Number(p.price)}/></h2>
             <UsdNote/>
             {d.comparePrice > p.price && (
