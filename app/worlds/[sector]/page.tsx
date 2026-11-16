@@ -95,7 +95,7 @@ export default async function BrandPage({
           </div>
         )}
         {k === "tourism" && <TourismCardShop />}
-        {k === "tourism" && <ClubCards />}
+        {k === "tourism" && <details className="tourism-card-ranks-details"><summary>آشنایی با رتبه‌های باشگاه</summary><ClubCards /></details>}
         <section id={k === "tourism" ? "tourism-info" : "story"} className="brand-intro">
           <span className="commerce-eyebrow">هویت، کیفیت و ارزش اقتصادی</span>
           <h2>{b.label}؛ فراتر از یک انتخاب</h2>
