@@ -1,0 +1,352 @@
+/* Reference-image inspired light tourism card gallery.
+ * CSS-only styling of REAL checkout cards, no baked-in placeholder prices.
+ * Loaded after tourism-card-shop.css and tightly scoped to this section. */
+html[data-theme] body .commerce.commerce-tourism .tourism-card-showcase {
+  background:
+    radial-gradient(ellipse at 50% 110%,#eee2cf 0%,transparent 75%),
+    linear-gradient(160deg,#fffdfa 0%,#f5eee4 62%,#f9f4eb 100%) !important;
+  border: 1px solid #e5d6bb !important;
+  border-radius: 28px !important;
+  box-shadow: 0 16px 55px rgba(16,43,43,.17) !important;
+  color: #123f39 !important;
+  padding: 0 clamp(14px,2.5vw,42px) clamp(24px,3vw,40px) !important;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-showcase-head {
+  position:relative;
+  max-width:none;
+  padding: clamp(26px,3.5vw,50px) clamp(12px,3vw,32px) clamp(22px,3vw,34px);
+  margin: 0 calc(-1 * clamp(14px,2.5vw,42px)) clamp(22px,2.6vw,32px);
+  overflow: hidden;
+  border-radius: 28px 28px 0 0;
+  background:
+    linear-gradient(90deg,rgba(250,251,244,.87) 5%,rgba(253,250,239,.84) 35%,rgba(249,250,241,.9) 100%),
+    url("/assets/redesign/tourism.webp") center 46%/cover no-repeat,
+    #e8f1eb;
+  border-bottom: 3px solid #e0c58e;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-showcase-head::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 5% 15%,rgba(98,169,134,.2),transparent 32%),
+    radial-gradient(ellipse at 94% 85%,rgba(220,183,108,.19),transparent 35%);
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-reference-brand {
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:11px;
+  margin:0 auto 8px;
+  color:#064337;
+  font-weight:900;
+  font-size:clamp(18px,2vw,25px);
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-reference-brand img {
+  width:44px;
+  height:44px;
+  object-fit:contain;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-reference-brand small {
+  display:block;
+  font-size:10px;
+  letter-spacing:0;
+  font-weight:600;
+  color:#4a6b61;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-eyebrow {
+  position:relative;
+  z-index:1;
+  margin-bottom:6px;
+  font-size:10px;
+  color:#997833 !important;
+  letter-spacing:.13em;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-showcase h2 {
+  position:relative;
+  z-index:1;
+  font-size:clamp(29px,4.1vw,55px) !important;
+  font-weight:900 !important;
+  color:#064238 !important;
+  margin:0 0 6px !important;
+  text-shadow:0 2px 0 rgba(255,255,255,.5);
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-showcase-head > p {
+  position:relative;
+  z-index:1;
+  color:#205148 !important;
+  font-weight:600;
+  font-size:clamp(13px,1.28vw,16px);
+  max-width:780px;
+  background:rgba(253,255,246,.52);
+  border-radius:22px;
+  padding:8px 12px;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-promise {
+  position:relative;
+  z-index:1;
+  display:inline-flex;
+  max-width:100%;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:16px;
+  padding:7px 12px;
+  border:1px solid rgba(194,159,100,.55);
+  border-radius:35px;
+  background:rgba(237,247,238,.82);
+  color:#115045;
+  box-shadow:0 3px 12px rgba(26,57,49,.08);
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-promise > span:not(.tourism-card-promise-line) {
+  color:#0b493e !important;
+  font-size:clamp(10px,1vw,13px);
+  font-weight:700;
+  padding:4px 8px;
+  background:transparent;
+  border:0;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-promise-line {
+  border-color:#bb995e;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-cards-gallery {
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:clamp(12px,1.45vw,22px);
+  align-items:stretch;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-tile {
+  grid-column:span 3;
+  border-radius:22px !important;
+  border:1px solid #dfcba7 !important;
+  background:linear-gradient(180deg,#fffefa,#fff7e9) !important;
+  box-shadow:0 9px 25px rgba(67,48,27,.17),0 1px 2px rgba(99,73,39,.13) !important;
+  color:#123b36 !important;
+  min-width:0;
+  overflow:hidden;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-tile:nth-child(n+5) {
+  grid-column:span 4;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-scene {
+  position:relative;
+  aspect-ratio:2/1.02;
+  min-height:158px;
+  background:#dceae4 !important;
+  border-bottom:4px solid #d2ad69;
+  overflow:hidden;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-photo {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:saturate(1.09) contrast(1.02);
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-scene::after {
+  content:"";
+  position:absolute;
+  z-index:1;
+  inset:0;
+  background:linear-gradient(270deg,rgba(241,250,245,.96) 0%,rgba(233,246,238,.87) 34%,rgba(237,247,239,.24) 68%,rgba(244,248,242,.05) 100%) !important;
+  pointer-events:none;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-edition {
+  display:none;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-face {
+  position:absolute;
+  inset:0;
+  z-index:2;
+  border:0;
+  outline:0;
+  box-shadow:none;
+  backdrop-filter:none;
+  border-radius:0;
+  background:transparent;
+  padding:clamp(11px,1.2vw,18px) clamp(12px,1.4vw,20px) 10px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  pointer-events:none;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-face-head { 
+  justify-content:flex-start;
+  flex-direction:row-reverse;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-brand {
+  font-size:clamp(7px,.65vw,9px);
+  font-weight:700;
+  letter-spacing:.04em;
+  color:#2f665a !important;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-brand b {
+  color:#9c7a3b !important;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-mark {
+  font-size:clamp(24px,2.2vw,35px);
+  color:#cba154 !important;
+  text-shadow:1px 1px #fff5d8;
+  margin-inline-start:auto;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-face-name {
+  margin-top:auto;
+  margin-bottom:clamp(17px,2.2vw,36px);
+  text-align:right;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-face-name > span {
+  font-size:clamp(10px,.8vw,13px);
+  color:#305850 !important;
+  font-weight:700;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-face-name h3 {
+  color:#06483e !important;
+  text-shadow:0 1px 0 #fff !important;
+  font-size:clamp(27px,2.4vw,38px);
+  font-weight:900;
+  line-height:1.4;
+  margin:1px 0;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-face-bottom {
+  display:none;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-purchase {
+  padding:15px clamp(12px,1.2vw,18px) 15px;
+  gap:7px;
+  background:linear-gradient(180deg,#fffefa,#fff8ef);
+  color:#113e36;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-price {
+  flex-direction:row;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:4px 10px;
+  border:0;
+  padding-bottom:0;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-price > span {
+  font-size:12px;
+  font-weight:700;
+  color:#756044 !important;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-price > strong {
+  white-space:normal;
+  font-weight:900;
+  font-size:clamp(14px,1.15vw,19px);
+  color:#064c3f !important;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-delivery {
+  font-size:11px;
+  color:#466d61 !important;
+  font-weight:600;
+  text-align:center;
+  padding-top:5px;
+  border-top:1px solid #ecdfc8;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-purchase .add-cart-form {
+  margin:2px 0 0;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-purchase .store-cta {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-purchase .commerce-button {
+  border-radius:13px !important;
+  min-height:46px;
+  width:100%;
+  background:linear-gradient(180deg,#0d8170,#035447) !important;
+  border:2px solid #ccae70 !important;
+  color:#fff9e9 !important;
+  font-size:clamp(11px,1vw,14px);
+  font-weight:800;
+  box-shadow:0 4px 9px rgba(10,65,51,.22),inset 0 1px rgba(255,255,255,.18);
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-purchase .commerce-button:hover,
+html[data-theme] body .commerce.commerce-tourism .tourism-card-purchase .commerce-button:focus-visible {
+  background:linear-gradient(180deg,#159584,#04685b) !important;
+  outline:2px solid #e0c184;
+  outline-offset:2px;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-details {
+  color:#3b6f64 !important;
+  text-decoration:none;
+  align-self:center;
+  font-size:11px;
+  font-weight:700;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-showcase-foot {
+  margin-top:clamp(20px,3vw,40px);
+  border-color:#d5c19e;
+  color:#174b40 !important;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-showcase-foot p {
+  color:#385f52 !important;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-cart-link {
+  color:#fff9e9 !important;
+  background:linear-gradient(180deg,#158174,#075346) !important;
+  border-color:#b99d62;
+}
+html[data-theme] body .commerce.commerce-tourism .tourism-card-empty {
+  color:#455e55;
+  background:#fff9ed;
+}
+@media(max-width:1150px) {
+  html[data-theme] body .commerce.commerce-tourism .tourism-cards-gallery {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-tile,
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-tile:nth-child(n+5) {
+    grid-column:auto;
+  }
+}
+@media(max-width:820px) {
+  html[data-theme] body .commerce.commerce-tourism .tourism-cards-gallery {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-promise {
+    width:100%;
+  }
+}
+@media(max-width:580px) {
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-showcase {
+    width:calc(100% - 16px);
+    border-radius:18px !important;
+    padding:0 10px 20px !important;
+  }
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-showcase-head {
+    border-radius:18px 18px 0 0;
+    margin:0 -10px 18px;
+    padding:20px 14px 24px;
+  }
+  html[data-theme] body .commerce.commerce-tourism .tourism-cards-gallery {
+    grid-template-columns:1fr;
+    max-width:460px;
+    gap:15px;
+  }
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-scene {
+    aspect-ratio:2/1.02;
+    min-height:165px;
+  }
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-face-name {
+    margin-bottom:21px;
+  }
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-face-name h3 {
+    font-size:34px;
+  }
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-promise-line {
+    display:none;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-tile,
+  html[data-theme] body .commerce.commerce-tourism .tourism-card-photo {
+    transition:none!important;
+    transform:none!important;
+  }
+}

@@ -7,6 +7,7 @@ import { all } from "../src/platform/schema";
 import { travelCardSku } from "../src/platform/travel-card-catalog";
 import { travelCardArtwork } from "../src/platform/travel-card-art";
 import "./tourism-card-shop.css";
+import "./tourism-card-shop-reference.css";
 
 /** All prices and purchase identifiers come from the actual live products.
  * Images decorate the catalog's real card SKUs, not fake booking offers. */
@@ -17,6 +18,7 @@ export default function TourismCardShop() {
   const bySku = new Map(rows.map((r) => [String(r.sku), r]));
   return <Localized><section id="travel-card-shop" className="tourism-card-showcase" aria-labelledby="travel-card-shop-title" dir="rtl">
     <div className="tourism-card-showcase-head">
+      <div className="tourism-card-reference-brand"><img src="/assets/brand-mark.png" alt="" width={44} height={44}/><span>هما نت <small>کارت‌های گردشگری</small></span></div>
       <span className="tourism-card-eyebrow"><span className="tourism-card-eyebrow-line" aria-hidden="true" />HOMANET · TRAVEL COLLECTION</span>
       <h2 id="travel-card-shop-title">کارت‌های گردشگری هما نت</h2>
       <p>کارت دلخواه خود را انتخاب کنید؛ پس از پرداخت، کارت به نام شما صادر و ارسال می‌شود. مقصد و تاریخ سفر را بعداً با مجموعه هماهنگ کنید.</p>
@@ -41,7 +43,7 @@ export default function TourismCardShop() {
               quality={68} loading="lazy"/>
             <span className="tourism-card-edition" dir="ltr">HOMANET · 0{tier.level}/07</span>
             <div className="tourism-card-face">
-              <div className="tourism-card-face-head"><span className="tourism-card-brand" dir="ltr">HOMANET <b>TRAVEL</b></span><span className="tourism-card-mark" aria-hidden="true">✦</span></div>
+              <div className="tourism-card-face-head"><span className="tourism-card-brand" dir="ltr">HOMANET <b>TRAVEL</b></span><span className="tourism-card-mark" aria-hidden="true">{["✽","♠","◆","♦","⬡","◇","❦"][tier.level-1]}</span></div>
               <div className="tourism-card-face-name">
                 <span>کارت گردشگری</span>
                 <h3>{tier.name}</h3>
