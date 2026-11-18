@@ -113,6 +113,16 @@ html body .homa-ambient-control.is-playing .homa-ambient-bars i:nth-child(4) {
   html body .homa-ambient-label small {font-size:8px}
   html body .homa-ambient-bars {width:12px;min-width:12px}
 }
+@media (max-width: 767px) {
+  html body:has(.homa-redesign) .homa-ambient-control {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+  html body:has(.homa-redesign) :is(.homa-ambient-label, .homa-ambient-bars) { display: none; }
+}
 @media (prefers-reduced-motion:reduce) {
   html body .homa-ambient-control,
   html body .homa-ambient-bars i {

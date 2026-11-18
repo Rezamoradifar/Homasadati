@@ -42,9 +42,9 @@
 .description { margin: 0; color: #e2e7e8; font-size: 15px; line-height: 2; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 .primary, .secondary { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 22px; border: 1px solid #d5bd91; border-radius: 6px; font-size: 14px; font-weight: 600; line-height: 1.8; text-decoration: none; }
-.primary { background: #dfc69b; color: #15232a; }
+.hero .primary { background: #dfc69b; color: #15232a; }
 .secondary { background: #10212c66; color: #fff; }
-.primary:hover { background: #edd9b7; }
+.hero .primary:hover { background: #edd9b7; }
 .secondary:hover { background: #10212cbb; }
 .quote { margin: 26px 0 0; color: #e8d8bd; font-size: 14px; line-height: 1.9; }
 .hero :global(.civilization-controls) { position: absolute; inset-inline: clamp(20px, 5vw, 80px); bottom: 20px; z-index: 3; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 16px; width: auto; max-width: none; padding: 12px; border: 1px solid #ffffff30; border-radius: 12px; background: #0c1920c9; color: #fff; }
@@ -52,23 +52,41 @@
 .hero :global(.civilization-caption) > span { min-width: 0; overflow-wrap: anywhere; }
 .hero :global(.civilization-caption) > button { flex: 0 0 44px; min-width: 44px; min-height: 44px; padding: 5px; border: 1px solid #ffffff40; border-radius: 7px; background: #ffffff0d; color: #fff; }
 .hero :global(.gallery-play) { min-height: 44px; padding: 8px 12px; border: 1px solid #ffffff40; border-radius: 7px; background: #ffffff0d; color: #fff; font: inherit; font-size: 12px; }
+.hero :global(.gallery-play-icon) { display: none; }
 .hero :global(.civilization-thumbs) { grid-column: 1 / -1; display: flex; justify-content: flex-start; gap: 8px; max-width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-inline: contain; padding: 3px; scrollbar-width: thin; }
 .hero :global(.civilization-thumbs) > button { position: relative; flex: 0 0 74px; width: 74px; height: 48px; min-height: 44px; padding: 0; overflow: hidden; border: 2px solid transparent; border-radius: 6px; background: #1a2732; }
 .hero :global(.civilization-thumbs) > button[aria-pressed="true"] { border-color: #efd6a5; }
 .hero :global(.civilization-thumbs) img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .hero a:focus-visible, .hero button:focus-visible { outline: 3px solid #f7db9e; outline-offset: 3px; }
-@media (max-width: 700px) {
-  .hero { min-height: 720px; padding: 42px 22px 220px; align-items: flex-start; }
-  .title { font-size: clamp(36px, 10vw, 52px); }
-  .subtitle { font-size: 18px; }
-  .description { font-size: 14px; }
-  .actions { gap: 10px; margin-top: 22px; }
-  .primary, .secondary { padding: 10px 15px; font-size: 13px; }
-  .hero :global(.civilization-controls) { inset-inline: 14px; bottom: 16px; gap: 8px; grid-template-columns: minmax(0, 1fr); }
-  .hero :global(.civilization-caption) { justify-content: space-between; }
-  .hero :global(.gallery-play) { justify-self: start; }
-  .hero :global(.civilization-thumbs) > button { flex-basis: 58px; width: 58px; height: 44px; }
-  .shade, .hero[dir="ltr"] .shade { background: linear-gradient(180deg, #0b1723c9 0%, #0b17237a 55%, #0b1723ce 100%); }
+@media (max-width: 700px), (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    min-height: 0;
+    padding: clamp(32px, 8vw, 56px) clamp(16px, 4vw, 26px) 16px;
+  }
+  .eyebrow { margin-bottom: 8px; }
+  .title { margin-bottom: 10px; font-size: clamp(36px, 10vw, 52px); line-height: 1.3; }
+  .subtitle { margin-bottom: 8px; font-size: clamp(18px, 4.5vw, 22px); line-height: 1.6; }
+  .description { font-size: 14px; line-height: 1.8; }
+  .actions { max-width: 440px; gap: 8px; margin-top: 18px; }
+  .actions > a { flex: 1 1 124px; min-width: 0; gap: 6px; padding: 8px; font-size: 13px; text-align: center; overflow-wrap: anywhere; }
+  .actions svg { flex: none; width: 17px; }
+  .quote { margin-top: 14px; font-size: 13px; }
+  .hero :global(.civilization-controls) { position: relative; inset: auto; gap: 6px; min-width: 0; padding: 8px; }
+  .hero :global(.civilization-caption) { justify-content: space-between; gap: 6px; text-align: center; }
+  .hero :global(.gallery-play) { display: grid; place-items: center; width: 44px; padding: 0; }
+  .hero :global(.gallery-play-label) { display: none; }
+  .hero :global(.gallery-play-icon) { display: block; }
+  .hero :global(.civilization-thumbs) { gap: 4px; }
+  .hero :global(.civilization-thumbs) > button {
+    flex-basis: clamp(44px, calc((100% - 20px) / 6), 58px);
+    min-width: 44px;
+    width: auto;
+    height: 44px;
+  }
+  .shade, .hero[dir="ltr"] .shade { background: linear-gradient(180deg, #0b1723da 0%, #0b172389 64%, #0b1723e6 100%); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero *, .hero *::before, .hero *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
