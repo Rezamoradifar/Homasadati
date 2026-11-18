@@ -18,7 +18,6 @@ export default function OriginalLandingHero({locale, values = {}}: {locale: Loca
   return (
     <section className={styles.hero} dir={locale === 'en' ? 'ltr' : 'rtl'}
       aria-labelledby="homanet-original-hero-title" data-hero-version="enamad-era-2026-09-29">
-      {values['image.hero'] ? <ResponsiveImage className="hero-photo" src={values['image.hero']} alt="" loading="eager" fetchPriority="high" /> : <CivilizationHero/>}
       <div className={styles.shade} aria-hidden="true"/>
       <div className={styles.content}>
         <p className={styles.eyebrow}>{c.eyebrow}</p>
@@ -31,6 +30,7 @@ export default function OriginalLandingHero({locale, values = {}}: {locale: Loca
         </div>
         <p className={styles.quote}>{c.quote}</p>
       </div>
+      {values['image.hero'] ? <ResponsiveImage className="hero-photo" src={values['image.hero']} alt="" loading="eager" fetchPriority="high" /> : <CivilizationHero/>}
     </section>
   );
 }

@@ -3,6 +3,7 @@
 import Localized from "../src/i18n/Localized";
 import ResponsiveImage from "../src/components/media/ResponsiveImage";
 
+import { Pause, Play } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { useAutoGallery } from "../src/commerce/useAutoGallery";
 import { useLocale } from "next-intl";
@@ -26,6 +27,10 @@ export function CivilizationHero() {
     6500,
     true,
   );
+  const playbackLabel = fa
+    ? auto.paused ? "پخش خودکار تصاویر" : "توقف پخش خودکار"
+    : auto.paused ? "Auto play" : "Pause slideshow";
+  const PlaybackIcon = auto.paused ? Play : Pause;
   function choose(n: number) {
     auto.pause();
     const next = (n + heritageSlides.length) % heritageSlides.length;
@@ -63,11 +68,11 @@ export function CivilizationHero() {
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") {
             e.preventDefault();
-            choose(index + 1);
+            choose(index + (fa ? -1 : 1));
           }
           if (e.key === "ArrowLeft") {
             e.preventDefault();
-            choose(index - 1);
+            choose(index + (fa ? 1 : -1));
           }
         }}
       >
@@ -76,33 +81,28 @@ export function CivilizationHero() {
             onClick={() => choose(index - 1)}
             aria-label={fa ? "تصویر قبلی" : "Previous image"}
           >
-            ←
+            {fa ? "→" : "←"}
           </button>
           <span aria-live={auto.paused ? "polite" : "off"}>
-            {String(index + 1).padStart(2, "0")} /{" "}
-            {String(heritageSlides.length).padStart(2, "0")} ·{" "}
-            {heritageSlides[index][fa ? 1 : 2]}{" "}
+            <bdi dir="ltr">{String(index + 1).padStart(2, "0")} / {String(heritageSlides.length).padStart(2, "0")}</bdi>
+            {" · "}{heritageSlides[index][fa ? 1 : 2]}
           </span>
           <button
             onClick={() => choose(index + 1)}
             aria-label={fa ? "تصویر بعدی" : "Next image"}
           >
-            →
+            {fa ? "←" : "→"}
           </button>
         </div>
         <button
           className="gallery-play"
           type="button"
           onClick={auto.toggle}
+          aria-label={playbackLabel}
           aria-pressed={!auto.paused}
         >
-          {fa
-            ? auto.paused
-              ? "پخش خودکار تصاویر"
-              : "توقف پخش خودکار"
-            : auto.paused
-              ? "Auto play"
-              : "Pause slideshow"}
+          <span className="gallery-play-label">{playbackLabel}</span>
+          <PlaybackIcon className="gallery-play-icon" size={18} weight="fill" aria-hidden="true" />
         </button>
         <div
           className="civilization-thumbs"

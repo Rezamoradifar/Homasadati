@@ -118,6 +118,12 @@ html[dir="ltr"] .discovery-opening .discovery-hero-copy h1 { font-family: var(--
   .discovery-brand img { width: 36px; height: 36px; }
   .discovery-header-actions { gap: 0; }
   .discovery-desktop-nav, .discovery-cart, .discovery-desktop-preferences { display: none; }
+  .homa-redesign .discovery-brand { flex-shrink: 1; min-width: 0; gap: 6px; }
+  .homa-redesign .discovery-brand span { min-width: 0; }
+  .homa-redesign .discovery-brand strong { font-size: clamp(16px, 4.5vw, 20px); overflow-wrap: anywhere; }
+  .homa-redesign .discovery-brand img { flex: none; width: 34px; height: 34px; }
+  .homa-redesign .discovery-header-actions { flex-shrink: 0; gap: 2px; }
+  .homa-redesign .discovery-header .discovery-cart { display: inline-flex; }
   .discovery-opening { width: 100%; }
   .discovery-hero { min-height: 156px; height: 40vw; max-height: 230px; margin: 0 0 7px; align-items: flex-start; }
   .discovery-hero-art { width: 44%; border-start-start-radius: 160px; }
@@ -144,6 +150,9 @@ html[dir="ltr"] .discovery-opening .discovery-hero-copy h1 { font-family: var(--
   .homa-redesign .landing-faq { padding-block: 42px; }
   html[dir="ltr"] .discovery-opening .discovery-hero-copy h1 { font-size: clamp(20px, 5.8vw, 31px); line-height: 1.35; letter-spacing: -.5px; }
   html[dir="ltr"] .discovery-hero-copy p { font-size: 12px; line-height: 1.5; }
+}
+@media (max-width: 360px) {
+  .homa-redesign .discovery-brand small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .discovery-service-image img, .discovery-shop-button { transition: none; }

@@ -458,13 +458,15 @@
  .hex-left-copy{bottom:18%;inset-inline-start:5%;gap:1px;font-size:14px}
  .hex-hero-aside{inset-inline-end:4%;bottom:18%;font-size:9px}
  .hex-hero-pagination{bottom:18px}
- .hex-portals{grid-template-columns:1fr;padding:12px;gap:9px}
- .hex-portal{min-height:103px;grid-template-columns:83px 1fr;border-radius:18px}
- .hex-portal-icon{height:78px;width:78px;border-radius:14px}
+ .hex-portals{grid-template-columns:minmax(0,1fr);direction:inherit;padding:12px 16px;gap:9px}
+ .hex-portal{min-height:103px;grid-template-columns:64px minmax(0,1fr);direction:inherit;gap:12px;border-radius:18px}
+ .hex-portal-icon{height:64px;width:64px;border-radius:14px}
+ .hex-portal-icon svg{width:38px;height:38px}
+ .hex-portal-text{min-width:0;overflow-wrap:anywhere}
  .hex-portal-text strong{font-size:19px}
  .hex-portal-text small{font-size:12px}
  .hex-portal-cta{padding:5px 12px;font-size:11px;margin-top:3px}
- .hex-content{width:calc(100% - 22px);padding-top:20px}
+ .hex-content{width:calc(100% - 32px);padding-top:20px}
  .hex-products-row{grid-template-columns:1fr}
  .hex-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
  .hex-product-photo{height:190px}
@@ -473,16 +475,21 @@
  .hex-gift-card{min-height:275px}
  .hex-gift-art{width:43%;height:77%;left:3%}
  .hex-gift-copy{max-width:52%}
- .hex-middle{grid-template-columns:1fr}
+ .hex-middle{grid-template-columns:minmax(0,1fr);direction:inherit}
  .hex-benefits{padding:20px 16px}
  .hex-benefits-grid{grid-template-columns:1fr 1fr;gap:15px 7px}
  .hex-benefits-grid article:nth-child(2){border-inline-end:0}
  .hex-benefits-grid svg{width:36px}
  .hex-ranks{padding:19px 15px}
+ .hex-rank-top{flex-wrap:wrap;gap:4px 12px}
+ .hex-rank-top a,.hex-story a,.hex-account-text .hex-gold-button{min-height:44px}
  .hex-rank-medal{width:49px;height:49px}
  .hex-rank-grid::before{top:24px}
- .hex-rank-item strong{font-size:11px}
+ .hex-rank-item strong{font-size:11px;overflow-wrap:anywhere}
  .hex-account-preview{min-height:355px;grid-template-columns:1fr 1fr;gap:10px}
+ .homa-exact[dir="ltr"] :is(.hex-account-text,.hex-promises,.hex-middle-left,.hex-story>div){direction:ltr;text-align:start}
+ .hex-phone-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .hex-phone-tiles small{overflow-wrap:anywhere}
  .hex-account-text h2{font-size:24px}
  .hex-account-text p{font-size:12px}
  .hex-phone{min-height:300px;padding:35px 8px 16px;border-width:6px}
@@ -492,10 +499,15 @@
  .hex-phone-balance strong{font-size:22px}
  .hex-phone-tiles b{font-size:15px}
  .hex-phone-tiles small{font-size:8px}
- .hex-bottom{grid-template-columns:1fr}
+ .hex-bottom{grid-template-columns:minmax(0,1fr);direction:inherit}
  .hex-story{min-height:250px}
  .hex-promise-grid article{min-height:165px}
  .homa-redesign .landing-faq{width:calc(100% - 22px);padding:20px}
+}
+@media(max-width:480px){
+ .hex-account-preview{grid-template-columns:minmax(0,1fr);min-height:0;gap:18px;padding:18px 16px 0;direction:inherit}
+ .hex-account-text,.hex-phone{grid-column:1;grid-row:auto}
+ .hex-phone{max-width:224px}
 }
 @media(max-width:400px){
  .hex-hero{height:585px;min-height:585px}
@@ -507,13 +519,10 @@
  .hex-buy :is(button,a){font-size:10px!important}
  .hex-portal-text strong{font-size:17px}
  .hex-gift-copy h2{font-size:20px}
- .hex-rank-item strong{font-size:9px}
  .hex-rank-medal{width:42px;height:42px}
  .hex-rank-medal svg{width:17px}
  .hex-rank-grid::before{top:21px}
- .hex-account-preview{padding:13px 10px 0}
  .hex-account-text h2{font-size:20px}
- .hex-phone{max-width:190px}
  .hex-section-title h2{font-size:20px}
  .hex-section-title a{font-size:11px}
 }
