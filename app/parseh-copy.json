@@ -1,0 +1,32 @@
+{
+  "fa": {
+    "brand": "هما", "hero": "ایران از\nنگاه هما", "discover": "کشف مقصدها", "services": "خدمات هما", "destinations": "مقصدها", "featured": "مقصدهای منتخب", "club": "باشگاه هما", "clubEntry": "ورود به باشگاه", "journal": "دفتر سفر", "read": "خواندن راهنما", "account": "ورود / ثبت‌نام", "cart": "سبد خرید", "nav": "منوی اصلی", "home": "صفحهٔ اول هما", "more": "اطلاعات و خدمات بیشتر", "about": "درباره هما", "support": "پشتیبانی", "contact": "تماس با ما", "gallery": "تصاویر ایران", "parseh": "تخت‌جمشید", "ask": "درخواست راهنمایی سفر", "kashan": "یک روز در کاشان",
+    "service": {"tourism":"گردشگری","craft":"صنایع دستی","beauty":"زیبایی","content":"تولید محتوا","ai":"استودیو هوش مصنوعی","club":"باشگاه هما"},
+    "guides": {
+      "isfahan": {"name":"اصفهان","stops":["از میدان نقش جهان شروع کن و برای دیدن کارگاه‌های صنایع دستی اطراف میدان وقت بگذار.","عصر به پل خواجو برو و طاق‌ها و کاشی‌کاری‌های پل را از نزدیک ببین."]},
+      "yazd": {"name":"یزد","stops":["صبح در بافت خشتی فهادان قدم بزن و بادگیرها را از میان کوچه‌های باریک تماشا کن.","برای ادامهٔ روز، باغ دولت‌آباد را انتخاب کن. کنار حوض باغ می‌توانی شکل بادگیر بلند آن را بهتر ببینی."]},
+      "hormuz": {"name":"هرمز","stops":["گردش جزیره را از ساحل شروع کن و تضاد خاک سرخ و آب خلیج فارس را ببین.","برای درهٔ رنگین‌کمان وقت بگذار و مسیر رفت و برگشت را پیش از حرکت با راهنمای محلی هماهنگ کن."]},
+      "kashan": {"name":"کاشان","stops":["صبح را در باغ فین آغاز کن. مسیر آب را از حوض‌ها تا زیر سایهٔ درخت‌ها دنبال کن.","ظهر به محلهٔ سلطان امیراحمد و خانهٔ بروجردی‌ها برو. از سمت حیاط می‌توانی بادگیرها و گچ‌بری‌های خانه را ببینی.","برای عصر، بازار کاشان و تیمچهٔ امین‌الدوله را بگذار و زیر سقف مقرنس آن روزت را به پایان برسان."]}
+    }
+  },
+  "en": {
+    "brand": "Homa", "hero": "Iran through\nHoma’s eyes", "discover": "Explore destinations", "services": "Homa services", "destinations": "Destinations", "featured": "Featured destinations", "club": "Homa Club", "clubEntry": "Enter the club", "journal": "Travel journal", "read": "Read the guide", "account": "Sign in / Register", "cart": "Shopping bag", "nav": "Main navigation", "home": "Homa homepage", "more": "More information and services", "about": "About Homa", "support": "Support", "contact": "Contact", "gallery": "Images of Iran", "parseh": "Persepolis", "ask": "Ask about this trip", "kashan": "A day in Kashan",
+    "service": {"tourism":"Travel","craft":"Handicrafts","beauty":"Beauty","content":"Content production","ai":"AI studio","club":"Homa Club"},
+    "guides": {
+      "isfahan": {"name":"Isfahan","stops":["Start in Naqsh-e Jahan Square and allow time for the craft workshops around the square.","Walk to Khaju Bridge in the late afternoon to see its arches and tilework up close."]},
+      "yazd": {"name":"Yazd","stops":["Walk the adobe lanes of Fahadan in the morning and look up at the windcatchers above the rooftops.","Continue to Dowlat Abad Garden. Its long pool gives a clear view of the tall windcatcher."]},
+      "hormuz": {"name":"Hormuz","stops":["Start at the shore, where the red earth meets the blue water of the Persian Gulf.","Leave time for Rainbow Valley and arrange your return route with a local guide before setting out."]},
+      "kashan": {"name":"Kashan","stops":["Begin at Fin Garden. Follow the water channels from the pools into the shade of the trees.","At midday, head to the Sultan Amir Ahmad neighbourhood and the Borujerdi House. Look up from the courtyard to see the windcatchers and plasterwork.","End the afternoon in Kashan Bazaar beneath the vaulted ceiling of the Amin al-Dowleh Timcheh."]}
+    }
+  },
+  "ar": {
+    "brand": "هما", "hero": "إيران بعيون\nهما", "discover": "اكتشف الوجهات", "services": "خدمات هما", "destinations": "الوجهات", "featured": "وجهات مختارة", "club": "نادي هما", "clubEntry": "دخول النادي", "journal": "دفتر الرحلات", "read": "اقرأ الدليل", "account": "الدخول / التسجيل", "cart": "سلة التسوق", "nav": "القائمة الرئيسية", "home": "صفحة هما الرئيسية", "more": "مزيد من المعلومات والخدمات", "about": "عن هما", "support": "الدعم", "contact": "اتصل بنا", "gallery": "صور من إيران", "parseh": "تخت جمشيد", "ask": "استفسر عن هذه الرحلة", "kashan": "يوم في كاشان",
+    "service": {"tourism":"السياحة","craft":"الحرف اليدوية","beauty":"الجمال","content":"إنتاج المحتوى","ai":"استوديو الذكاء الاصطناعي","club":"نادي هما"},
+    "guides": {
+      "isfahan": {"name":"أصفهان","stops":["ابدأ من ميدان نقش جهان وخصص وقتاً لزيارة ورش الحرف اليدوية حول الساحة.","توجّه عصراً إلى جسر خواجو لتشاهد أقواسه وزخارفه عن قرب."]},
+      "yazd": {"name":"يزد","stops":["تجوّل صباحاً في أزقة فهادان الطينية وتأمل أبراج الرياح فوق أسطح البيوت.","تابع إلى حديقة دولت آباد. يمنحك حوضها الطويل إطلالة على برج الرياح."]},
+      "hormuz": {"name":"هرمز","stops":["ابدأ من الساحل وشاهد التقاء التربة الحمراء بمياه الخليج.","خصص وقتاً لوادي قوس قزح واتفق مع دليل محلي على طريق العودة قبل الانطلاق."]},
+      "kashan": {"name":"كاشان","stops":["ابدأ صباحك في حديقة فين واتبع قنوات الماء من الأحواض إلى ظلال الأشجار.","عند الظهر، زر حي سلطان أمير أحمد وبيت بروجردي. تأمل أبراج الرياح والزخارف الجصية من الفناء.","اختم يومك في سوق كاشان تحت سقف تيمچه أمين الدولة المزخرف."]}
+    }
+  }
+}
