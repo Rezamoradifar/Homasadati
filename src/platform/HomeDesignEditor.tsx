@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Localized from '../i18n/Localized';
 import { api } from './client';
 import { MediaInput } from './MediaInput';
-import { homeDefaults, homeLocales } from './home-design-model';
+import { editableHomeDefaults, homeLocales } from './home-design-model';
 
 type Values = Record<string, string>;
 const names = { fa: 'فارسی', en: 'انگلیسی', ar: 'عربی' } as const;
@@ -29,7 +29,7 @@ export default function HomeDesignEditor() {
       const form = e.currentTarget;
       if (form.querySelector('[data-uploading="true"]')) { setMessage('منتظر پایان بارگذاری تصویر بمانید.'); return; }
       const formData = new FormData(form);
-      const next = Object.fromEntries(Object.keys(homeDefaults).map(key => [key, String(formData.get(key) || '')]));
+      const next = { ...values, ...Object.fromEntries(Object.keys(editableHomeDefaults).map(key => [key, String(formData.get(key) || '')])) };
       setBusy(true); setMessage('');
       try { const result = await api('admin/homepage-design','PATCH',{values: next}); setValues(result.values as Values); setMessage('تغییرات صفحهٔ اول ذخیره و منتشر شد.'); }
       catch (err) { setMessage(err instanceof Error ? err.message : 'ذخیره انجام نشد.'); }
@@ -41,11 +41,11 @@ export default function HomeDesignEditor() {
           <label>تصویر بخش معرفی <MediaInput name="image.story" initial={values['image.story'] || ''} single /></label>
         </details>
         {homeLocales.map(locale => <details key={locale} open={locale === 'fa'}><summary>متن‌های {names[locale]}</summary>
-          {Object.entries(homeDefaults).filter(([key]) => key.startsWith(`${locale}.`)).map(([key, fallback]) => {
+          {Object.entries(editableHomeDefaults).filter(([key]) => key.startsWith(`${locale}.`)).map(([key, fallback]) => {
             const short = key.split('.').pop() || key;
             const label = key.includes('.hero.') ? heroLabels[short] || short : fallback;
             return <label key={key} style={{display:'block',margin:'12px 0'}}>{label}
-              <textarea name={key} defaultValue={values[key] ?? fallback} maxLength={1000} rows={2} style={{display:'block',width:'100%'}} />
+              <textarea name={key} defaultValue={values[key] ?? ''} placeholder={fallback} maxLength={1000} rows={2} style={{display:'block',width:'100%'}} />
             </label>;
           })}
         </details>)}

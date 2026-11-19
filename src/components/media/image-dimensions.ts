@@ -1,5 +1,11 @@
 // Intrinsic dimensions of existing local assets; used to reserve image space.
 export const imageDimensions: Record<string, readonly [number, number]> = {
+  "/assets/parseh/parseh-hero.webp": [1672, 941],
+  "/assets/parseh/parseh-isfahan.webp": [1280, 853],
+  "/assets/parseh/parseh-yazd.webp": [1000, 750],
+  "/assets/parseh/parseh-hormuz.webp": [1000, 750],
+  "/assets/parseh/parseh-club.webp": [1500, 500],
+  "/assets/parseh/parseh-kashan.webp": [1200, 625],
   "/assets/heritage/cyrus-editorial-v2.webp": [1672,941],
   "/assets/heritage/simurgh-editorial-v2.webp": [1672,941],
   "/assets/licenses/trade-license.jpg": [1080,763],

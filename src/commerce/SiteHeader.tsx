@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -28,6 +28,7 @@ const services = [
 type SiteHeaderProps = {
   home?: boolean;
   onTrackRequest?: () => void;
+  renderBar?: (menuButton: ReactNode) => ReactNode;
   tourism?: boolean;
 };
 
@@ -35,6 +36,7 @@ type SiteHeaderProps = {
 export default function SiteHeader({
   home = false,
   onTrackRequest,
+  renderBar,
   tourism = false,
 }: SiteHeaderProps) {
   const { locale } = useSiteLocale();
@@ -96,9 +98,24 @@ export default function SiteHeader({
     );
   }
 
+  const menuButton = (
+    <button
+      ref={trigger}
+      type="button"
+      className={renderBar ? undefined : "discovery-icon discovery-menu-trigger"}
+      aria-label="باز کردن منو"
+      aria-expanded={open}
+      aria-controls={menuId}
+      aria-haspopup="dialog"
+      onClick={openMenu}
+    >
+      <List size={29} weight="regular" aria-hidden="true" />
+    </button>
+  );
+
   return (
     <Localized>
-      <header className={tourism ? "discovery-header discovery-tourism-header" : "discovery-header"}>
+      {renderBar ? renderBar(<Localized>{menuButton}</Localized>) : <header className={tourism ? "discovery-header discovery-tourism-header" : "discovery-header"}>
         <div className="discovery-header-inner">
           <a
             className="discovery-brand"
@@ -170,21 +187,10 @@ export default function SiteHeader({
             >
               <User size={26} weight="light" aria-hidden="true" />
             </a>
-            <button
-              ref={trigger}
-              type="button"
-              className="discovery-icon discovery-menu-trigger"
-              aria-label="باز کردن منو"
-              aria-expanded={open}
-              aria-controls={menuId}
-              aria-haspopup="dialog"
-              onClick={openMenu}
-            >
-              <List size={29} weight="regular" aria-hidden="true" />
-            </button>
+            {menuButton}
           </div>
         </div>
-      </header>
+      </header>}
       <dialog
         ref={dialog}
         id={menuId}
@@ -275,7 +281,7 @@ export default function SiteHeader({
               <a href="/support">پشتیبانی و تیکت</a>
               <a href="/help">راهنمای خرید</a>
               <a href="/account?tab=orders">پیگیری سفارش‌ها</a>
-              <a href="/#partnership">همکاری با ما</a>
+              <a href="/contact">همکاری با ما</a>
               {onTrackRequest && (
                 <button
                   type="button"
