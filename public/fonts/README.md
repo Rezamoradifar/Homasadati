@@ -1,6 +1,14 @@
 # Persian font
 
-The site uses **Vazirmatn** for all Persian text. It is released under the SIL Open Font License 1.1, so it is free to use on a commercial website, and it is bundled through the `@fontsource/vazirmatn` package. No font files are needed here.
+The site uses **Vazirmatn** for Persian text through the existing `@fontsource/vazirmatn` dependency. The standalone maintenance page also serves the following local files, copied unchanged from version `5.3.0` of that package:
+
+| File in this folder | Package source | Purpose |
+| --- | --- | --- |
+| `vazirmatn-arabic-400-normal.woff2` | `@fontsource/vazirmatn/files/vazirmatn-arabic-400-normal.woff2` | Regular Persian text, weight 400 |
+| `vazirmatn-arabic-600-normal.woff2` | `@fontsource/vazirmatn/files/vazirmatn-arabic-600-normal.woff2` | Semibold Persian text, weight 600 |
+| `Vazirmatn-OFL.txt` | `@fontsource/vazirmatn/LICENSE` | Copyright notice and SIL Open Font License 1.1 |
+
+`public/site-maintenance.html` loads these fonts directly from `/fonts/`, so its typography works without the application bundle or a third-party font request. Keep the accompanying [license and copyright notice](Vazirmatn-OFL.txt) with the font files when distributing them. These files do not change the application's existing package-based font imports.
 
 ## Switching to a licensed brand font later
 
