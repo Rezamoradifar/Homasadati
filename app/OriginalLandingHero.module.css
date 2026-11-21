@@ -62,9 +62,24 @@
   .hero {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 22px;
+    gap: 12px;
     min-height: 0;
-    padding: clamp(32px, 8vw, 56px) clamp(16px, 4vw, 26px) 16px;
+    padding: 16px clamp(16px, 4vw, 26px);
+  }
+  /* On phones the photo is a compact gallery frame, not a full-height backdrop. */
+  .content { grid-row: 1; }
+  .hero :global(.hero-photo) {
+    position: relative;
+    inset: auto;
+    grid-row: 2;
+    width: 100%;
+    max-width: 100%;
+    height: clamp(150px, 44vw, 190px);
+    min-height: 0;
+    border-radius: 10px;
+    object-fit: cover;
+    object-position: center;
+    animation: none;
   }
   .eyebrow { margin-bottom: 8px; }
   .title { margin-bottom: 10px; font-size: clamp(36px, 10vw, 52px); line-height: 1.3; }
@@ -74,7 +89,7 @@
   .actions > a { flex: 1 1 124px; min-width: 0; gap: 6px; padding: 8px; font-size: 13px; text-align: center; overflow-wrap: anywhere; }
   .actions svg { flex: none; width: 17px; }
   .quote { margin-top: 14px; font-size: 13px; }
-  .hero :global(.civilization-controls) { position: relative; inset: auto; gap: 6px; min-width: 0; padding: 8px; }
+  .hero :global(.civilization-controls) { position: relative; inset: auto; grid-row: 3; gap: 6px; min-width: 0; padding: 8px; }
   .hero :global(.civilization-caption) { justify-content: space-between; gap: 6px; text-align: center; }
   .hero :global(.gallery-play) { display: grid; place-items: center; width: 44px; padding: 0; }
   .hero :global(.gallery-play-label) { display: none; }
@@ -86,7 +101,7 @@
     width: auto;
     height: 44px;
   }
-  .shade, .hero[dir="ltr"] .shade { background: linear-gradient(180deg, #0b1723da 0%, #0b172389 64%, #0b1723e6 100%); }
+  .shade, .hero[dir="ltr"] .shade { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero *, .hero *::before, .hero *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

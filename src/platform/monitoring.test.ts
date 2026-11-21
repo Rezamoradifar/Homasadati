@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { beforeAll, afterAll, afterEach, it, expect, vi } from "vitest";
+import { beforeEach, afterAll, afterEach, it, expect, vi } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -9,21 +9,23 @@ import { saveSetting, setting } from "./providers";
 import { operationalStatus, sendOperationalAlert } from "./monitoring";
 import { GET } from "../../app/api/health/ready/route";
 const root = mkdtempSync(join(tmpdir(), "homay-monitor-test-"));
-beforeAll(() => {
-  process.env.DATABASE_PATH = join(root, "data.sqlite");
-  process.env.PLATFORM_MASTER_KEY = "a".repeat(64);
-  process.env.MONITOR_TOKEN = "test-only-".repeat(5);
-  platformDb();
+let database: ReturnType<typeof platformDb> | undefined;
+beforeEach(() => {
+  vi.stubEnv("DATABASE_PATH", join(root, "data.sqlite"));
+  vi.stubEnv("PLATFORM_MASTER_KEY", "a".repeat(64));
+  vi.stubEnv("MONITOR_TOKEN", "test-only-".repeat(5));
+  database = platformDb();
 });
 afterEach(() => {
   vi.unstubAllGlobals();
-  delete process.env.ALERT_WEBHOOK_URL;
+  vi.unstubAllEnvs();
 });
 afterAll(() => {
-  platformDb().close();
+  database?.close();
   rmSync(root, { recursive: true, force: true });
 });
 it("protects operational status and detects stale jobs without leaking private settings", async () => {
+  vi.stubEnv("MONITOR_MIN_FREE_BYTES", String(1024 * 1024));
   saveSetting("kavenegar_key", "private-monitor-test", true);
   const request = (token?: string) =>
     new Request("http://localhost/api/health/ready", {
@@ -41,8 +43,13 @@ it("protects operational status and detects stale jobs without leaking private s
   ])
     saveSetting(key, now());
   result = await GET(request(process.env.MONITOR_TOKEN));
-  expect(result.status).toBe(200);
-  expect(await result.text()).not.toContain("private-monitor-test");
+  const healthy = await result.json();
+  expect(result.status, JSON.stringify(healthy.checks)).toBe(200);
+  expect(JSON.stringify(healthy)).not.toContain("private-monitor-test");
+  vi.stubEnv("MONITOR_MIN_FREE_BYTES", String(Number.MAX_SAFE_INTEGER));
+  const lowDisk = await GET(request(process.env.MONITOR_TOKEN));
+  expect(lowDisk.status).toBe(503);
+  expect((await lowDisk.json()).checks.disk).toBe(false);
   saveSetting(
     "worker_last_success",
     new Date(Date.now() - 181000).toISOString(),
@@ -55,14 +62,18 @@ it("protects operational status and detects stale jobs without leaking private s
   expect(operationalStatus().checks.worker).toBe(false);
 });
 it("deduplicates successful alerts, retries failures and rejects unsafe webhook URLs", async () => {
+  vi.stubEnv("ALERT_WEBHOOK_URL", "");
+  saveSetting("kavenegar_key", "private-monitor-test", true);
+  run("DELETE FROM p_settings WHERE key='worker_last_success'");
   const report = operationalStatus();
+  expect(report.checks.worker).toBe(false);
   expect(await sendOperationalAlert(report)).toEqual({
     sent: false,
     configured: false,
   });
-  process.env.ALERT_WEBHOOK_URL = "http://alerts.invalid";
+  vi.stubEnv("ALERT_WEBHOOK_URL", "http://alerts.invalid");
   await expect(sendOperationalAlert(report)).rejects.toThrow("HTTPS");
-  process.env.ALERT_WEBHOOK_URL = "https://alerts.invalid/receiver";
+  vi.stubEnv("ALERT_WEBHOOK_URL", "https://alerts.invalid/receiver");
   const mocked = vi
     .fn()
     .mockResolvedValueOnce(new Response("failed", { status: 500 }))
@@ -73,14 +84,10 @@ it("deduplicates successful alerts, retries failures and rejects unsafe webhook 
   expect((await sendOperationalAlert(report)).sent).toBe(true);
   expect((await sendOperationalAlert(report)).sent).toBe(false);
   expect(mocked).toHaveBeenCalledTimes(2);
-  expect(
-    (
-      await sendOperationalAlert({
-        ...report,
-        checks: { ...report.checks, worker: true },
-      })
-    ).sent,
-  ).toBe(true);
+  saveSetting("worker_last_success", now());
+  const recovered = operationalStatus();
+  expect(recovered.checks.worker).toBe(true);
+  expect((await sendOperationalAlert(recovered)).sent).toBe(true);
   expect(mocked.mock.calls[0][1].body).not.toContain("private-monitor-test");
   expect(mocked.mock.calls[0][1].redirect).toBe("error");
 });

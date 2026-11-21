@@ -46,6 +46,7 @@ function execute(notify: boolean) {
             ...process.env,
             ALERT_WEBHOOK_URL: "",
             HTTP_PORT: String(port),
+            MONITOR_MIN_FREE_BYTES: String(1024 * 1024),
           },
           timeout: 15000,
         },
@@ -65,7 +66,7 @@ function execute(notify: boolean) {
 }
 it("checks healthy services without sending an alert in diagnostic mode", async () => {
   const result = await execute(false);
-  expect(result.code, result.stderr).toBe(0);
+  expect(result.code, result.stderr || result.stdout).toBe(0);
   expect(JSON.parse(result.stdout).status).toBe("ok");
 });
 it("fails the notifying service when no alert destination is configured even if the application is healthy", async () => {
